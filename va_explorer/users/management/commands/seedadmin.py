@@ -16,7 +16,10 @@ class Command(BaseCommand):
 
 
 def find_or_create_admin(self):
-    user = User.objects.get(email="admin@example.com")
+    try:
+        user = User.objects.get(email="admin@example.com")
+    except User.DoesNotExist:
+        user = None
 
     if user:
         self.stdout.write(self.style.SUCCESS("Successfully located admin user!"))
