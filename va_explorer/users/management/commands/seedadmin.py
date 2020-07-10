@@ -17,24 +17,24 @@ class Command(BaseCommand):
 
 def find_or_create_admin(self):
     try:
-        user = User.objects.get(email="admin@example.com")
+        admin = User.objects.get(email="admin@example.com")
     except User.DoesNotExist:
-        user = None
+        admin = None
 
-    if user:
+    if admin:
         self.stdout.write(self.style.SUCCESS("Successfully located admin user!"))
 
-        return user
+        return admin
     else:
-        user = user.objects.create_superuser(
+        admin = User.objects.create_superuser(
             username="admin", email="admin@example.com", password="Password1"
         )
-        user.is_active = True
-        user.save()
+        admin.is_active = True
+        admin.save()
 
         # To avoid email verifiaction, we add the below line to each user
-        EmailAddress.objects.create(user=user, email=user.email, verified=True)
+        EmailAddress.objects.create(user=admin, email=admin.email, verified=True)
 
         self.stdout.write(self.style.SUCCESS("Successfully created an admin user!"))
 
-    return user
+    return admin
