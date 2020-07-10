@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create a New User{% endblock %}
+
+{% block content %}
+  <div class="row mt-4">
+    <h2>Create a New User</h2>
+  </div>
+
+  <div class="row mt-3">
+    <form class="form-horizontal" method="post" action="{% url 'users:create' %}">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="control-group">
+        <div class="controls">
+          <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
