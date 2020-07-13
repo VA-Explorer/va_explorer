@@ -1,3 +1,5 @@
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import setup_user_email
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout
 from django import forms
@@ -30,7 +32,7 @@ class ExtendedUserCreationForm(UserCreationForm):
     * Adds an email field, which uses the custom UniqueUserEmailField,
       that is, the form does not validate if the email address already exists
       in the User table.
-    * The username field is generated based on the email, and isn't visible.
+    * The username is not visible.
     * first_name and last_name fields are added.
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
@@ -49,8 +51,11 @@ class ExtendedUserCreationForm(UserCreationForm):
         """
         Changes the order of fields, and removes the username field.
         """
+        self.request = kwargs.pop("request", None)
+
         super(UserCreationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+
         self.helper.layout = Layout(
             Fieldset(
                 "first arg is the legend of the fieldset",
@@ -74,15 +79,13 @@ class ExtendedUserCreationForm(UserCreationForm):
         save behavior is complete. Sets a random password, which the user can change
         when they confirm their email address.
         """
-        user = super(UserCreationForm, self).save(commit)
-        if user:
-            user.email = self.cleaned_data["email"]
-            user.first_name = self.cleaned_data["first_name"]
-            user.last_name = self.cleaned_data["last_name"]
-            user.is_superuser = self.cleaned_data["is_superuser"]
-            password = User.objects.make_random_password()
-            user.set_password(password)
-            user.username = user.email
-            if commit:
-                user.save()
+
+        # See: https://django-allauth.readthedocs.io/en/latest/advanced.html
+        # As per docs: "The following adapter methods can be used to intervene in how User
+        # instances are created and populated with data."
+        adapter = get_adapter(self.request)
+        user = adapter.new_user(self.request)
+        adapter.save_user(self.request, user, self)
+        setup_user_email(self.request, user, [])
+
         return user
