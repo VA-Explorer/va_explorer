@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = "Seeds an admin user"
 
     def handle(self, *args, **options):
-        print("Creating Admin user...")
+        self.stdout.write(self.style.SUCCESS("Creating Admin user..."))
 
         # TODO: Add role
         find_or_create_admin(self)
@@ -32,7 +32,7 @@ def find_or_create_admin(self):
         admin.is_active = True
         admin.save()
 
-        # To avoid email verifiaction, we add the below line to each user
+        # To avoid email verification, we add the below line to each user
         EmailAddress.objects.create(user=admin, email=admin.email, verified=True)
 
         self.stdout.write(self.style.SUCCESS("Successfully created an admin user!"))
