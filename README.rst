@@ -49,7 +49,7 @@ Local Environment
 
     $ pip install -r requirements/local.txt
 
-* The .env file at the project route contains a sample postgresql setup for this demo app. You may override these settings (e.g., the database user, etc.) if you so choose in the .env file.
+* The .env file at the project root contains a sample postgresql setup for this demo app. You may override these settings (e.g., the database user, etc.) if you so choose in the .env file.
     * To use the settings in the .env file, first create the user va_admin using the psql command line::
 
         $  psql -U postgres --password
