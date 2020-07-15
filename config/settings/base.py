@@ -69,11 +69,12 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "django_celery_beat",
+    "simple_history",
 ]
 
 LOCAL_APPS = [
     "va_explorer.users.apps.UsersConfig",
-    # Your stuff: custom apps go here
+    "verbal_autopsy",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
