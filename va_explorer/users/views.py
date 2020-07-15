@@ -1,10 +1,5 @@
-""" my_module.py
-    cannot figure out why isort is complaining about line 12
-
-   isort:skip_file
-"""
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -15,20 +10,15 @@ from django.views.generic import (
     UpdateView,
 )
 
-
 from .forms import ExtendedUserCreationForm
 
 User = get_user_model()
 
 
-class UserIndexView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+class UserIndexView(LoginRequiredMixin, ListView):
     # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/urls.py
     login_url = reverse_lazy("account_login")
     model = User
-
-    # NOTE: This is a dummy test to understand the UserPassesTestMixin
-    def test_func(self):
-        return self.request.user.email.endswith("@example.com")
 
 
 user_index_view = UserIndexView.as_view()
