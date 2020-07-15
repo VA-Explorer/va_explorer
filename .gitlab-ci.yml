@@ -9,13 +9,13 @@ variables:
   POSTGRES_HOST_AUTH_METHOD: trust
   CELERY_BROKER_URL: 'redis://redis:6379/0'
 
-flake8:
-  stage: lint
-  image: python:3.7-alpine
-  before_script:
-    - pip install -q flake8
-  script:
-    - flake8 ./va_explorer
+#flake8:
+#  stage: lint
+#  image: python:3.7-alpine
+#  before_script:
+#    - pip install -q flake8
+#  script:
+#    - flake8 ./va_explorer
 
 pytest:
   stage: test
