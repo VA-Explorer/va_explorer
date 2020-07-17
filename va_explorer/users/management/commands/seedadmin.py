@@ -11,30 +11,24 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS("Creating Admin user..."))
 
-        # TODO: Add role
-        find_or_create_admin(self)
-
-
-def find_or_create_admin(self):
-    try:
-        admin = User.objects.get(email="admin@example.com")
-    except User.DoesNotExist:
-        admin = None
-
-    if admin:
-        self.stdout.write(self.style.SUCCESS("Successfully located admin user!"))
-
-        return admin
-    else:
-        admin = User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="Password1"
+        admin, created = User.objects.get_or_create(
+            email="admin@example.com",
+            defaults={
+                "username": "admin",
+                "first_name": "admin",
+                "last_name": "test",
+                "is_active": True,
+                "is_superuser": True,
+            },
         )
-        admin.is_active = True
-        admin.save()
 
-        # To avoid email verification, we add the below line to each user
-        EmailAddress.objects.create(user=admin, email=admin.email, verified=True)
+        if created:
+            admin.set_password("Password1")
+            admin.save()
 
-        self.stdout.write(self.style.SUCCESS("Successfully created an admin user!"))
+            # To avoid email verification, we add the below line to each user
+            EmailAddress.objects.create(
+                user=admin, email=admin.email, verified=True, primary=True
+            )
 
-    return admin
+            self.stdout.write(self.style.SUCCESS("Successfully created an admin!"))
