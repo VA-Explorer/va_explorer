@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -15,17 +15,21 @@ from .forms import ExtendedUserCreationForm
 User = get_user_model()
 
 
-class UserIndexView(LoginRequiredMixin, ListView):
+class UserIndexView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/urls.py
     login_url = reverse_lazy("account_login")
+    permission_required = "users.view_user"
     model = User
 
 
 user_index_view = UserIndexView.as_view()
 
 
-class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class UserCreateView(
+    LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView
+):
     login_url = reverse_lazy("account_login")
+    permission_required = "users.add_user"
     form_class = ExtendedUserCreationForm
     template_name = "users/user_create.html"
     success_message = "User successfully created!"
@@ -42,18 +46,29 @@ class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 user_create_view = UserCreateView.as_view()
 
 
-class UserDetailView(LoginRequiredMixin, DetailView):
+class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     login_url = reverse_lazy("account_login")
+    permission_required = "users.view_user"
     model = User
 
 
 user_detail_view = UserDetailView.as_view()
 
 
-class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class UserUpdateView(
+    LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView
+):
     login_url = reverse_lazy("account_login")
+    permission_required = "users.change_user"
     model = User
-    fields = ["first_name", "last_name", "email", "is_superuser"]
+    fields = [
+        "first_name",
+        "last_name",
+        "email",
+        "is_superuser",
+        "is_active",
+        "groups",
+    ]
     success_message = "User successfully updated!"
 
     def get_success_url(self):
