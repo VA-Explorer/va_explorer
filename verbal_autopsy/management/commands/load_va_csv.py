@@ -1,0 +1,35 @@
+from django.core.management.base import BaseCommand
+from verbal_autopsy.models import VerbalAutopsy
+import argparse
+import pandas as pd
+import re
+
+class Command(BaseCommand):
+
+    help = 'Loads a verbal autopsy CSV file into the database'
+
+    def add_arguments(self, parser):
+        parser.add_argument('csv_file', type=argparse.FileType('r'))
+
+    def handle(self, *args, **options):
+
+        # Load the CSV file
+        csv_data = pd.read_csv(options['csv_file'])
+
+        # CSV prefixes column names with a dash, remove them
+        csv_data.rename(columns=lambda c: re.sub('^-', '', c), inplace=True)
+
+        # Figure out the common field names across the CSV and our model
+        model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
+        csv_field_names = csv_data.columns
+        common_field_names = csv_field_names.intersection(model_field_names)
+
+        # Just keep the fields in the CSV that we have columns for in our VerbalAutopsy model
+        # Also track extras or missing fields for eventual debugging display
+        missing_field_names = model_field_names.difference(common_field_names)
+        extra_field_names = csv_field_names.difference(common_field_names)
+        csv_data = csv_data[common_field_names]
+
+        # Populate the database!
+        verbal_autopsies = [VerbalAutopsy(**row) for row in csv_data.to_dict(orient='records')]
+        VerbalAutopsy.objects.bulk_create(verbal_autopsies)
