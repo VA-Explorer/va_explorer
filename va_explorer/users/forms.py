@@ -1,10 +1,11 @@
 from allauth.account.adapter import get_adapter
-from allauth.account.utils import setup_user_email
+from allauth.account.utils import send_email_confirmation, setup_user_email
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Group
 
 User = get_user_model()
 
@@ -25,6 +26,11 @@ class UniqueUserEmailField(forms.EmailField):
             pass
 
 
+class GroupModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s %s" % (obj.id, obj.name)
+
+
 class ExtendedUserCreationForm(UserCreationForm):
     """
     Extends the built in UserCreationForm in several ways:
@@ -42,10 +48,11 @@ class ExtendedUserCreationForm(UserCreationForm):
     last_name = forms.CharField(required=True, max_length=30)
     password1 = None
     password2 = None
+    group = GroupModelChoiceField(queryset=Group.objects.all())
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "is_superuser"]
+        fields = ["first_name", "last_name", "email", "is_superuser", "group"]
 
     def __init__(self, *args, **kwargs):
         """
@@ -63,6 +70,7 @@ class ExtendedUserCreationForm(UserCreationForm):
                 "last_name",
                 "email",
                 "is_superuser",
+                "group",
             )
         )
 
@@ -80,12 +88,23 @@ class ExtendedUserCreationForm(UserCreationForm):
         when they confirm their email address.
         """
 
-        # See: https://django-allauth.readthedocs.io/en/latest/advanced.html
+        # See allauth:
+        # https://django-allauth.readthedocs.io/en/latest/advanced.html
         # As per docs: "The following adapter methods can be used to intervene in how User
         # instances are created and populated with data."
         adapter = get_adapter(self.request)
         user = adapter.new_user(self.request)
         adapter.save_user(self.request, user, self)
+
+        # Set the group chosen from the POST request
+        user.groups.set(self.request.POST.get("group"))
+
+        # See allauth:
+        # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
         setup_user_email(self.request, user, [])
+
+        # See allauth:
+        # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
+        send_email_confirmation(self.request, user, signup=False)
 
         return user
