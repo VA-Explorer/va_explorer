@@ -3,6 +3,7 @@ from simple_history.models import HistoricalRecords
 from django.contrib.postgres.fields import JSONField
 
 class VerbalAutopsy(models.Model):
+    # TODO: Need an approach that supports different variants in different countries
     deviceid = models.TextField()
     phonenumber = models.TextField()
     simserial = models.TextField()
@@ -553,6 +554,9 @@ class VerbalAutopsy(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
 class CauseOfDeath(models.Model):
+    # One VerbalAutopsy can have multiple causes of death (through different algorithms)
+    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='causes', on_delete=models.CASCADE)
+    # Track the cause and the algorithm that provided the cause
     cause = models.TextField()
     # TODO: do we want the algorithm as a string or by referring to an algorithm table?
     algorithm = models.TextField()
@@ -565,5 +569,3 @@ class CauseOfDeath(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    # One VerbalAutopsy can have multiple causes of death (through different algorithms)
-    verbalautopsy = models.ForeignKey(VerbalAutopsy, on_delete=models.CASCADE)

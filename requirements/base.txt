@@ -8,6 +8,7 @@ hiredis==1.0.1  # https://github.com/redis/hiredis-py
 celery==4.4.6  # pyup: < 5.0  # https://github.com/celery/celery
 django-celery-beat==2.0.0  # https://github.com/celery/django-celery-beat
 flower==0.9.5  # https://github.com/mher/flower
+django-simple-history==2.11.0
 pandas==1.0.5
 
 # Django
