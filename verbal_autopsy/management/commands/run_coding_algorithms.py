@@ -54,12 +54,16 @@ class Command(BaseCommand):
         algorithm_response = requests.post(algorithm_url, data=algorithm_input_json)
 
         # Populate the database!
+        # TODO: currently some VAs don't process at all, and some of those that process don't get a cause
+        # of death assigned; we need to be able to track and report on this type of error
         # TODO: at the moment we ignore some data from the algorithm (cause2, cause3, comcat, lik2, etc)
-        va_cause_literals = [va['CAUSE1'][0] for va in json.loads(algorithm_response.text)['VA5']]
+        # TODO: temporary approach for saving causes, aligning to VA data by ID
+        # TODO: this use of ID is not likely to be correct, it doesn't actually track back to the real VA ID
+        causes = []
+        for cause_data in json.loads(algorithm_response.text)['VA5']:
+            cause = cause_data['CAUSE1'][0].strip()
+            va_id = cause_data['ID'][0].strip()
+            if cause:
+                causes.append(CauseOfDeath(verbalautopsy_id=va_id, cause=cause, algorithm='InterVA5', settings=algorithm_settings))
 
-        # TODO: currently the counts don't align, so we need to correctly line up the actual verbal autopsies
-        # with the causes and then save to the database
-        
-        #verbal_autopsies_without_causes
-        #verbal_autopsies = [VerbalAutopsy(**row) for row in csv_data.to_dict(orient='records')]
-        #VerbalAutopsy.objects.bulk_create(verbal_autopsies)
+        CauseOfDeath.objects.bulk_create(causes)
