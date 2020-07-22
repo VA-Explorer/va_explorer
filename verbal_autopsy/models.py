@@ -1,8 +1,25 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 from django.contrib.postgres.fields import JSONField
+from treebeard.mp_tree import MP_Node
+
+class Location(MP_Node):
+    # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
+    # ability to constrain access control by region; we use django-treabeard's materialized path
+    # implementation for efficiency of tree operations
+    name = models.TextField()
+    location_type = models.TextField()
+    node_order_by = ['name']
+
+    # Automatically set timestamps
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
 class VerbalAutopsy(models.Model):
+    # Each VerbalAutopsy is associated with a facility, which is the leaf node location
+    location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE)
+
+    # The VA fields collected as part of the WHO VA form or local versions
     # TODO: Need an approach that supports different variants in different countries
     deviceid = models.TextField()
     phonenumber = models.TextField()
