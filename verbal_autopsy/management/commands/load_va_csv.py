@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from verbal_autopsy.models import VerbalAutopsy
+from verbal_autopsy.models import VerbalAutopsy, Location
 import argparse
 import pandas as pd
 import re
@@ -32,4 +32,7 @@ class Command(BaseCommand):
 
         # Populate the database!
         verbal_autopsies = [VerbalAutopsy(**row) for row in csv_data.to_dict(orient='records')]
+        # TODO: For now treat this as synthetic data and randomly assign a facility as the location
+        for va in verbal_autopsies:
+            va.location = Location.objects.filter(location_type='facility').order_by('?').first()
         VerbalAutopsy.objects.bulk_create(verbal_autopsies)

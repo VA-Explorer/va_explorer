@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     # TODO: Need an approach that supports loading of country-specfic location information
 
-    help = 'Loads initial location data into the database from a CSV file with Name and Parent columns'
+    help = 'Loads initial location data into the database from a CSV file with Name, Type, and Parent columns'
 
     def add_arguments(self, parser):
         parser.add_argument('csv_file', type=argparse.FileType('r'))
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             if row.Parent:
                 self.stdout.write(f'Adding {row.Name} as child node of {row.Parent}')
                 parent_node = Location.objects.get(name=row.Parent)
-                parent_node.add_child(name=row.Name)
+                parent_node.add_child(name=row.Name, location_type=row.Type)
             else:
                 self.stdout.write(f'Adding root node for {row.Name}')
-                Location.add_root(name=row.Name)
+                Location.add_root(name=row.Name, location_type=row.Type)
