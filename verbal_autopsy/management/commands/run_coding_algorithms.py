@@ -67,3 +67,5 @@ class Command(BaseCommand):
                 causes.append(CauseOfDeath(verbalautopsy_id=va_id, cause=cause, algorithm='InterVA5', settings=algorithm_settings))
 
         CauseOfDeath.objects.bulk_create(causes)
+
+        self.stdout.write(f'Coded {len(causes)} verbal autopsies (out of {len(algorithm_input_rows)})')

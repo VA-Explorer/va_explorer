@@ -36,3 +36,5 @@ class Command(BaseCommand):
         for va in verbal_autopsies:
             va.location = Location.objects.filter(location_type='facility').order_by('?').first()
         VerbalAutopsy.objects.bulk_create(verbal_autopsies)
+
+        self.stdout.write(f'Loaded {len(verbal_autopsies)} verbal autopsies')
