@@ -8,6 +8,7 @@ variables:
   POSTGRES_DB: 'test_va_explorer'
   POSTGRES_HOST_AUTH_METHOD: trust
   CELERY_BROKER_URL: 'redis://redis:6379/0'
+  DOCKER_HOST: tcp://localhost:2375
 
 
 #flake8:
@@ -20,11 +21,11 @@ variables:
 
 pytest:
   stage: test
-  image: docker/compose:latest
+  image: docker:stable
   tags:
     - docker
   services:
-    - docker:dind
+    - docker:18.09.7-dind
   before_script:
     - docker info
     - apk update
