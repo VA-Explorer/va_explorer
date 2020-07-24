@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 
+{% block title %}Users{% endblock %}
+
 {% block content %}
   <div class="row mt-4">
     <h2>Users</h2>
   </div>
-
   <div class="row mt-3">
-	<a href="{% url 'users:create' %}" class="btn btn-success" role="button">Create User</a>
-</div>
-
+  {% if perms.users.add_user %}
+	  <a href="{% url 'users:create' %}" class="btn btn-success" role="button">Create User</a>
+  {% endif %}
+  </div>
   <div class="row mt-3">
   	<table class="table">
         <thead>
           <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>Name</th>
             <th>Email</th>
             <th>Active</th>
-            <th>SuperUser</th>
+            <th>Group</th>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
           </tr>
@@ -25,13 +26,24 @@
         <tbody>
             {% for user in object_list %}
             <tr>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
+                <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.is_active }}</td>
-                <td>{{ user.is_superuser }}</td>
-                <td><a href="{% url 'users:update' pk=user.pk %}" class="btn btn-primary" role="button">Edit</a></td>
-                <td><a href="{% url 'users:detail' pk=user.pk %}" class="btn btn-primary" role="button">Show</a></td>
+                <td>
+                  {%  for group in user.groups.all %}
+                    {{ group.name }}
+                  {%  endfor %}
+                </td>
+                <td>
+                  {% if perms.users.change_user %}
+                    <a href="{% url 'users:update' pk=user.pk %}" class="btn btn-primary" role="button">Edit</a>
+                  {%  endif %}
+                </td>
+                <td>
+                  {% if perms.users.view_user %}
+                    <a href="{% url 'users:detail' pk=user.pk %}" class="btn btn-primary" role="button">Show</a>
+                  {%  endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

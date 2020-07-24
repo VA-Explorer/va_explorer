@@ -8,17 +8,10 @@
 	<h2>User Details</h2>
 </div>
 <br>
-
 <div class="row mt-3">
-    <div class="col-sm-2"><strong>First Name</strong></div>
+    <div class="col-sm-2"><strong>Name</strong></div>
     <div class="col-sm-6">
-        {{ user.first_name }}
-    </div>
-</div>
-<div class="row mt-3">
-    <div class="col-sm-2"><strong>Last Name</strong></div>
-    <div class="col-sm-6">
-        {{ user.last_name }}
+        {{ user.name }}
     </div>
 </div>
 <div class="row mt-3">
@@ -33,17 +26,12 @@
         {{ user.is_active }}
     </div>
 </div>
-  <div class="row mt-3">
-    <div class="col-sm-2"><strong>SuperUser Status</strong></div>
+<div class="row mt-3">
+    <div class="col-sm-2"><strong>Role</strong></div>
     <div class="col-sm-6">
-        {{ user.is_superuser }}
+        {%  for group in user.groups.all %}
+          {{ group.name }}
+        {%  endfor %}
     </div>
 </div>
-{#<div class="row mt-3">#}
-{#    <div class="col-sm-2"><strong>Email Confirmed</strong></div>#}
-{#    <div class="col-sm-6">#}
-{#        {{ user.email_confirmed_at if user.email_confirmed_at else "False" }}#}
-{#    </div>#}
-{#</div>#}
-
 {% endblock content %}
