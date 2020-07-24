@@ -10,6 +10,7 @@ variables:
   CELERY_BROKER_URL: 'redis://redis:6379/0'
   DOCKER_TLS_CERTDIR: ""
   DOCKER_HOST: tcp://localhost:2375
+  DOCKER_DRIVER: overlay
 
 
 #flake8:
@@ -28,6 +29,11 @@ pytest:
   services:
     - docker:stable-dind
   before_script:
+    - docker info
+    - apk update
+    - apk upgrade
+    - apk add python python-dev py-pip build-base
+    - pip install docker-compose
     - docker-compose -f local.yml build
     # Ensure celerybeat does not crash due to non-existent tables
     - docker-compose -f local.yml run --rm django python manage.py migrate
