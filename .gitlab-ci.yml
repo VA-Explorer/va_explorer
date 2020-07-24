@@ -8,9 +8,6 @@ variables:
   POSTGRES_DB: 'test_va_explorer'
   POSTGRES_HOST_AUTH_METHOD: trust
   CELERY_BROKER_URL: 'redis://redis:6379/0'
-  DOCKER_HOST: tcp://docker:2375
-  # This will instruct Docker not to start over TLS.
-  DOCKER_TLS_CERTDIR: ""
 
 
 #flake8:
@@ -23,11 +20,11 @@ variables:
 
 pytest:
   stage: test
-  image: docker:stable
+  image: docker/compose:latest
   tags:
     - docker
   services:
-    - docker:19.03.12-dind
+    - docker:dind
   before_script:
     - docker info
     - apk update
