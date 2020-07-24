@@ -27,7 +27,7 @@ pytest:
   tags:
     - docker
   services:
-    - docker:stable-dind
+    - docker:18.09-dind
   before_script:
     - docker info
     - apk update
