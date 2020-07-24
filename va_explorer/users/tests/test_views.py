@@ -1,10 +1,17 @@
 import pytest
-from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory
+from django.contrib.auth.models import AnonymousUser, Permission
+from django.core.exceptions import PermissionDenied
+from django.test import Client, RequestFactory
+from django.urls import reverse
 
 from va_explorer.users.models import User
-from va_explorer.users.tests.factories import UserFactory
-from va_explorer.users.views import UserRedirectView, UserUpdateView, user_detail_view
+from va_explorer.users.tests.factories import GroupFactory, NewUserFactory, UserFactory
+from va_explorer.users.views import (
+    UserRedirectView,
+    UserUpdateView,
+    user_create_view,
+    user_detail_view,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -49,19 +56,85 @@ class TestUserRedirectView:
 
 
 class TestUserDetailView:
-    def test_authenticated(self, user: User, rf: RequestFactory):
-        request = rf.get("/fake-url/")
-        request.user = UserFactory()
+    def test_view_with_valid_permission(self, user: User, rf: RequestFactory):
+        can_view_user = Permission.objects.filter(codename="view_user").first()
+        can_view_user_group = GroupFactory.create(permissions=[can_view_user])
+        user = UserFactory.create(groups=[can_view_user_group])
+
+        request = rf.get("/users/")
+        request.user = user
 
         response = user_detail_view(request, pk=user.id)
 
         assert response.status_code == 200
 
+    def test_view_without_valid_permission(self, user: User, rf: RequestFactory):
+        no_permissions_group = GroupFactory.create(permissions=[])
+        user = UserFactory.create(groups=[no_permissions_group])
+
+        request = rf.get("/users/")
+        request.user = user
+
+        with pytest.raises(PermissionDenied):
+            user_detail_view(request, pk=user.id)
+
+    # TODO: The two tests below are more integration tests because we are testing the
+    # "real" URL and request/response cycle instead of only the view.
+    # The issue is that Django's RequestFactory doesn't have access to the Middleware:
+    # Session and authentication attributes must be supplied by the test itself if
+    # required for the view to function properly. So, for these tests we could add the
+    # middleware manually if that seems like a better approach.
     def test_not_authenticated(self, user: User, rf: RequestFactory):
+        client = Client()
+
+        client.user = AnonymousUser()  # type: ignore
+        url = "/users/" + str(user.id)
+        response = client.get(url, follow=True)
+
+        assert response.status_code == 200
+        assert b"You must be signed in to view this page" in response.content
+
+    def test_not_valid_password(self, user: User):
+        client = Client()
+
+        user = NewUserFactory.create()
+        user.set_password("mygreatpassword")
+        user.save()
+
+        client.post(
+            reverse("account_login"),
+            {"login": user.email, "password": "mygreatpassword"},
+        )
+
+        url = "/users/" + str(user.id)
+        response = client.get(url, follow=True)
+
+        assert response.status_code == 200
+        assert (
+            b"You must set a new password before you can view this page"
+            in response.content
+        )
+
+
+class TestUserCreateView:
+    def test_create_with_valid_permission(self, user: User, rf: RequestFactory):
+        can_add_user = Permission.objects.filter(codename="add_user").first()
+        can_add_user_group = GroupFactory.create(permissions=[can_add_user])
+        user = UserFactory.create(groups=[can_add_user_group])
+
         request = rf.get("/fake-url/")
-        request.user = AnonymousUser()  # type: ignore
+        request.user = user
 
-        response = user_detail_view(request, pk=user.id)
+        response = user_create_view(request)
 
-        assert response.status_code == 302
-        assert response.url == "/accounts/login/?next=/fake-url/"
+        assert response.status_code == 200
+
+    def test_create_without_valid_permission(self, user: User, rf: RequestFactory):
+        nothing_group = GroupFactory.create(permissions=[])
+        user = UserFactory.create(groups=[nothing_group])
+
+        request = rf.get("/users/")
+        request.user = user
+
+        with pytest.raises(PermissionDenied):
+            user_create_view(request)
