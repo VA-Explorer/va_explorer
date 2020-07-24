@@ -7,7 +7,7 @@ User = get_user_model()
 GROUPS_PERMISSIONS = {
     "Admins": {User: ["add", "change", "delete", "view"]},
     "Data Managers": {User: ["add", "change", "delete", "view"]},
-    "Data Viewers": {User: ["add", "change", "delete", "view"]},
+    "Data Viewers": {User: ["view"]},
     "Field Workers": {User: []},
 }
 

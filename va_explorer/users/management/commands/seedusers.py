@@ -1,4 +1,4 @@
-from allauth.account.models import EmailAddress
+# from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
@@ -21,10 +21,9 @@ def find_or_create_data_manager(self):
     data_manager, created = User.objects.get_or_create(
         email="data_manager@example.com",
         defaults={
-            "username": "data_manager",
-            "first_name": "data",
-            "last_name": "manager",
+            "name": "Data Manager",
             "is_active": True,
+            "has_valid_password": True,
         },
     )
 
@@ -37,10 +36,10 @@ def find_or_create_data_manager(self):
 
         data_manager_group.save()
 
-        # To avoid email verification, we add the below line to each user
-        EmailAddress.objects.create(
-            user=data_manager, email=data_manager.email, verified=True, primary=True
-        )
+        # If we do not require email confirmation, we no longer need the lines below
+        # EmailAddress.objects.create(
+        #     user=data_manager, email=data_manager.email, verified=True, primary=True
+        # )
 
         self.stdout.write(self.style.SUCCESS("Successfully created a data manager!"))
 
@@ -50,12 +49,7 @@ def find_or_create_data_viewer(self):
 
     data_viewer, created = User.objects.get_or_create(
         email="data_viewer@example.com",
-        defaults={
-            "username": "data_viewer",
-            "first_name": "data",
-            "last_name": "viewer",
-            "is_active": True,
-        },
+        defaults={"name": "Data Viewer", "is_active": True, "has_valid_password": True},
     )
 
     if created:
@@ -67,10 +61,10 @@ def find_or_create_data_viewer(self):
 
         data_viewer_group.save()
 
-        # To avoid email verification, we add the below line to each user
-        EmailAddress.objects.create(
-            user=data_viewer, email=data_viewer.email, verified=True, primary=True
-        )
+        # If we do not require email confirmation, we no longer need the lines below
+        # EmailAddress.objects.create(
+        #     user=data_viewer, email=data_viewer.email, verified=True, primary=True
+        # )
 
         self.stdout.write(self.style.SUCCESS("Successfully created a data viewer!"))
 
@@ -81,10 +75,9 @@ def find_or_create_field_worker(self):
     field_worker, created = User.objects.get_or_create(
         email="field_worker@example.com",
         defaults={
-            "username": "field_worker",
-            "first_name": "field",
-            "last_name": "worker",
+            "name": "Field Worker",
             "is_active": True,
+            "has_valid_password": True,
         },
     )
 
@@ -97,8 +90,9 @@ def find_or_create_field_worker(self):
 
         field_worker_group.save()
 
-        EmailAddress.objects.create(
-            user=field_worker, email=field_worker.email, verified=True, primary=True
-        )
+        # If we do not require email confirmation, we no longer need the lines below
+        # EmailAddress.objects.create(
+        #     user=field_worker, email=field_worker.email, verified=True, primary=True
+        # )
 
         self.stdout.write(self.style.SUCCESS("Successfully created a field worker!"))

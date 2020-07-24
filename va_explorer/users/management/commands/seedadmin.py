@@ -1,4 +1,4 @@
-from allauth.account.models import EmailAddress
+# from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
@@ -14,11 +14,10 @@ class Command(BaseCommand):
         admin, created = User.objects.get_or_create(
             email="admin@example.com",
             defaults={
-                "username": "admin",
-                "first_name": "admin",
-                "last_name": "test",
+                "name": "Admin User",
                 "is_active": True,
                 "is_superuser": True,
+                "has_valid_password": True,
             },
         )
 
@@ -26,9 +25,9 @@ class Command(BaseCommand):
             admin.set_password("Password1")
             admin.save()
 
-            # To avoid email verification, we add the below line to each user
-            EmailAddress.objects.create(
-                user=admin, email=admin.email, verified=True, primary=True
-            )
+            # If we do not require email confirmation, we no longer need the lines below
+            # EmailAddress.objects.create(
+            #     user=admin, email=admin.email, verified=True, primary=True
+            # )
 
             self.stdout.write(self.style.SUCCESS("Successfully created an admin!"))
