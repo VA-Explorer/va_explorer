@@ -52,7 +52,7 @@
           <ul class="navbar-nav mr-auto">
             {% if request.user.is_authenticated %}
               <li class="nav-item">
-                <span class="nav navbar-text">{{ user.first_name }} is signed in.</span>
+                <span class="nav navbar-text">{{ request.user.name }} is signed in.</span>
               </li>
               <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
