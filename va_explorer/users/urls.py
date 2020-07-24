@@ -5,6 +5,7 @@ from va_explorer.users.views import (
     user_detail_view,
     user_index_view,
     user_redirect_view,
+    user_set_password_view,
     user_update_view,
 )
 
@@ -15,4 +16,5 @@ urlpatterns = [
     path("create/", view=user_create_view, name="create"),
     path("", view=user_index_view, name="index"),
     path("<int:pk>/", view=user_detail_view, name="detail"),
+    path("set_password/", view=user_set_password_view, name="set_password"),
 ]
