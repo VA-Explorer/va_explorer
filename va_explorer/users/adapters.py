@@ -11,8 +11,6 @@ class AccountAdapter(DefaultAccountAdapter):
 
     # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/adapter.py#L97
     def send_new_user_mail(self, request, user, temporary_password):
-        print("temporary password")
-        print(temporary_password)
         current_site = get_current_site(request)
         url = request.build_absolute_uri(reverse("account_login"))
 
