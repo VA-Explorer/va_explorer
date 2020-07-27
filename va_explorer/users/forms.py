@@ -67,18 +67,11 @@ class ExtendedUserCreationForm(UserCreationForm):
         change upon initial login.
         """
         user = super(UserCreationForm, self).save(commit)
-        print(user.name)
-        print(user.email)
-        print(user.password)
         if user:
             user.email = self.cleaned_data["email"]
             user.name = self.cleaned_data["name"]
             password = get_random_string(length=32)
             user.set_password(password)
-            print("password")
-            print(password)
-            print("user password")
-            print(user.password)
 
             if commit:
                 user.save()
@@ -141,15 +134,18 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
-
-    password = SetPasswordField(
+    # See allauth:
+    # https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
+    # If we do not want this dependency, we can write our own clean method to ensure the
+    # 2 typed-in passwords match.
+    password1 = SetPasswordField(
         label="New Password",
         help_text=password_validation.password_validators_help_text_html(),
     )
     password2 = PasswordField(label="New Password (again)")
 
     def save(self, user):
-        user.set_password(self.cleaned_data["password"])
+        user.set_password(self.cleaned_data["password1"])
         user.has_valid_password = True
         user.save()
 
