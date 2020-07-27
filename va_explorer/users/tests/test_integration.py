@@ -1,6 +1,6 @@
 import pytest
 from django.core import mail
-from django.test import RequestFactory
+from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from va_explorer.users.forms import ExtendedUserCreationForm
@@ -20,9 +20,8 @@ def retrieve_password_from_email_body(body):
     return password
 
 
-def test_user_creation(rf: RequestFactory):
-    # A user with proto_user params does not exist yet.
-    proto_user = NewUserFactory.build()
+# A utility method to create and return a new user via the ExtendedUserCreationForm
+def create_and_return_a_new_user(rf, proto_user):
     group = GroupFactory.create()
 
     form = ExtendedUserCreationForm(
@@ -33,12 +32,21 @@ def test_user_creation(rf: RequestFactory):
     request = rf.get("/fake-url/")
     form.request = request
 
+    user = form.save()
+
+    return user
+
+
+def test_user_creation(rf: RequestFactory):
+    # A user with proto_user params does not exist yet.
+    proto_user = NewUserFactory.build()
+
     assert len(mail.outbox) == 0
 
-    user = form.save()
+    user = create_and_return_a_new_user(rf, proto_user)
+
     assert user.name == proto_user.name
     assert user.email == proto_user.email
-    assert user.groups.first() == group
     assert user.password != ""
     assert user.is_active is True
     assert user.has_valid_password is False
@@ -55,3 +63,40 @@ def test_user_creation(rf: RequestFactory):
     # See: https://docs.djangoproject.com/en/3.0/ref/contrib/auth/#django.contrib.auth.models.User.check_password
     password = retrieve_password_from_email_body(email.body)
     assert user.check_password(password) is True
+
+
+def test_user_set_password_after_create(rf: RequestFactory):
+    # A user with proto_user params does not exist yet.
+    proto_user = NewUserFactory.build()
+
+    user = create_and_return_a_new_user(rf, proto_user)
+
+    assert user.has_valid_password is False
+
+    email = mail.outbox[0]
+    password = retrieve_password_from_email_body(email.body)
+
+    client = Client()
+
+    response = client.post(
+        reverse("account_login"),
+        {"login": user.email, "password": password},
+        follow=True,
+    )
+
+    # If the user does not have a valid password, they are redirected to
+    # users:set_password
+    assert b"Set Password" in response.content
+    assert response.request["PATH_INFO"] == reverse("users:set_password")
+
+    response = client.post(
+        reverse("users:set_password"),
+        {"password1": "AReallyGreatPassword1!", "password2": "AReallyGreatPassword1!"},
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    user.refresh_from_db()
+    assert user.has_valid_password is True
+    assert user.check_password("AReallyGreatPassword1!") is True

@@ -1,7 +1,11 @@
 import pytest
 from django.test import RequestFactory
 
-from va_explorer.users.forms import ExtendedUserCreationForm, UserUpdateForm
+from va_explorer.users.forms import (
+    ExtendedUserCreationForm,
+    UserSetPasswordForm,
+    UserUpdateForm,
+)
 from va_explorer.users.tests.factories import GroupFactory, NewUserFactory
 
 pytestmark = pytest.mark.django_db
@@ -88,7 +92,44 @@ class TestUserUpdateForm:
                 "name": "A new name",
                 "email": "updatedemail@example.com",
                 "groups": [new_group],
+                "is_active": False,
             }
         )
 
         assert form.is_valid()
+
+    def test_group_required(self):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+
+        form = ExtendedUserCreationForm(
+            {"name": proto_user.name, "email": proto_user.email, "groups": []}
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "groups" in form.errors
+
+
+class TestUserSetPasswordForm:
+    def test_valid_form(self, rf: RequestFactory):
+        form = UserSetPasswordForm(
+            {
+                "password1": "AReallyGreatPassword1!",
+                "password2": "AReallyGreatPassword1!",
+            }
+        )
+
+        assert form.is_valid()
+
+    def test_invalid_form(self, rf: RequestFactory):
+        form = UserSetPasswordForm(
+            {
+                "password1": "AReallyGreatPassword1!",
+                "password2": "ACompletelyDifferentPassword1!",
+            }
+        )
+
+        assert not form.is_valid()
+        assert "You must type the same password each time." in form.errors["password2"]
+        assert len(form.errors) == 1
