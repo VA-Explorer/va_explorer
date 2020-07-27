@@ -22,6 +22,8 @@ class UserIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     login_url = reverse_lazy("account_login")
     permission_required = "users.view_user"
     model = User
+    paginate_by = 10
+    queryset = User.objects.all()
 
 
 user_index_view = UserIndexView.as_view()
