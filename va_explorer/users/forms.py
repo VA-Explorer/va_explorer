@@ -36,7 +36,7 @@ class ExtendedUserCreationForm(UserCreationForm):
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
 
-    name = forms.CharField(required=True, max_length=100)
+    name = forms.CharField(required=True)
     password1 = None
     password2 = None
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
