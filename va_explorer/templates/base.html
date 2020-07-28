@@ -45,7 +45,7 @@
             </li>
             {% if request.user.is_superuser %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'users:index' %}">Users</a>
+              <a {% if "/users/" in request.path %} class="active nav-link" {% else %}class="nav-link" {% endif %} href="{% url 'users:index' %}">Users</a>
             </li>
             {%  endif %}
           </ul>
