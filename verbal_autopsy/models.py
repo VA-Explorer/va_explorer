@@ -586,3 +586,18 @@ class CauseOfDeath(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+class CauseCodingIssue(models.Model):
+    # One VerbalAutopsy can have multiple coding issues
+    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='coding_issues', on_delete=models.CASCADE)
+    text = models.TextField()
+    SEVERITY_OPTIONS = ['error', 'warning']
+    severity = models.CharField(max_length=7, choices=[(option, option) for option in SEVERITY_OPTIONS])
+    # We track which algorithm and the settings for that algorithm
+    # NOTE: this is a denormalized approach for convenience, which should still scale reasonably
+    algorithm = models.TextField()
+    # NOTE: by using JSONField we tie ourselves to postgres
+    settings = JSONField()
+    # Automatically set timestamps
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

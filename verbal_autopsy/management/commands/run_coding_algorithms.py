@@ -1,11 +1,12 @@
 from django.core.management.base import BaseCommand
-from verbal_autopsy.models import VerbalAutopsy, CauseOfDeath
+from verbal_autopsy.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue
 from django.forms.models import model_to_dict
 from io import StringIO
 from collections import OrderedDict
 import requests
 import csv
 import json
+import re
 import pandas as pd
 
 # TODO: Temporary script to run COD assignment algorithms; this should
@@ -52,20 +53,35 @@ class Command(BaseCommand):
         # Send to InterVA algorithm web service
         algorithm_url = 'http://127.0.0.1:5002/interva5'
         algorithm_response = requests.post(algorithm_url, data=algorithm_input_json)
+        algorithm_response_data = json.loads(algorithm_response.text)
 
         # Populate the database!
         # TODO: currently some VAs don't process at all, and some of those that process don't get a cause
         # of death assigned; we need to be able to track and report on this type of error
         # TODO: at the moment we ignore some data from the algorithm (cause2, cause3, comcat, lik2, etc)
-        # TODO: temporary approach for saving causes, aligning to VA data by ID
-        # TODO: this use of ID is not likely to be correct, it doesn't actually track back to the real VA ID
         causes = []
-        for cause_data in json.loads(algorithm_response.text)['VA5']:
+        for cause_data in algorithm_response_data['results']['VA5']:
             cause = cause_data['CAUSE1'][0].strip()
-            va_id = cause_data['ID'][0].strip()
             if cause:
+                # TODO: confirm: the IDs that come back appear to be offsets into the supplied data and don't reflect the ID sent
+                va_offset = int(cause_data['ID'][0].strip())
+                va_id = verbal_autopsies_without_causes[va_offset].id
                 causes.append(CauseOfDeath(verbalautopsy_id=va_id, cause=cause, algorithm='InterVA5', settings=algorithm_settings))
 
         CauseOfDeath.objects.bulk_create(causes)
 
-        self.stdout.write(f'Coded {len(causes)} verbal autopsies (out of {len(algorithm_input_rows)})')
+        issues = []
+        for severity in CauseCodingIssue.SEVERITY_OPTIONS:
+            for issue in algorithm_response_data[severity + 's']:
+                # TODO: confirm: the IDs that come back appear to be offsets into the supplied data and don't reflect the ID sent
+                # TODO: return data should not require parsing this way, add more structure
+                if isinstance(issue, list):
+                    issue = issue[0]
+                va_offset, *issue_text = re.split('  +', issue)
+                issue_text = ' '.join(issue_text).strip()
+                va_id = verbal_autopsies_without_causes[int(va_offset)].id
+                issues.append(CauseCodingIssue(verbalautopsy_id=va_id, text=issue_text, severity=severity, algorithm='InterVA5', settings=algorithm_settings))
+
+        CauseCodingIssue.objects.bulk_create(issues)
+
+        self.stdout.write(f'Coded {len(causes)} verbal autopsies (out of {len(algorithm_input_rows)}) [{len(issues)} issues]')
