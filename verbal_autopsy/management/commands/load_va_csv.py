@@ -16,8 +16,8 @@ class Command(BaseCommand):
         # Load the CSV file
         csv_data = pd.read_csv(options['csv_file'])
 
-        # CSV prefixes column names with a dash, remove them
-        csv_data.rename(columns=lambda c: re.sub('^-', '', c), inplace=True)
+        # CSV can prefix column names with a dash or more, remove everything up to and including last dash
+        csv_data.rename(columns=lambda c: re.sub('^.*-', '', c), inplace=True)
 
         # Figure out the common field names across the CSV and our model
         model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
