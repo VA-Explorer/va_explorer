@@ -37,22 +37,21 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <a class="navbar-brand" href="{% url 'home' %}">VA Explorer</a>
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item">
               <a class="nav-link" href="{% url 'about' %}">About</a>
             </li>
-            {% if request.user.is_superuser %}
+            {% if perms.users.view_user %}
             <li class="nav-item">
               <a {% if "/users/" in request.path %} class="active nav-link" {% else %}class="nav-link" {% endif %} href="{% url 'users:index' %}">Users</a>
             </li>
             {%  endif %}
           </ul>
-          <ul class="navbar-nav mr-auto">
+          <ul class="navbar-nav ml-auto my-2 my-lg-0">
             {% if request.user.is_authenticated %}
               <li class="nav-item">
-                <span class="nav navbar-text">{{ user.first_name }} is signed in.</span>
+                <span class="nav navbar-text">{{ request.user.name }} is signed in.</span>
               </li>
               <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
@@ -63,8 +62,8 @@
                 {# URL provided by django-allauth/account/urls.py #}
                 <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Sign In" %}</a>
               </li>
-          </ul>
             {% endif %}
+          </ul>
         </div>
       </nav>
     </div>

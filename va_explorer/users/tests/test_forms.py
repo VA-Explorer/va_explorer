@@ -1,21 +1,42 @@
 import pytest
+from django.test import RequestFactory
 
-from va_explorer.users.forms import ExtendedUserCreationForm
-from va_explorer.users.tests.factories import UserFactory
+from va_explorer.users.forms import (
+    ExtendedUserCreationForm,
+    UserSetPasswordForm,
+    UserUpdateForm,
+)
+from va_explorer.users.tests.factories import GroupFactory, NewUserFactory
 
 pytestmark = pytest.mark.django_db
 
 
 class TestUserCreationForm:
+    def test_valid_form(self, rf: RequestFactory):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+        group = GroupFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {"name": proto_user.name, "email": proto_user.email, "groups": [group]}
+        )
+
+        # Note: The form expects a request object to be set in order to save it
+        request = rf.get("/fake-url/")
+        form.request = request
+
+        assert form.is_valid()
+
     def test_email_uniqueness(self):
         # A user with existing_user params exists already.
-        existing_user = UserFactory.create()
+        existing_user = NewUserFactory.create()
+        group = GroupFactory.create()
 
         form = ExtendedUserCreationForm(
             {
-                "first_name": existing_user.first_name,
-                "last_name": existing_user.last_name,
+                "name": existing_user.name,
                 "email": existing_user.email,
+                "groups": [group],
             }
         )
 
@@ -23,63 +44,92 @@ class TestUserCreationForm:
         assert len(form.errors) == 1
         assert "email" in form.errors
 
+    def test_email_required(self):
         # A user with proto_user params does not exist yet.
-        proto_user = UserFactory.build()
+        proto_user = NewUserFactory.build()
+        group = GroupFactory.create()
 
         form = ExtendedUserCreationForm(
+            {"name": proto_user.name, "email": "", "groups": [group]}
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "email" in form.errors
+
+    def test_name_required(self):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+        group = GroupFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {"name": "", "email": proto_user.email, "groups": [group]}
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "name" in form.errors
+
+    def test_group_required(self):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+
+        form = ExtendedUserCreationForm(
+            {"name": proto_user.name, "email": proto_user.email, "groups": []}
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "groups" in form.errors
+
+
+class TestUserUpdateForm:
+    def test_valid_form(self, rf: RequestFactory):
+        new_group = GroupFactory.create()
+
+        form = UserUpdateForm(
             {
-                "first_name": proto_user.first_name,
-                "last_name": proto_user.last_name,
-                "email": proto_user.email,
+                "name": "A new name",
+                "email": "updatedemail@example.com",
+                "groups": [new_group],
+                "is_active": False,
             }
         )
 
         assert form.is_valid()
 
-    def test_email_required(self):
+    def test_group_required(self):
         # A user with proto_user params does not exist yet.
-        proto_user = UserFactory.build()
+        proto_user = NewUserFactory.build()
 
         form = ExtendedUserCreationForm(
-            {
-                "first_name": proto_user.first_name,
-                "last_name": proto_user.last_name,
-                "email": "",
-            }
+            {"name": proto_user.name, "email": proto_user.email, "groups": []}
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-        assert "email" in form.errors
+        assert "groups" in form.errors
 
-    def first_last_name_required(self):
-        # A user with proto_user params does not exist yet.
-        proto_user = UserFactory.build()
 
-        form = ExtendedUserCreationForm(
+class TestUserSetPasswordForm:
+    def test_valid_form(self, rf: RequestFactory):
+        form = UserSetPasswordForm(
             {
-                "first_name": "",
-                "last_name": proto_user.last_name,
-                "email": proto_user.email,
+                "password1": "AReallyGreatPassword1!",
+                "password2": "AReallyGreatPassword1!",
+            }
+        )
+
+        assert form.is_valid()
+
+    def test_invalid_form(self, rf: RequestFactory):
+        form = UserSetPasswordForm(
+            {
+                "password1": "AReallyGreatPassword1!",
+                "password2": "ACompletelyDifferentPassword1!",
             }
         )
 
         assert not form.is_valid()
+        assert "You must type the same password each time." in form.errors["password2"]
         assert len(form.errors) == 1
-        assert "first_name" in form.errors
-
-    def test_last_name_required(self):
-        # A user with proto_user params does not exist yet.
-        proto_user = UserFactory.build()
-
-        form = ExtendedUserCreationForm(
-            {
-                "first_name": proto_user.first_name,
-                "last_name": "",
-                "email": proto_user.email,
-            }
-        )
-
-        assert not form.is_valid()
-        assert len(form.errors) == 1
-        assert "last_name" in form.errors

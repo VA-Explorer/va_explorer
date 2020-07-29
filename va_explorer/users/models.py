@@ -1,8 +1,12 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField, EmailField
+from django.db.models import BooleanField, CharField, EmailField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+# from allauth.account.models import EmailAddress
+# from allauth.account.signals import email_confirmed
+# from django.dispatch import receiver
 
 
 class CustomUserManager(BaseUserManager):
@@ -40,9 +44,10 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = EmailField(_("email address"), unique=True)
-
-    #: First and last name do not cover name patterns around the globe
     name = CharField(_("Name of User"), blank=True, max_length=255)
+    has_valid_password = BooleanField(
+        _("The user has a user-defined password"), default=False
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -61,6 +66,18 @@ class User(AbstractUser):
         """
         return reverse("users:detail", kwargs={"pk": self.pk})
 
+    # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+    # def add_email_address(self, request, new_email):
+    #     return EmailAddress.objects.add_email(request, self.user, new_email, confirm=True)
+    #
+    # @receiver(email_confirmed)
+    # def update_user_email(sender, email_address, **kwargs):
+    #     email_address.set_as_primary()
+    #
+    #     EmailAddress.objects.filter(
+    #         user=email_address.user).exclude(primary=True).delete()
+
     def save(self, *args, **kwargs):
+        # TODO: May need to be changed depending on how username comes in from ODK?
         self.username = self.email
         super(User, self).save(*args, **kwargs)

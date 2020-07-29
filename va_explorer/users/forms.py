@@ -1,28 +1,27 @@
 from allauth.account.adapter import get_adapter
-from allauth.account.utils import setup_user_email
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout
+from allauth.account.forms import (
+    PasswordField,
+    PasswordVerificationMixin,
+    SetPasswordField,
+)
 from django import forms
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Group
+from django.forms import ModelMultipleChoiceField
+from django.utils.crypto import get_random_string
+
+# from allauth.account.utils import send_email_confirmation, setup_user_email
+# from django.forms import ModelChoiceField
+
 
 User = get_user_model()
 
 
-class UniqueUserEmailField(forms.EmailField):
-    """
-    An EmailField which only is valid if no User has that email.
-    """
-
-    def validate(self, value):
-        super(forms.EmailField, self).validate(value)
-        try:
-            User.objects.get(email=value)
-            raise forms.ValidationError("Email already exists")
-        except User.MultipleObjectsReturned:
-            raise forms.ValidationError("Email already exists")
-        except User.DoesNotExist:
-            pass
+# TODO: Allow for selection of only one group
+# class ModelChoiceField(forms.ModelChoiceField):
+#     def label_from_instance(self, obj):
+#         return "%s" % (obj.name)
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -33,38 +32,26 @@ class ExtendedUserCreationForm(UserCreationForm):
       that is, the form does not validate if the email address already exists
       in the User table.
     * The username is not visible.
-    * first_name and last_name fields are added.
+    * name field is added.
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
 
-    email = UniqueUserEmailField(required=True, label="Email address")
-    first_name = forms.CharField(required=True, max_length=30)
-    last_name = forms.CharField(required=True, max_length=30)
+    name = forms.CharField(required=True)
     password1 = None
     password2 = None
+    groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
+
+    # TODO: Allow for selection of only one group
+    # group = ModelChoiceField(queryset=Group.objects.all())
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "is_superuser"]
+        fields = ["name", "email", "groups"]
 
     def __init__(self, *args, **kwargs):
-        """
-        Changes the order of fields, and removes the username field.
-        """
         self.request = kwargs.pop("request", None)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-
-        self.helper.layout = Layout(
-            Fieldset(
-                "first arg is the legend of the fieldset",
-                "first_name",
-                "last_name",
-                "email",
-                "is_superuser",
-            )
-        )
 
     def clean(self, *args, **kwargs):
         """
@@ -75,17 +62,91 @@ class ExtendedUserCreationForm(UserCreationForm):
 
     def save(self, commit=True):
         """
-        Saves the email, first_name and last_name properties, after the normal
-        save behavior is complete. Sets a random password, which the user can change
-        when they confirm their email address.
+        Saves the email and name properties after the normal
+        save behavior is complete. Sets a random password, which the user must
+        change upon initial login.
         """
+        user = super(UserCreationForm, self).save(commit)
+        if user:
+            user.email = self.cleaned_data["email"]
+            user.name = self.cleaned_data["name"]
+            password = get_random_string(length=32)
+            user.set_password(password)
 
-        # See: https://django-allauth.readthedocs.io/en/latest/advanced.html
-        # As per docs: "The following adapter methods can be used to intervene in how User
-        # instances are created and populated with data."
-        adapter = get_adapter(self.request)
-        user = adapter.new_user(self.request)
-        adapter.save_user(self.request, user, self)
-        setup_user_email(self.request, user, [])
+            if commit:
+                user.save()
+
+            # TODO: Allow for selection of only one group
+            # Set the group chosen from the POST request
+            # user.groups.set(self.request.POST.get("group"))
+
+            # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+            # See allauth:
+            # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
+            # setup_user_email(self.request, user, [])
+
+            get_adapter().send_new_user_mail(self.request, user, password)
+
+        return user
+
+
+class UserUpdateForm(forms.ModelForm):
+    name = forms.CharField(required=True, max_length=100)
+    groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
+
+    # TODO: Allow for selection of only one group
+    # group = GroupModelChoiceField(queryset=Group.objects.all())
+
+    class Meta:
+        model = User
+        fields = ["name", "email", "is_active", "groups"]
+
+    def __init__(self, *args, **kwargs):
+        # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+        # self.request = kwargs.pop("request", None)
+
+        # TODO: Allow for selection of only one group
+        # current_user = kwargs.pop("instance")
+        # current_group = current_user.groups.first()
+
+        super(UserUpdateForm, self).__init__(*args, **kwargs)
+
+    def clean(self, *args, **kwargs):
+        """
+        Normal cleanup
+        """
+        cleaned_data = super(forms.ModelForm, self).clean()
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super(UserUpdateForm, self).save(commit)
+
+        # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+        # If the email address was changed, we add the new email address
+        # if user.email != self.cleaned_data["email"]:
+        #     user.add_email_address(self.request, self.cleaned_data["email"])
+
+        # See allauth:
+        # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
+        # send_email_confirmation(self.request, user, signup=False)
+
+        return user
+
+
+class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
+    # See allauth:
+    # https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
+    # If we do not want this dependency, we can write our own clean method to ensure the
+    # 2 typed-in passwords match.
+    password1 = SetPasswordField(
+        label="New Password",
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password2 = PasswordField(label="New Password (again)")
+
+    def save(self, user):
+        user.set_password(self.cleaned_data["password1"])
+        user.has_valid_password = True
+        user.save()
 
         return user
