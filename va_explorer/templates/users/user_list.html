@@ -8,46 +8,46 @@
   </div>
   <div class="row mt-3">
   {% if perms.users.add_user %}
-	  <a href="{% url 'users:create' %}" class="btn btn-success" role="button">Create User</a>
+    <a href="{% url 'users:create' %}" class="btn btn-success" role="button">Create User</a>
   {% endif %}
   </div>
   <div class="row mt-3">
-  	<table class="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Active</th>
-            <th>Group</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Active</th>
+          <th>Group</th>
+          <th>&nbsp;</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
         <tbody>
-            {% for user in object_list %}
-            <tr>
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.is_active }}</td>
-                <td>
-                  {%  for group in user.groups.all %}
-                    {{ group.name }}
-                  {%  endfor %}
-                </td>
-                <td>
-                  {% if perms.users.change_user %}
-                    <a href="{% url 'users:update' pk=user.pk %}" class="btn btn-primary" role="button">Edit</a>
-                  {%  endif %}
-                </td>
-                <td>
-                  {% if perms.users.view_user %}
-                    <a href="{% url 'users:detail' pk=user.pk %}" class="btn btn-primary" role="button">Show</a>
-                  {%  endif %}
-                </td>
-            </tr>
-            {% endfor %}
+          {% for user in object_list %}
+          <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.is_active }}</td>
+            <td>
+              {%  for group in user.groups.all %}
+                {{ group.name }}
+              {%  endfor %}
+            </td>
+            <td>
+              {% if perms.users.change_user %}
+                <a href="{% url 'users:update' pk=user.pk %}" class="btn btn-primary" role="button">Edit</a>
+              {%  endif %}
+            </td>
+            <td>
+              {% if perms.users.view_user %}
+                <a href="{% url 'users:detail' pk=user.pk %}" class="btn btn-primary" role="button">Show</a>
+              {%  endif %}
+            </td>
+          </tr>
+          {% endfor %}
         </tbody>
-	  </table>
+    </table>
     {% if is_paginated %}
       <nav aria-label="Page navigation example">
         <ul class="pagination">
