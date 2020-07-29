@@ -1,4 +1,6 @@
 # from allauth.account.models import EmailAddress
+import os
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
@@ -9,9 +11,17 @@ DEMO_USER_TYPES = ["Data Manager", "Data Viewer", "Field Worker"]
 
 
 class Command(BaseCommand):
-    help = "Seeds data manager, data viewer, and field worker users"
+    help = "Seeds data manager, data viewer, and field worker users in the local environment."
 
     def handle(self, *args, **options):
+        if not os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.local":
+            self.stdout.write(
+                self.style.ERROR(
+                    "This functionality is for demo purposes only in the local environment. Exiting."
+                )
+            )
+            exit()
+
         for user_type in DEMO_USER_TYPES:
             find_or_create_user(self, user_type)
 
