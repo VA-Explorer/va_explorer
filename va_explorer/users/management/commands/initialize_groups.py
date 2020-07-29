@@ -19,27 +19,21 @@ class Command(BaseCommand):
     help = "Create default groups"
 
     def handle(self, *args, **options):
-        # Loop groups
+        # Loop through groups and permissions; add permissions, as applicable, to related group objects
         for group_name in GROUPS_PERMISSIONS:
-
-            # Get or create group
             group, created = Group.objects.get_or_create(name=group_name)
 
-            # Loop models in group
-            for model_class, model_permissions in GROUPS_PERMISSIONS[
-                group_name
-            ].items():
-
-                # Loop permissions in group/model
+            # fmt: off
+            for model_class, model_permissions in GROUPS_PERMISSIONS[group_name].items():
                 for model_permission_name in model_permissions:
 
-                    # Generate permission name as Django would generate it
+                    # Generate permission name as Django would, in terms of format
                     codename = f"{model_permission_name}_{model_class._meta.model_name}"
 
                     try:
-                        # Find permission object and add to group
                         permission = Permission.objects.get(codename=codename)
                         group.permissions.add(permission)
                         self.stdout.write(f"Adding {codename} to group {group}")
                     except Permission.DoesNotExist:
                         self.stdout.write(f"{codename} not found")
+            # fmt: on
