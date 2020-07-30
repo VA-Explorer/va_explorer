@@ -17,6 +17,9 @@
         <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
       </li>
       {% endif %}
+      <li class="nav-item">
+        <a class="{% active '\/(.*)dashboard' %} nav-link" href="{% url 'va_analytics:dashboard' %}">Dashboard</a>
+      </li>
     </ul>
     <ul class="navbar-nav ml-auto my-2 my-lg-0">
       {% if request.user.is_authenticated %}

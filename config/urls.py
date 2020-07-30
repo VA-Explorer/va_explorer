@@ -12,7 +12,10 @@ urlpatterns = [
     # User management
     path("users/", include("va_explorer.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    # django-plotly-dash
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
     # Your stuff: custom urls includes go here
+    path("va_analytics/", include("va_explorer.va_analytics.urls", namespace="va_analytics"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

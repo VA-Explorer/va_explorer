@@ -69,12 +69,15 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "django_celery_beat",
+    "django_plotly_dash.apps.DjangoPlotlyDashConfig",
     "simple_history",
+    "channels"
 ]
 
 LOCAL_APPS = [
     "va_explorer.users.apps.UsersConfig",
-    "verbal_autopsy",
+    "va_explorer.va_analytics.apps.VaAnalyticsConfig",
+    "verbal_autopsy"
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -132,6 +135,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_plotly_dash.middleware.BaseMiddleware",
+    "django_plotly_dash.middleware.ExternalRedirectionMiddleware"
 ]
 
 # STATIC
@@ -146,6 +151,9 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "django_plotly_dash.finders.DashAssetFinder",
+    "django_plotly_dash.finders.DashComponentFinder",
+    "django_plotly_dash.finders.DashAppDirectoryFinder",
 ]
 
 # MEDIA
@@ -210,7 +218,7 @@ CSRF_COOKIE_HTTPONLY = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-browser-xss-filter
 SECURE_BROWSER_XSS_FILTER = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#x-frame-options
-X_FRAME_OPTIONS = "DENY"
+# X_FRAME_OPTIONS = "DENY"
 
 # EMAIL
 # ------------------------------------------------------------------------------
@@ -284,9 +292,41 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 # https://django-allauth.readthedocs.io/en/latest/advanced.html
 ACCOUNT_USERNAME_REQUIRED = False
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731
+
+# django-plotly-dash
+# ------------------------------------------------------------------------------
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379),],
+        },
+    },
+}
+
+ASGI_APPLICATION = 'va_explorer.va_analytics.routing.applications'
+
+#BEA: added some django-plotly-dash config settings from https://django-plotly-dash.readthedocs.io/en/latest/configuration.html#configuration
+
+PLOTLY_COMPONENTS = [
+    'dash_core_components',
+    'dash_html_components',
+    'dash_renderer',
+    'dpd_components',
+    'dash_bootstrap_components'
+]
+
+PLOTLY_DASH = {
+    "ws_route": "ws/channel",
+    "insert_demo_migrations":True,  # Insert model instances used by the demo
+    "http_poke_enabled":True, # Flag controlling availability of direct-to-messaging http endpoint
+    "view_decorator":None, # Specify a function to be used to wrap each of the dpd view functions
+    "cache_arguments":True, # True for cache, False for session-based argument propagation
+    #"serve_locally":True, # True to serve assets locally, False to use their unadulterated urls (eg a CDN)
+    "stateless_loader":"demo.scaffold.stateless_app_loader"
+    }

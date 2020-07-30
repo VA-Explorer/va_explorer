@@ -28,12 +28,14 @@
 
     {% endblock %}
 
+  {% load plotly_dash%}
+  {% plotly_header %}
+
   </head>
   <body>
     <div class="mb-1">
       {% include "partials/_top_navigation.html" %}
     </div>
-
     <div class="{% block container-type %}container{% endblock %}">
       {% include "partials/_messages.html" %}
 
@@ -55,10 +57,12 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
+      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
       <!-- place project specific Javascript in this file -->
       <script src="{% static 'js/project.js' %}"></script>
 
     {% endblock javascript %}
   </body>
+  {% plotly_footer %}
 </html>
