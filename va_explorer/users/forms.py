@@ -4,16 +4,21 @@ from allauth.account.forms import (
     PasswordVerificationMixin,
     SetPasswordField,
 )
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
 from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelMultipleChoiceField
+from django.forms.fields import ChoiceField
+from django.forms.models import ModelChoiceField
 from django.utils.crypto import get_random_string
+from django_select2 import forms as s2forms
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 # from django.forms import ModelChoiceField
-
+from verbal_autopsy.models import Location
 
 User = get_user_model()
 
@@ -22,6 +27,45 @@ User = get_user_model()
 # class ModelChoiceField(forms.ModelChoiceField):
 #     def label_from_instance(self, obj):
 #         return "%s" % (obj.name)
+
+class CustomSelect(forms.Select):
+    def __init__(self, attrs=None, choices=()):
+        self.custom_attrs = {}
+        super().__init__(attrs, choices)
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        index = str(index) if subindex is None else "%s_%s" % (index, subindex)
+        if attrs is None:
+            attrs = {}
+        option_attrs = self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
+        if selected:
+            option_attrs.update(self.checked_attribute)
+        if 'id' in option_attrs:
+            option_attrs['id'] = self.id_for_label(option_attrs['id'], index)
+
+        # setting the attributes here for the option
+        if len(self.custom_attrs) > 0:
+            if value in self.custom_attrs:
+                custom_attr = self.custom_attrs[value]
+                for k, v in custom_attr.items():
+                    option_attrs.update({k: v})
+
+        return {
+            'name': name,
+            'value': value,
+            'label': label,
+            'selected': selected,
+            'index': index,
+            'attrs': option_attrs,
+            'type': self.input_type,
+            'template_name': self.option_template_name,
+        }
+
+
+class LocationChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        self.widget.custom_attrs.update({obj.pk: {'class': obj.depth}})
+        return obj.name
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -40,7 +84,7 @@ class ExtendedUserCreationForm(UserCreationForm):
     password1 = None
     password2 = None
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
-
+    locations = LocationChoiceField(queryset=Location.objects.all().order_by('path'), widget=CustomSelect(attrs={'class': "js-example-basic-single", 'multiple': "multiple", "name": 'locations[]' }))
     # TODO: Allow for selection of only one group
     # group = ModelChoiceField(queryset=Group.objects.all())
 
@@ -52,6 +96,20 @@ class ExtendedUserCreationForm(UserCreationForm):
         self.request = kwargs.pop("request", None)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
+
+        #self.fields['locations'].widget.queryset = Location.objects.all()
+
+        # location_types = [elem['location_type'] for elem in
+        #                   Location.objects.order_by('depth').values('location_type').distinct()]
+
+        # for depth, location in enumerate(location_types):
+        #     depth += 1
+        #     klass = "hidden" if depth > 1 else None
+        #
+        #     self.fields['location_%s' % depth] = forms.ModelMultipleChoiceField(
+        #         label=location.capitalize(),
+        #         queryset=Location.objects.filter(location_type=location),
+        #         widget=forms.SelectMultiple(attrs={'class': klass}))
 
     def clean(self, *args, **kwargs):
         """
@@ -93,13 +151,16 @@ class ExtendedUserCreationForm(UserCreationForm):
 class UserUpdateForm(forms.ModelForm):
     name = forms.CharField(required=True, max_length=100)
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
+    provinces = ModelMultipleChoiceField(queryset=Location.objects.filter(location_type='province'), required=True)
+    districts = ModelMultipleChoiceField(queryset=Location.objects.filter(location_type='district'), required=True)
+    facilities = ModelMultipleChoiceField(queryset=Location.objects.filter(location_type='facility'), required=True)
 
     # TODO: Allow for selection of only one group
     # group = GroupModelChoiceField(queryset=Group.objects.all())
 
     class Meta:
         model = User
-        fields = ["name", "email", "is_active", "groups"]
+        fields = ["name", "email", "is_active", "groups", "provinces", "districts", "facilities"]
 
     def __init__(self, *args, **kwargs):
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below

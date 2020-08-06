@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block title %}Create a New User{% endblock %}
@@ -9,7 +10,7 @@
   </div>
   <div class="row">
     <div class="col-md-6">
-      <form method="post" action="{% url 'users:create' %}">
+      <form method="post" id="user-create-form" action="{% url 'users:create' %}" data-location-url="{% url 'users:ajax_load_location_children' %}">
         {% csrf_token %}
         {{ form|crispy }}
         <div class="control-group">
@@ -20,4 +21,9 @@
       </form>
     </div>
   </div>
+
+  {% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/location.js' %}"></script>
+  {% endblock %}
 {% endblock %}

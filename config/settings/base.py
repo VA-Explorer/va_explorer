@@ -70,6 +70,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "django_celery_beat",
     "simple_history",
+    "django_select2"
 ]
 
 LOCAL_APPS = [
@@ -287,3 +288,4 @@ ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+

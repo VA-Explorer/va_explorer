@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -11,6 +12,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from verbal_autopsy.models import Location
 from ..utils.mixins import CustomAuthMixin
 from .forms import ExtendedUserCreationForm, UserSetPasswordForm, UserUpdateForm
 
@@ -48,6 +50,24 @@ class UserCreateView(
 
 
 user_create_view = UserCreateView.as_view()
+
+
+def load_location_children(request):
+    # django: https://docs.djangoproject.com/en/3.0/ref/request-response/#django.http.QueryDict.getlist
+    location_ids = request.GET.getlist('location[]')
+    locations = Location.objects.filter(id__in=location_ids).all()
+
+    children = []
+    for location in locations:
+        location_children = location.get_children()
+        for child in location_children:
+            children.append(child)
+
+    depth = locations[0].depth + 1
+    if depth == 2:
+        return render(request, 'locations/child_dropdown_list.html', {'children_2': children, 'children_3': []})
+    else:
+        return render(request, 'locations/child_dropdown_list.html', {'children_3': children})
 
 
 class UserDetailView(CustomAuthMixin, PermissionRequiredMixin, DetailView):
