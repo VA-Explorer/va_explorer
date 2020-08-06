@@ -4,15 +4,11 @@ from allauth.account.forms import (
     PasswordVerificationMixin,
     SetPasswordField,
 )
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
 from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelMultipleChoiceField
-from django.forms.fields import ChoiceField
-from django.forms.models import ModelChoiceField
 from django.utils.crypto import get_random_string
 from django_select2 import forms as s2forms
 
@@ -96,20 +92,6 @@ class ExtendedUserCreationForm(UserCreationForm):
         self.request = kwargs.pop("request", None)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
-
-        #self.fields['locations'].widget.queryset = Location.objects.all()
-
-        # location_types = [elem['location_type'] for elem in
-        #                   Location.objects.order_by('depth').values('location_type').distinct()]
-
-        # for depth, location in enumerate(location_types):
-        #     depth += 1
-        #     klass = "hidden" if depth > 1 else None
-        #
-        #     self.fields['location_%s' % depth] = forms.ModelMultipleChoiceField(
-        #         label=location.capitalize(),
-        #         queryset=Location.objects.filter(location_type=location),
-        #         widget=forms.SelectMultiple(attrs={'class': klass}))
 
     def clean(self, *args, **kwargs):
         """

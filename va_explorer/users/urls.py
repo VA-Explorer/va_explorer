@@ -1,6 +1,5 @@
 from django.urls import path
 
-from va_explorer.users import views
 from va_explorer.users.views import (
     user_create_view,
     user_detail_view,
@@ -17,6 +16,5 @@ urlpatterns = [
     path("create/", view=user_create_view, name="create"),
     path("", view=user_index_view, name="index"),
     path("<int:pk>/", view=user_detail_view, name="detail"),
-    path("set_password/", view=user_set_password_view, name="set_password"),
-    path('ajax/load-location-children/', views.load_location_children, name='ajax_load_location_children'),
+    path("set_password/", view=user_set_password_view, name="set_password")
 ]

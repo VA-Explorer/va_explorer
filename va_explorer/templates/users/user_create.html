@@ -10,7 +10,7 @@
   </div>
   <div class="row">
     <div class="col-md-6">
-      <form method="post" id="user-create-form" action="{% url 'users:create' %}" data-location-url="{% url 'users:ajax_load_location_children' %}">
+      <form method="post" id="user-create-form" action="{% url 'users:create' %}">
         {% csrf_token %}
         {{ form|crispy }}
         <div class="control-group">
