@@ -1,30 +1,30 @@
 $(document).ready(function() {
   function formatResult(node) {
-  var level = 0;
-  var text_transform = 'capitalize';
-  var font_weight = 'normal';
-  var font_style = 'normal';
+    let depth = 0;
 
-  if(node.element !== undefined){
-    level = (node.element.className);
-    if(level.trim() !== ''){
-      level = (parseInt(level.match(/\d+/)[0]))-1;
-    }
-    if(level===0) {
-      text_transform = 'uppercase';
-    }
-    else if(level===2) {
-      font_style = 'italic';
-    }
-  }
-  const left_padding = (20 * level);
+    if(node.element !== undefined){
+      depth = node.element.getAttribute('data-depth');
 
-  return $('<span style="padding-left:' + left_padding + 'px; text-transform:' + text_transform + '; ' +
-      'font-weight:' + font_weight + '; ' + 'font-style:' + font_style + ';">' + node.text + '</span>');
+      if(depth.trim() !== ''){
+        depth = parseInt(depth.match(/\d+/)[0]);
+      }
+    }
+
+    return $('<span class="location-tree-depth-'+depth+'">'+ node.text +'</span>');
   }
 
-  $(".js-example-basic-single").select2({
+  $(".location-select").select2({
     placeholder: "Search for location(s) to add to user's geographic access",
     templateResult: formatResult,
+  });
+
+  $(".location-select").on('change', function (e) {
+    console.log($('select option:selected').attributes);
+    $('select option:selected').prop('disabled', true);
+  });
+
+  $(".location-select").on('select2:unselect', function (e) {
+    console.log("Called!")
+    $('select option:not(:selected)').prop('disabled', false);
   });
 });

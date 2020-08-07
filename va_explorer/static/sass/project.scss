@@ -39,3 +39,18 @@ $red: #b94a48;
 .hidden {
   display: none;
 }
+
+.location-tree-depth-1 {
+  padding-left: 0;
+  text-transform: uppercase;
+}
+
+.location-tree-depth-2 {
+  padding-left: 20px;
+}
+
+.location-tree-depth-3 {
+  padding-left: 40px;
+  font-style: italic;
+}
+

@@ -22,6 +22,12 @@ class Location(MP_Node):
     def __str__(self):
         return self.name
 
+    def descendant_ids(self):
+        return [descendant.id for descendant in self.get_descendants()]
+
+    def parent_id(self):
+        return self.get_parent().id
+
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
     location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE)

@@ -60,7 +60,7 @@ class CustomSelect(forms.Select):
 
 class LocationChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        self.widget.custom_attrs.update({obj.pk: {'class': obj.depth}})
+        self.widget.custom_attrs.update({obj.pk: {'data-depth': obj.depth, 'data-parent': obj.parent_id}})
         return obj.name
 
 
@@ -80,7 +80,10 @@ class ExtendedUserCreationForm(UserCreationForm):
     password1 = None
     password2 = None
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
-    locations = LocationChoiceField(queryset=Location.objects.all().order_by('path'), widget=CustomSelect(attrs={'class': "js-example-basic-single", 'multiple': "multiple", "name": 'locations[]' }))
+    locations = LocationChoiceField(queryset=Location.objects.all().order_by('path'),
+                                    widget=CustomSelect(
+                                    attrs={'class': "location-select", 'multiple': "multiple", "name": 'locations[]'}))
+
     # TODO: Allow for selection of only one group
     # group = ModelChoiceField(queryset=Group.objects.all())
 
