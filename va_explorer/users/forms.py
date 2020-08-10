@@ -10,7 +10,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelMultipleChoiceField
 from django.utils.crypto import get_random_string
-from django_select2 import forms as s2forms
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 # from django.forms import ModelChoiceField
@@ -24,44 +23,15 @@ User = get_user_model()
 #     def label_from_instance(self, obj):
 #         return "%s" % (obj.name)
 
-class CustomSelect(forms.Select):
-    def __init__(self, attrs=None, choices=()):
-        self.custom_attrs = {}
-        super().__init__(attrs, choices)
 
-    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
-        index = str(index) if subindex is None else "%s_%s" % (index, subindex)
-        if attrs is None:
-            attrs = {}
-        option_attrs = self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
-        if selected:
-            option_attrs.update(self.checked_attribute)
-        if 'id' in option_attrs:
-            option_attrs['id'] = self.id_for_label(option_attrs['id'], index)
-
-        # setting the attributes here for the option
-        if len(self.custom_attrs) > 0:
-            if value in self.custom_attrs:
-                custom_attr = self.custom_attrs[value]
-                for k, v in custom_attr.items():
-                    option_attrs.update({k: v})
-
-        return {
-            'name': name,
-            'value': value,
-            'label': label,
-            'selected': selected,
-            'index': index,
-            'attrs': option_attrs,
-            'type': self.input_type,
-            'template_name': self.option_template_name,
-        }
-
-
-class LocationChoiceField(forms.ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        self.widget.custom_attrs.update({obj.pk: {'data-depth': obj.depth, 'data-parent': obj.parent_id}})
-        return obj.name
+class LocationSelectMultiple(forms.SelectMultiple):
+    def create_option(self, name, value, *args, **kwargs):
+        option = super().create_option(name, value, *args, **kwargs)
+        if value:
+            instance = self.choices.queryset.get(pk=value)  # get instance
+            option['attrs']['data-depth'] = instance.depth  # set option attribute
+            option['attrs']['data-descendants'] = instance.descendant_ids
+        return option
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -75,24 +45,26 @@ class ExtendedUserCreationForm(UserCreationForm):
     * name field is added.
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
-
     name = forms.CharField(required=True)
     password1 = None
     password2 = None
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
-    locations = LocationChoiceField(queryset=Location.objects.all().order_by('path'),
-                                    widget=CustomSelect(
-                                    attrs={'class': "location-select", 'multiple': "multiple", "name": 'locations[]'}))
+    locations = ModelMultipleChoiceField(queryset=Location.objects.all().order_by('path'), required=True,
+                                         widget=LocationSelectMultiple(
+                                             attrs={'class': "location-select", 'multiple': "multiple"}
+                                         ))
 
     # TODO: Allow for selection of only one group
     # group = ModelChoiceField(queryset=Group.objects.all())
 
     class Meta:
         model = User
-        fields = ["name", "email", "groups"]
+        fields = ["name", "email", "groups", "locations"]
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
+        print("REQUEST")
+        print(self.request.body)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
 
@@ -100,6 +72,8 @@ class ExtendedUserCreationForm(UserCreationForm):
         """
         Normal cleanup
         """
+        print(*args)
+        print(*kwargs)
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
         return cleaned_data
 
@@ -110,6 +84,7 @@ class ExtendedUserCreationForm(UserCreationForm):
         change upon initial login.
         """
         user = super(UserCreationForm, self).save(commit)
+
         if user:
             user.email = self.cleaned_data["email"]
             user.name = self.cleaned_data["name"]
