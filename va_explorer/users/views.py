@@ -41,6 +41,8 @@ class UserCreateView(
 
     def get_form_kwargs(self):
         kw = super(UserCreateView, self).get_form_kwargs()
+        print("form kwargs")
+        print(kw)
         kw["request"] = self.request  # the trick!
         return kw
 
