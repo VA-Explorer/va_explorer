@@ -9,7 +9,6 @@ $(document).ready(function() {
         depth = parseInt(depth.match(/\d+/)[0]);
       }
     }
-
     return $('<span class="location-tree-depth-'+depth+'">'+ node.text +'</span>');
   }
 
@@ -18,13 +17,41 @@ $(document).ready(function() {
     templateResult: formatResult,
   });
 
-  $(".location-select").on('change', function (e) {
-    console.log($('select option:selected').attributes);
-    $('select option:selected').prop('disabled', true);
+  $(".location-select").on('select2:select', function(e) {
+    const data = e.params.data;
+    let descendants = data.element.dataset.descendants;
+
+    let locationsToDisableHash = descendantsHash(descendants);
+    locationsToDisableHash[parseInt(data.id)] = true;
+
+    toggleLocationState(locationsToDisableHash, true)
   });
 
-  $(".location-select").on('select2:unselect', function (e) {
-    console.log("Called!")
-    $('select option:not(:selected)').prop('disabled', false);
+  $(".location-select").on('select2:unselect', function(e) {
+    const data = e.params.data;
+    let descendants = data.element.dataset.descendants;
+
+    let locationsToEnableHash = descendantsHash(descendants);
+    locationsToEnableHash[parseInt(data.id)] = true;
+
+    toggleLocationState(locationsToEnableHash, false)
   });
+
+  function descendantsHash(descendants) {
+    let descendantsHash = {};
+    if(descendants!=='') {
+      descendants = descendants.replace(/'/g, '"');
+
+      JSON.parse(descendants).forEach(function(element) {
+        descendantsHash[element] = true;
+      });
+    }
+    return descendantsHash;
+  }
+
+  function toggleLocationState(locationsHash, disabledState) {
+    $(".location-select option").filter(function() {
+      return this.value in locationsHash;
+    }).prop('disabled', disabledState);
+  }
 });
