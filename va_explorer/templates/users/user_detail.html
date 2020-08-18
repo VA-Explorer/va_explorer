@@ -34,4 +34,12 @@
         {%  endfor %}
     </div>
 </div>
+  <div class="row mt-3">
+    <div class="col-sm-2"><strong>Geographic Access</strong></div>
+    <div class="col-sm-6">
+        {%  for location in user.locations.all %}
+          {{ location.name }} <br>
+        {%  endfor %}
+    </div>
+</div>
 {% endblock content %}
