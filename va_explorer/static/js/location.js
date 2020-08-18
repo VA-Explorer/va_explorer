@@ -20,19 +20,15 @@ $(document).ready(function() {
   $(".location-select").on('select2:select', function(e) {
     const data = e.params.data;
     let descendants = data.element.dataset.descendants;
-
     let locationsToDisableHash = descendantsHash(descendants);
-    locationsToDisableHash[parseInt(data.id)] = true;
 
-    toggleLocationState(locationsToDisableHash, true)
+    toggleLocationState(locationsToDisableHash, true);
   });
 
   $(".location-select").on('select2:unselect', function(e) {
     const data = e.params.data;
     let descendants = data.element.dataset.descendants;
-
     let locationsToEnableHash = descendantsHash(descendants);
-    locationsToEnableHash[parseInt(data.id)] = true;
 
     toggleLocationState(locationsToEnableHash, false)
   });
