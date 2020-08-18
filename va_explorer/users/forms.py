@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelMultipleChoiceField
+#from django.forms.models import ModelChoiceField
 from django.utils.crypto import get_random_string
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
@@ -51,7 +52,7 @@ class ExtendedUserCreationForm(UserCreationForm):
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
     locations = ModelMultipleChoiceField(queryset=Location.objects.all().order_by('path'), required=True,
                                          widget=LocationSelectMultiple(
-                                             attrs={'class': "location-select", 'multiple': "multiple"}
+                                             attrs={'class': "location-select"}
                                          ))
 
     # TODO: Allow for selection of only one group
@@ -63,8 +64,6 @@ class ExtendedUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
-        print("REQUEST")
-        print(self.request.body)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
 
@@ -72,8 +71,6 @@ class ExtendedUserCreationForm(UserCreationForm):
         """
         Normal cleanup
         """
-        print(*args)
-        print(*kwargs)
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
         return cleaned_data
 
@@ -90,9 +87,14 @@ class ExtendedUserCreationForm(UserCreationForm):
             user.name = self.cleaned_data["name"]
             password = get_random_string(length=32)
             user.set_password(password)
+            locations = self.cleaned_data["locations"]
 
             if commit:
                 user.save()
+
+                # You cannot associate the user with a location(s) until it’s been saved
+                # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
+                user.locations.add(*locations)
 
             # TODO: Allow for selection of only one group
             # Set the group chosen from the POST request
