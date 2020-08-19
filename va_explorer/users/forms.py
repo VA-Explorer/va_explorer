@@ -39,9 +39,6 @@ class ExtendedUserCreationForm(UserCreationForm):
     """
     Extends the built in UserCreationForm in several ways:
 
-    * Adds an email field, which uses the custom UniqueUserEmailField,
-      that is, the form does not validate if the email address already exists
-      in the User table.
     * The username is not visible.
     * name field is added.
     * Data not saved by the default behavior of UserCreationForm is saved.
@@ -85,8 +82,10 @@ class ExtendedUserCreationForm(UserCreationForm):
         if user:
             user.email = self.cleaned_data["email"]
             user.name = self.cleaned_data["name"]
+
             password = get_random_string(length=32)
             user.set_password(password)
+
             locations = self.cleaned_data["locations"]
 
             if commit:
@@ -113,26 +112,31 @@ class ExtendedUserCreationForm(UserCreationForm):
 class UserUpdateForm(forms.ModelForm):
     name = forms.CharField(required=True, max_length=100)
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
-    provinces = ModelMultipleChoiceField(queryset=Location.objects.filter(location_type='province'), required=True)
-    districts = ModelMultipleChoiceField(queryset=Location.objects.filter(location_type='district'), required=True)
-    facilities = ModelMultipleChoiceField(queryset=Location.objects.filter(location_type='facility'), required=True)
+    locations = ModelMultipleChoiceField(queryset=Location.objects.all().order_by('path'), required=True,
+                                         widget=LocationSelectMultiple(
+                                             attrs={'class': "location-select"}
+                                         ))
 
     # TODO: Allow for selection of only one group
     # group = GroupModelChoiceField(queryset=Group.objects.all())
 
     class Meta:
         model = User
-        fields = ["name", "email", "is_active", "groups", "provinces", "districts", "facilities"]
+        fields = ["name", "email", "is_active", "groups", "locations"]
 
     def __init__(self, *args, **kwargs):
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # self.request = kwargs.pop("request", None)
 
+        current_user = kwargs["instance"]
+
         # TODO: Allow for selection of only one group
-        # current_user = kwargs.pop("instance")
         # current_group = current_user.groups.first()
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
+
+        # TODO: This seems like it should not be necessary as this is a bound form
+        self.initial['locations'] = [location.id for location in current_user.locations.all()]
 
     def clean(self, *args, **kwargs):
         """
@@ -143,6 +147,13 @@ class UserUpdateForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super(UserUpdateForm, self).save(commit)
+        locations = self.cleaned_data["locations"]
+
+        if commit:
+            # You cannot associate the user with a location(s) until it’s been saved
+            # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
+            user.locations.clear()
+            user.locations.add(*locations)
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address
