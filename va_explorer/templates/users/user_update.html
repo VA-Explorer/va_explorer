@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block title %}Edit User{% endblock %}
@@ -18,4 +19,9 @@
       </div>
     </form>
   </div>
+
+  {% block javascript %}
+    {{ block.super }}
+    <script src="{% static 'js/location.js' %}"></script>
+  {% endblock %}
 {% endblock %}
