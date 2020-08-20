@@ -25,6 +25,7 @@ User = get_user_model()
 #         return "%s" % (obj.name)
 
 
+# TODO: Update to Django 3.1 to get access to the instance via value without making another query
 class LocationSelectMultiple(forms.SelectMultiple):
     def create_option(self, name, value, *args, **kwargs):
         option = super().create_option(name, value, *args, **kwargs)
