@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -24,7 +23,7 @@ class UserIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     permission_required = "users.view_user"
     model = User
     paginate_by = 10
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('name')
 
 
 user_index_view = UserIndexView.as_view()
