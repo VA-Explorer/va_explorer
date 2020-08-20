@@ -1,3 +1,13 @@
+  /**
+   * Summary. Governs the behavior of the select2 Locations dropdown
+   *
+   * Examples: User creation and update forms.
+   *
+   * Note: CSS styling is used to emulate hierarchy due to HTML specification
+   * which allows only one level of nesting in optgroup
+   * https://select2.org/options#hierarchical-options
+   */
+
 $(document).ready(function() {
   /**
    * Summary. Initializes the select2 dropdown
@@ -70,7 +80,6 @@ $(document).ready(function() {
 
   /**
    * Summary. Toggles the disabled attribute in the option element
-   * Example:
    *
    * @param {object}   locationsHash
    * @param {boolean}  disabledState  boolean to indicate if disabled is true or false
