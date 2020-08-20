@@ -287,4 +287,3 @@ ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731
 
 # Your stuff...
 # ------------------------------------------------------------------------------
-
