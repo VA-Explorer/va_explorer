@@ -128,15 +128,10 @@ class UserUpdateForm(forms.ModelForm):
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # self.request = kwargs.pop("request", None)
 
-        current_user = kwargs["instance"]
-
         # TODO: Allow for selection of only one group
         # current_group = current_user.groups.first()
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
-
-        # TODO: This seems like it should not be necessary as this is a bound form
-        self.initial['locations'] = [location.id for location in current_user.locations.all()]
 
     def clean(self, *args, **kwargs):
         """
