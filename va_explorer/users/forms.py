@@ -9,7 +9,6 @@ from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelMultipleChoiceField
-#from django.forms.models import ModelChoiceField
 from django.utils.crypto import get_random_string
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
@@ -31,8 +30,8 @@ class LocationSelectMultiple(forms.SelectMultiple):
         option = super().create_option(name, value, *args, **kwargs)
         if value:
             instance = self.choices.queryset.get(pk=value)  # get instance
-            option['attrs']['data-depth'] = instance.depth  # set option attribute
-            option['attrs']['data-descendants'] = instance.descendant_ids
+            option["attrs"]["data-depth"] = instance.depth  # set option attribute
+            option["attrs"]["data-descendants"] = instance.descendant_ids
         return option
 
 
@@ -44,14 +43,16 @@ class ExtendedUserCreationForm(UserCreationForm):
     * name field is added.
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
+
     name = forms.CharField(required=True)
     password1 = None
     password2 = None
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
-    locations = ModelMultipleChoiceField(queryset=Location.objects.all().order_by('path'), required=True,
-                                         widget=LocationSelectMultiple(
-                                             attrs={'class': "location-select"}
-                                         ))
+    locations = ModelMultipleChoiceField(
+        queryset=Location.objects.all().order_by("path"),
+        required=True,
+        widget=LocationSelectMultiple(attrs={"class": "location-select"}),
+    )
 
     # TODO: Allow for selection of only one group
     # group = ModelChoiceField(queryset=Group.objects.all())
@@ -113,10 +114,11 @@ class ExtendedUserCreationForm(UserCreationForm):
 class UserUpdateForm(forms.ModelForm):
     name = forms.CharField(required=True, max_length=100)
     groups = ModelMultipleChoiceField(queryset=Group.objects.all(), required=True)
-    locations = ModelMultipleChoiceField(queryset=Location.objects.all().order_by('path'), required=True,
-                                         widget=LocationSelectMultiple(
-                                             attrs={'class': "location-select"}
-                                         ))
+    locations = ModelMultipleChoiceField(
+        queryset=Location.objects.all().order_by("path"),
+        required=True,
+        widget=LocationSelectMultiple(attrs={"class": "location-select"}),
+    )
 
     # TODO: Allow for selection of only one group
     # group = GroupModelChoiceField(queryset=Group.objects.all())

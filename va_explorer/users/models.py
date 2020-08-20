@@ -50,7 +50,7 @@ class User(AbstractUser):
         _("The user has a user-defined password"), default=False
     )
 
-    locations = ManyToManyField(Location, related_name='users')
+    locations = ManyToManyField(Location, related_name="users")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
