@@ -70,7 +70,6 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "django_celery_beat",
     "simple_history",
-    "django_select2"
 ]
 
 LOCAL_APPS = [
