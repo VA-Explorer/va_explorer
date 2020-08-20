@@ -2,8 +2,11 @@ import pytest
 from django.contrib.auth import models
 
 from va_explorer.users.models import User
+from verbal_autopsy.models import Location
+
 from va_explorer.users.tests.factories import (
     GroupFactory,
+    LocationFactory,
     PermissionFactory,
     UserFactory,
 )
@@ -27,3 +30,8 @@ def group() -> models.Group:
 @pytest.fixture
 def permission() -> models.Permission:
     return PermissionFactory()
+
+
+@pytest.fixture
+def location() -> Location:
+    return LocationFactory()

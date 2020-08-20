@@ -4,7 +4,7 @@ from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from va_explorer.users.forms import ExtendedUserCreationForm
-from va_explorer.users.tests.factories import GroupFactory, NewUserFactory
+from va_explorer.users.tests.factories import GroupFactory, LocationFactory, NewUserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -23,9 +23,15 @@ def retrieve_password_from_email_body(body):
 # A utility method to create and return a new user via the ExtendedUserCreationForm
 def create_and_return_a_new_user(rf, proto_user):
     group = GroupFactory.create()
+    location = LocationFactory.create()
 
     form = ExtendedUserCreationForm(
-        {"name": proto_user.name, "email": proto_user.email, "groups": [group]}
+        {
+            "name": proto_user.name,
+            "email": proto_user.email,
+            "groups": [group],
+            "locations": [location]
+        }
     )
 
     # Note: The form expects a request object to be set in order to save it

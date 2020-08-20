@@ -1,6 +1,9 @@
 import factory
 from django.contrib.auth import get_user_model, models
 from factory import DjangoModelFactory, Faker, Sequence
+from factory.fuzzy import FuzzyInteger
+
+from verbal_autopsy.models import Location
 
 User = get_user_model()
 
@@ -28,6 +31,17 @@ class GroupFactory(DjangoModelFactory):
                 self.permissions.add(permission)
 
 
+class LocationFactory(DjangoModelFactory):
+    class Meta:
+        model = Location
+
+    name = Faker("city")
+    depth = FuzzyInteger(0, 4, 1)
+    location_type = "district"
+    numchild = FuzzyInteger(0, 20)
+    path = "001"
+
+
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
@@ -47,6 +61,17 @@ class UserFactory(DjangoModelFactory):
             # A list of groups were passed in, use them
             for group in extracted:
                 self.groups.add(group)
+
+    @factory.post_generation
+    def locations(self, create, extracted, *kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for location in extracted:
+                self.locations.add(location)
 
 
 class NewUserFactory(UserFactory):
