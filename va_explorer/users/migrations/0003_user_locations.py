@@ -6,14 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('verbal_autopsy', '0004_remove_location_users'),
-        ('users', '0002_auto_20200721_1951'),
+        ("verbal_autopsy", "0004_remove_location_users"),
+        ("users", "0002_auto_20200721_1951"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='locations',
-            field=models.ManyToManyField(related_name='users', to='verbal_autopsy.Location'),
+            model_name="user",
+            name="locations",
+            field=models.ManyToManyField(
+                related_name="users", to="verbal_autopsy.Location"
+            ),
         ),
     ]

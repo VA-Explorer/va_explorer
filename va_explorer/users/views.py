@@ -23,7 +23,7 @@ class UserIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     permission_required = "users.view_user"
     model = User
     paginate_by = 10
-    queryset = User.objects.all().order_by('name')
+    queryset = User.objects.all().order_by("name")
 
 
 user_index_view = UserIndexView.as_view()

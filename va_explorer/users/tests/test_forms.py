@@ -6,7 +6,11 @@ from va_explorer.users.forms import (
     UserSetPasswordForm,
     UserUpdateForm,
 )
-from va_explorer.users.tests.factories import GroupFactory, LocationFactory, NewUserFactory
+from va_explorer.users.tests.factories import (
+    GroupFactory,
+    LocationFactory,
+    NewUserFactory,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -23,7 +27,8 @@ class TestUserCreationForm:
                 "name": proto_user.name,
                 "email": proto_user.email,
                 "groups": [group],
-                "locations": [location]}
+                "locations": [location],
+            }
         )
 
         # Note: The form expects a request object to be set in order to save it
@@ -43,7 +48,7 @@ class TestUserCreationForm:
                 "name": existing_user.name,
                 "email": existing_user.email,
                 "groups": [group],
-                "locations": [location]
+                "locations": [location],
             }
         )
 
@@ -62,7 +67,7 @@ class TestUserCreationForm:
                 "name": proto_user.name,
                 "email": "",
                 "groups": [group],
-                "locations": [location]
+                "locations": [location],
             }
         )
 
@@ -81,7 +86,7 @@ class TestUserCreationForm:
                 "name": "",
                 "email": proto_user.email,
                 "groups": [group],
-                "locations": [location]
+                "locations": [location],
             }
         )
 
@@ -99,7 +104,7 @@ class TestUserCreationForm:
                 "name": proto_user.name,
                 "email": proto_user.email,
                 "groups": [],
-                "locations": [location]
+                "locations": [location],
             }
         )
 
@@ -117,7 +122,7 @@ class TestUserCreationForm:
                 "name": proto_user.name,
                 "email": proto_user.email,
                 "groups": [group],
-                "locations": []
+                "locations": [],
             }
         )
 
@@ -137,7 +142,7 @@ class TestUserUpdateForm:
                 "email": "updatedemail@example.com",
                 "groups": [new_group],
                 "is_active": False,
-                "locations": [location]
+                "locations": [location],
             }
         )
 
@@ -153,7 +158,7 @@ class TestUserUpdateForm:
                 "name": proto_user.name,
                 "email": proto_user.email,
                 "groups": [],
-                "locations": [location]
+                "locations": [location],
             }
         )
 

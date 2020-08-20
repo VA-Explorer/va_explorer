@@ -4,7 +4,11 @@ from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from va_explorer.users.forms import ExtendedUserCreationForm
-from va_explorer.users.tests.factories import GroupFactory, LocationFactory, NewUserFactory
+from va_explorer.users.tests.factories import (
+    GroupFactory,
+    LocationFactory,
+    NewUserFactory,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -30,7 +34,7 @@ def create_and_return_a_new_user(rf, proto_user):
             "name": proto_user.name,
             "email": proto_user.email,
             "groups": [group],
-            "locations": [location]
+            "locations": [location],
         }
     )
 
