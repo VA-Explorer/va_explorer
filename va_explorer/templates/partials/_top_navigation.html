@@ -1,3 +1,4 @@
+{% load va_explorer_tags %}
 {% load static i18n %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
@@ -9,15 +10,13 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'about' %}">About</a>
+        <a class="{% active 'about' %} nav-link" href="{% url 'about' %}">About</a>
       </li>
       {% if perms.users.view_user %}
       <li class="nav-item">
-        <a {% if "/users/" in request.path %} class="active nav-link" {% else %}
-                                              class="nav-link" {% endif %}
-                href="{% url 'users:index' %}">Users</a>
+        <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
       </li>
-      {%  endif %}
+      {% endif %}
     </ul>
     <ul class="navbar-nav ml-auto my-2 my-lg-0">
       {% if request.user.is_authenticated %}
