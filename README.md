@@ -79,9 +79,8 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 * Update the .env file at the project root to reflect your Postgres user and password.
 
 * Run the database migrations
-
-    `python manage.py makemigrations`
-    `python manage.py migrate`
+    * `python manage.py makemigrations`
+    * `python manage.py migrate`
 
 
 #### Tasks
@@ -117,7 +116,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
   `python manage.py load_va_csv <NAME OF CSV>`
 
-* Run the Interva5 cause of death coding algorithm
+* Run the InterVA5 cause of death coding algorithm
 
   `python manage.py run_coding_algorithms`
 
