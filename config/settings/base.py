@@ -183,6 +183,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "va_explorer.utils.context_processors.settings_context",
             ],
+            "libraries": {
+                "va_explorer_tags": "va_explorer.templatetags.va_explorer_tags"
+            },
         },
     }
 ]

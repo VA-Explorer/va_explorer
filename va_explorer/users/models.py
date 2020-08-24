@@ -1,12 +1,13 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, CharField, EmailField
+from django.db.models import BooleanField, CharField, EmailField, ManyToManyField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
+from verbal_autopsy.models import Location
 
 
 class CustomUserManager(BaseUserManager):
@@ -48,6 +49,8 @@ class User(AbstractUser):
     has_valid_password = BooleanField(
         _("The user has a user-defined password"), default=False
     )
+
+    locations = ManyToManyField(Location, related_name="users")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

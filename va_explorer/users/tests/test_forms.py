@@ -6,7 +6,11 @@ from va_explorer.users.forms import (
     UserSetPasswordForm,
     UserUpdateForm,
 )
-from va_explorer.users.tests.factories import GroupFactory, NewUserFactory
+from va_explorer.users.tests.factories import (
+    GroupFactory,
+    LocationFactory,
+    NewUserFactory,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -16,9 +20,15 @@ class TestUserCreationForm:
         # A user with proto_user params does not exist yet.
         proto_user = NewUserFactory.build()
         group = GroupFactory.create()
+        location = LocationFactory.create()
 
         form = ExtendedUserCreationForm(
-            {"name": proto_user.name, "email": proto_user.email, "groups": [group]}
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "groups": [group],
+                "locations": [location],
+            }
         )
 
         # Note: The form expects a request object to be set in order to save it
@@ -31,12 +41,14 @@ class TestUserCreationForm:
         # A user with existing_user params exists already.
         existing_user = NewUserFactory.create()
         group = GroupFactory.create()
+        location = LocationFactory.create()
 
         form = ExtendedUserCreationForm(
             {
                 "name": existing_user.name,
                 "email": existing_user.email,
                 "groups": [group],
+                "locations": [location],
             }
         )
 
@@ -48,9 +60,15 @@ class TestUserCreationForm:
         # A user with proto_user params does not exist yet.
         proto_user = NewUserFactory.build()
         group = GroupFactory.create()
+        location = LocationFactory.create()
 
         form = ExtendedUserCreationForm(
-            {"name": proto_user.name, "email": "", "groups": [group]}
+            {
+                "name": proto_user.name,
+                "email": "",
+                "groups": [group],
+                "locations": [location],
+            }
         )
 
         assert not form.is_valid()
@@ -61,9 +79,15 @@ class TestUserCreationForm:
         # A user with proto_user params does not exist yet.
         proto_user = NewUserFactory.build()
         group = GroupFactory.create()
+        location = LocationFactory.create()
 
         form = ExtendedUserCreationForm(
-            {"name": "", "email": proto_user.email, "groups": [group]}
+            {
+                "name": "",
+                "email": proto_user.email,
+                "groups": [group],
+                "locations": [location],
+            }
         )
 
         assert not form.is_valid()
@@ -73,19 +97,44 @@ class TestUserCreationForm:
     def test_group_required(self):
         # A user with proto_user params does not exist yet.
         proto_user = NewUserFactory.build()
+        location = LocationFactory.create()
 
         form = ExtendedUserCreationForm(
-            {"name": proto_user.name, "email": proto_user.email, "groups": []}
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "groups": [],
+                "locations": [location],
+            }
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
         assert "groups" in form.errors
 
+    def test_location_required(self):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+        group = GroupFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "groups": [group],
+                "locations": [],
+            }
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "locations" in form.errors
+
 
 class TestUserUpdateForm:
     def test_valid_form(self, rf: RequestFactory):
         new_group = GroupFactory.create()
+        location = LocationFactory.create()
 
         form = UserUpdateForm(
             {
@@ -93,6 +142,7 @@ class TestUserUpdateForm:
                 "email": "updatedemail@example.com",
                 "groups": [new_group],
                 "is_active": False,
+                "locations": [location],
             }
         )
 
@@ -101,9 +151,15 @@ class TestUserUpdateForm:
     def test_group_required(self):
         # A user with proto_user params does not exist yet.
         proto_user = NewUserFactory.build()
+        location = LocationFactory.create()
 
-        form = ExtendedUserCreationForm(
-            {"name": proto_user.name, "email": proto_user.email, "groups": []}
+        form = UserUpdateForm(
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "groups": [],
+                "locations": [location],
+            }
         )
 
         assert not form.is_valid()
