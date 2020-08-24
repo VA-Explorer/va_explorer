@@ -150,8 +150,8 @@ class UserUpdateForm(forms.ModelForm):
         if commit:
             # You cannot associate the user with a location(s) until it’s been saved
             # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-            user.locations.clear()
-            user.locations.add(*locations)
+            # Set combines clear() and add(*locations)
+            user.locations.set(locations)
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address
