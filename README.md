@@ -123,10 +123,8 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
 
 The InterVA5 cause of death coding algorithm requires two microservices: pyCrossVA and InterVA5.
-For instructions on setting up and running these microservices, please see:
-
-    https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment
-    https://github.com/pkmitre/InterVA5/tree/microservice-experiment
+For instructions on setting up and running these microservices, please see: [pyCrossVA](https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment)
+and [InterVA5](https://github.com/pkmitre/InterVA5/tree/microservice-experiment)
 
 * Run the tests
 
