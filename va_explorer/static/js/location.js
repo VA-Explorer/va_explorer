@@ -25,7 +25,7 @@ $(document).ready(function() {
   $(".location-select").on('select2:select', function(e) {
     let descendants = e.params.data.element.dataset.descendants;
 
-    if(descendants!=='') {
+    if(descendants !== '') {
       const descendantsHash = createDescendantsHash(descendants);
 
       toggleDisabledStateOfDescendants(descendantsHash, true);
@@ -39,7 +39,7 @@ $(document).ready(function() {
   $(".location-select").on('select2:unselect', function(e) {
     let descendants = e.params.data.element.dataset.descendants;
 
-    if(descendants!=='') {
+    if(descendants !== '') {
       toggleDisabledStateOfDescendants(createDescendantsHash(descendants), false);
     }
   });
@@ -72,7 +72,7 @@ $(document).ready(function() {
     $('#id_locations').select2('data').forEach(function(location) {
       let descendants = location.element.getAttribute("data-descendants");
 
-      if(descendants!=='') {
+      if(descendants !== '') {
         toggleDisabledStateOfDescendants(createDescendantsHash(descendants), true);
       }
     })
@@ -112,17 +112,10 @@ $(document).ready(function() {
   function createDescendantsHash(descendants) {
     let descendantsHash = {};
 
-    parseStringArray(descendants).forEach(function(element) {
+    JSON.parse(descendants.split(/, */)).forEach(function(element) {
       descendantsHash[element] = true;
     });
 
     return descendantsHash;
-  }
-
-  /**
-   * Summary. Parses an array stored as a string to an array
-   */
-  function parseStringArray(stringArray) {
-    return JSON.parse(stringArray.replace(/'/g, '"'));
   }
 });
