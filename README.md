@@ -1,10 +1,9 @@
 ## VA Explorer Web Application Prototype
 
-VA Explorer is a prototype web application, built to both demonstrate verbal autopsy ingestion,
-exploration, and analysis capabilities and act as a foundation for exploring next-generation
-concepts. This prototype represents a work-in-progress, and is expected to mature in response to
-feedback from subject matter experts and users. VA Explorer currently supports the following
-functionality at various degrees of maturity:
+VA Explorer is a prototype web application, built to both demonstrate verbal autopsy data management and
+analysis capabilities and act as a foundation for exploring new concepts. This prototype represents a
+work-in-progress, and is expected to mature in response to feedback from users and subject matter experts.
+VA Explorer currently supports the following functionality at various degrees of maturity:
 
 * User account management, including:
   *  Creation/disabling of user accounts by administrators
@@ -13,27 +12,26 @@ functionality at various degrees of maturity:
   *  Role-based access with the following roles: administrators, data managers, data viewers,
   and field workers
   *  Assignment to one or more geographic areas for geographical-level scoping of data
-* Loading of verbal autopsy questionnaire data via manage.py command
-* Assignment of cause of death using InterVA5 algorithm via manage.py command (Note: relies on
-external pyCrossVA and InterVA5 services)
+* Loading of verbal autopsy questionnaire data
+* Assignment of cause of death using InterVA5 algorithm (Note: relies on external pyCrossVA and
+InterVA5 services)
 * Exploration of cause of death data via a dynamic, visualization-based dashboard that includes:
-  *  A dynamic heatmap showing geographical trends, with zoom capabilities to hone in on region(s)
+  *  A dynamic heatmap showing geographical trends, with zoom capabilities to hone in on regions
   of interest
-  *  Cause of death plots for chosen region(s)
-  *  Death distributions by age, gender, and place of death for chosen region(s)
-  *  Trends over time for chosen region(s)
-
+  *  Cause of death plots for chosen regions
+  *  Death distributions by age, gender, and place of death for chosen regions
+  *  Trends over time for chosen regions
 
 ### Background
-Verbal autopsies (VA) are structured interviews for determining the most likely cause of death based on
+
+Verbal autopsies (VAs) are structured interviews for determining the most likely cause of death based on
 information from caregivers or family members about the signs and symptoms the deceased experienced before
 they died. The current VA IT landscape consists of tools and systems that together enable the various
 steps of the VA process, from generation and revision of a VA interview questionnaire to the eventual
 use of the resulting cause of death data by localities. By directly integrating with existing
 functionality, drawing inspiration from others, and combining new features into a cohesive whole,
 VA Explorer aims to enable the integration of verbal autopsy into civil registration and vital
-statistics systems at scale.
-
+statistics systems at scale.
 
 ### Installation and Setup for Development or Testing
 
@@ -43,14 +41,13 @@ VA Explorer is a Django web application that uses the PostgreSQL database for da
 
 To work with the application, you will need to install some prerequisites:
 
-* [Python](https://www.python.org/downloads/)
+* [Python 3](https://www.python.org/downloads/)
 * [pip](https://pypi.org/project/pip/)
 * [Postgres](http://www.postgresql.org/)
 
-
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
-#### Setup/Running
+#### Setup
 
 * Retrieve the application source code
 
@@ -82,26 +79,17 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
     * `python manage.py makemigrations`
     * `python manage.py migrate`
 
-
 #### Tasks
 
 * Manage user accounts
 
   * Create user roles
 
-      `python manage.py initialize_groups`
+    `python manage.py initialize_groups`
 
-  * Create an administrator user
+  * Create an administrator user for the local environment (note that for the production environment instead of providing the password on the command line a system-assigned, randomly-generated password will be printed to the console)
 
-    * Local environment
-
-      `python manage.py seed_admin_user <EMAIL_ADDRESS> --password <PASSWORD>`
-
-    * Production environment (a system-assigned, randomly-generated password will be printed
-    to the console)
-
-      `python manage.py seed_admin_user <EMAIL_ADDRESS>`
-
+    `python manage.py seed_admin_user <EMAIL_ADDRESS> --password <PASSWORD>`
 
   * Create demonstration accounts for data manager, data viewer, and field worker. This task
   only works in the local environment and is for demonstration purposes, only.
@@ -120,14 +108,16 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
   `python manage.py run_coding_algorithms`
 
-
-The InterVA5 cause of death coding algorithm requires two microservices: pyCrossVA and InterVA5.
-For instructions on setting up and running these microservices, please see: [pyCrossVA](https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment)
-and [InterVA5](https://github.com/pkmitre/InterVA5/tree/microservice-experiment)
+The InterVA5 cause of death coding algorithm requires two microservices: pyCrossVA and InterVA5. For
+instructions on setting up and running these microservices, please see:
+[pyCrossVA](https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment) and
+[InterVA5](https://github.com/pkmitre/InterVA5/tree/microservice-experiment)
 
 * Run the tests
 
     `pytest`
+
+#### Running the application
 
 * Run the application server
 
@@ -157,4 +147,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 For questions or comments about VA Explorer, please send email to
 
-    <EMAIL ADDRESS>
+    <EMAIL ADDRESS TBD>
