@@ -73,7 +73,12 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `createdb va_explorer -U <name of Postgres user> --password`
 
-* Update the .env file at the project root to reflect your Postgres user and password.
+* Create a .env file at the project root with the following key/value pairs:
+
+    *  `DATABASE_URL=psql://<YOUR POSTGRESUSER>:<POSTGRESUSER PASSWORD>@localhost/va_explorer`
+    *  `CELERY_BROKER_URL=redis://localhost:6379/0`
+    *  `USE_DOCKER="no"`
+
 
 * Run the database migrations
     * `python manage.py makemigrations`

@@ -328,5 +328,6 @@ va_explorer/media/
 
 
 .ipython/
+.env
 .envs/*
 !.envs/.local/
