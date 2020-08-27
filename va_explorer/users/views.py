@@ -77,6 +77,25 @@ class UserUpdateView(
     def form_valid(self, form):
         return super().form_valid(form)
 
+    def get_initial(self):
+        """
+        Initializes the user's group on the form, which in our case is not done by default even
+        though we are using a model-bound form. (Note that Group is a model from django.contrib.auth
+        that is m2m with User.) We want to permit a user to be assigned to one Group only and thus must
+        manually initialize the UpdateForm since we are imposing a change on the relation through how we
+        allow the user to be assigned to groups.
+
+        Initializes the form display to show whether the user has national or location-specific
+        geographic access. If there are any locations associated with the user in the database,
+        they have location-specific access; else national access.
+        """
+        initial = super(UserUpdateView, self).get_initial()
+        initial["group"] = self.get_object().groups.first()
+        initial["geographic_access"] = (
+            "location-specific" if self.get_object().locations.exists() else "national"
+        )
+        return initial
+
     # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
     # def get_form_kwargs(self):
     #     kw = super(UserUpdateView, self).get_form_kwargs()

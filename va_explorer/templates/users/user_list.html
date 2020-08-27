@@ -18,7 +18,7 @@
           <th>Name</th>
           <th>Email</th>
           <th>Active</th>
-          <th>Group</th>
+          <th>Role</th>
           <th>&nbsp;</th>
           <th>&nbsp;</th>
         </tr>
@@ -30,9 +30,7 @@
             <td>{{ user.email }}</td>
             <td>{{ user.is_active }}</td>
             <td>
-              {%  for group in user.groups.all %}
-                {{ group.name }}
-              {%  endfor %}
+                {{ user.groups.first.name }}
             </td>
             <td>
               {% if perms.users.change_user %}
