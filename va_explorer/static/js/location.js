@@ -11,11 +11,13 @@
 $(document).ready(function() {
   /**
    * Summary. Initializes the select2 dropdown
-   *
+   *          Must explicitly set the width here due to showing/hiding of select2, which
+   *          can interfere with the width: https://select2.org/appearance#container-width
    */
   $(".location-select").select2({
     placeholder: "Search for location(s) to add to user's geographic access",
     templateResult: formatResult,
+    width:'100%'
   });
 
   /**
