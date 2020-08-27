@@ -90,8 +90,10 @@ class UserUpdateView(
         they have location-specific access; else national access.
         """
         initial = super(UserUpdateView, self).get_initial()
-        initial['group'] = self.get_object().groups.first()
-        initial['geographic_access'] = "location-specific" if self.get_object().locations.exists() else "national"
+        initial["group"] = self.get_object().groups.first()
+        initial["geographic_access"] = (
+            "location-specific" if self.get_object().locations.exists() else "national"
+        )
         return initial
 
     # TODO: Remove if we do not require email confirmation; we will no longer need the lines below

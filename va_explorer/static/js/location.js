@@ -134,6 +134,11 @@ $(document).ready(function() {
     }
     else{
       $('#div_id_locations').show();
+
+      // Add the asterisk as a child of the locations label to indicate the field is required, when visible
+      if($("label[for='id_locations']").get(0).children.length===0) {
+        $("label[for='id_locations']").append('<span class="asteriskField">*</span>');
+      }
     }
   }
 

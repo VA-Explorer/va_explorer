@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth import models
+from verbal_autopsy.models import Location
 
 from va_explorer.users.models import User
 from va_explorer.users.tests.factories import (
@@ -8,7 +9,6 @@ from va_explorer.users.tests.factories import (
     PermissionFactory,
     UserFactory,
 )
-from verbal_autopsy.models import Location
 
 
 @pytest.fixture(autouse=True)

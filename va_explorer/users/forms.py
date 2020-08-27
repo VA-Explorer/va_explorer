@@ -10,14 +10,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect
 from django.utils.crypto import get_random_string
+from verbal_autopsy.models import Location
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 
-from verbal_autopsy.models import Location
 
 User = get_user_model()
 
 
+# Assigns user to national-level access implicitly if no locations are associated with the user.
 def validate_location_access(form, geographic_access, locations):
     if geographic_access == "location-specific" and len(locations) == 0:
         form._errors["locations"] = form.error_class(
@@ -62,10 +63,14 @@ class ExtendedUserCreationForm(UserCreationForm):
     locations = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
         widget=LocationSelectMultiple(attrs={"class": "location-select"}),
-        required=False
+        required=False,
     )
-    geographic_access = forms.ChoiceField(choices=(("national", "National"), ("location-specific", "Location-specific")),
-                                       initial='location-specific', widget=RadioSelect(), required=True)
+    geographic_access = forms.ChoiceField(
+        choices=(("national", "National"), ("location-specific", "Location-specific")),
+        initial="location-specific",
+        widget=RadioSelect(),
+        required=True,
+    )
 
     class Meta:
         model = User
@@ -79,14 +84,19 @@ class ExtendedUserCreationForm(UserCreationForm):
         self.request = kwargs.pop("request", None)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
-        self.fields['group'].label = "Role"
+        self.fields["group"].label = "Role"
 
     def clean(self, *args, **kwargs):
         """
         Normal cleanup
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
-        validate_location_access(self, cleaned_data["geographic_access"], cleaned_data["locations"])
+
+        if "geographic_access" in cleaned_data and "locations" in cleaned_data:
+            validate_location_access(
+                self, cleaned_data["geographic_access"], cleaned_data["locations"]
+            )
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -138,28 +148,42 @@ class UserUpdateForm(forms.ModelForm):
     locations = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
         widget=LocationSelectMultiple(attrs={"class": "location-select"}),
-        required=False
+        required=False,
     )
-    geographic_access = forms.ChoiceField(choices=(("national", "National"), ("location-specific", "Location-specific")),
-                                       widget=RadioSelect(), required=True)
+    geographic_access = forms.ChoiceField(
+        choices=(("national", "National"), ("location-specific", "Location-specific")),
+        widget=RadioSelect(),
+        required=True,
+    )
 
     class Meta:
         model = User
-        fields = ["name", "email", "is_active", "group", "geographic_access", "locations"]
+        fields = [
+            "name",
+            "email",
+            "is_active",
+            "group",
+            "geographic_access",
+            "locations",
+        ]
 
     def __init__(self, *args, **kwargs):
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # self.request = kwargs.pop("request", None)
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['group'].label = "Role"
+        self.fields["group"].label = "Role"
 
     def clean(self, *args, **kwargs):
         """
         Normal cleanup
         """
         cleaned_data = super(forms.ModelForm, self).clean()
-        validate_location_access(self, cleaned_data["geographic_access"], cleaned_data["locations"])
+
+        if "geographic_access" in cleaned_data and "locations" in cleaned_data:
+            validate_location_access(
+                self, cleaned_data["geographic_access"], cleaned_data["locations"]
+            )
         return cleaned_data
 
     def save(self, commit=True):
@@ -197,6 +221,7 @@ class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
         If we do not want this dependency, we can write our own clean method to ensure the
         2 typed-in passwords match.
     """
+
     password1 = SetPasswordField(
         label="New Password",
         help_text=password_validation.password_validators_help_text_html(),

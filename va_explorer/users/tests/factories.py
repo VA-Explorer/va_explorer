@@ -2,7 +2,6 @@ import factory
 from django.contrib.auth import get_user_model, models
 from factory import DjangoModelFactory, Faker, Sequence
 from factory.fuzzy import FuzzyInteger
-
 from verbal_autopsy.models import Location
 
 User = get_user_model()
