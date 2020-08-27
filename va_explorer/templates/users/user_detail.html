@@ -39,6 +39,8 @@
     <div class="col-sm-6">
         {%  for location in user.locations.all %}
           {{ location.name }} <br>
+        {% empty %}
+          National
         {%  endfor %}
     </div>
 </div>

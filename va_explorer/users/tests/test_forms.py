@@ -20,13 +20,14 @@ class TestUserCreationForm:
         # A user with proto_user params does not exist yet.
         proto_user = NewUserFactory.build()
         group = GroupFactory.create()
+        group2 = GroupFactory.create()
         location = LocationFactory.create()
 
         form = ExtendedUserCreationForm(
             {
                 "name": proto_user.name,
                 "email": proto_user.email,
-                "groups": [group],
+                "group": group2,
                 "locations": [location],
             }
         )
@@ -47,7 +48,7 @@ class TestUserCreationForm:
             {
                 "name": existing_user.name,
                 "email": existing_user.email,
-                "groups": [group],
+                "group": group,
                 "locations": [location],
             }
         )
@@ -66,7 +67,7 @@ class TestUserCreationForm:
             {
                 "name": proto_user.name,
                 "email": "",
-                "groups": [group],
+                "group": group,
                 "locations": [location],
             }
         )
@@ -85,7 +86,7 @@ class TestUserCreationForm:
             {
                 "name": "",
                 "email": proto_user.email,
-                "groups": [group],
+                "group": group,
                 "locations": [location],
             }
         )
@@ -103,14 +104,14 @@ class TestUserCreationForm:
             {
                 "name": proto_user.name,
                 "email": proto_user.email,
-                "groups": [],
+                "group": [],
                 "locations": [location],
             }
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-        assert "groups" in form.errors
+        assert "group" in form.errors
 
     def test_location_required(self):
         # A user with proto_user params does not exist yet.
@@ -121,7 +122,7 @@ class TestUserCreationForm:
             {
                 "name": proto_user.name,
                 "email": proto_user.email,
-                "groups": [group],
+                "group": group,
                 "locations": [],
             }
         )

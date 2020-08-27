@@ -25,7 +25,7 @@ $(document).ready(function() {
   $(".location-select").on('select2:select', function(e) {
     let descendants = e.params.data.element.dataset.descendants;
 
-    if(descendants !== '') {
+    if(descendants !== undefined) {
       const descendantsHash = createDescendantsHash(descendants);
 
       toggleDisabledStateOfDescendants(descendantsHash, true);
@@ -39,13 +39,16 @@ $(document).ready(function() {
   $(".location-select").on('select2:unselect', function(e) {
     let descendants = e.params.data.element.dataset.descendants;
 
-    if(descendants !== '') {
+    if(descendants !== undefined) {
       toggleDisabledStateOfDescendants(createDescendantsHash(descendants), false);
     }
   });
 
   // Call disableDescendantsForSelectedLocations on page load
   disableDescendantsForSelectedLocations();
+
+  // Call toggleGeographicAccess() on page load
+  toggleGeographicAccess();
 
   /**
    * Summary. Applies the relevant CSS style to the location in the select2 dropdown menu, based on depth
@@ -72,7 +75,8 @@ $(document).ready(function() {
     $('#id_locations').select2('data').forEach(function(location) {
       let descendants = location.element.getAttribute("data-descendants");
 
-      if(descendants !== '') {
+      // Note: getAttribute returns null if the attribute does not exist
+      if(descendants !== null) {
         toggleDisabledStateOfDescendants(createDescendantsHash(descendants), true);
       }
     })
@@ -118,4 +122,26 @@ $(document).ready(function() {
 
     return descendantsHash;
   }
+
+  /**
+   * Summary. Hides/shows the location select2 dropdown depending on the
+   *          value of the geographic_access radio button
+   */
+  function toggleGeographicAccess() {
+    if($('input[name="geographic_access"]:checked').val() === "national"){
+      $('#div_id_locations').hide()
+      $('.location-select').val(null).trigger('change');
+    }
+    else{
+      $('#div_id_locations').show();
+    }
+  }
+
+  /**
+   * Summary. Event listener that listens for the change of geographic access
+   *          from location-specific to national
+   */
+  $('input[type=radio][name=geographic_access]').on('change',function(){
+    toggleGeographicAccess(this);
+  });
 });
