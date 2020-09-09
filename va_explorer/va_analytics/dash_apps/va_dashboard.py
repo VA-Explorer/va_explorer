@@ -35,6 +35,8 @@ INIT_TIMEFRAME = "1 year"
 JSON_DIR = "va_explorer/va_analytics/dash_apps/geojson"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
 JSON_FILE = "zambia_geojson.json"
+# initial granularity
+INITIAL_GRANULARITY = "district"
 # ============Lookup dictionaries =================#
 
 
@@ -128,75 +130,53 @@ def load_geojson_data(json_file):
 GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 
-# load locations for map dropdowns and decide iniital granularity
-def get_initial_location_settings():
-    location_names, init_granularity = None, None
-    if Location.objects.count() > 0:
-        location_names = [
-            {"label": l.name, "value": l.name} for l in Location.objects.all()
-        ]
-
-        geographic_levels = dict()
-        for loc in Location.objects.all():
-            geographic_levels[loc.depth] = loc.location_type
-
-        # default to second-to-lowest location level - default to district for Zambia
-        init_granularity = geographic_levels.get(
-            (max(geographic_levels.keys()) - 1), "district"
-        )
-    return location_names, init_granularity
-
-
-LOCATION_NAMES, INIT_GRANULARITY = get_initial_location_settings()
-
-# ============VA Data =================#
-def load_va_data(geographic_levels=None):
+# ============ VA Data =================
+def va_data(geographic_levels=None):
     va_df = pd.DataFrame()
-    if VerbalAutopsy.objects.count() > 0:
-        # only include vas with assigned CODs
-        valid_vas = VerbalAutopsy.objects.filter(causes__isnull=False)
-        if len(valid_vas) > 0:
-            # extract location and cod fields from va objects
-            va_data = [model_to_dict(va) for va in valid_vas]
-            for i, va_obj in enumerate(valid_vas):
-                va_data[i]["location"] = va_obj.location.name
-                for ancestor in va_obj.location.get_ancestors():
-                    location_type = ancestor.location_type
-                    va_data[i][location_type] = ancestor.name
-                va_data[i]["cause"] = va_obj.causes.values()[0]["cause"]
-                va_data[i]["cod_id"] = va_obj.causes.values()[0]["id"]
+    # only include vas with assigned CODs
+    valid_vas = VerbalAutopsy.objects.filter(causes__isnull=False)
+    if len(valid_vas) > 0:
+        # extract location and cod fields from va objects
+        va_data = [model_to_dict(va) for va in valid_vas]
+        for i, va_obj in enumerate(valid_vas):
+            va_data[i]["location"] = va_obj.location.name
+            for ancestor in va_obj.location.get_ancestors():
+                location_type = ancestor.location_type
+                va_data[i][location_type] = ancestor.name
+            va_data[i]["cause"] = va_obj.causes.values()[0]["cause"]
+            va_data[i]["cod_id"] = va_obj.causes.values()[0]["id"]
 
-            # Get into CSV format, also prefixing keys with - as expected by pyCrossVA (e.g. Id10424 becomes -Id10424)
-            # va_data = [dict([(f'-{k}', v) for k, v in d.items()]) for d in va_data]
-            va_df = pd.DataFrame.from_records(va_data)
+        # Get into CSV format, also prefixing keys with - as expected by pyCrossVA (e.g. Id10424 becomes -Id10424)
+        # va_data = [dict([(f'-{k}', v) for k, v in d.items()]) for d in va_data]
+        va_df = pd.DataFrame.from_records(va_data)
 
-            # clean up location fields
-            # if no geographic_levels provided, build geo level dictionary from database
-            if geographic_levels is None:
-                geographic_levels = dict()
-                for loc in Location.objects.all():
-                    geographic_levels[loc.depth] = loc.location_type
+        # clean up location fields
+        # if no geographic_levels provided, build geo level dictionary from database
+        if geographic_levels is None:
+            geographic_levels = dict()
+            for loc in Location.objects.all():
+                geographic_levels[loc.depth] = loc.location_type
 
-            replace_patterns = [
-                " [{}{}]{}".format(g[0], g[0].upper(), g[1:])
-                for g in geographic_levels.values()
-            ]
-            va_df = va_df.replace(to_replace=replace_patterns, value="", regex=True)
+        replace_patterns = [
+            " [{}{}]{}".format(g[0], g[0].upper(), g[1:])
+            for g in geographic_levels.values()
+        ]
+        va_df = va_df.replace(to_replace=replace_patterns, value="", regex=True)
 
-            # clean up age fields and assign to age bin
-            va_df["age"] = va_df["ageInYears"].replace(
-                to_replace=["dk"], value=np.random.randint(1, 80)
-            )
-            va_df["age"] = pd.to_numeric(va_df["age"])
-            va_df["age_group"] = va_df["age"].apply(assign_age_group)
-            cur_date = dt.datetime.today()
+        # clean up age fields and assign to age bin
+        va_df["age"] = va_df["ageInYears"].replace(
+            to_replace=["dk"], value=np.random.randint(1, 80)
+        )
+        va_df["age"] = pd.to_numeric(va_df["age"])
+        va_df["age_group"] = va_df["age"].apply(assign_age_group)
+        cur_date = dt.datetime.today()
 
-            # randomly assign date of death
-            # NOTE: date field called -Id10023 in VA form, but no dates in curent responses
-            va_df["date"] = [
-                cur_date - dt.timedelta(days=int(x))
-                for x in np.random.randint(3, 400, size=va_df.shape[0])
-            ]
+        # randomly assign date of death
+        # NOTE: date field called -Id10023 in VA form, but no dates in curent responses
+        va_df["date"] = [
+            cur_date - dt.timedelta(days=int(x))
+            for x in np.random.randint(3, 400, size=va_df.shape[0])
+        ]
 
     return va_df
 
@@ -210,23 +190,24 @@ def assign_age_group(age):
         return "adult"
 
 
-VA_DF = load_va_data()
-
-
 # =========Map Metrics =======================#
-# load top N metrics from VA dataframe for map dropdown
-def get_metrics(va_df, N=10):
-    metrics = []
-    if VA_DF.size > 0:
-        try:
-            metrics = (
-                va_df.cause.value_counts()
-                .sort_values(ascending=False)
-                .index.tolist()[:N]
-            )
-            metrics = ["Total Deaths", "Mean Age of Death"] + metrics
-        except:
-            pass
+# Top metrics to track for map dropdown
+# TODO: these need to be loaded from the actual VA data in the DB via a callback
+def get_metrics():
+    metrics = [
+        "Total Deaths",
+        "Mean Age of Death",
+        "HIV/AIDS related death",
+        "Diabetes mellitus",
+        "Acute resp infect incl pneumonia",
+        "Other and unspecified cardiac dis",
+        "Diarrhoeal diseases",
+        "Other and unspecified neoplasms",
+        "Renal failure",
+        "Liver cirrhosis",
+        "Digestive neoplasms",
+        "Other and unspecified infect dis"
+    ]
     return metrics
 
 
@@ -238,9 +219,6 @@ def get_metric_display_names(map_metrics):
             metric_name = " ".join([x.capitalize() for x in metric.strip().split(" ")])
         names.append(metric_name)
     return names
-
-
-MAP_METRICS = get_metrics(VA_DF)
 
 
 # ================APP DEFINITION===============#
@@ -326,7 +304,7 @@ app.layout = html.Div(
                                                             ][o],
                                                             "value": o,
                                                         }
-                                                        for o in MAP_METRICS
+                                                        for o in get_metrics()
                                                     ],
                                                     value="Total Deaths",
                                                     style={
@@ -603,8 +581,8 @@ app.layout = html.Div(
 def update_choropleth(
     timeframe, granularity, map_metric="Total Deaths", filter_dict=None, geojson=GEOJSON
 ):
-    if VA_DF.size > 0:
-        plot_data = VA_DF
+    plot_data = va_data()
+    if plot_data.size > 0:
         granularity = granularity.lower()
         timeframe = timeframe.lower()
         feature_id = "properties.area_name"
@@ -741,33 +719,30 @@ def generate_map_data(va_df, geojson, granularity="district"):
     ],
 )
 def filter_data(
-    selected_json, granularity=INIT_GRANULARITY, timeframe="All", search_terms=[]
+    selected_json, granularity=INITIAL_GRANULARITY, timeframe="All", search_terms=[]
 ):
-    if granularity and (VA_DF.size > 0):
-        json_string = json.dumps(selected_json)
-        filter_df = VA_DF
-        granularity = granularity.lower()
+    json_string = json.dumps(selected_json)
+    filter_df = va_data()
+    granularity = granularity.lower()
 
-        # first, check for locations clicked on map.
-        if selected_json is not None:
-            point_df = pd.DataFrame(selected_json["points"])
-            chosen_region_coordinates = set(point_df["location"].tolist())
-            filter_col = granularity.lower()
-            filter_df = filter_df[filter_df[filter_col].isin(chosen_region_coordinates)]
+    # first, check for locations clicked on map.
+    if selected_json is not None:
+        point_df = pd.DataFrame(selected_json["points"])
+        chosen_region_coordinates = set(point_df["location"].tolist())
+        filter_col = granularity.lower()
+        filter_df = filter_df[filter_df[filter_col].isin(chosen_region_coordinates)]
 
-        # next, apply time filter if necessary
-        if timeframe != "all":
-            cutoff = dt.datetime.today() - dt.timedelta(
-                days=LOOKUP["time_dict"][timeframe]
-            )
-            filter_df = filter_df[filter_df["date"] >= cutoff]
+    # next, apply time filter if necessary
+    if timeframe != "all":
+        cutoff = dt.datetime.today() - dt.timedelta(
+            days=LOOKUP["time_dict"][timeframe]
+        )
+        filter_df = filter_df[filter_df["date"] >= cutoff]
 
-        filter_ids = filter_df.index.tolist()
-        filter_dict = {"geo_filter": (selected_json is not None), "ids": filter_ids}
+    filter_ids = filter_df.index.tolist()
+    filter_dict = {"geo_filter": (selected_json is not None), "ids": filter_ids}
 
-        return json_string, json.dumps(filter_dict)
-    else:
-        return "No data", "No IDs"
+    return json_string, json.dumps(filter_dict)
 
 
 # TODO: Get this filter to work properly
@@ -778,7 +753,7 @@ def filter_data(
 # )
 #
 # def update_dropdown(filter_dict=None):
-#    plot_data = va_df
+#    plot_data = va_data()
 #    if filter_dict is not None:
 #        plot_data = plot_data.iloc[json.loads(filter_dict)['ids'],:]
 #    relevant_metrics = get_metrics(plot_data)
@@ -796,8 +771,8 @@ def filter_data(
     ],
 )
 def update_callouts(timeframe, granularity, filter_dict=None):
-    if VA_DF.size > 0:
-        plot_data = VA_DF
+    plot_data = va_data()
+    if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
 
@@ -813,11 +788,11 @@ def update_callouts(timeframe, granularity, filter_dict=None):
         num_field_workers = int(1.25 * active_facilities)
 
         # region coverage
-        tot_regions = VA_DF[granularity].nunique()
+        total_regions = plot_data[granularity].nunique()
         regions_covered = (
             plot_data[[granularity, "age"]].dropna()[granularity].nunique()
         )
-        coverage = "{}%".format(np.round(100 * regions_covered / tot_regions, 0))
+        coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
 
         return [
             make_card(total_vas, header="Total VAs"),
@@ -865,12 +840,10 @@ def make_card(
 )
 def cod_plot(timeframe, factor="All", N=10, agg_type="counts", filter_dict=None):
     figure = go.Figure()
-    if VA_DF.size > 0:
-
-        plot_data = VA_DF
-
+    plot_data = va_data()
+    if plot_data.size > 0:
         if filter_dict is not None:
-            plot_data = VA_DF.iloc[json.loads(filter_dict)["ids"], :]
+            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
 
         factor = factor.lower()
         if factor != "all":
@@ -931,8 +904,8 @@ def cod_plot(timeframe, factor="All", N=10, agg_type="counts", filter_dict=None)
 )
 def age_plot(timeframe, filter_dict=None, bins=9):
     figure = go.Figure()
-    if VA_DF.size > 0:
-        plot_data = VA_DF
+    plot_data = va_data()
+    if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
 
@@ -961,8 +934,8 @@ def age_plot(timeframe, filter_dict=None, bins=9):
 )
 def sex_plot(timeframe, filter_dict=None):
     figure = go.Figure()
-    if VA_DF.size > 0:
-        plot_data = VA_DF
+    plot_data = va_data()
+    if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
         column_name = LOOKUP["demo_to_col"]["sex"]
@@ -986,8 +959,8 @@ def sex_plot(timeframe, filter_dict=None):
 )
 def trend_plot(timeframe, group_period, filter_dict=None, factor="All"):
     figure = go.Figure()
-    if VA_DF.size > 0:
-        plot_data = VA_DF
+    plot_data = va_data()
+    if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
 
@@ -1067,8 +1040,8 @@ def trend_plot(timeframe, group_period, filter_dict=None, factor="All"):
 )
 def place_of_death_plt(filter_dict=None):
     figure = go.Figure()
-    if VA_DF.size > 0:
-        plot_data = VA_DF
+    plot_data = va_data()
+    if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
         plot_data["Id10058"] = plot_data["Id10058"].apply(
