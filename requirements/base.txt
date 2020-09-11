@@ -1,3 +1,5 @@
+alabaster==0.7.12 # added from local to get dashboard working
+amqp==2.6.0 # added here from local to get dashboard working
 pytz==2020.1  # https://github.com/stub42/pytz
 python-slugify==4.0.1  # https://github.com/un33k/python-slugify
 Pillow==7.2.0  # https://github.com/python-pillow/Pillow
@@ -11,6 +13,12 @@ flower==0.9.5  # https://github.com/mher/flower
 django-simple-history==2.11.0
 django-treebeard==4.3.1
 pandas==1.0.5
+django-plotly-dash==1.4.2
+channels==2.4.0
+daphne==2.5.0
+redis==3.5.3
+django-redis==4.12.1
+channels-redis==3.0.1
 
 # Django
 # ------------------------------------------------------------------------------
