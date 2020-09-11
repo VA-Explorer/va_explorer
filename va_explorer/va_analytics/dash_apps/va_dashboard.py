@@ -283,6 +283,8 @@ app.layout = html.Div(
                                                 "text-align": "center",
                                             },
                                         )
+                                        
+                                       
                                     ],
                                     style={"margin-left": "0px"},
                                 ),
@@ -349,11 +351,16 @@ app.layout = html.Div(
                                     style={"align-items": "center"},
                                 ),
                                 # map container
-                                html.Div(id="test"),
-                                html.Div(
-                                    id="choropleth-container",
-                                    children=dcc.Graph(id="choropleth"),
-                                ),
+                                dcc.Loading(id='map-loader',
+                                    type='circle',
+                                    children=[
+                                    html.Div(
+                                        id="choropleth-container",
+                                        children=dcc.Graph(id="choropleth"),
+                                    )
+                                        
+                                ]),
+                              
                                 html.Div(
                                     id="hidden-container", style={"display": "none"}
                                 ),
@@ -466,21 +473,20 @@ app.layout = html.Div(
                                                         "align-items": "center",
                                                     },
                                                 ),
-                                                html.Div(id="buttontest"),
-                                                html.Div(id="cod-container"),
+                                                dcc.Loading(html.Div(id="cod-container"), type='circle'),
                                             ],
                                         ),
                                         dcc.Tab(
                                             label="Age Distribution",
-                                            children=[html.Div(id="age-container")],
+                                            children=[dcc.Loading(html.Div(id="age-container"), type='circle')]
                                         ),
                                         dcc.Tab(
                                             label="Gender Distribution",
-                                            children=[html.Div(id="sex-container")],
+                                            children=[dcc.Loading(html.Div(id="sex-container"))]
                                         ),
                                         dcc.Tab(
                                             label="Place of Death Distribution",
-                                            children=[html.Div(id="pod-container")],
+                                            children=[dcc.Loading(html.Div(id="pod-container"))]
                                         ),
                                         dcc.Tab(
                                             label="VA Trends",
@@ -551,7 +557,7 @@ app.layout = html.Div(
                                                                 "margin-right": "30px",
                                                             },
                                                         ),
-                                                        html.Div(id="ts-container"),
+                                                        dcc.Loading(html.Div(id="ts-container"), type='circle'),
                                                     ],
                                                 )
                                             ],
@@ -582,6 +588,7 @@ def update_choropleth(
     timeframe, granularity, map_metric="Total Deaths", filter_dict=None, geojson=GEOJSON
 ):
     plot_data = va_data()
+    return_value = html.Div(id="choropleth")
     if plot_data.size > 0:
         granularity = granularity.lower()
         timeframe = timeframe.lower()
@@ -663,11 +670,9 @@ def update_choropleth(
 
         xmin, xmax, ymin, ymax = 0.95 * xmin, 1.05 * xmax, 1.05 * ymin, 0.95 * ymax
         figure.update_geos(lonaxis_range=[xmin, xmax], lataxis_range=[ymin, ymax])
-    else:
-        figure = go.Figure()
-        config = None
+        return_value = dcc.Graph(id="choropleth", figure=figure, config=config)        
 
-    return dcc.Graph(id="choropleth", figure=figure, config=config)
+    return return_value
 
 
 # ==========Map dataframe (built from va dataframe)============#
