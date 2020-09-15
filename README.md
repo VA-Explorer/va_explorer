@@ -150,6 +150,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ### Contact Information
 
-For questions or comments about VA Explorer, please send email to
+For questions or comments about VA Explorer, please send an email to:
 
-    <EMAIL ADDRESS TBD>
+```
+verbal-autopsy@mitre.org
+```
