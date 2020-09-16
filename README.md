@@ -44,6 +44,8 @@ To work with the application, you will need to install some prerequisites:
 * [Python 3](https://www.python.org/downloads/)
 * [pip](https://pypi.org/project/pip/)
 * [Postgres](http://www.postgresql.org/)
+* [pyCrossVA](https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment) (using the `microservice-experiment` branch)
+* [InterVA5](https://github.com/pkmitre/InterVA5/tree/microservice-experiment) (using the `microservice-experiment` branch)
 
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
@@ -51,7 +53,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
 * Retrieve the application source code
 
-    `git clone https://github.com/<REPO_NAME>`
+    `git clone https://github.com/VA-Explorer/va_explorer.git`
 
 * Change into the new directory
 
@@ -116,7 +118,8 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 The InterVA5 cause of death coding algorithm requires two microservices: pyCrossVA and InterVA5. For
 instructions on setting up and running these microservices, please see:
 [pyCrossVA](https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment) and
-[InterVA5](https://github.com/pkmitre/InterVA5/tree/microservice-experiment)
+[InterVA5](https://github.com/pkmitre/InterVA5/tree/microservice-experiment).
+For both projects be sure to use the `microservice-experiment` branch.
 
 * Run the tests
 
