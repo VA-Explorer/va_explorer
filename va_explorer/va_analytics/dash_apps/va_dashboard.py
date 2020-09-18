@@ -140,12 +140,12 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 # ============ VA Data =================
 def load_va_data(geographic_levels=None):
-    print("--> LOAD_VA_DATA CALLED")
     va_df = pd.DataFrame()
-    # only include vas with assigned CODs
-    valid_vas = VerbalAutopsy.objects.filter(causes__isnull=False).prefetch_related("causes").prefetch_related("location").only("ageInYears", "Id10019", "Id10058")
+
+    valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
+
     if len(valid_vas) > 0:
-        # extract location and cod fields from va objects
+        # Grab exactly the fields we need, including location and cause data
         va_data = [
             {
                 "id": va.id,
@@ -153,14 +153,18 @@ def load_va_data(geographic_levels=None):
                 "Id10058": va.Id10058,
                 "ageInYears": va.ageInYears,
                 "location": va.location.name,
-                "cause": va.causes.first().cause,
+                "cause": va.causes.all()[0].cause, # Don't use first() to take advantage of the prefetch
             }
             for va in valid_vas
         ]
-        for i, va_obj in enumerate(valid_vas):
-            for ancestor in va_obj.location.get_ancestors():
-                location_type = ancestor.location_type
-                va_data[i][location_type] = ancestor.name
+
+        # Build a location ancestors lookup and add location information at all levels to all vas
+        # TODO: This is not efficient (though it's better than 2 DB queries per VA)
+        # TODO: This assumes that all VAs will occur in a facility, ok?
+        location_ancestors = { location.id:location.get_ancestors() for location in Location.objects.filter(location_type="facility") }
+        for i, va in enumerate(valid_vas):
+            for ancestor in location_ancestors[va.location.id]:
+                va_data[i][ancestor.location_type] = ancestor.name
 
         va_df = pd.DataFrame.from_records(va_data)
 
@@ -578,10 +582,7 @@ app.layout = html.Div(
     ],
 )
 def va_data(timeframe="All"):
-    print("--> VA_DATA CALLED")
-    start = time.time()
     data = load_va_data()
-    print(f"--> Loading VA data: {time.time() - start}")
     return data.to_json()
 
 
