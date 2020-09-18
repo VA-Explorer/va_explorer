@@ -26,6 +26,13 @@ from django.forms.models import model_to_dict
 
 import re
 
+import time
+
+# ================APP DEFINITION===============#
+# NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
+# app = dash.Dash(__name__)  # Dash constructor
+app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=True)
+
 
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
@@ -111,6 +118,7 @@ def load_geojson_data(json_file):
                 coordinate_stat_tables.append(
                     pd.DataFrame(coords, columns=["lon", "lat"]).describe()
                 )
+            g["properties"]["area_name"] += " {}".format(g["properties"]["area_level_label"]) 
             g["properties"]["min_x"] = min(
                 [stat_df["lon"]["min"] for stat_df in coordinate_stat_tables]
             )
@@ -131,39 +139,33 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 
 # ============ VA Data =================
-def va_data(geographic_levels=None):
+def load_va_data(geographic_levels=None):
+    print("--> LOAD_VA_DATA CALLED")
     va_df = pd.DataFrame()
     # only include vas with assigned CODs
-    valid_vas = VerbalAutopsy.objects.filter(causes__isnull=False)
+    valid_vas = VerbalAutopsy.objects.filter(causes__isnull=False).prefetch_related("causes").prefetch_related("location").only("ageInYears", "Id10019", "Id10058")
     if len(valid_vas) > 0:
         # extract location and cod fields from va objects
-        va_data = [model_to_dict(va) for va in valid_vas]
+        va_data = [
+            {
+                "id": va.id,
+                "Id10019": va.Id10019,
+                "Id10058": va.Id10058,
+                "ageInYears": va.ageInYears,
+                "location": va.location.name,
+                "cause": va.causes.first().cause,
+            }
+            for va in valid_vas
+        ]
         for i, va_obj in enumerate(valid_vas):
-            va_data[i]["location"] = va_obj.location.name
             for ancestor in va_obj.location.get_ancestors():
                 location_type = ancestor.location_type
                 va_data[i][location_type] = ancestor.name
-            va_data[i]["cause"] = va_obj.causes.values()[0]["cause"]
-            va_data[i]["cod_id"] = va_obj.causes.values()[0]["id"]
 
-        # Get into CSV format, also prefixing keys with - as expected by pyCrossVA (e.g. Id10424 becomes -Id10424)
-        # va_data = [dict([(f'-{k}', v) for k, v in d.items()]) for d in va_data]
         va_df = pd.DataFrame.from_records(va_data)
 
-        # clean up location fields
-        # if no geographic_levels provided, build geo level dictionary from database
-        if geographic_levels is None:
-            geographic_levels = dict()
-            for loc in Location.objects.all():
-                geographic_levels[loc.depth] = loc.location_type
-
-        replace_patterns = [
-            " [{}{}]{}".format(g[0], g[0].upper(), g[1:])
-            for g in geographic_levels.values()
-        ]
-        va_df = va_df.replace(to_replace=replace_patterns, value="", regex=True)
-
         # clean up age fields and assign to age bin
+        # TODO: This random age assignment needs to be correctly handled
         va_df["age"] = va_df["ageInYears"].replace(
             to_replace=["dk"], value=np.random.randint(1, 80)
         )
@@ -171,7 +173,7 @@ def va_data(geographic_levels=None):
         va_df["age_group"] = va_df["age"].apply(assign_age_group)
         cur_date = dt.datetime.today()
 
-        # randomly assign date of death
+        # TODO: This random date of death assignment needs to be correctly handled
         # NOTE: date field called -Id10023 in VA form, but no dates in curent responses
         va_df["date"] = [
             cur_date - dt.timedelta(days=int(x))
@@ -221,10 +223,6 @@ def get_metric_display_names(map_metrics):
     return names
 
 
-# ================APP DEFINITION===============#
-# NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
-# app = dash.Dash(__name__)  # Dash constructor
-app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=True)
 # ===============APP LAYOUT====================#
 app.layout = html.Div(
     id="app-body-container",
@@ -360,10 +358,7 @@ app.layout = html.Div(
                                     )
                                         
                                 ]),
-                              
-                                html.Div(
-                                    id="hidden-container", style={"display": "none"}
-                                ),
+                                html.Div(id="va_data", style={"display": "none"}),
                                 html.Div(id="filter_dict", style={"display": "none"}),
                             ],
                             width=7,
@@ -574,10 +569,63 @@ app.layout = html.Div(
     ],
 )
 
+# ============ VA data (loaded from database and shared across components) ========
+
+@app.callback(
+    Output(component_id="va_data", component_property="children"),
+    [
+        Input(component_id="timeframe", component_property="value"),
+    ],
+)
+def va_data(timeframe="All"):
+    print("--> VA_DATA CALLED")
+    start = time.time()
+    data = load_va_data()
+    print(f"--> Loading VA data: {time.time() - start}")
+    return data.to_json()
+
+
+# ============ Filter logic (update filter table used by other componenets)========#
+@app.callback(
+    Output(component_id="filter_dict", component_property="children"),
+    [
+        Input(component_id="va_data", component_property="children"),
+        Input(component_id="choropleth", component_property="selectedData"),
+        Input(component_id="granularity", component_property="value"),
+        Input(component_id="timeframe", component_property="value"),
+    ],
+)
+def filter_data(
+    va_data, selected_json, granularity=INITIAL_GRANULARITY, timeframe="All", search_terms=[]
+):
+    filter_df = pd.read_json(va_data)
+    granularity = granularity.lower()
+
+    # first, check for locations clicked on map.
+    if selected_json is not None:
+        point_df = pd.DataFrame(selected_json["points"])
+        chosen_region_coordinates = set(point_df["location"].tolist())
+        filter_col = granularity.lower()
+        filter_df = filter_df[filter_df[filter_col].isin(chosen_region_coordinates)]
+
+    # next, apply time filter if necessary
+    if timeframe != "all":
+        cutoff = dt.datetime.today() - dt.timedelta(
+            days=LOOKUP["time_dict"][timeframe]
+        )
+        filter_df = filter_df[filter_df["date"] >= cutoff]
+
+    filter_ids = filter_df.index.tolist()
+    filter_dict = {"geo_filter": (selected_json is not None), "ids": filter_ids}
+
+    return json.dumps(filter_dict)
+
+
 # ====================Map Logic===================================#
 @app.callback(
     Output(component_id="choropleth-container", component_property="children"),
     [
+        Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="granularity", component_property="value"),
         Input(component_id="map_metric", component_property="value"),
@@ -585,9 +633,9 @@ app.layout = html.Div(
     ],
 )
 def update_choropleth(
-    timeframe, granularity, map_metric="Total Deaths", filter_dict=None, geojson=GEOJSON
+    va_data, timeframe, granularity, map_metric="Total Deaths", filter_dict=None, geojson=GEOJSON
 ):
-    plot_data = va_data()
+    plot_data = pd.read_json(va_data)
     return_value = html.Div(id="choropleth")
     if plot_data.size > 0:
         granularity = granularity.lower()
@@ -711,45 +759,6 @@ def generate_map_data(va_df, geojson, granularity="district"):
     return pd.DataFrame()
 
 
-# ============ Filter logic (update filter table used by other componenets)========#
-@app.callback(
-    [
-        Output(component_id="hidden-container", component_property="children"),
-        Output(component_id="filter_dict", component_property="children"),
-    ],
-    [
-        Input(component_id="choropleth", component_property="selectedData"),
-        Input(component_id="granularity", component_property="value"),
-        Input(component_id="timeframe", component_property="value"),
-    ],
-)
-def filter_data(
-    selected_json, granularity=INITIAL_GRANULARITY, timeframe="All", search_terms=[]
-):
-    json_string = json.dumps(selected_json)
-    filter_df = va_data()
-    granularity = granularity.lower()
-
-    # first, check for locations clicked on map.
-    if selected_json is not None:
-        point_df = pd.DataFrame(selected_json["points"])
-        chosen_region_coordinates = set(point_df["location"].tolist())
-        filter_col = granularity.lower()
-        filter_df = filter_df[filter_df[filter_col].isin(chosen_region_coordinates)]
-
-    # next, apply time filter if necessary
-    if timeframe != "all":
-        cutoff = dt.datetime.today() - dt.timedelta(
-            days=LOOKUP["time_dict"][timeframe]
-        )
-        filter_df = filter_df[filter_df["date"] >= cutoff]
-
-    filter_ids = filter_df.index.tolist()
-    filter_dict = {"geo_filter": (selected_json is not None), "ids": filter_ids}
-
-    return json_string, json.dumps(filter_dict)
-
-
 # TODO: Get this filter to work properly
 # @app.callback(
 #
@@ -770,13 +779,14 @@ def filter_data(
 @app.callback(
     Output(component_id="callout-container", component_property="children"),
     [
+        Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="granularity", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def update_callouts(timeframe, granularity, filter_dict=None):
-    plot_data = va_data()
+def update_callouts(va_data, timeframe, granularity, filter_dict=None):
+    plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
@@ -836,6 +846,7 @@ def make_card(
 @app.callback(
     Output(component_id="cod-container", component_property="children"),
     [
+        Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_factor", component_property="value"),
         Input(component_id="cod_n", component_property="value"),
@@ -843,9 +854,9 @@ def make_card(
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def cod_plot(timeframe, factor="All", N=10, agg_type="counts", filter_dict=None):
+def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_dict=None):
     figure = go.Figure()
-    plot_data = va_data()
+    plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
@@ -903,13 +914,14 @@ def cod_plot(timeframe, factor="All", N=10, agg_type="counts", filter_dict=None)
 @app.callback(
     Output(component_id="age-container", component_property="children"),
     [
+        Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def age_plot(timeframe, filter_dict=None, bins=9):
+def age_plot(va_data, timeframe, filter_dict=None, bins=9):
     figure = go.Figure()
-    plot_data = va_data()
+    plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
@@ -933,13 +945,14 @@ def age_plot(timeframe, filter_dict=None, bins=9):
 @app.callback(
     Output(component_id="sex-container", component_property="children"),
     [
+        Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def sex_plot(timeframe, filter_dict=None):
+def sex_plot(va_data, timeframe, filter_dict=None):
     figure = go.Figure()
-    plot_data = va_data()
+    plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
@@ -956,15 +969,16 @@ def sex_plot(timeframe, filter_dict=None):
 @app.callback(
     Output(component_id="ts-container", component_property="children"),
     [
+        Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="group_period", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
         Input(component_id="ts_factor", component_property="value"),
     ],
 )
-def trend_plot(timeframe, group_period, filter_dict=None, factor="All"):
+def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All"):
     figure = go.Figure()
-    plot_data = va_data()
+    plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
@@ -1041,11 +1055,14 @@ def trend_plot(timeframe, group_period, filter_dict=None, factor="All"):
 # =========Place of Death Plot Logic============================================#
 @app.callback(
     Output(component_id="pod-container", component_property="children"),
-    [Input(component_id="filter_dict", component_property="children")],
+    [
+        Input(component_id="va_data", component_property="children"),
+        Input(component_id="filter_dict", component_property="children")
+    ],
 )
-def place_of_death_plt(filter_dict=None):
+def place_of_death_plt(va_data, filter_dict=None):
     figure = go.Figure()
-    plot_data = va_data()
+    plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
             plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
