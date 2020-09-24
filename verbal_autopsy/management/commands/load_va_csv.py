@@ -21,6 +21,11 @@ class Command(BaseCommand):
 
         # Figure out the common field names across the CSV and our model
         model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
+        
+        # But first, account for case differences in csv columns (i.e. ensure id10041 maps to Id10041)
+        fieldCaseMapper = {field.lower(): field for field in model_field_names} 
+        csv_data.rename(columns=lambda c: fieldCaseMapper.get(c.lower(), c), inplace=True)
+
         csv_field_names = csv_data.columns
         common_field_names = csv_field_names.intersection(model_field_names)
 
