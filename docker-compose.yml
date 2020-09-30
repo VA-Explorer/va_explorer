@@ -1,0 +1,9 @@
+services:
+  pycrossva:
+    build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
+    ports:
+      - "5001:80"
+  interva5:
+    build: https://github.com/VA-Explorer/InterVA5.git#microservice-experiment
+    ports:
+      - "5002:5002"

@@ -29,9 +29,9 @@ class Command(BaseCommand):
 
         # Call the pyCrossVA translation service and the cause coding service
 
-        # TODO: This will be orchestrated using docker; until then stand up manually using these instructions:
-        # https://github.com/pkmitre/pyCrossVA/tree/microservice-experiment
-        # https://github.com/pkmitre/InterVA5/tree/microservice-experiment
+        # TODO: This will be orchestrated using docker; if needed stand up manually using these instructions:
+        # https://github.com/VA-Explorer/pyCrossVA/tree/microservice-experiment
+        # https://github.com/VA-Explorer/InterVA5/tree/microservice-experiment
 
         # Transform to algorithm format using the pyCrossVA web service
         transform_url = 'http://127.0.0.1:5001/transform?input=2016WHOv151&output=InterVA5'
