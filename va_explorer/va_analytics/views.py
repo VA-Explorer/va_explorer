@@ -34,9 +34,8 @@ def download_csv(request, out_file="va_download.csv"):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f'attachment; filename="{out_file}"'
-    wr = csv.writer(response)
-    wr.writerow(va_df.columns.tolist())
-    wr.writerows(va_df.to_records(index=False))
-
+    
+    va_df.to_csv(response, index=False)
+    
     return response
     
