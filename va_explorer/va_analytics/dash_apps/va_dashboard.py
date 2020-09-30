@@ -267,6 +267,15 @@ app.layout = html.Div(
                                 "margin-left": "10px",
                             },
                         ),
+                        html.Div([html.A(dbc.Button("Download Data", color="info"),
+                                        href="/va_analytics/download")], 
+                          style={
+                                  "margin-top": "10px",
+                                 "margin-left": "20px"
+                          }
+                        )
+
+
                     ],
                     style={"margin-left": "0px"},
                 ),
