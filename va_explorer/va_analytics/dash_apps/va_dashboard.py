@@ -67,6 +67,19 @@ def load_lookup_dicts():
         "rgb(250,250,248)",
         "rgb(162,162,162)",
     ]
+    # colorscale used for map
+    lookup["map_colorscale"] = [
+     'rgb(255,255,255)',
+     'rgb(237,244,252)',
+     'rgb(222,235,247)',
+     'rgb(198,219,239)',
+     'rgb(158,202,225)',
+     'rgb(107,174,214)',
+     'rgb(66,146,198)',
+     'rgb(33,113,181)',
+     'rgb(8,81,156)',
+     'rgb(8,48,107)'
+     ]
     # dictionary mapping raw map metrics to human-readable names
     lookup["metric_names"] = {
         "Total Deaths": "Total Deaths",
@@ -81,13 +94,13 @@ def load_lookup_dicts():
         "Liver cirrhosis": "Liver Cirrhosis",
         "Digestive neoplasms": "Digestive Neoplasm",
         "Other and unspecified infect dis": "Other",
-    }
+    }    
     # dictionary mapping place of death names to more human-readable names
     lookup["death_location_names"] = {
         "on_route_to_hospital_or_facility": "En Route to Facility",
         "DK": "Unknown",
         "other_health_facility": "Other Health Facility",
-    }
+    }    
     # formats for montly, weekly, and yearly dates
     lookup["date_display_formats"] = {
         "week": "%d/%m/%Y",
@@ -372,7 +385,7 @@ app.layout = html.Div(
                                         
                                 ]),
                                 html.Div(id="va_data", style={"display": "none"}),
-                                html.Div(id="filter_dict", style={"display": "none"}),
+                                html.Div(id="filter_dict"),
                             ],
                             width=7,
                         ),
@@ -647,6 +660,7 @@ def update_choropleth(
 ):
     plot_data = pd.read_json(va_data)
     return_value = html.Div(id="choropleth")
+    zoom_in = False
     if plot_data.size > 0:
         granularity = granularity.lower()
         timeframe = timeframe.lower()
@@ -656,23 +670,24 @@ def update_choropleth(
         if filter_dict is not None:
             filter_dict = json.loads(filter_dict)
             plot_data = plot_data.iloc[filter_dict["ids"], :]
+            zoom_in = filter_dict["geo_filter"] # geo_filter is true if user clicked on map
             # if user has clicked on map and granularity is providence level, change to district  level
-            if filter_dict["geo_filter"] and granularity == "province":
+            # TODO: make this more generic
+            if zoom_in and granularity == "province":  
                 granularity = "district"
+            
             chosen_regions = set(plot_data[granularity].tolist())
             chosen_region_coordinates = [
-                g
-                for g in geojson["features"]
-                if g["properties"]["area_name"] in chosen_regions
+                g for g in geojson["features"] if g["properties"]["area_name"] in chosen_regions
             ]
 
         if map_metric not in ["Total Deaths", "Mean Age of Death"]:
             plot_data = plot_data[plot_data["cause"] == map_metric]
 
         # get map tooltips
-        map_df = generate_map_data(plot_data, geojson, granularity)
+        map_df = generate_map_data(plot_data, geojson, granularity, zoom_in)
 
-        data_value = "mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "count"
+        data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
         figure = go.Figure(
             data=go.Choropleth(
                 locations=map_df[granularity],
@@ -680,7 +695,7 @@ def update_choropleth(
                 locationmode="geojson-id",
                 geojson=geojson,
                 featureidkey=feature_id,
-                colorscale="Blues",
+                colorscale=LOOKUP["map_colorscale"],
                 hovertext=map_df["tooltip"],
                 hoverinfo="text",
                 autocolorscale=False,
@@ -721,51 +736,54 @@ def update_choropleth(
         )
 
         # adjust automatic zoom to maximize size of map
-        xmin = min([g["properties"]["min_x"] for g in chosen_region_coordinates])
-        xmax = max([g["properties"]["max_x"] for g in chosen_region_coordinates])
-        ymin = min([g["properties"]["min_y"] for g in chosen_region_coordinates])
-        ymax = max([g["properties"]["max_y"] for g in chosen_region_coordinates])
+        xmin = 0.95 * min([g["properties"]["min_x"] for g in chosen_region_coordinates])
+        xmax = 1.05 * max([g["properties"]["max_x"] for g in chosen_region_coordinates])
+        ymin = 0.95 * min([g["properties"]["min_y"] for g in chosen_region_coordinates])
+        ymax = 1.05 * max([g["properties"]["max_y"] for g in chosen_region_coordinates])
 
-        xmin, xmax, ymin, ymax = 0.95 * xmin, 1.05 * xmax, 1.05 * ymin, 0.95 * ymax
         figure.update_geos(lonaxis_range=[xmin, xmax], lataxis_range=[ymin, ymax])
-        return_value = dcc.Graph(id="choropleth", figure=figure, config=config)        
+        return_value = dcc.Graph(id="choropleth", figure=figure, config=config)      
 
     return return_value
 
-
 # ==========Map dataframe (built from va dataframe)============#
-def generate_map_data(va_df, geojson, granularity="district"):
+def generate_map_data(va_df, geojson, granularity="district", zoom_in=False):
     if va_df.size > 0:
         map_df = (
             va_df[[granularity, "age", "location"]]
             .groupby(granularity)
             .agg({"age": ["mean", "count"], "location": [pd.Series.nunique]})
         )
-        map_df[granularity] = map_df.index.values
-        # remove unnecessary index (colapse multiindex down to single index)
-        for old_index in map_df.columns.levels[0]:
-            if len(map_df[old_index].shape) == 2:
-                for col in map_df[old_index].columns:
-                    map_df[col] = map_df[old_index][col]
 
-        map_df["mean"] = np.round(map_df["mean"], 1)
-        df = map_df
-        df["tooltip"] = (
-            "<b>"
-            + granularity.capitalize()
-            + ": </b>"
-            + df[granularity]
-            + "<br>"
-            + "<b>Total Deaths: </b>"
-            + df["count"].astype(str)
-            + "<br>"
-            + "<b>Average Lifespan: </b>"
-            + df["mean"].astype(str)
-            + "<br>"
-            + "<b>Active Facilities: </b>"
-            + df["nunique"].astype(str)
+        map_df.columns = ['_'.join(tup) for tup in map_df.columns.to_flat_index()]
+        map_df.reset_index(inplace=True)
+        
+        # generate tooltips for regions with data
+        map_df["age_mean"] = np.round(map_df["age_mean"], 1)
+        map_df["tooltip"] = (
+                "<b>"+ map_df[granularity] + "</b>" 
+                + "<br>"
+                + "<b>Total Deaths: </b>" + map_df["age_count"].astype(str)
+                + "<br>"
+                + "<b>Average Lifespan: </b>" + map_df["age_mean"].astype(str)
+                + "<br>"
+                + "<b>Active Facilities: </b>" + map_df["location_nunique"].astype(str)
         )
-        return df
+        
+        if zoom_in == False:
+        
+            # join with all region names to ensure each region has a record
+            all_regions = [(f['properties']['area_name'], f['properties']['area_id'])\
+                             for f in GEOJSON['features']\
+                             if f['properties']['area_level_label'] == granularity.capitalize()]
+            geo_df = pd.DataFrame.from_records(all_regions, columns=[granularity, 'area_id'])
+            map_df = geo_df.merge(map_df, how='left', on=granularity)
+            
+            # fill NAs with 0s and rename empty tooltips to "No Data"
+            map_df["tooltip"].fillna("No Data", inplace=True)
+            map_df.fillna(0, inplace=True)
+
+        return map_df
     return pd.DataFrame()
 
 
