@@ -145,6 +145,11 @@ def load_geojson_data(json_file):
                 [stat_df["lat"]["max"] for stat_df in coordinate_stat_tables]
             )
             geojson["features"][i] = g
+        # save total districts and provinces for future use
+        geojson["district_count"] = len([f for f in geojson["features"] \
+                                           if f["properties"]["area_level_label"] == "District"])
+        geojson["province_count"] = len([f for f in geojson["features"] \
+                                           if f["properties"]["area_level_label"] == "Province"])
     return geojson
 
 
@@ -384,8 +389,9 @@ app.layout = html.Div(
                                     )
                                         
                                 ]),
+                                html.Div(id="bounds"),
                                 html.Div(id="va_data", style={"display": "none"}),
-                                html.Div(id="filter_dict"),
+                                html.Div(id="filter_dict", style={"display": "none"}),
                             ],
                             width=7,
                         ),
@@ -623,13 +629,27 @@ def filter_data(
 ):
     filter_df = pd.read_json(va_data)
     granularity = granularity.lower()
-
+    
+    # dictionary storing data we want to share across callbacks
+    filter_dict = {
+            "geo_filter": (selected_json is not None),
+            "plot_regions": []
+            }
     # first, check for locations clicked on map.
     if selected_json is not None:
         point_df = pd.DataFrame(selected_json["points"])
-        chosen_region_coordinates = set(point_df["location"].tolist())
+        chosen_regions = set(point_df["location"].tolist())
         filter_col = granularity.lower()
-        filter_df = filter_df[filter_df[filter_col].isin(chosen_region_coordinates)]
+        filter_df = filter_df[filter_df[filter_col].isin(chosen_regions)]
+        
+        # get all regions (districts) within each province for plotting purposes
+        plot_regions = list()
+        for province in  filter_df["province"].unique():
+            province_object = Location.objects.get(name=province)
+            districts = set([d.name for d in province_object.get_children()])
+            plot_regions = plot_regions + list(districts)
+        filter_dict["plot_regions"] = plot_regions
+
 
     # next, apply time filter if necessary
     if timeframe != "all":
@@ -639,14 +659,17 @@ def filter_data(
         filter_df = filter_df[filter_df["date"] >= cutoff]
 
     filter_ids = filter_df.index.tolist()
-    filter_dict = {"geo_filter": (selected_json is not None), "ids": filter_ids}
+    filter_dict[ "ids"] = filter_ids
 
     return json.dumps(filter_dict)
 
 
 # ====================Map Logic===================================#
 @app.callback(
-    Output(component_id="choropleth-container", component_property="children"),
+        Output(component_id="choropleth-container", component_property="children"),
+        #Output(component_id="bounds", component_property="children")
+    
+    
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
@@ -661,31 +684,35 @@ def update_choropleth(
     plot_data = pd.read_json(va_data)
     return_value = html.Div(id="choropleth")
     zoom_in = False
+    bounds = []
+    
     if plot_data.size > 0:
         granularity = granularity.lower()
         timeframe = timeframe.lower()
         feature_id = "properties.area_name"
-        chosen_region_coordinates = geojson["features"]
+        chosen_regions = geojson["features"]
         # if dashboard filter applied, carry over to data
         if filter_dict is not None:
             filter_dict = json.loads(filter_dict)
             plot_data = plot_data.iloc[filter_dict["ids"], :]
             zoom_in = filter_dict["geo_filter"] # geo_filter is true if user clicked on map
-            # if user has clicked on map and granularity is providence level, change to district  level
-            # TODO: make this more generic
-            if zoom_in and granularity == "province":  
-                granularity = "district"
             
-            chosen_regions = set(plot_data[granularity].tolist())
-            chosen_region_coordinates = [
-                g for g in geojson["features"] if g["properties"]["area_name"] in chosen_regions
-            ]
+            # if zoom in necessary, filter geojson to only chosen region(s)
+            if zoom_in:
+                chosen_districts = filter_dict["plot_regions"]
+                chosen_regions = [
+                    g for g in geojson["features"] if g["properties"]["area_name"] in chosen_districts
+                ]
+                # if user has clicked on map and granularity is providence level, change to district level
+                # TODO: make this more generic
+                if granularity == "province":  
+                    granularity = "district"
 
         if map_metric not in ["Total Deaths", "Mean Age of Death"]:
             plot_data = plot_data[plot_data["cause"] == map_metric]
 
         # get map tooltips
-        map_df = generate_map_data(plot_data, geojson, granularity, zoom_in)
+        map_df = generate_map_data(plot_data, chosen_regions, granularity, zoom_in, map_metric)
 
         data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
         figure = go.Figure(
@@ -719,7 +746,8 @@ def update_choropleth(
         # update figure layout
         figure.update_layout(
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
-            clickmode="event+select",
+            clickmode="event" if zoom_in else "event+select",
+            #clickmode="none",
             dragmode="select",
         )
         # additional styling
@@ -736,18 +764,37 @@ def update_choropleth(
         )
 
         # adjust automatic zoom to maximize size of map
-        xmin = 0.95 * min([g["properties"]["min_x"] for g in chosen_region_coordinates])
-        xmax = 1.05 * max([g["properties"]["max_x"] for g in chosen_region_coordinates])
-        ymin = 0.95 * min([g["properties"]["min_y"] for g in chosen_region_coordinates])
-        ymax = 1.05 * max([g["properties"]["max_y"] for g in chosen_region_coordinates])
+        xmin = 0.95 * min([g["properties"]["min_x"] for g in chosen_regions])
+        xmax = 1.05 * max([g["properties"]["max_x"] for g in chosen_regions])
+        ymin = 1.05 * min([g["properties"]["min_y"] for g in chosen_regions])
+        ymax = 0.95 * max([g["properties"]["max_y"] for g in chosen_regions])
+#        
+#        bounds = {}
+#        padding_factor = 1.05
+#        for var in ['x','y']:
+#            for stat, stat_fn in zip(['min', 'max'], [min, max]):
+#                stat_name = f"{stat}_{var}"
+#                bound = stat_fn([g["properties"][stat_name] for g in chosen_regions])
+#                #exponent = ((bound > 0) * ())
+#                bounds[stat_name] = bound * (padding_factor ** (bound / abs(bound)))
+        #bounds = [xmin,xmax,ymin,ymax]
+        
+        #res = [b * 1.05 ** (b / abs(b)) for b in bounds] 
 
-        figure.update_geos(lonaxis_range=[xmin, xmax], lataxis_range=[ymin, ymax])
-        return_value = dcc.Graph(id="choropleth", figure=figure, config=config)      
+        #figure.update_geos(lonaxis_range=[xmin, xmax], lataxis_range=[ymin, ymax])
+        return_value = dcc.Graph(id="choropleth", figure=figure, config=config) 
+        #bounds = ','.join([str(np.round(b, 2)) for b in bounds])
+        bounds = {'max_y': [g["properties"]["max_y"] for g in chosen_regions], 
+                  'min_y': [g["properties"]["min_y"] for g in chosen_regions], 
+                  'min_x': [g["properties"]["min_x"] for g in chosen_regions], 
+                  'max_x': [g["properties"]["max_x"] for g in chosen_regions],
+                  'x_bounds': [xmin, xmax], 
+                  'y_bounds': [ymin, ymax]}
 
     return return_value
 
 # ==========Map dataframe (built from va dataframe)============#
-def generate_map_data(va_df, geojson, granularity="district", zoom_in=False):
+def generate_map_data(va_df, chosen_geojson, granularity="district", zoom_in=False, metric="Total Deaths"):
     if va_df.size > 0:
         map_df = (
             va_df[[granularity, "age", "location"]]
@@ -759,29 +806,29 @@ def generate_map_data(va_df, geojson, granularity="district", zoom_in=False):
         map_df.reset_index(inplace=True)
         
         # generate tooltips for regions with data
+        metric_name = LOOKUP['metric_names'].get(metric, metric)
         map_df["age_mean"] = np.round(map_df["age_mean"], 1)
         map_df["tooltip"] = (
                 "<b>"+ map_df[granularity] + "</b>" 
                 + "<br>"
-                + "<b>Total Deaths: </b>" + map_df["age_count"].astype(str)
+                + f"<b>{metric_name}: </b>" + map_df["age_count"].astype(str)
                 + "<br>"
                 + "<b>Average Lifespan: </b>" + map_df["age_mean"].astype(str)
                 + "<br>"
                 + "<b>Active Facilities: </b>" + map_df["location_nunique"].astype(str)
         )
         
-        if zoom_in == False:
         
-            # join with all region names to ensure each region has a record
-            all_regions = [(f['properties']['area_name'], f['properties']['area_id'])\
-                             for f in GEOJSON['features']\
-                             if f['properties']['area_level_label'] == granularity.capitalize()]
-            geo_df = pd.DataFrame.from_records(all_regions, columns=[granularity, 'area_id'])
-            map_df = geo_df.merge(map_df, how='left', on=granularity)
-            
-            # fill NAs with 0s and rename empty tooltips to "No Data"
-            map_df["tooltip"].fillna("No Data", inplace=True)
-            map_df.fillna(0, inplace=True)
+        # join with all region names to ensure each region has a record
+        chosen_region_names = [(f['properties']['area_name'], f['properties']['area_id'])\
+                         for f in chosen_geojson\
+                         if f['properties']['area_level_label'] == granularity.capitalize()]
+        geo_df = pd.DataFrame.from_records(chosen_region_names, columns=[granularity, 'area_id'])
+        map_df = geo_df.merge(map_df, how='left', on=granularity)
+        
+        # fill NAs with 0s and rename empty tooltips to "No Data"
+        map_df["tooltip"].fillna("No Data", inplace=True)
+        map_df.fillna(0, inplace=True)
 
         return map_df
     return pd.DataFrame()
@@ -813,7 +860,7 @@ def generate_map_data(va_df, geojson, granularity="district", zoom_in=False):
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def update_callouts(va_data, timeframe, granularity, filter_dict=None):
+def update_callouts(va_data, timeframe, granularity, filter_dict=None, geojson=GEOJSON):
     plot_data = pd.read_json(va_data)
     if plot_data.size > 0:
         if filter_dict is not None:
@@ -831,7 +878,12 @@ def update_callouts(va_data, timeframe, granularity, filter_dict=None):
         num_field_workers = int(1.25 * active_facilities)
 
         # region coverage
-        total_regions = plot_data[granularity].nunique()
+        total_regions = geojson[f"{granularity}_count"]
+        if filter_dict is not None:
+            filter_dict = json.loads(filter_dict)
+            if len(filter_dict["plot_regions"]) > 0:
+                total_regions = len(filter_dict["plot_regions"])
+                
         regions_covered = (
             plot_data[[granularity, "age"]].dropna()[granularity].nunique()
         )
