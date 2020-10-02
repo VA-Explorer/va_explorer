@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from verbal_autopsy.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue
+from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue
 from django.forms.models import model_to_dict
 from io import StringIO
 from collections import OrderedDict

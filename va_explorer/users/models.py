@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
-from verbal_autopsy.models import Location
+from va_explorer.va_data_management.models import Location
 
 
 class CustomUserManager(BaseUserManager):

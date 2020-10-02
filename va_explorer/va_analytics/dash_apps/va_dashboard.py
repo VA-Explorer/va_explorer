@@ -21,7 +21,7 @@ import numpy as np
 import datetime as dt
 
 from django_plotly_dash import DjangoDash
-from verbal_autopsy.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from django.forms.models import model_to_dict
 
 import re

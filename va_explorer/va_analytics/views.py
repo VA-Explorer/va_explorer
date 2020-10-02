@@ -1,9 +1,8 @@
 from django.views.generic import TemplateView
 from django.http import HttpResponse
-import csv
 import pandas as pd
 from django.forms.models import model_to_dict
-from verbal_autopsy.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 
 class DashboardView(TemplateView):
     template_name = "va_analytics/dashboard.html"

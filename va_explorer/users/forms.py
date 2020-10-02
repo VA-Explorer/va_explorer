@@ -10,7 +10,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect
 from django.utils.crypto import get_random_string
-from verbal_autopsy.models import Location
+from va_explorer.va_data_management.models import Location
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 
