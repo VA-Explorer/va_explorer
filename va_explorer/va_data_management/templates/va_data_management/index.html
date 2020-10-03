@@ -1,0 +1,15 @@
+<p>There are {{ va_list.count }} verbal autops{{va_list.count|pluralize:"y,ies"}}:</p>
+
+<ul>
+  {% for va in va_list %}
+    <li>#{{ va.id }} has {{ va.causes.count }} cause{{ va.causes.count|pluralize }} and {{ va.coding_issues.count }} coding issue{{ va.coding_issues.count|pluralize }}</li>
+    <ul>
+      {% for cause in va.causes.all %}
+        <li>Cause: {{ cause }}</li>
+      {% endfor %}
+      {% for coding_issue in va.coding_issues.all %}
+        <li>{{ coding_issue }}</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</ul>
