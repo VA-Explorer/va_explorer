@@ -883,7 +883,10 @@ def update_callouts(va_data, timeframe, granularity, filter_dict=None, geojson=G
             filter_dict = json.loads(filter_dict)
             if len(filter_dict["plot_regions"]) > 0:
                 total_regions = len(filter_dict["plot_regions"])
-                
+        
+                # TODO: fix this to be more generic
+                if granularity == 'province':
+                    granularity = 'district'
         regions_covered = (
             plot_data[[granularity, "age"]].dropna()[granularity].nunique()
         )
