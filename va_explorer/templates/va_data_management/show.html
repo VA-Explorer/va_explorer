@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Verbal Autopsy {{ id }}{% endblock %}
+
+{% block content %}
+
+{% if errors %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>{{ errors|length }} Error{{ errors|pluralize }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for error in errors %}
+    <tr><td>{{ error }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if warnings %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>{{ warnings|length }} Warning{{ warnings|pluralize }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for warning in warnings %}
+    <tr><td>{{ warning }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<p><a class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit</a></p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for key, value in va.items %}
+    <tr>
+      <td>{{ key }}</td>
+      <td>{{ value }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
