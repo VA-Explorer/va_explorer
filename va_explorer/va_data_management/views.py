@@ -3,12 +3,12 @@ from .models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from .forms import VerbalAutopsyForm
 
 def index(request):
-    va_list = VerbalAutopsy.objects.prefetch_related("causes", "coding_issues").order_by("id")
+    va_list = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
     va_data = [{
         "id": va.id,
         "name": va.Id10007,
         "facility": va.location.name,
-        "cause": va.causes.first().cause if va.causes.first() else "",
+        "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
         "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
         "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
     } for va in va_list]
