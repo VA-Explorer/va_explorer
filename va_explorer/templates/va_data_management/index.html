@@ -18,15 +18,15 @@
   </thead>
   <tbody>
     {% for va in va_data %}
-    <tr>
-      <td>{{ va.id }}</td>
-      <td>{{ va.name }}</td>
-      <td>{{ va.facility }}</td>
-      <td>{{ va.cause }}</td>
-      <td>{{ va.warnings }}</td>
-      <td>{{ va.errors }}</td>
-      <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
-    </tr>
+      <tr>
+        <td>{{ va.id }}</td>
+        <td>{{ va.name }}</td>
+        <td>{{ va.facility }}</td>
+        <td>{{ va.cause }}</td>
+        <td>{{ va.warnings }}</td>
+        <td>{{ va.errors }}</td>
+        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+      </tr>
     {% endfor %}
   </tbody>
 </table>
