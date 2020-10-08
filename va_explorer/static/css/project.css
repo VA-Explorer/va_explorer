@@ -58,6 +58,12 @@
   margin-right: 5px;
 }
 
+.input-label-disabled {
+  margin-top: 18px;
+  margin-right: 5px;
+  color: lightgray;
+}
+
 .dashboard-title {
   font-size: 2.2rem;
   font-weight: 450;
