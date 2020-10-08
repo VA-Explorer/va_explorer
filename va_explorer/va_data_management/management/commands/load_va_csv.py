@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from va_explorer.va_data_management.models import VerbalAutopsy, Location
+from simple_history.utils import bulk_create_with_history
 import argparse
 import pandas as pd
 import re
@@ -40,6 +41,6 @@ class Command(BaseCommand):
         # TODO: For now treat this as synthetic data and randomly assign a facility as the location
         for va in verbal_autopsies:
             va.location = Location.objects.filter(location_type='facility').order_by('?').first()
-        VerbalAutopsy.objects.bulk_create(verbal_autopsies)
+        bulk_create_with_history(verbal_autopsies, VerbalAutopsy)
 
         self.stdout.write(f'Loaded {len(verbal_autopsies)} verbal autopsies')

@@ -34,6 +34,34 @@
 </table>
 {% endif %}
 
+{% if diffs %}
+<table class="table">
+  <thead>
+    <tr>
+      <th colspan=2>{{ diffs|length }} Change{{ diffs|pluralize }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for diff in diffs %}
+    <tr>
+      <td>{{ diff.new_record.history_date }}</td>
+      <td>
+        {% for change in diff.changes %}
+        {% if change.old and change.new %}
+        <b>{{ change.field }}</b> changed from <b>{{ change.old }}</b> to <b>{{ change.new }}</b><br/>
+        {% elif change.new %}
+        <b>{{ change.field }}</b> was set to <b>{{ change.new }}</b><br/>
+        {% elif change.old %}
+        <b>{{ change.field }}</b> had value <b>{{ change.old }}</b> deleted<br/>
+        {% endif %}
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+</table>
+<p><a class="btn btn-primary" href="{% url 'data_management:reset' id=id %}">Reset to Original</a></p>
+{% endif %}
+
 <p><a class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit</a></p>
 
 <table class="table">
