@@ -349,9 +349,10 @@ app.layout = html.Div(
                                                 ),
                                                 dcc.Dropdown(
                                                     id="view_level",
-                                                    options = [{"value": o, "label": o.capitalize()}
-                                                    for o in [INITIAL_GRANULARITY]], 
-                                                    value=INITIAL_GRANULARITY,
+#                                                    options = [{"value": o, "label": o.capitalize()}
+#                                                    for o in [INITIAL_GRANULARITY]], 
+#                                                    value=INITIAL_GRANULARITY,
+                                                    value="",
                                                     placeholder = "Auto",
                                                     style={
                                                         "margin-top": "5px",
@@ -698,12 +699,15 @@ def filter_data(
 
         # get all locations in parent(s) of chosen regions for plotting
         plot_regions = list()
-        for parent_location in  filter_df[parent_location_type].unique():
-            location_object = Location.objects.get(name=parent_location)
-            children = set([c.name for c in location_object.get_children()])
-            plot_regions = plot_regions + list(children) + [parent_location]
+        for parent_name in  filter_df[parent_location_type].unique():
+            location_object = Location.objects.get(name=parent_name)
+            children = location_object.get_children()
+            children_names = [c.name for c in location_object.get_children()]
+            plot_regions = plot_regions + children_names + [parent_name]
+            # set final granularity to same level of children
+            granularity = children[0].location_type
         filter_dict["plot_regions"] = plot_regions
-    
+       
     
     # finally, apply time filter if necessary
     if timeframe != "all":
@@ -716,6 +720,7 @@ def filter_data(
     filter_dict["ids"] = filter_ids
     filter_dict["granularity"] = granularity
     
+    #ret = f"{granularity}  |  {children_names[0]} "
     return json.dumps(filter_dict)
 
 
@@ -818,10 +823,10 @@ def reset_view_value(is_disabled=False):
 
 # ====================Map Logic===================================#
 @app.callback(
-    [
+#    [
         Output(component_id="choropleth-container", component_property="children"),
-        Output(component_id="bounds", component_property="children")   
-    ],
+#        Output(component_id="bounds", component_property="children")   
+#    ],
     
     [
         Input(component_id="va_data", component_property="children"),
@@ -834,6 +839,13 @@ def reset_view_value(is_disabled=False):
 )
 def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level=None,\
                       location_types=None, filter_dict=None, geojson=GEOJSON ):
+    # first, see which input triggered update. If granularity change, only run 
+    # if value is non-empty
+    context = dash.callback_context
+    trigger = context.triggered[0]
+    if trigger["prop_id"].split('.')[0] == "view_level" and trigger["value"] == "":
+        raise dash.exceptions.PreventUpdate
+        
     plot_data = pd.read_json(va_data)
     return_value = html.Div(id="choropleth")
     zoom_in = False
@@ -859,9 +871,6 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
                     g for g in geojson["features"] if g["properties"]["area_name"] in plot_regions
                 ]
                 # if user has clicked on map and granularity is providence level, change to district level
-                # TODO: make this more generic
-#                if granularity == "province":  
-#                    granularity = "district"
                 granularity = shift_granularity(granularity, location_types, move_up=False)
                 
 
@@ -876,7 +885,6 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
 
 
         data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
-        #return dcc.Graph(id='choropleth', figure=go.Figure()), map_df[["age_mean", view_level]].to_json()
         figure = go.Figure(
             data=go.Choropleth(
                 locations=map_df[view_level],
@@ -927,7 +935,7 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
 
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config) 
 
-    return return_value, granularity
+    return return_value
  
 
 # ==========Map dataframe (built from va dataframe)============#
