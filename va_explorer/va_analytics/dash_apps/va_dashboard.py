@@ -37,13 +37,15 @@ app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=Tr
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timefraome for map data to display
-INIT_TIMEFRAME = "1 year"
+INITIAL_TIMEFRAME = "1 year"
 # folder where geojson is kept
 JSON_DIR = "va_explorer/va_analytics/dash_apps/geojson"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
 JSON_FILE = "zambia_geojson.json"
 # initial granularity
-INITIAL_GRANULARITY = "district"
+INITIAL_GRANULARITY = "province"
+# initial metric to plot on map
+INITIAL_MAP_METRIC = "Total Deaths"
 # ============Lookup dictionaries =================#
 
 
@@ -67,6 +69,22 @@ def load_lookup_dicts():
         "rgb(250,250,248)",
         "rgb(162,162,162)",
     ]
+    # colorscale used for map
+    lookup["map_colorscale"] = [(0.0, 'rgb(255,255,255)'),
+         (0.01, 'rgb(255,255,255)'),
+         (0.01, 'rgb(0, 147, 146)'),
+         (0.16666666666666666, 'rgb(0, 147, 146)'),
+         (0.16666666666666666, 'rgb(57, 177, 133)'),
+         (0.3333333333333333, 'rgb(57, 177, 133)'),
+         (0.3333333333333333, 'rgb(156, 203, 134)'),
+         (0.5, 'rgb(156, 203, 134)'),
+         (0.5, 'rgb(233, 226, 156)'),
+         (0.6666666666666666, 'rgb(233, 226, 156)'),
+         (0.6666666666666666, 'rgb(238, 180, 121)'),
+         (0.8333333333333333, 'rgb(238, 180, 121)'),
+         (0.8333333333333333, 'rgb(232, 132, 113)'),
+         (1.0, 'rgb(232, 132, 113)')]
+            
     # dictionary mapping raw map metrics to human-readable names
     lookup["metric_names"] = {
         "Total Deaths": "Total Deaths",
@@ -81,13 +99,13 @@ def load_lookup_dicts():
         "Liver cirrhosis": "Liver Cirrhosis",
         "Digestive neoplasms": "Digestive Neoplasm",
         "Other and unspecified infect dis": "Other",
-    }
+    }    
     # dictionary mapping place of death names to more human-readable names
     lookup["death_location_names"] = {
         "on_route_to_hospital_or_facility": "En Route to Facility",
         "DK": "Unknown",
         "other_health_facility": "Other Health Facility",
-    }
+    }    
     # formats for montly, weekly, and yearly dates
     lookup["date_display_formats"] = {
         "week": "%d/%m/%Y",
@@ -132,6 +150,11 @@ def load_geojson_data(json_file):
                 [stat_df["lat"]["max"] for stat_df in coordinate_stat_tables]
             )
             geojson["features"][i] = g
+        # save total districts and provinces for future use
+        geojson["district_count"] = len([f for f in geojson["features"] \
+                                           if f["properties"]["area_level_label"] == "District"])
+        geojson["province_count"] = len([f for f in geojson["features"] \
+                                           if f["properties"]["area_level_label"] == "Province"])
     return geojson
 
 
@@ -140,7 +163,7 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 # ============ VA Data =================
 def load_va_data(geographic_levels=None):
-    va_df = pd.DataFrame()
+    return_dict = {"data": pd.DataFrame()}
 
     valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
 
@@ -161,15 +184,19 @@ def load_va_data(geographic_levels=None):
         # Build a location ancestors lookup and add location information at all levels to all vas
         # TODO: This is not efficient (though it's better than 2 DB queries per VA)
         # TODO: This assumes that all VAs will occur in a facility, ok?
+        locations, location_types = dict(), dict()
         location_ancestors = { location.id:location.get_ancestors() for location in Location.objects.filter(location_type="facility") }
         for i, va in enumerate(valid_vas):
+#            location_types[va.location.depth] = va.location.location_type
+#            locations.add(va.location.name)
             for ancestor in location_ancestors[va.location.id]:
                 va_data[i][ancestor.location_type] = ancestor.name
+                location_types[ancestor.depth] = ancestor.location_type
+                locations[ancestor.name] = ancestor.location_type
 
         va_df = pd.DataFrame.from_records(va_data)
 
         # clean up age fields and assign to age bin
-        # TODO: This random age assignment needs to be correctly handled
         va_df["age"] = va_df["ageInYears"].replace(
             to_replace=["dk"], value=np.random.randint(1, 80)
         )
@@ -183,8 +210,14 @@ def load_va_data(geographic_levels=None):
             cur_date - dt.timedelta(days=int(x))
             for x in np.random.randint(3, 400, size=va_df.shape[0])
         ]
-
-    return va_df
+        # convert location_types to an ordered list
+        location_types = [l for _,l in sorted(location_types.items(), key=lambda x: x[0])]
+        return_dict = {"data": va_df, 
+            "location_types": location_types,
+            "max_depth": len(location_types) - 1,
+            "locations": locations}
+        
+    return return_dict
 
 
 def assign_age_group(age):
@@ -194,38 +227,7 @@ def assign_age_group(age):
         return "child"
     else:
         return "adult"
-
-
-# =========Map Metrics =======================#
-# Top metrics to track for map dropdown
-# TODO: these need to be loaded from the actual VA data in the DB via a callback
-def get_metrics():
-    metrics = [
-        "Total Deaths",
-        "Mean Age of Death",
-        "HIV/AIDS related death",
-        "Diabetes mellitus",
-        "Acute resp infect incl pneumonia",
-        "Other and unspecified cardiac dis",
-        "Diarrhoeal diseases",
-        "Other and unspecified neoplasms",
-        "Renal failure",
-        "Liver cirrhosis",
-        "Digestive neoplasms",
-        "Other and unspecified infect dis"
-    ]
-    return metrics
-
-
-def get_metric_display_names(map_metrics):
-    names = []
-    for metric in map_metrics:
-        metric_name = LOOKUP["metric_names"].get(metric, None)
-        if metric_name is None:
-            metric_name = " ".join([x.capitalize() for x in metric.strip().split(" ")])
-        names.append(metric_name)
-    return names
-
+        
 
 # ===============APP LAYOUT====================#
 app.layout = html.Div(
@@ -309,17 +311,7 @@ app.layout = html.Div(
                                                     className="input-label",
                                                 ),
                                                 dcc.Dropdown(
-                                                    id="map_metric",
-                                                    options=[
-                                                        {
-                                                            "label": LOOKUP[
-                                                                "metric_names"
-                                                            ][o],
-                                                            "value": o,
-                                                        }
-                                                        for o in get_metrics()
-                                                    ],
-                                                    value="Total Deaths",
+                                                    id="map_metric",                                                    
                                                     style={
                                                         "margin-top": "5px",
                                                         "margin-bottom": "5px",
@@ -331,33 +323,58 @@ app.layout = html.Div(
                                             ],
                                             style={"display": "flex"},
                                         ),
-                                        html.Div(
-                                            [
+                                        html.Div(className='dashborad-comp-container',
+                                            id='search-container',
+                                            children = [
+                                                    dcc.Dropdown(
+                                                        id='map_search',
+                                                        options= [],
+                                                        multi=False, 
+                                                        placeholder='Search Locations', 
+                                                        clearable=True,
+                                                       )], 
+                                             style={
+                                                     "margin-left": "10px",
+                                                     "width": "220px",
+                                            }
+                                        ),
+                                         html.Div(
+                                            className="dashboard-comp-container",
+                                            children=[
                                                 html.P(
-                                                    "Granularity",
+                                                    "View",
+                                                    id="view_label",
                                                     className="input-label",
                                                 ),
                                                 dcc.Dropdown(
-                                                    id="granularity",
-                                                    options=[
-                                                        {"label": o, "value": o}
-                                                        for o in [
-                                                            "District",
-                                                            "Province",
-                                                        ]
-                                                    ],
-                                                    value="District",
+                                                    id="view_level",
+#                                                    options = [{"value": o, "label": o.capitalize()}
+#                                                    for o in [INITIAL_GRANULARITY]], 
+#                                                    value=INITIAL_GRANULARITY,
+                                                    value="",
+                                                    placeholder = "Auto",
                                                     style={
                                                         "margin-top": "5px",
                                                         "margin-bottom": "5px",
-                                                        "width": "120px",
+                                                        "width": "100px",
                                                     },
                                                     searchable=False,
                                                     clearable=False,
+                                                    disabled=False
                                                 ),
                                             ],
-                                            className="dashboard-comp-container",
+                                            style={"display": "flex"},
                                         ),
+                                        html.Div(className='dashboard-comp-container', 
+                                            children = [ 
+                                                    dbc.Button("Reset Map",
+                                                       id="reset",
+                                                       color="info",
+                                                       className="mr-1",
+                                                       n_clicks=0)
+                                            ]
+                                        )
+
                                     ],
                                     style={"align-items": "center"},
                                 ),
@@ -371,7 +388,10 @@ app.layout = html.Div(
                                     )
                                         
                                 ]),
+                                html.Div(id="bounds"),
                                 html.Div(id="va_data", style={"display": "none"}),
+                                html.Div(id="locations", style={"display": "none"}),
+                                html.Div(id="location_types", style={"display": "none"}),
                                 html.Div(id="filter_dict", style={"display": "none"}),
                             ],
                             width=7,
@@ -433,12 +453,7 @@ app.layout = html.Div(
                                                                             "label": o,
                                                                             "value": o,
                                                                         }
-                                                                        for o in [
-                                                                            5,
-                                                                            10,
-                                                                            15,
-                                                                            20,
-                                                                        ]
+                                                                        for o in [5,10,15,20]
                                                                     ],
                                                                     value=10,
                                                                     style={
@@ -581,44 +596,119 @@ app.layout = html.Div(
         )
     ],
 )
+                                                        
+#=============Reset logic (reset map to default)====================#
+@app.callback(
+    [
+         Output(component_id="map_search", component_property="value"), 
+         Output(component_id="map_metric", component_property="value")
+    ], 
+         
+    [
+         Input(component_id="reset", component_property="n_clicks")
+    ]
+)
+
+def reset(n_clicks=0):
+    return  "", INITIAL_MAP_METRIC                                                    
 
 # ============ VA data (loaded from database and shared across components) ========
 
 @app.callback(
-    Output(component_id="va_data", component_property="children"),
+    [
+         Output(component_id="va_data", component_property="children"),
+         Output(component_id="locations", component_property="children"),
+         Output(component_id="location_types", component_property="children")
+     ],
+    
     [
         Input(component_id="timeframe", component_property="value"),
-    ],
+    ]
 )
 def va_data(timeframe="All"):
-    data = load_va_data()
-    return data.to_json()
+    res = load_va_data()
+    va_data = res["data"].to_json()
+    locations = json.dumps(res["locations"])
+    location_types = json.dumps(res["location_types"])
+    return va_data, locations, location_types
 
-
-# ============ Filter logic (update filter table used by other componenets)========#
+# ============ Location search options (loaded after load_va_data())==================
 @app.callback(
-    Output(component_id="filter_dict", component_property="children"),
+    Output(component_id="map_search", component_property="options"), 
+    [Input(component_id="map_search", component_property="search_value"), 
+     Input(component_id="locations", component_property="children")]
+        
+)
+def update_options(search_value, location_json):
+    if search_value and location_json:
+        locations = json.loads(location_json).keys()
+        options = [{'label':l, 'value':l} for l in locations \
+                   if search_value.lower() in l.lower()]
+        return options
+    else:
+         raise dash.exceptions.PreventUpdate
+
+        
+#============ Filter logic (update filter table used by other componenets)========#
+@app.callback(
+     Output(component_id="filter_dict", component_property="children"),
+    
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="choropleth", component_property="selectedData"),
-        Input(component_id="granularity", component_property="value"),
         Input(component_id="timeframe", component_property="value"),
-    ],
+        Input(component_id="map_search", component_property="value"), 
+        Input(component_id="locations", component_property="children"), 
+        Input(component_id="location_types", component_property="children")
+    ]
 )
 def filter_data(
-    va_data, selected_json, granularity=INITIAL_GRANULARITY, timeframe="All", search_terms=[]
-):
+    va_data, selected_json, timeframe="All", search_terms=[], locations=None, location_types=None
+):  
     filter_df = pd.read_json(va_data)
-    granularity = granularity.lower()
+    granularity = INITIAL_GRANULARITY
+    locations = json.loads(locations) if type(locations) is str else locations
+    search_terms = [] if search_terms is None else search_terms
+    location_types = json.loads(location_types) if location_types is not None else location_types
+    
+    # dictionary storing data we want to share across callbacks
+    filter_dict = {
+            "geo_filter": (selected_json is not None) or (len(search_terms) > 0),
+            "plot_regions": []
+            }
 
-    # first, check for locations clicked on map.
-    if selected_json is not None:
-        point_df = pd.DataFrame(selected_json["points"])
-        chosen_region_coordinates = set(point_df["location"].tolist())
-        filter_col = granularity.lower()
-        filter_df = filter_df[filter_df[filter_col].isin(chosen_region_coordinates)]
+    if filter_dict["geo_filter"]:
+    
+        # first, check if user searched anything. If yes, use that as filter.
+        if search_terms is not None:
+            if len(search_terms) > 0:
+                search_terms = [search_terms] if type(search_terms) is str else search_terms
+                granularity = locations.get(search_terms[0], granularity)
+                filter_df = filter_df[filter_df[granularity].isin(set(search_terms))]
+    
+        # then, check for locations clicked on map.
+        if selected_json is not None:
+            point_df = pd.DataFrame(selected_json["points"])
+            chosen_regions = point_df["location"].tolist()
+            granularity = locations.get(chosen_regions[0], granularity)
+            filter_df = filter_df[filter_df[granularity].isin(set(chosen_regions))]
+        
+        # get parent location type from current granularity
+        parent_location_type = shift_granularity(granularity, location_types, move_up=True)
 
-    # next, apply time filter if necessary
+        # get all locations in parent(s) of chosen regions for plotting
+        plot_regions = list()
+        for parent_name in  filter_df[parent_location_type].unique():
+            location_object = Location.objects.get(name=parent_name)
+            children = location_object.get_children()
+            children_names = [c.name for c in location_object.get_children()]
+            plot_regions = plot_regions + children_names + [parent_name]
+            # set final granularity to same level of children
+            granularity = children[0].location_type
+        filter_dict["plot_regions"] = plot_regions
+       
+    
+    # finally, apply time filter if necessary
     if timeframe != "all":
         cutoff = dt.datetime.today() - dt.timedelta(
             days=LOOKUP["time_dict"][timeframe]
@@ -626,61 +716,182 @@ def filter_data(
         filter_df = filter_df[filter_df["date"] >= cutoff]
 
     filter_ids = filter_df.index.tolist()
-    filter_dict = {"geo_filter": (selected_json is not None), "ids": filter_ids}
-
+    filter_dict["ids"] = filter_ids
+    filter_dict["granularity"] = granularity
+    
+    #ret = f"{granularity}  |  {children_names[0]} "
     return json.dumps(filter_dict)
 
 
+# try to move one level up or down in the geographical hierarchy. If not possible,
+# return current level
+def shift_granularity(current_granularity, levels, move_up=False): 
+    current_granularity = current_granularity.lower()
+    if current_granularity in levels:
+        current_idx = levels.index(current_granularity)
+        if move_up:
+            new_idx = max(current_idx - 1, 0)
+        else:
+            new_idx = min(current_idx + 1, len(levels) - 1)
+        return levels[new_idx]
+
+# =========Map Metrics =======================#
+# Top metrics to track for map dropdown
+@app.callback(
+    Output(component_id="map_metric", component_property="options"),
+    
+    [
+         Input(component_id="va_data", component_property="children"), 
+         Input(component_id="filter_dict", component_property="children")
+     ]
+        
+)
+def get_metrics(va_data, filter_dict=None, N=10):
+    # by default, start with aggregate measures
+    metrics = [
+        "Total Deaths",
+        "Mean Age of Death",
+    ]
+    metric_data = pd.read_json(va_data)
+    if metric_data.size > 0:
+        if filter_dict is not None:
+            filter_dict = json.loads(filter_dict)
+            metric_data = metric_data.iloc[filter_dict["ids"], :]
+        # add top N CODs by incidence to metric list
+        metrics = metrics + (metric_data["cause"]
+                        .value_counts()
+                        .sort_values(ascending=False)
+                        .head(N)
+                        .index
+                        .tolist())
+        
+    return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics]
+
+
+def get_metric_display_names(map_metrics):
+    names = []
+    for metric in map_metrics:
+        metric_name = LOOKUP["metric_names"].get(metric, None)
+        if metric_name is None:
+            metric_name = " ".join([x.capitalize() for x in metric.strip().split(" ")])
+        names.append(metric_name)
+    return names
+
+# ====================Geographic Levels (View options)============#
+@app.callback(
+        [
+             Output(component_id="view_level", component_property="options"),
+             Output(component_id="view_level", component_property="disabled"),
+             Output(component_id="view_label", component_property="className")
+        ],
+                
+        [
+            Input(component_id="filter_dict", component_property="children"), 
+            Input(component_id="location_types", component_property="children"), 
+            
+        ]
+)
+
+def update_view_options(filter_dict, location_types):
+    if filter_dict is not None:
+        filter_dict = json.loads(filter_dict)
+             
+        # only activate this dropdown when user is zoomed out
+        disable = filter_dict["geo_filter"]
+        if not disable:
+            view_options = json.loads(location_types)
+            label_class = "input-label"
+        else:
+            view_options = []
+            label_class = "input-label-disabled"
+        options = [{'label': o.capitalize(), 'value': o} for o in view_options]
+        return options, disable, label_class
+
+# when view dropdown is disabled, reset selected value to null
+@app.callback(
+        Output(component_id="view_level", component_property="value"),                 
+        [ 
+            Input(component_id="view_level", component_property="disabled"), 
+        ]
+)
+def reset_view_value(is_disabled=False):
+    if is_disabled:
+        return ""
+    else:
+        raise dash.exceptions.PreventUpdate
+
 # ====================Map Logic===================================#
 @app.callback(
-    Output(component_id="choropleth-container", component_property="children"),
+#    [
+        Output(component_id="choropleth-container", component_property="children"),
+#        Output(component_id="bounds", component_property="children")   
+#    ],
+    
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
-        Input(component_id="granularity", component_property="value"),
         Input(component_id="map_metric", component_property="value"),
+        Input(component_id="view_level", component_property="value"),
+        Input(component_id="location_types", component_property="children"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def update_choropleth(
-    va_data, timeframe, granularity, map_metric="Total Deaths", filter_dict=None, geojson=GEOJSON
-):
+def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level=None,\
+                      location_types=None, filter_dict=None, geojson=GEOJSON ):
+    # first, see which input triggered update. If granularity change, only run 
+    # if value is non-empty
+    context = dash.callback_context
+    trigger = context.triggered[0]
+    if trigger["prop_id"].split('.')[0] == "view_level" and trigger["value"] == "":
+        raise dash.exceptions.PreventUpdate
+        
     plot_data = pd.read_json(va_data)
     return_value = html.Div(id="choropleth")
+    zoom_in = False
+    granularity = INITIAL_GRANULARITY
+    location_types = json.loads(location_types)
+    
     if plot_data.size > 0:
-        granularity = granularity.lower()
         timeframe = timeframe.lower()
         feature_id = "properties.area_name"
-        chosen_region_coordinates = geojson["features"]
+        chosen_regions = geojson["features"]
         # if dashboard filter applied, carry over to data
         if filter_dict is not None:
             filter_dict = json.loads(filter_dict)
+            granularity = filter_dict.get('granularity', granularity)
             plot_data = plot_data.iloc[filter_dict["ids"], :]
-            # if user has clicked on map and granularity is providence level, change to district  level
-            if filter_dict["geo_filter"] and granularity == "province":
-                granularity = "district"
-            chosen_regions = set(plot_data[granularity].tolist())
-            chosen_region_coordinates = [
-                g
-                for g in geojson["features"]
-                if g["properties"]["area_name"] in chosen_regions
-            ]
+            # geo_filter is true if user clicked on map or searches for location
+            zoom_in = filter_dict["geo_filter"] 
+            
+            # if zoom in necessary, filter geojson to only chosen region(s)
+            if zoom_in:
+                plot_regions = filter_dict["plot_regions"]
+                chosen_regions = [
+                    g for g in geojson["features"] if g["properties"]["area_name"] in plot_regions
+                ]
+                # if user has clicked on map and granularity is providence level, change to district level
+                granularity = shift_granularity(granularity, location_types, move_up=False)
+                
 
         if map_metric not in ["Total Deaths", "Mean Age of Death"]:
             plot_data = plot_data[plot_data["cause"] == map_metric]
+            
+        
+        # if user has not chosen a view level or its disabled, default to using granularity
+        view_level = view_level if len(view_level) > 0 else granularity
+        # get map tooltips to match view level (disstrict or province)
+        map_df = generate_map_data(plot_data, chosen_regions, view_level, zoom_in, map_metric)
 
-        # get map tooltips
-        map_df = generate_map_data(plot_data, geojson, granularity)
 
-        data_value = "mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "count"
+        data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
         figure = go.Figure(
             data=go.Choropleth(
-                locations=map_df[granularity],
+                locations=map_df[view_level],
                 z=map_df[data_value].astype(float),
                 locationmode="geojson-id",
                 geojson=geojson,
                 featureidkey=feature_id,
-                colorscale="Blues",
+                colorscale=LOOKUP["map_colorscale"],
                 hovertext=map_df["tooltip"],
                 hoverinfo="text",
                 autocolorscale=False,
@@ -696,7 +907,7 @@ def update_choropleth(
                     len=0.8,
                     yanchor="middle",
                     ticks="outside",
-                    dtick=5,
+                    nticks=10,
                 ),
             )
         )
@@ -704,7 +915,8 @@ def update_choropleth(
         # update figure layout
         figure.update_layout(
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
-            clickmode="event+select",
+            clickmode="event" if zoom_in else "event+select",
+            #clickmode="none",
             dragmode="select",
         )
         # additional styling
@@ -720,70 +932,50 @@ def update_choropleth(
             framewidth=0,
         )
 
-        # adjust automatic zoom to maximize size of map
-        xmin = min([g["properties"]["min_x"] for g in chosen_region_coordinates])
-        xmax = max([g["properties"]["max_x"] for g in chosen_region_coordinates])
-        ymin = min([g["properties"]["min_y"] for g in chosen_region_coordinates])
-        ymax = max([g["properties"]["max_y"] for g in chosen_region_coordinates])
-
-        xmin, xmax, ymin, ymax = 0.95 * xmin, 1.05 * xmax, 1.05 * ymin, 0.95 * ymax
-        figure.update_geos(lonaxis_range=[xmin, xmax], lataxis_range=[ymin, ymax])
-        return_value = dcc.Graph(id="choropleth", figure=figure, config=config)        
+    return_value = dcc.Graph(id="choropleth", figure=figure, config=config) 
 
     return return_value
-
+ 
 
 # ==========Map dataframe (built from va dataframe)============#
-def generate_map_data(va_df, geojson, granularity="district"):
+def generate_map_data(va_df, chosen_geojson, view_level="district", zoom_in=False, metric="Total Deaths"):
     if va_df.size > 0:
         map_df = (
-            va_df[[granularity, "age", "location"]]
-            .groupby(granularity)
+            va_df[[view_level, "age", "location"]]
+            .groupby(view_level)
             .agg({"age": ["mean", "count"], "location": [pd.Series.nunique]})
         )
-        map_df[granularity] = map_df.index.values
-        # remove unnecessary index (colapse multiindex down to single index)
-        for old_index in map_df.columns.levels[0]:
-            if len(map_df[old_index].shape) == 2:
-                for col in map_df[old_index].columns:
-                    map_df[col] = map_df[old_index][col]
 
-        map_df["mean"] = np.round(map_df["mean"], 1)
-        df = map_df
-        df["tooltip"] = (
-            "<b>"
-            + granularity.capitalize()
-            + ": </b>"
-            + df[granularity]
-            + "<br>"
-            + "<b>Total Deaths: </b>"
-            + df["count"].astype(str)
-            + "<br>"
-            + "<b>Average Lifespan: </b>"
-            + df["mean"].astype(str)
-            + "<br>"
-            + "<b>Active Facilities: </b>"
-            + df["nunique"].astype(str)
+        map_df.columns = ['_'.join(tup) for tup in map_df.columns.to_flat_index()]
+        map_df.reset_index(inplace=True)
+        
+        # generate tooltips for regions with data
+        metric_name = LOOKUP['metric_names'].get(metric, metric)
+        map_df["age_mean"] = np.round(map_df["age_mean"], 1)
+        map_df["tooltip"] = (
+                "<b>"+ map_df[view_level] + "</b>" 
+                + "<br>"
+                + f"<b>{metric_name}: </b>" + map_df["age_count"].astype(str)
+                + "<br>"
+                + "<b>Average Lifespan: </b>" + map_df["age_mean"].astype(str)
+                + "<br>"
+                + "<b>Active Facilities: </b>" + map_df["location_nunique"].astype(str)
         )
-        return df
+        
+        
+        # join with all region names to ensure each region has a record
+        chosen_region_names = [(f['properties']['area_name'], f['properties']['area_id'])\
+                         for f in chosen_geojson\
+                         if f['properties']['area_level_label'] == view_level.capitalize()]
+        geo_df = pd.DataFrame.from_records(chosen_region_names, columns=[view_level, 'area_id'])
+        map_df = geo_df.merge(map_df, how='left', on=view_level)
+        
+        # fill NAs with 0s and rename empty tooltips to "No Data"
+        map_df["tooltip"].fillna("No Data", inplace=True)
+        map_df.fillna(0, inplace=True)
+
+        return map_df
     return pd.DataFrame()
-
-
-# TODO: Get this filter to work properly
-# @app.callback(
-#
-#       [Output(component_id='map_metric', component_property='options')],
-#       [Input(component_id='filter_dict', component_property='children')]
-# )
-#
-# def update_dropdown(filter_dict=None):
-#    plot_data = va_data()
-#    if filter_dict is not None:
-#        plot_data = plot_data.iloc[json.loads(filter_dict)['ids'],:]
-#    relevant_metrics = get_metrics(plot_data)
-#    options=[{'label': LOOKUP['metric_names'][o], 'value': o} for o in relevant_metrics]
-#    return options
-
 
 # =========Callout Boxes Logic============================================#
 @app.callback(
@@ -791,19 +983,19 @@ def generate_map_data(va_df, geojson, granularity="district"):
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
-        Input(component_id="granularity", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def update_callouts(va_data, timeframe, granularity, filter_dict=None):
+def update_callouts(va_data, timeframe, filter_dict=None, geojson=GEOJSON):
     plot_data = pd.read_json(va_data)
+    granularity = INITIAL_GRANULARITY
     if plot_data.size > 0:
         if filter_dict is not None:
-            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
+            filter_dict = json.loads(filter_dict)
+            plot_data = plot_data.iloc[filter_dict["ids"], :]
+            granularity = filter_dict.get('granularity', granularity)
 
-        granularity = granularity.lower()
-
-        # tot VAs
+        # total VAs
         total_vas = plot_data.shape[0]
 
         # active facilities
@@ -813,7 +1005,14 @@ def update_callouts(va_data, timeframe, granularity, filter_dict=None):
         num_field_workers = int(1.25 * active_facilities)
 
         # region coverage
-        total_regions = plot_data[granularity].nunique()
+        total_regions = geojson[f"{granularity}_count"]
+        if filter_dict is not None:
+            if len(filter_dict["plot_regions"]) > 0:
+                total_regions = len(filter_dict["plot_regions"])
+        
+                # TODO: fix this to be more generic
+                if granularity == 'province':
+                    granularity = 'district'
         regions_covered = (
             plot_data[[granularity, "age"]].dropna()[granularity].nunique()
         )
