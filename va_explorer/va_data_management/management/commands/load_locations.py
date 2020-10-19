@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from verbal_autopsy.models import Location
+from va_explorer.va_data_management.models import Location
 import argparse
 import pandas as pd
 

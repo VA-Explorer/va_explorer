@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from verbal_autopsy.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue
+from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue
 from django.forms.models import model_to_dict
 from io import StringIO
 from collections import OrderedDict
@@ -80,6 +80,8 @@ class Command(BaseCommand):
                 va_offset, *issue_text = re.split('  +', issue)
                 issue_text = ' '.join(issue_text).strip()
                 va_id = verbal_autopsies_without_causes[int(va_offset)].id
+                # TODO: For now, clear old issues for records that are newly coded; if we associate errors with runs we may perhaps prefer not to do this
+                CauseCodingIssue.objects.filter(verbalautopsy_id=va_id).delete()
                 issues.append(CauseCodingIssue(verbalautopsy_id=va_id, text=issue_text, severity=severity, algorithm='InterVA5', settings=algorithm_settings))
 
         CauseCodingIssue.objects.bulk_create(issues)

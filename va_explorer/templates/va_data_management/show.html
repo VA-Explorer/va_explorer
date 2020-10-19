@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Verbal Autopsy #{{ id }}{% endblock %}
+
+{% block content %}
+
+<h4>Verbal Autopsy #{{ id }}</h4>
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="record-tab" data-toggle="tab" href="#record" role="tab" aria-controls="record" aria-selected="true">Record</a>
+  </li>
+  {% if errors or warnings %}
+    <li class="nav-item">
+      <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="false">Coding Issues</a>
+    </li>
+  {% endif %}
+  {% if diffs %}
+    <li class="nav-item">
+      <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">Change History</a>
+    </li>
+  {% endif %}
+</ul>
+
+<div class="tab-content">
+
+  <div class="tab-pane fade show active" id="record" role="tabpanel" aria-labelledby="record-tab">
+
+    <a class="btn btn-primary mt-3 mb-3 " href="{% url 'data_management:edit' id=id %}">Edit Record</a>
+
+    <table class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for key, value in va.items %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+
+  {% if errors or warnings %}
+    <div class="tab-pane fade" id="issues" role="tabpanel" aria-labelledby="issues-tab">
+
+      {% if errors %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>{{ errors|length }} Error{{ errors|pluralize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for error in errors %}
+              <tr><td>{{ error }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      {% if warnings %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>{{ warnings|length }} Warning{{ warnings|pluralize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for warning in warnings %}
+              <tr><td>{{ warning }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if diffs %}
+    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+      <table class="table table-hover table-sm">
+        <thead>
+          <tr>
+            <th colspan=2>{{ diffs|length }} Change{{ diffs|pluralize }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for diff in diffs %}
+            <tr>
+              <td>{{ diff.new_record.history_date }}</td>
+              <td>
+                {% for change in diff.changes %}
+                  {% if change.old and change.new %}
+                    <b>{{ change.field }}</b> changed from <b>{{ change.old }}</b> to <b>{{ change.new }}</b><br/>
+                  {% elif change.new %}
+                    <b>{{ change.field }}</b> was set to <b>{{ change.new }}</b><br/>
+                  {% elif change.old %}
+                    <b>{{ change.field }}</b> had value <b>{{ change.old }}</b> deleted<br/>
+                  {% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+      </table>
+      <p><a class="btn btn-primary" href="{% url 'data_management:reset' id=id %}">Reset to Original</a></p>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

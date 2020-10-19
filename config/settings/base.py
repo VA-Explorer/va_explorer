@@ -77,7 +77,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
-    "verbal_autopsy"
+    "va_explorer.va_data_management.apps.VaDataManagementConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

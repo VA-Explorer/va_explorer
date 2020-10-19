@@ -1,6 +1,6 @@
 import pytest
 from django.contrib.auth import models
-from verbal_autopsy.models import Location
+from va_explorer.va_data_management.models import Location
 
 from va_explorer.users.models import User
 from va_explorer.users.tests.factories import (
