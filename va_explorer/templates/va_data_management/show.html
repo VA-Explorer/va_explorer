@@ -108,6 +108,7 @@
             </tr>
           {% endfor %}
       </table>
+      <p><a class="btn btn-primary" href="{% url 'data_management:revert_latest' id=id %}">Revert Most Recent Change</a></p>
       <p><a class="btn btn-primary" href="{% url 'data_management:reset' id=id %}">Reset to Original</a></p>
     </div>
   {% endif %}
