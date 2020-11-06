@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.8-slim-buster as builder
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -22,8 +22,8 @@ RUN apt-get update \
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements /requirements
 # All imports needed for autodoc.
-RUN pip install -r /requirements/local.txt -r /requirements/production.txt
+RUN pip install -r /requirements/docs.txt
 
-WORKDIR /docs
+FROM nginx
 
-CMD make livehtml
+COPY --from=builder /docs /usr/share/nginx/html

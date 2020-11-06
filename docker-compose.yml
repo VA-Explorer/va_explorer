@@ -1,10 +1,80 @@
-version: "3"
+version: '3'
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  production_traefik: {}
+  
 services:
   pycrossva:
+    image: va_explorer/pycrossva
     build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
-    ports:
-      - "5001:80"
+    
   interva5:
+    image: va_explorer/interva5
     build: https://github.com/VA-Explorer/InterVA5.git#microservice-experiment
+
+  redis:
+    image: redis:5.0
+
+  django: &django
+    image: va_explorer/django
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dcc02e52ccbb649b9febe9182abfa5e03c49be6c}
+      MAILGUN_API_KEY: ${MAILGUN_API_KEY:-APIKEY}
+      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN:-VAEXPLORER}
+    command: /start
+
+  celeryworker:
+    <<: *django
+    image: va_explorer/celeryworker
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: va_explorer/celerybeat
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: va_explorer/flower
+    command: /start-flower
+
+  postgres:
+    image: va_explorer/postgres
+    build:
+      context: .
+      dockerfile: ./compose/postgres/Dockerfile
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+
+  traefik:
+    image: va_explorer/traefik
+    build:
+      context: .
+      dockerfile: ./compose/traefik/Dockerfile
+    depends_on:
+      - django
+    volumes:
+      - production_traefik:/etc/traefik/acme
     ports:
-      - "5002:5002"
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+      - "0.0.0.0:5555:5555"

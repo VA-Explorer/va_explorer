@@ -68,7 +68,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
 * Install application requirements
 
-    `pip install -r requirements/local.txt`
+    `pip install -r requirements/base.txt`
 
 * Create the va_explorer database
 

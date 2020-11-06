@@ -1,0 +1,43 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  pycrossva:
+    ports:
+      - "5001:80"
+
+  interva5:
+    ports:
+      - "5002:5002"
+
+  django:
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - "5000:5000"
+
+  postgres:
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/.postgres
+
+  docs:
+    image: va_explorer/docs
+    build:
+      context: .
+      dockerfile: ./compose/docs/Dockerfile
+    env_file:
+      - ./.envs/.local/.django
+    ports:
+      - "7000:7000"
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+      - "8025:8025"
