@@ -44,7 +44,7 @@ To work with the application, you will need to install some prerequisites:
 * [Python 3](https://www.python.org/downloads/)
 * [pip](https://pypi.org/project/pip/)
 * [Postgres](http://www.postgresql.org/)
-* [Docker] (https://www.docker.com/)
+* [Docker](https://www.docker.com/)
 
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
