@@ -36,10 +36,10 @@
         </tr>
       </thead>
       <tbody>
-        {% for key, value in va.items %}
+        {% for field in form %}
           <tr>
-            <td>{{ key }}</td>
-            <td>{{ value }}</td>
+            <td>{{ field.label }}</td>
+            <td>{{ field.value }}</td>
           </tr>
         {% endfor %}
       </tbody>
