@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.forms.models import model_to_dict
 from .models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from .forms import VerbalAutopsyForm
 
@@ -21,6 +20,7 @@ def index(request):
 # TODO: Is the convention to use pk instead of id in django?
 def show(request, id):
     va = VerbalAutopsy.objects.get(id=id)
+    form = VerbalAutopsyForm(None, instance=va)
     coding_issues = va.coding_issues.all()
     warnings = [issue for issue in coding_issues if issue.severity == 'warning']
     errors = [issue for issue in coding_issues if issue.severity == 'error']
@@ -29,7 +29,7 @@ def show(request, id):
     diffs = [new.diff_against(old) for (old, new) in history_pairs]
     # TODO: date in diff info should be formatted in local time
     # TODO: history should eventually show user who made the change
-    context = { "id": id, "va": model_to_dict(va, exclude=("id", "location")), "warnings": warnings, "errors": errors, "diffs": diffs }
+    context = { "id": id, "form": form, "warnings": warnings, "errors": errors, "diffs": diffs }
     return render(request, "va_data_management/show.html", context)
 
 def edit(request, id):
@@ -37,7 +37,8 @@ def edit(request, id):
     # TODO: We want to provide context for all the fields
     # TODO: We probably want to use a django Form here or crispy forms
     va = VerbalAutopsy.objects.get(id=id)
-    context = { "id": id, "va": model_to_dict(va, exclude=("id", "location")) }
+    form = VerbalAutopsyForm(None, instance=va)
+    context = { "id": id, "form": form }
     return render(request, "va_data_management/edit.html", context)
 
 def save(request, id):
