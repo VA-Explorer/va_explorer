@@ -58,3 +58,14 @@ def reset(request, id):
     if earliest and len(latest.diff_against(earliest).changes) > 0:
         earliest.instance.save()
     return redirect("va_data_management:show", id=id)
+
+# Revert the most recent change
+# TODO: Should record automatically be recoded?
+def revert_latest(request, id):
+    va = VerbalAutopsy.objects.get(id=id)
+    if va.history.count() > 1:
+        previous = va.history.all()[1]
+        latest = va.history.latest()
+        if len(latest.diff_against(previous).changes) > 0:
+            previous.instance.save()
+        return redirect("va_data_management:show", id=id)
