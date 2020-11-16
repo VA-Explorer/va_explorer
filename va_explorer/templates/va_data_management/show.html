@@ -31,14 +31,14 @@
     <table class="table table-hover table-sm">
       <thead>
         <tr>
-          <th>Field</th>
+          <th style="width: 50%">Field</th>
           <th>Value</th>
         </tr>
       </thead>
       <tbody>
         {% for field in form %}
           <tr>
-            <td>{{ field.label }}</td>
+            <td><b>{{ field.name }}:</b> {{ field.label }}</td>
             <td>{{ field.value }}</td>
           </tr>
         {% endfor %}
