@@ -5,33 +5,21 @@ With these settings, tests run faster.
 from .base import *  # noqa
 from .base import env
 
-# GENERAL
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+# General
+
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
     default="TSjr7VIP1j98nKm5dc3AqbkZKXwMAguZh1M2UALvL1GITCNFl3LHnNgfcfCRiHy6",
 )
-# https://docs.djangoproject.com/en/dev/ref/settings/#test-runner
+
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
-# CACHES
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#caches
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "",
-    }
-}
+# Passwords
 
-# PASSWORDS
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#password-hashers
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
-# TEMPLATES
-# ------------------------------------------------------------------------------
+# Templates
+
 TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
     (
         "django.template.loaders.cached.Loader",
@@ -42,10 +30,6 @@ TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
     )
 ]
 
-# EMAIL
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+# Email
 
-# Your stuff...
-# ------------------------------------------------------------------------------
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
