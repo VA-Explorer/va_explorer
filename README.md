@@ -1,4 +1,4 @@
-## VA Explorer Web Application Prototype
+# VA Explorer Web Application Prototype
 
 VA Explorer is a prototype web application, built to both demonstrate verbal autopsy data management and
 analysis capabilities and act as a foundation for exploring new concepts. This prototype represents a
@@ -22,7 +22,7 @@ InterVA5 services)
   *  Death distributions by age, gender, and place of death for chosen regions
   *  Trends over time for chosen regions
 
-### Background
+## Background
 
 Verbal autopsies (VAs) are structured interviews for determining the most likely cause of death based on
 information from caregivers or family members about the signs and symptoms the deceased experienced before
@@ -33,11 +33,11 @@ functionality, drawing inspiration from others, and combining new features into 
 VA Explorer aims to enable the integration of verbal autopsy into civil registration and vital
 statistics systems at scale.
 
-### Installation and Setup for Development or Testing
+## Installation and Setup for Development or Testing
 
 VA Explorer is a Django web application that uses the PostgreSQL database for data storage.
 
-#### Prerequisites
+### Prerequisites
 
 To work with the application, you will need to install some prerequisites:
 
@@ -48,7 +48,7 @@ To work with the application, you will need to install some prerequisites:
 
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
-#### Setup
+### Setup
 
 * Retrieve the application source code
 
@@ -78,14 +78,13 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     *  `DATABASE_URL=psql://<YOUR POSTGRESUSER>:<POSTGRESUSER PASSWORD>@localhost/va_explorer`
     *  `CELERY_BROKER_URL=redis://localhost:6379/0`
-    *  `USE_DOCKER="no"`
 
 
 * Run the database migrations
     * `python manage.py makemigrations`
     * `python manage.py migrate`
 
-#### Tasks
+### Tasks
 
 * Manage user accounts
 
@@ -125,21 +124,71 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `pytest`
 
-#### Running the application
+### Running the application
 
 * Run the application server
 
     `python manage.py runserver 0.0.0.0:8000`
 
-    The server will be running at http://0.0.0.0:8000/
+The server will be running at http://0.0.0.0:8000/
 
-### Version History
+## Building/Running in Docker
+
+Django can run locally inside Docker. This will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.local.yml up django
+```
+
+The server will be running at http://0.0.0.0:5000/
+
+### Building for Production
+
+To build a production ready version of all images, run the following:
+
+```
+docker-compose build
+```
+
+This will build the following docker images:
+
+```
+va_explorer/pycrossva
+va_explorer/interva5
+va_explorer/postgres
+va_explorer/celeryworker
+va_explorer/celerybeat
+va_explorer/flower
+va_explorer/django
+va_explorer/traefik
+```
+
+### Deploying with Traefik
+
+Set the following environment variables:
+
+```
+EMAIL_URL
+CELERY_BROKER_URL
+REDIS_URL
+POSTGRES_HOST
+POSTGRES_PORT
+POSTGRES_DB
+POSTGRES_USER
+POSTGRES_PASSWORD
+DJANGO_SECRET_KEY
+DJANGO_ALLOWED_HOSTS
+```
+
+More coming soon...
+
+## Version History
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 Releases are documented in the [CHANGELOG]().
 
-### License
+## License
 
 Copyright 2020-2021 The MITRE Corporation
 
@@ -151,7 +200,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### Contact Information
+## Contact Information
 
 For questions or comments about VA Explorer, please send an email to:
 

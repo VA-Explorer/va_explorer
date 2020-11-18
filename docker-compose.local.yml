@@ -14,30 +14,12 @@ services:
       - "5002:5002"
 
   django:
-    env_file:
-      - ./.envs/.local/.django
-      - ./.envs/.local/.postgres
     ports:
       - "5000:5000"
-
+    environment:
+      DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
+      EMAIL_URL: smtp://consolemail
   postgres:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups
-    env_file:
-      - ./.envs/.local/.postgres
-
-  docs:
-    image: va_explorer/docs
-    build:
-      context: .
-      dockerfile: ./compose/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    ports:
-      - "7000:7000"
-
-  mailhog:
-    image: mailhog/mailhog:v1.0.0
-    ports:
-      - "8025:8025"

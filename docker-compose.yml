@@ -24,15 +24,18 @@ services:
       dockerfile: ./compose/django/Dockerfile
     depends_on:
       - postgres
+      - redis
     environment:
+      EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dcc02e52ccbb649b9febe9182abfa5e03c49be6c}
-      MAILGUN_API_KEY: ${MAILGUN_API_KEY:-APIKEY}
-      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN:-VAEXPLORER}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost}
     command: /start
 
   celeryworker:
