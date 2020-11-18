@@ -1,7 +1,0 @@
-# PostgreSQL
-# ------------------------------------------------------------------------------
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_DB=va_explorer
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=Pimin73y!we
