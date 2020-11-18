@@ -4,5 +4,6 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+export DJANGO_SETTINGS_MODULE=config.settings.production
 
-celery -A config.celery_app beat -l INFO
+celery -A config.celery_app.app beat -l INFO

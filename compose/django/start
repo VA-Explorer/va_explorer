@@ -6,7 +6,8 @@ set -o nounset
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
-python /app/manage.py collectstatic --noinput
+echo "Running database migrations..."
 python /app/manage.py migrate
 
-/usr/local/bin/gunicorn config.wsgi --bind 0.0.0.0:5000 --chdir=/app
+echo "Starting gunicorn..."
+/usr/local/bin/gunicorn config.wsgi --bind=0.0.0.0:5000 --chdir=/app --workers=4 --threads=4

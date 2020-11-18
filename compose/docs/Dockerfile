@@ -24,6 +24,15 @@ COPY ./requirements /requirements
 # All imports needed for autodoc.
 RUN pip install -r /requirements/docs.txt
 
+RUN mkdir /app
+COPY manage.py /app/manage.py
+COPY va_explorer /app/va_explorer
+COPY config /app/config
+COPY locale /app/locale
+COPY docs /app/docs
+
+RUN cd /app/docs && make html
+
 FROM nginx
 
-COPY --from=builder /docs /usr/share/nginx/html
+COPY --from=builder /app/docs/_build/html /usr/share/nginx/html
