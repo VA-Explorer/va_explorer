@@ -822,10 +822,10 @@ def reset_view_value(is_disabled=False):
 
 # ====================Map Logic===================================#
 @app.callback(
-    [
+#    [
         Output(component_id="choropleth-container", component_property="children"),
-        Output(component_id="bounds", component_property="children")   
-    ],
+#        Output(component_id="bounds", component_property="children")   
+#    ],
     
     [
         Input(component_id="va_data", component_property="children"),
@@ -880,15 +880,12 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
         # if user has not chosen a view level or its disabled, default to using granularity
         view_level = view_level if len(view_level) > 0 else granularity
         # get map tooltips to match view level (disstrict or province)
+        map_df = generate_map_data(plot_data, chosen_regions, view_level, zoom_in, map_metric)
 
-        map_df = generate_map_data(plot_data, plot_geos, view_level, zoom_in, map_metric, include_no_datas)
-#        
-        highlight_region = (map_df.shape[0] == 1)
-        if highlight_region: 
-            # increse border thickness to highlight selcted region
-            border_thickness = 3 * border_thickness
-            
-        figure.add_trace(go.Choropleth(
+
+        data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
+        figure = go.Figure(
+            data=go.Choropleth(
                 locations=map_df[view_level],
                 z=map_df[data_value].astype(float),
                 locationmode="geojson-id",
@@ -914,7 +911,7 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
                 ),
             )
         )
-#
+
         # update figure layout
         figure.update_layout(
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
@@ -937,35 +934,8 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
 
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config) 
 
-    return return_value, map_df.to_json()
-
-# ==========Helper method to plot adjacent regions on map =====#
-def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feature_id=None, \
-                     location_col=None, z_col=None, tooltip_col=None):
-    
-    feature_id = "properties.area_name" if not feature_id else feature_id
-    location_col = "locations" if not location_col else location_col
-    z_col = "z_value" if not z_col else z_col
-    tooltip_col = "tooltip" if not tooltip_col else tooltip_col
-        
-    trace = trace_type(
-            locations = trace_data[location_col],
-            z=trace_data[z_col].astype(float),
-            locationmode="geojson-id",
-            geojson=geojson,
-            featureidkey=feature_id,
-            hovertext=trace_data[tooltip_col],
-            hoverinfo="text", 
-            colorscale = [(0.0, 'rgb(255,255,255)'),
-                          (0.001, 'rgb(230,230,230)'),
-                          (1.0, 'rgb(230,230,230)')], 
-            marker_line_color="gray",
-            marker_line_width=0.25,
-            showscale=False
-        )
-    figure.add_trace(trace)
-    
-    return figure
+    return return_value
+ 
 
 # ==========Map dataframe (built from va dataframe)============#
 def generate_map_data(va_df, chosen_geojson, view_level="district", zoom_in=False, metric="Total Deaths"):
