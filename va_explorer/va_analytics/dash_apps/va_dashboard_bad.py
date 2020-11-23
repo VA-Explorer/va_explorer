@@ -70,19 +70,19 @@ def load_lookup_dicts():
         "rgb(162,162,162)",
     ]
     # colorscale used for map
-    lookup["map_colorscale"] = [
-         (0.0, 'rgb(255,255,255)'),
-         (1e-6, 'rgb(0, 147, 146)'),
-         (0.167, 'rgb(0, 147, 146)'),
-         (0.167, 'rgb(57, 177, 133)'),
-         (0.333, 'rgb(57, 177, 133)'),
-         (0.333, 'rgb(156, 203, 134)'),
+    lookup["map_colorscale"] = [(0.0, 'rgb(255,255,255)'),
+         (0.01, 'rgb(255,255,255)'),
+         (0.01, 'rgb(0, 147, 146)'),
+         (0.16666666666666666, 'rgb(0, 147, 146)'),
+         (0.16666666666666666, 'rgb(57, 177, 133)'),
+         (0.3333333333333333, 'rgb(57, 177, 133)'),
+         (0.3333333333333333, 'rgb(156, 203, 134)'),
          (0.5, 'rgb(156, 203, 134)'),
          (0.5, 'rgb(233, 226, 156)'),
-         (0.667, 'rgb(233, 226, 156)'),
-         (0.667, 'rgb(238, 180, 121)'),
-         (0.833, 'rgb(238, 180, 121)'),
-         (0.833, 'rgb(232, 132, 113)'),
+         (0.6666666666666666, 'rgb(233, 226, 156)'),
+         (0.6666666666666666, 'rgb(238, 180, 121)'),
+         (0.8333333333333333, 'rgb(238, 180, 121)'),
+         (0.8333333333333333, 'rgb(232, 132, 113)'),
          (1.0, 'rgb(232, 132, 113)')]
             
     # dictionary mapping raw map metrics to human-readable names
@@ -163,7 +163,6 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 # ============ VA Data =================
 def load_va_data(geographic_levels=None):
-    np.random.seed(23)
     return_dict = {"data": pd.DataFrame()}
 
     valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
@@ -666,8 +665,7 @@ def update_options(search_value, location_json):
 def filter_data(
     va_data, selected_json, timeframe="All", search_terms=[], locations=None, location_types=None
 ):  
-    va_df = pd.read_json(va_data)
-    filter_df = va_df.copy()
+    filter_df = pd.read_json(va_data)
     granularity = INITIAL_GRANULARITY
     locations = json.loads(locations) if type(locations) is str else locations
     search_terms = [] if search_terms is None else search_terms
@@ -698,21 +696,17 @@ def filter_data(
         # get parent location type from current granularity
         parent_location_type = shift_granularity(granularity, location_types, move_up=True)
 
-        # get all adjacent regions (siblings) to chosen region(s) for plotting
-        plot_regions, plot_ids = list(), list()
+        # get all locations in parent(s) of chosen regions for plotting
+        plot_regions = list()
         for parent_name in  filter_df[parent_location_type].unique():
-            # get ids of vas in parent region
-            va_ids = va_df[va_df[parent_location_type] == parent_name].index.tolist()
-            plot_ids = plot_ids + va_ids
             location_object = Location.objects.get(name=parent_name)
             children = location_object.get_children()
             children_names = [c.name for c in location_object.get_children()]
             plot_regions = plot_regions + children_names + [parent_name]
             # set final granularity to same level of children
             granularity = children[0].location_type
-            
         filter_dict["plot_regions"] = plot_regions
-        filter_dict["plot_ids"] = plot_ids     
+       
     
     # finally, apply time filter if necessary
     if timeframe != "all":
@@ -725,6 +719,7 @@ def filter_data(
     filter_dict["ids"] = filter_ids
     filter_dict["granularity"] = granularity
     
+    #ret = f"{granularity}  |  {children_names[0]} "
     return json.dumps(filter_dict)
 
 
@@ -827,10 +822,10 @@ def reset_view_value(is_disabled=False):
 
 # ====================Map Logic===================================#
 @app.callback(
-#    [
+    [
         Output(component_id="choropleth-container", component_property="children"),
-#        Output(component_id="bounds", component_property="children")   
-#    ],
+        Output(component_id="bounds", component_property="children")   
+    ],
     
     [
         Input(component_id="va_data", component_property="children"),
@@ -842,32 +837,24 @@ def reset_view_value(is_disabled=False):
     ],
 )
 def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level=None,\
-                      location_types=None, filter_dict=None, geojson=GEOJSON, zoom_in=False ):
+                      location_types=None, filter_dict=None, geojson=GEOJSON ):
     # first, see which input triggered update. If granularity change, only run 
     # if value is non-empty
     context = dash.callback_context
     trigger = context.triggered[0]
     if trigger["prop_id"].split('.')[0] == "view_level" and trigger["value"] == "":
         raise dash.exceptions.PreventUpdate
-    # initialize variables
-    all_data = pd.read_json(va_data)
-    plot_data = all_data.copy()
+        
+    plot_data = pd.read_json(va_data)
     return_value = html.Div(id="choropleth")
+    zoom_in = False
     granularity = INITIAL_GRANULARITY
     location_types = json.loads(location_types)
-    include_no_datas = True
-    tmp_val = dict()
-    figure = go.Figure()
-    border_thickness = .25 # thickness of borders on map
-    # name of column to plot
-    data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
     
     if plot_data.size > 0:
         timeframe = timeframe.lower()
-        feature_id = "properties.area_name"      
-        plot_geos = geojson["features"]
-       
-        
+        feature_id = "properties.area_name"
+        chosen_regions = geojson["features"]
         # if dashboard filter applied, carry over to data
         if filter_dict is not None:
             filter_dict = json.loads(filter_dict)
@@ -878,19 +865,14 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
             
             # if zoom in necessary, filter geojson to only chosen region(s)
             if zoom_in:
-                
-                # if user has clicked on map and granularity is providence level, change to district level
-                granularity = shift_granularity(granularity, location_types, move_up=False)
-                
-                # filter geojson to match plotting regions
-                plot_regions = filter_dict.get("plot_regions", [])
-                plot_geos = [
+                plot_regions = filter_dict["plot_regions"]
+                chosen_regions = [
                     g for g in geojson["features"] if g["properties"]["area_name"] in plot_regions
                 ]
-                chosen_region = plot_data[granularity].unique()[0]
-                chosen_geo = [g for g in geojson["features"] if g["properties"]["area_name"] == chosen_region]
-                tmp_val = chosen_geo
-                # if adjacent_ids specified, plot them on map first
+                # zoom into a finer granularity level
+                granularity = shift_granularity(granularity, location_types, move_up=False)
+                
+                # plot adjacent regions 
                 plot_ids = filter_dict.get("plot_ids", [])
                 if len(plot_ids) > 0:
                     adjacent_data = (all_data
@@ -906,15 +888,18 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
                     include_no_datas = False                   
                     border_thickness = 2 * border_thickness
 
+                
+
         if map_metric not in ["Total Deaths", "Mean Age of Death"]:
-            plot_data = plot_data[plot_data["cause"] == map_metric]  
+            plot_data = plot_data[plot_data["cause"] == map_metric]
             
+        
         # if user has not chosen a view level or its disabled, default to using granularity
         view_level = view_level if len(view_level) > 0 else granularity
-        
         # get map tooltips to match view level (disstrict or province)
+
         map_df = generate_map_data(plot_data, plot_geos, view_level, zoom_in, map_metric, include_no_datas)
-        
+#        
         highlight_region = (map_df.shape[0] == 1)
         if highlight_region: 
             # increse border thickness to highlight selcted region
@@ -931,7 +916,7 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
                 hoverinfo="text",
                 autocolorscale=False,
                 marker_line_color="black",  # line markers between states
-                marker_line_width=border_thickness,
+                marker_line_width=0.25,
                 colorbar=dict(
                     title="{} by {}".format(
                         map_metric.capitalize(), granularity.capitalize()
@@ -946,12 +931,12 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
                 ),
             )
         )
-
+#
         # update figure layout
         figure.update_layout(
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
-            #clickmode="event" if zoom_in else "event+select",
-            clickmode="event+select",
+            clickmode="event" if zoom_in else "event+select",
+            #clickmode="none",
             dragmode="select",
         )
         # additional styling
@@ -969,7 +954,7 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
 
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config) 
 
-    return return_value#    , json.dumps(tmp_val)
+    return return_value, map_df.to_json()
 
 # ==========Helper method to plot adjacent regions on map =====#
 def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feature_id=None, \
@@ -1000,8 +985,7 @@ def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feat
     return figure
 
 # ==========Map dataframe (built from va dataframe)============#
-def generate_map_data(va_df, chosen_geojson, view_level="district",\
-                      zoom_in=False, metric="Total Deaths", include_no_datas=True):
+def generate_map_data(va_df, chosen_geojson, view_level="district", zoom_in=False, metric="Total Deaths"):
     if va_df.size > 0:
         map_df = (
             va_df[[view_level, "age", "location"]]
@@ -1031,14 +1015,10 @@ def generate_map_data(va_df, chosen_geojson, view_level="district",\
                          for f in chosen_geojson\
                          if f['properties']['area_level_label'] == view_level.capitalize()]
         geo_df = pd.DataFrame.from_records(chosen_region_names, columns=[view_level, 'area_id'])
-        # if plot_all_geos is True, include all geos, regardless of their data status.
-        join_type = "left" if include_no_datas else "inner"
-        map_df = geo_df.merge(map_df, how=join_type, on=view_level)
+        map_df = geo_df.merge(map_df, how='left', on=view_level)
         
         # fill NAs with 0s and rename empty tooltips to "No Data"
-        #map_df["tooltip"].fillna("No Data", inplace=True)
-        map_df["tooltip"] = map_df.apply(lambda row: f"<b>{row[view_level]}</b><br>No Data" \
-              if pd.isnull(row["tooltip"]) else row["tooltip"], axis=1)
+        map_df["tooltip"].fillna("No Data", inplace=True)
         map_df.fillna(0, inplace=True)
 
         return map_df
