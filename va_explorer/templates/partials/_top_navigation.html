@@ -17,13 +17,14 @@
         <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
       </li>
       {% endif %}
-      {% comment "TODO: These features will only be available to logged in users" %}{% endcomment %}
-      <li class="nav-item">
-        <a class="{% active '\/(.*)dashboard' %} nav-link" href="{% url 'va_analytics:dashboard' %}">Dashboard</a>
-      </li>
-      <li class="nav-item">
-        <a class="{% active '\/(.*)data_management' %} nav-link" href="{% url 'va_data_management:index' %}">Data Management</a>
-      </li>
+      {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <a class="{% active '\/(.*)dashboard' %} nav-link" href="{% url 'va_analytics:dashboard' %}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="{% active '\/(.*)data_management' %} nav-link" href="{% url 'va_data_management:index' %}">Data Management</a>
+        </li>
+      {% endif %}
     </ul>
     <ul class="navbar-nav ml-auto my-2 my-lg-0">
       {% if request.user.is_authenticated %}
