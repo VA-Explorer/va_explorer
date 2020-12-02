@@ -136,7 +136,8 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_plotly_dash.middleware.BaseMiddleware",
-    "django_plotly_dash.middleware.ExternalRedirectionMiddleware"
+    "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware" # Track which user makes VA data edits
 ]
 
 # STATIC
