@@ -4,7 +4,7 @@ from config.celery_app import app
 
 User = get_user_model()
 
-@celery_app.task()
+@app.task()
 def get_users_count():
     """A pointless Celery task to demonstrate usage."""
     return User.objects.count()

@@ -38,3 +38,8 @@ django-simple-history==2.11.0
 django-treebeard==4.3.1
 django-bootstrap4==2.2.0
 whitenoise==5.1.0  # https://github.com/evansd/whitenoise
+
+# Testing
+pytest==6.1.2
+pytest-django==4.1.0
+factory-boy==2.12.0
