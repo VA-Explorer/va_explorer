@@ -160,10 +160,9 @@ va_explorer/celeryworker
 va_explorer/celerybeat
 va_explorer/flower
 va_explorer/django
-va_explorer/traefik
 ```
 
-### Deploying with Traefik
+### Deploying with a reverse proxy
 
 Set the following environment variables:
 

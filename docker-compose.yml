@@ -3,7 +3,6 @@ version: '3'
 volumes:
   production_postgres_data: {}
   production_postgres_data_backups: {}
-  production_traefik: {}
   
 services:
   pycrossva:
@@ -22,6 +21,8 @@ services:
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
+    ports:
+      - "5000:5000"
     depends_on:
       - postgres
       - redis
@@ -67,17 +68,3 @@ services:
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
-
-  traefik:
-    image: va_explorer/traefik
-    build:
-      context: .
-      dockerfile: ./compose/traefik/Dockerfile
-    depends_on:
-      - django
-    volumes:
-      - production_traefik:/etc/traefik/acme
-    ports:
-      - "0.0.0.0:80:80"
-      - "0.0.0.0:443:443"
-      - "0.0.0.0:5555:5555"

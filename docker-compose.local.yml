@@ -14,8 +14,6 @@ services:
       - "5002:5002"
 
   django:
-    ports:
-      - "5000:5000"
     environment:
       DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
       EMAIL_URL: smtp://consolemail
