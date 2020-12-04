@@ -93,7 +93,7 @@
         <tbody>
           {% for diff in diffs %}
             <tr>
-              <td>{{ diff.new_record.history_date }}</td>
+              <td>{{ diff.new_record.history_date|date:"Y-m-d H:i" }}</td>
               <td>{{ diff.new_record.history_user.name }}</td>
               <td>
                 {% for change in diff.changes %}

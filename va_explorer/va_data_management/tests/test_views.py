@@ -48,6 +48,10 @@ def test_save(user: User):
     assert va.Id10007 == new_name
     assert va.history.count() == 2
     assert va.history.first().history_user == user
+    response = client.get(f"/va_data_management/show/{va.id}")
+    # TODO: We need to handle timezones correctly
+    assert bytes(va.history.first().history_date.strftime('%Y-%m-%d %H:%M'), "utf-8") in response.content
+    assert bytes(va.history.first().history_user.name, "utf-8") in response.content
 
 # Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
 def test_reset(user: User):
