@@ -35,7 +35,6 @@ def show(request, id):
 def edit(request, id):
     # TODO: We only want to allow editing of some fields
     # TODO: We want to provide context for all the fields
-    # TODO: We probably want to use a django Form here or crispy forms
     va = VerbalAutopsy.objects.get(id=id)
     form = VerbalAutopsyForm(None, instance=va)
     context = { "id": id, "form": form }
