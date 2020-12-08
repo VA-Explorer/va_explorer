@@ -1415,35 +1415,35 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
 
 
 ## =========Place of Death Plot Logic============================================#
-#@app.callback(
-#    Output(component_id="pod-container", component_property="children"),
-#    [
-#        Input(component_id="va_data", component_property="children"),
-#        Input(component_id="filter_dict", component_property="children")
-#    ],
-#)
-#def place_of_death_plt(va_data, filter_dict=None):
-#    figure = go.Figure()
-#    if va_data is not None:
-#        plot_data = pd.read_json(va_data)
-#        if plot_data.size > 0:
-#            if filter_dict is not None:
-#                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
-#            # only run if remaining data after filter
-#            if plot_data.size > 0:
-#                plot_data["Id10058"] = plot_data["Id10058"].apply(
-#                    lambda x: LOOKUP["death_location_names"].get(x, x.capitalize())
-#                )
-#                location_counts = plot_data["Id10058"].value_counts()
-#                figure = go.Figure(
-#                    go.Pie(
-#                        labels=location_counts.index.tolist(),
-#                        values=location_counts.values,
-#                        hole=0.3,
-#                    )
-#                )
-#                figure.update_layout(title_text="VAs by Place of Death")
-#    return dcc.Graph(id="pod_plt", figure=figure)
+@app.callback(
+    Output(component_id="pod-container", component_property="children"),
+    [
+        Input(component_id="va_data", component_property="children"),
+        Input(component_id="filter_dict", component_property="children")
+    ],
+)
+def place_of_death_plt(va_data, filter_dict=None):
+    figure = go.Figure()
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+            # only run if remaining data after filter
+            if plot_data.size > 0:
+                plot_data["Id10058"] = plot_data["Id10058"].apply(
+                    lambda x: LOOKUP["death_location_names"].get(x, x.capitalize())
+                )
+                location_counts = plot_data["Id10058"].value_counts()
+                figure = go.Figure(
+                    go.Pie(
+                        labels=location_counts.index.tolist(),
+                        values=location_counts.values,
+                        hole=0.3,
+                    )
+                )
+                figure.update_layout(title_text="VAs by Place of Death")
+    return dcc.Graph(id="pod_plt", figure=figure)
 
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)
