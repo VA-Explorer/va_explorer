@@ -37,7 +37,7 @@ app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=Tr
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timefraome for map data to display
-INITIAL_TIMEFRAME = "1 year"
+INITIAL_TIMEFRAME = "all"
 # folder where geojson is kept
 JSON_DIR = "va_explorer/va_analytics/dash_apps/geojson"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
@@ -45,7 +45,7 @@ JSON_FILE = "zambia_geojson.json"
 # initial granularity
 INITIAL_GRANULARITY = "province"
 # initial metric to plot on map
-INITIAL_MAP_METRIC = "Total Deaths"
+INITIAL_MAP_METRIC = "Coded VAs"
 # ============Lookup dictionaries =================#
 
 
@@ -70,24 +70,32 @@ def load_lookup_dicts():
         "rgb(162,162,162)",
     ]
     # colorscale used for map
-    lookup["map_colorscale"] = [
-         (0.0, 'rgb(255,255,255)'),
-         (1e-6, 'rgb(0, 147, 146)'),
-         (0.167, 'rgb(0, 147, 146)'),
-         (0.167, 'rgb(57, 177, 133)'),
-         (0.333, 'rgb(57, 177, 133)'),
-         (0.333, 'rgb(156, 203, 134)'),
-         (0.5, 'rgb(156, 203, 134)'),
-         (0.5, 'rgb(233, 226, 156)'),
-         (0.667, 'rgb(233, 226, 156)'),
-         (0.667, 'rgb(238, 180, 121)'),
-         (0.833, 'rgb(238, 180, 121)'),
-         (0.833, 'rgb(232, 132, 113)'),
-         (1.0, 'rgb(232, 132, 113)')]
+    lookup["colorscales"] = {
+            "primary": [(0.0, 'rgb(255,255,255)'),
+                 (1e-20, 'rgb(0, 147, 146)'),
+                 (0.167, 'rgb(0, 147, 146)'),
+                 (0.167, 'rgb(57, 177, 133)'),
+                 (0.333, 'rgb(57, 177, 133)'),
+                 (0.333, 'rgb(156, 203, 134)'),
+                 (0.5, 'rgb(156, 203, 134)'),
+                 (0.5, 'rgb(233, 226, 156)'),
+                 (0.667, 'rgb(233, 226, 156)'),
+                 (0.667, 'rgb(238, 180, 121)'),
+                 (0.833, 'rgb(238, 180, 121)'),
+                 (0.833, 'rgb(232, 132, 113)'),
+                 (1.0, 'rgb(232, 132, 113)')],
+            "secondary": [(0.0, 'rgb(255,255,255)'),
+                  (0.001, 'rgb(230,230,230)'),
+                  (1.0, 'rgb(230,230,230)')]
+        }
             
+    lookup["line_colors"] = {
+            "primary": "black", 
+            "secondary": "gray"
+    }
     # dictionary mapping raw map metrics to human-readable names
     lookup["metric_names"] = {
-        "Total Deaths": "Total Deaths",
+        "Coded VAs": "Coded VAs",
         "Mean Age of Death": "Mean Age of Death",
         "HIV/AIDS related death": "HIV/AIDS",
         "Diabetes mellitus": "Diabetes Mellitus",
@@ -164,11 +172,12 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 # ============ VA Data =================
 def load_va_data(geographic_levels=None):
     np.random.seed(23)
-    return_dict = {"data": pd.DataFrame()}
+    return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
 
-    valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
+    all_vas = VerbalAutopsy.objects.prefetch_related("location").prefetch_related("causes")
+    #valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
 
-    if len(valid_vas) > 0:
+    if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data
         va_data = [
             {
@@ -177,9 +186,9 @@ def load_va_data(geographic_levels=None):
                 "Id10058": va.Id10058,
                 "ageInYears": va.ageInYears,
                 "location": va.location.name,
-                "cause": va.causes.all()[0].cause, # Don't use first() to take advantage of the prefetch
+                "cause": get_va_cause(va)
             }
-            for va in valid_vas
+            for va in all_vas
         ]
 
         # Build a location ancestors lookup and add location information at all levels to all vas
@@ -187,7 +196,7 @@ def load_va_data(geographic_levels=None):
         # TODO: This assumes that all VAs will occur in a facility, ok?
         locations, location_types = dict(), dict()
         location_ancestors = { location.id:location.get_ancestors() for location in Location.objects.filter(location_type="facility") }
-        for i, va in enumerate(valid_vas):
+        for i, va in enumerate(all_vas):
 #            location_types[va.location.depth] = va.location.location_type
 #            locations.add(va.location.name)
             for ancestor in location_ancestors[va.location.id]:
@@ -201,7 +210,7 @@ def load_va_data(geographic_levels=None):
         va_df["age"] = va_df["ageInYears"].replace(
             to_replace=["dk"], value=np.random.randint(1, 80)
         )
-        va_df["age"] = pd.to_numeric(va_df["age"])
+        va_df["age"] = pd.to_numeric(va_df["age"], errors='coerce')
         va_df["age_group"] = va_df["age"].apply(assign_age_group)
         cur_date = dt.datetime.today()
 
@@ -211,16 +220,26 @@ def load_va_data(geographic_levels=None):
             cur_date - dt.timedelta(days=int(x))
             for x in np.random.randint(3, 400, size=va_df.shape[0])
         ]
+        
+        # split data into valid data (records w COD) and invalid records (recoreds w/out COD)
+        valid_va_df = va_df[~pd.isnull(va_df['cause'])].reset_index()       
+        invalid_va_df = va_df[pd.isnull(va_df['cause'])].reset_index()
         # convert location_types to an ordered list
         location_types = [l for _,l in sorted(location_types.items(), key=lambda x: x[0])]
-        return_dict = {"data": va_df, 
+        return_dict = {"data": {"valid": valid_va_df, "invalid": invalid_va_df},
             "location_types": location_types,
             "max_depth": len(location_types) - 1,
             "locations": locations}
         
     return return_dict
 
-
+def get_va_cause(va_obj):
+    causes = va_obj.causes.all()
+    if len(causes) > 0:
+        return causes[0].cause
+    else:
+        return None
+    
 def assign_age_group(age):
     if age <= 1:
         return "neonate"
@@ -252,11 +271,10 @@ app.layout = html.Div(
                                             "1 Day ",
                                             "1 Week",
                                             "1 Month",
-                                            "1 Year",
                                             "All",
                                         ]
                                     ],
-                                    value="1 year",
+                                    value=INITIAL_TIMEFRAME,
                                     style={
                                         "margin-top": "5px",
                                         "margin-bottom": "5px",
@@ -264,6 +282,7 @@ app.layout = html.Div(
                                     },
                                     searchable=False,
                                     clearable=False,
+                                    disabled=False
                                 ),
                             ],
                             style={
@@ -391,6 +410,7 @@ app.layout = html.Div(
                                 ]),
                                 html.Div(id="bounds"),
                                 html.Div(id="va_data", style={"display": "none"}),
+                                html.Div(id="invalid_va_data", style={"display": "none"}),
                                 html.Div(id="locations", style={"display": "none"}),
                                 html.Div(id="location_types", style={"display": "none"}),
                                 html.Div(id="filter_dict", style={"display": "none"}),
@@ -618,6 +638,7 @@ def reset(n_clicks=0):
 @app.callback(
     [
          Output(component_id="va_data", component_property="children"),
+         Output(component_id="invalid_va_data", component_property="children"),
          Output(component_id="locations", component_property="children"),
          Output(component_id="location_types", component_property="children")
      ],
@@ -628,10 +649,11 @@ def reset(n_clicks=0):
 )
 def va_data(timeframe="All"):
     res = load_va_data()
-    va_data = res["data"].to_json()
-    locations = json.dumps(res["locations"])
-    location_types = json.dumps(res["location_types"])
-    return va_data, locations, location_types
+    valid_va_data = res["data"]["valid"].to_json()
+    invalid_va_data = res["data"]["invalid"].to_json()
+    locations = json.dumps(res.get("locations", []))
+    location_types = json.dumps(res.get("location_types", []))
+    return valid_va_data, invalid_va_data, locations, location_types
 
 # ============ Location search options (loaded after load_va_data())==================
 @app.callback(
@@ -652,10 +674,14 @@ def update_options(search_value, location_json):
         
 #============ Filter logic (update filter table used by other componenets)========#
 @app.callback(
-     Output(component_id="filter_dict", component_property="children"),
+    [
+         Output(component_id="filter_dict", component_property="children"),
+         Output(component_id="timeframe", component_property="disabled")
+     ],
     
     [
         Input(component_id="va_data", component_property="children"),
+        Input(component_id="invalid_va_data", component_property="children"),
         Input(component_id="choropleth", component_property="selectedData"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="map_search", component_property="value"), 
@@ -664,42 +690,78 @@ def update_options(search_value, location_json):
     ]
 )
 def filter_data(
-    va_data, selected_json, timeframe="All", search_terms=[], locations=None, location_types=None
-):  
-    va_df = pd.read_json(va_data)
+    va_data, invalid_va_data, selected_json, timeframe="all", search_terms=[], locations=None, location_types=None
+):
+    if va_data is not None:
+        valid_va_df = pd.read_json(va_data)
+        invalid_va_df = pd.read_json(invalid_va_data)
+        locations = json.loads(locations) if type(locations) is str else locations
+        search_terms = [] if search_terms is None else search_terms
+        location_types = json.loads(location_types) if location_types is not None else location_types
+        disable_timeframe = False
+        
+        # filter valid vas (VAs with COD)
+        valid_filter = _get_filter_dict(valid_va_df, selected_json, timeframe=timeframe,\
+                                          location_types=location_types, search_terms=search_terms,\
+                                          locations=locations)
+        # filter invalid vas (VAs without COD)
+        invalid_filter = _get_filter_dict(invalid_va_df, selected_json, timeframe=timeframe,\
+                                          location_types=location_types, search_terms=search_terms,\
+                                          locations=locations)    
+        # combine filters into one dictionary to share across callbacks
+        combined_filter_dict = {
+            #"granularity": valid_filter["granularity"], # same across both dictionaries
+            "plot_regions": valid_filter["plot_regions"], # same across both dictionaries 
+            "geo_filter": valid_filter["geo_filter"], # same across both dictionaries
+            "chosen_region": valid_filter["chosen_region"], # same across both dictionaries
+            "ids": {"valid": valid_filter["ids"],
+                    "invalid": invalid_filter["ids"]}, 
+            "plot_ids": {"valid": valid_filter["plot_ids"],
+                         "invalid": invalid_filter["plot_ids"]}
+        }
+        
+        # if no valid or invalid data, turn off timeframe
+        if (len(valid_filter["ids"]) == 0) and (len(invalid_filter["ids"]) == 0):
+            disable_timeframe = True
+          
+        return json.dumps(combined_filter_dict), disable_timeframe
+
+# helper method to get filter ids given adjacent plot regions
+def _get_filter_dict(va_df, selected_json, timeframe="all", search_terms=[], locations=None, location_types=None):
+
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
-    locations = json.loads(locations) if type(locations) is str else locations
-    search_terms = [] if search_terms is None else search_terms
-    location_types = json.loads(location_types) if location_types is not None else location_types
-    
-    # dictionary storing data we want to share across callbacks
+    plot_ids, plot_regions = list(), list()
+     
     filter_dict = {
-            "geo_filter": (selected_json is not None) or (len(search_terms) > 0),
-            "plot_regions": []
-            }
-
+     "geo_filter": (selected_json is not None) or (len(search_terms) > 0),
+     "plot_regions": [], 
+     "chosen_region": "all", 
+     "ids": [], 
+     "plot_ids": []
+    }
     if filter_dict["geo_filter"]:
-    
         # first, check if user searched anything. If yes, use that as filter.
         if search_terms is not None:
             if len(search_terms) > 0:
                 search_terms = [search_terms] if type(search_terms) is str else search_terms
                 granularity = locations.get(search_terms[0], granularity)
                 filter_df = filter_df[filter_df[granularity].isin(set(search_terms))]
-    
+                filter_dict["chosen_region"] = search_terms[0]
+
         # then, check for locations clicked on map.
         if selected_json is not None:
             point_df = pd.DataFrame(selected_json["points"])
             chosen_regions = point_df["location"].tolist()
             granularity = locations.get(chosen_regions[0], granularity)
             filter_df = filter_df[filter_df[granularity].isin(set(chosen_regions))]
+            filter_dict["chosen_region"] = chosen_regions[0]
         
         # get parent location type from current granularity
         parent_location_type = shift_granularity(granularity, location_types, move_up=True)
 
         # get all adjacent regions (siblings) to chosen region(s) for plotting
-        plot_regions, plot_ids = list(), list()
+        
         for parent_name in  filter_df[parent_location_type].unique():
             # get ids of vas in parent region
             va_ids = va_df[va_df[parent_location_type] == parent_name].index.tolist()
@@ -710,23 +772,20 @@ def filter_data(
             plot_regions = plot_regions + children_names + [parent_name]
             # set final granularity to same level of children
             granularity = children[0].location_type
-            
-        filter_dict["plot_regions"] = plot_regions
-        filter_dict["plot_ids"] = plot_ids     
-    
-    # finally, apply time filter if necessary
+
+    # finally, apply time filter if necessary 
     if timeframe != "all":
         cutoff = dt.datetime.today() - dt.timedelta(
             days=LOOKUP["time_dict"][timeframe]
         )
         filter_df = filter_df[filter_df["date"] >= cutoff]
 
-    filter_ids = filter_df.index.tolist()
-    filter_dict["ids"] = filter_ids
+    filter_dict["plot_regions"] = plot_regions
+    filter_dict["plot_ids"] = plot_ids 
+    filter_dict["ids"] = filter_df.index.tolist()
     filter_dict["granularity"] = granularity
     
-    return json.dumps(filter_dict)
-
+    return filter_dict
 
 # try to move one level up or down in the geographical hierarchy. If not possible,
 # return current level
@@ -753,22 +812,22 @@ def shift_granularity(current_granularity, levels, move_up=False):
 )
 def get_metrics(va_data, filter_dict=None, N=10):
     # by default, start with aggregate measures
-    metrics = [
-        "Total Deaths",
-        "Mean Age of Death",
-    ]
+    metrics = []
     metric_data = pd.read_json(va_data)
     if metric_data.size > 0:
         if filter_dict is not None:
             filter_dict = json.loads(filter_dict)
-            metric_data = metric_data.iloc[filter_dict["ids"], :]
-        # add top N CODs by incidence to metric list
-        metrics = metrics + (metric_data["cause"]
-                        .value_counts()
-                        .sort_values(ascending=False)
-                        .head(N)
-                        .index
-                        .tolist())
+            metric_data = metric_data.iloc[filter_dict["ids"]["valid"], :]
+            # only load options if remaining data after filter
+            if metric_data.size > 0:
+                # add top N CODs by incidence to metric list
+                metrics = ["Coded VAs","Mean Age of Death"]
+                + (metric_data["cause"]
+                                .value_counts()
+                                .sort_values(ascending=False)
+                                .head(N)
+                                .index
+                                .tolist())
         
     return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics]
 
@@ -827,7 +886,7 @@ def reset_view_value(is_disabled=False):
 
 # ====================Map Logic===================================#
 @app.callback(
-#    [
+#   [
         Output(component_id="choropleth-container", component_property="children"),
 #        Output(component_id="bounds", component_property="children")   
 #    ],
@@ -841,7 +900,7 @@ def reset_view_value(is_disabled=False):
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level=None,\
+def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=None,\
                       location_types=None, filter_dict=None, geojson=GEOJSON, zoom_in=False ):
     # first, see which input triggered update. If granularity change, only run 
     # if value is non-empty
@@ -849,136 +908,147 @@ def update_choropleth( va_data, timeframe, map_metric="Total Deaths", view_level
     trigger = context.triggered[0]
     if trigger["prop_id"].split('.')[0] == "view_level" and trigger["value"] == "":
         raise dash.exceptions.PreventUpdate
-    # initialize variables
-    all_data = pd.read_json(va_data)
-    plot_data = all_data.copy()
-    return_value = html.Div(id="choropleth")
-    granularity = INITIAL_GRANULARITY
-    location_types = json.loads(location_types)
-    include_no_datas = True
-    tmp_val = dict()
     figure = go.Figure()
-    border_thickness = .25 # thickness of borders on map
-    # name of column to plot
-    data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
+    config=None
+    if va_data is not None:
+        # initialize variables
+        all_data = pd.read_json(va_data)
+        plot_data = all_data.copy()
+        return_value = html.Div(id="choropleth")
+        granularity = INITIAL_GRANULARITY
+        location_types = json.loads(location_types)
+        include_no_datas = True
+        ret_val = dict()       
+        border_thickness = .25 # thickness of borders on map        
+        # name of column to plot
+        data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
+        
+        if plot_data.size > 0:
+            timeframe = timeframe.lower()
+            feature_id = "properties.area_name"      
+            plot_geos = geojson["features"]
+                 
+            # if dashboard filter applied, carry over to data
+            if filter_dict is not None:
+                filter_dict = json.loads(filter_dict)
+                granularity = filter_dict.get('granularity', granularity)
+                # only proceed if filter is non-empty
+                
+                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                # only proceed with filter if remaining data after filter
+                if plot_data.size > 0:
+                    ret_val["filter_dict"] = filter_dict
+                    # geo_filter is true if user clicked on map or searches for location
+                    zoom_in = filter_dict["geo_filter"] 
+                    
+                    # if zoom in necessary, filter geojson to only chosen region(s)
+                    if zoom_in:
+                        
+                        # if user has clicked on map, try to zoom into a finer granularity
+                        granularity = shift_granularity(granularity, location_types, move_up=False)
+                        
+                        # filter geojson to match plotting regions
+                        plot_regions = filter_dict["plot_regions"]
+                        plot_geos = [
+                            g for g in geojson["features"] if g["properties"]["area_name"] in plot_regions
+                        ]
+                        chosen_region = plot_data[granularity].unique()[0]
+                        # if adjacent_ids specified, and data exists for these regions, plot them on map first
+                        plot_ids = filter_dict["plot_ids"]["valid"]
+        #                    ret_val["plot_ids"] = plot_ids
+                        if len(plot_ids) > 0:
+                            adjacent_data = (all_data
+                                             .iloc[plot_ids, :]
+                                             .loc[all_data[granularity] != chosen_region])
+                            
+                            if adjacent_data.size > 0:
+                                                                   
+                                # background plotting - adjacent regions
+                                adjacent_map_df = generate_map_data(adjacent_data, plot_geos, granularity,\
+                                                                    zoom_in, map_metric)
+                                figure = add_trace_to_map(figure, adjacent_map_df, geojson, theme_name="secondary",\
+                                                          z_col=data_value, location_col=granularity)
+                                # only plot non-empty regions in main layer so as not to hide secondary layer
+                                include_no_datas = False                   
+                                border_thickness = 2 * border_thickness
     
-    if plot_data.size > 0:
-        timeframe = timeframe.lower()
-        feature_id = "properties.area_name"      
-        plot_geos = geojson["features"]
-       
-        
-        # if dashboard filter applied, carry over to data
-        if filter_dict is not None:
-            filter_dict = json.loads(filter_dict)
-            granularity = filter_dict.get('granularity', granularity)
-            plot_data = plot_data.iloc[filter_dict["ids"], :]
-            # geo_filter is true if user clicked on map or searches for location
-            zoom_in = filter_dict["geo_filter"] 
-            
-            # if zoom in necessary, filter geojson to only chosen region(s)
-            if zoom_in:
+            if map_metric not in ["Coded VAs", "Mean Age of Death"]:
+                plot_data = plot_data[plot_data["cause"] == map_metric]
                 
-                # if user has clicked on map and granularity is providence level, change to district level
-                granularity = shift_granularity(granularity, location_types, move_up=False)
+            # only proceed if there's data
+            if plot_data.size > 0:
+                    
+                # if user has not chosen a view level or its disabled, default to using granularity
+                view_level = view_level if len(view_level) > 0 else granularity
                 
-                # filter geojson to match plotting regions
-                plot_regions = filter_dict.get("plot_regions", [])
-                plot_geos = [
-                    g for g in geojson["features"] if g["properties"]["area_name"] in plot_regions
-                ]
-                chosen_region = plot_data[granularity].unique()[0]
-                chosen_geo = [g for g in geojson["features"] if g["properties"]["area_name"] == chosen_region]
-                tmp_val = chosen_geo
-                # if adjacent_ids specified, plot them on map first
-                plot_ids = filter_dict.get("plot_ids", [])
-                if len(plot_ids) > 0:
-                    adjacent_data = (all_data
-                                     .iloc[plot_ids, :]
-                                     .loc[all_data[granularity] != chosen_region])
-                                                           
-                    # background plotting - adjacent regions
-                    adjacent_map_df = generate_map_data(adjacent_data, plot_geos, granularity,\
-                                                        zoom_in, map_metric)
-                    figure = add_trace_to_map(figure, adjacent_map_df, geojson,\
-                                              z_col=data_value, location_col=granularity)
-                    # only plot non-empty regions in main layer so as not to hide secondary layer
-                    include_no_datas = False                   
-                    border_thickness = 2 * border_thickness
-
-        if map_metric not in ["Total Deaths", "Mean Age of Death"]:
-            plot_data = plot_data[plot_data["cause"] == map_metric]  
-            
-        # if user has not chosen a view level or its disabled, default to using granularity
-        view_level = view_level if len(view_level) > 0 else granularity
+                # get map tooltips to match view level (disstrict or province)
+                map_df = generate_map_data(plot_data, plot_geos, view_level, zoom_in, map_metric, include_no_datas)
+                        
+                highlight_region = (map_df.shape[0] == 1)
+                if highlight_region: 
+                    # increse border thickness to highlight selcted region
+                    border_thickness = 3 * border_thickness
+                    
+                figure.add_trace(go.Choropleth(
+                        locations=map_df[view_level],
+                        z=map_df[data_value].astype(float),
+                        locationmode="geojson-id",
+                        geojson=geojson,
+                        featureidkey=feature_id,
+                        colorscale=LOOKUP["colorscales"]["primary"],
+                        hovertext=map_df["tooltip"],
+                        hoverinfo="text",
+                        autocolorscale=False,
+                        marker_line_color=LOOKUP["line_colors"]["primary"],  # line markers between states
+                        marker_line_width=border_thickness,
+                        colorbar=dict(
+                            title="{} by {}".format(
+                                map_metric.capitalize(), granularity.capitalize()
+                            ),
+                            thicknessmode="fraction",
+                            thickness=0.03,
+                            lenmode="fraction",
+                            len=0.8,
+                            yanchor="middle",
+                            ticks="outside",
+                            nticks=10,
+                        ),
+                    )
+                )
         
-        # get map tooltips to match view level (disstrict or province)
-        map_df = generate_map_data(plot_data, plot_geos, view_level, zoom_in, map_metric, include_no_datas)
-        
-        highlight_region = (map_df.shape[0] == 1)
-        if highlight_region: 
-            # increse border thickness to highlight selcted region
-            border_thickness = 3 * border_thickness
-            
-        figure.add_trace(go.Choropleth(
-                locations=map_df[view_level],
-                z=map_df[data_value].astype(float),
-                locationmode="geojson-id",
-                geojson=geojson,
-                featureidkey=feature_id,
-                colorscale=LOOKUP["map_colorscale"],
-                hovertext=map_df["tooltip"],
-                hoverinfo="text",
-                autocolorscale=False,
-                marker_line_color="black",  # line markers between states
-                marker_line_width=border_thickness,
-                colorbar=dict(
-                    title="{} by {}".format(
-                        map_metric.capitalize(), granularity.capitalize()
-                    ),
-                    thicknessmode="fraction",
-                    thickness=0.03,
-                    lenmode="fraction",
-                    len=0.8,
-                    yanchor="middle",
-                    ticks="outside",
-                    nticks=10,
-                ),
-            )
-        )
-
-        # update figure layout
-        figure.update_layout(
-            margin={"r": 0, "t": 0, "l": 0, "b": 0},
-            #clickmode="event" if zoom_in else "event+select",
-            clickmode="event+select",
-            dragmode="select",
-        )
-        # additional styling
-        config = {"displayModeBar": True}
-        figure.update_geos(
-            fitbounds="locations",
-            visible=True,
-            showcountries=True,
-            showlakes=False,
-            countrycolor="lightgray",
-            showsubunits=True,
-            landcolor="rgb(250,250,248)",
-            framewidth=0,
-        )
-
+                # update figure layout
+                figure.update_layout(
+                    margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                    #clickmode="event" if zoom_in else "event+select",
+                    clickmode="event+select",
+                    dragmode="select",
+                )
+                # additional styling
+                config = {"displayModeBar": True}
+                figure.update_geos(
+                    fitbounds="locations",
+                    visible=True,
+                    showcountries=True,
+                    showlakes=False,
+                    countrycolor="lightgray",
+                    showsubunits=True,
+                    landcolor="rgb(250,250,248)",
+                    framewidth=0,
+                )
+        ret_val = json.dumps(filter_dict)
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config) 
 
-    return return_value#    , json.dumps(tmp_val)
+    return return_value #, json.dumps(ret_val)
 
 # ==========Helper method to plot adjacent regions on map =====#
 def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feature_id=None, \
-                     location_col=None, z_col=None, tooltip_col=None):
+                     location_col=None, z_col=None, tooltip_col=None, theme_name=None):
     
     feature_id = "properties.area_name" if not feature_id else feature_id
     location_col = "locations" if not location_col else location_col
     z_col = "z_value" if not z_col else z_col
     tooltip_col = "tooltip" if not tooltip_col else tooltip_col
+    theme_name = "secondary" if not theme_name else theme_name
         
     trace = trace_type(
             locations = trace_data[location_col],
@@ -988,10 +1058,8 @@ def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feat
             featureidkey=feature_id,
             hovertext=trace_data[tooltip_col],
             hoverinfo="text", 
-            colorscale = [(0.0, 'rgb(255,255,255)'),
-                          (0.001, 'rgb(230,230,230)'),
-                          (1.0, 'rgb(230,230,230)')], 
-            marker_line_color="gray",
+            colorscale = LOOKUP["colorscales"][theme_name], 
+            marker_line_color=LOOKUP["line_colors"][theme_name],
             marker_line_width=0.25,
             showscale=False
         )
@@ -1001,7 +1069,7 @@ def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feat
 
 # ==========Map dataframe (built from va dataframe)============#
 def generate_map_data(va_df, chosen_geojson, view_level="district",\
-                      zoom_in=False, metric="Total Deaths", include_no_datas=True):
+                      zoom_in=False, metric="Coded VAs", include_no_datas=True):
     if va_df.size > 0:
         map_df = (
             va_df[[view_level, "age", "location"]]
@@ -1020,7 +1088,7 @@ def generate_map_data(va_df, chosen_geojson, view_level="district",\
                 + "<br>"
                 + f"<b>{metric_name}: </b>" + map_df["age_count"].astype(str)
                 + "<br>"
-                + "<b>Average Lifespan: </b>" + map_df["age_mean"].astype(str)
+                + "<b>Mean Age of Death: </b>" + map_df["age_mean"].astype(str)
                 + "<br>"
                 + "<b>Active Facilities: </b>" + map_df["location_nunique"].astype(str)
         )
@@ -1049,50 +1117,60 @@ def generate_map_data(va_df, chosen_geojson, view_level="district",\
     Output(component_id="callout-container", component_property="children"),
     [
         Input(component_id="va_data", component_property="children"),
+        Input(component_id="invalid_va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="filter_dict", component_property="children")
     ],
 )
-def update_callouts(va_data, timeframe, filter_dict=None, geojson=GEOJSON):
-    plot_data = pd.read_json(va_data)
-    granularity = INITIAL_GRANULARITY
-    if plot_data.size > 0:
-        if filter_dict is not None:
-            filter_dict = json.loads(filter_dict)
-            plot_data = plot_data.iloc[filter_dict["ids"], :]
-            granularity = filter_dict.get('granularity', granularity)
-
-        # total VAs
-        total_vas = plot_data.shape[0]
-
-        # active facilities
-        active_facilities = plot_data["location"].nunique()
-
-        # TODO: get field worker data from ODK - this is just a janky hack
-        num_field_workers = int(1.25 * active_facilities)
-
-        # region coverage
-        total_regions = geojson[f"{granularity}_count"]
-        if filter_dict is not None:
-            if len(filter_dict["plot_regions"]) > 0:
-                total_regions = len(filter_dict["plot_regions"])
+def update_callouts(va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON):
+    coded_vas, uncoded_vas, active_facilities, num_field_workers, coverage = 0,0,0,0,0
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
         
-                # TODO: fix this to be more generic
-                if granularity == 'province':
-                    granularity = 'district'
-        regions_covered = (
-            plot_data[[granularity, "age"]].dropna()[granularity].nunique()
-        )
-        coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
-
-        return [
-            make_card(total_vas, header="Total VAs"),
-            make_card(active_facilities, header="Active Facilities"),
-            make_card(num_field_workers, header="Field Workers"),
-            make_card(coverage, header="Region Coverage"),
-        ]
-    else:
-        return [[html.Div() for i in range(4)]]
+        invalid_va_data = pd.read_json(invalid_va_data)
+        granularity = INITIAL_GRANULARITY
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                filter_dict = json.loads(filter_dict)
+                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                invalid_va_data = invalid_va_data.iloc[filter_dict["ids"]["invalid"], :]
+                granularity = filter_dict.get('granularity', granularity)
+    
+            # total valid (coded) VAs
+            coded_vas = plot_data.shape[0]
+            
+            # total invalid (uncoded) VAs
+            uncoded_vas = invalid_va_data.shape[0]
+            
+            # active facilities
+            active_facilities = plot_data["location"].nunique()
+    
+            # TODO: get field worker data from ODK - this is just a janky hack
+            num_field_workers = int(1.25 * active_facilities)
+    
+            # region coverage
+            total_regions = geojson[f"{granularity}_count"]
+            
+            if filter_dict is not None:
+                if len(filter_dict["plot_regions"]) > 0:
+                    total_regions = len(filter_dict["plot_regions"])
+            
+                    # TODO: fix this to be more generic
+                    if granularity == 'province':
+                        granularity = 'district'
+            regions_covered = (
+                plot_data[[granularity, "age"]].dropna()[granularity].nunique()
+            )
+            coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
+    
+    return [
+        make_card(coded_vas, header="Coded VAs"),
+        make_card(uncoded_vas, header="Uncoded VAs"),
+        make_card(active_facilities, header="Active Facilities"),
+        make_card(num_field_workers, header="Field Workers"),
+        make_card(coverage, header="Region Coverage"),
+    ]
+        
 
 
 # build a calloutbox with specific value
@@ -1132,60 +1210,62 @@ def make_card(
 )
 def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_dict=None):
     figure = go.Figure()
-    plot_data = pd.read_json(va_data)
-    if plot_data.size > 0:
-        if filter_dict is not None:
-            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
-
-        factor = factor.lower()
-        if factor != "all":
-            assert factor in ["age group", "sex"]
-            factor_col = LOOKUP["demo_to_col"][factor]
-            factor_title = "by " + factor.capitalize()
-            counts = plot_data.pivot_table(
-                index="cause",
-                columns=factor_col,
-                values="id",
-                aggfunc=pd.Series.nunique,
-                fill_value=0,
-                margins=True,
-            )
-            plot_fn = go.Scatter
-        else:
-            counts = pd.DataFrame({"All": plot_data.cause.value_counts()})
-            factor_title = "Overall"
-            plot_fn = go.Bar
-        counts["cod"] = counts.index
-        counts = counts[counts["cod"] != "All"]
-        counts = counts.sort_values(by="All", ascending=False).head(N)
-        groups = list(set(counts.columns).difference(set(["cod"])))
-        if factor != "all":
-            groups.remove("All")
-        for i, group in enumerate(groups):
-            if agg_type != "counts":
-                counts[group] = 100 * counts[group] / counts[group].sum()
-            figure.add_trace(
-                plot_fn(
-                    y=counts[group],
-                    x=counts["cod"],
-                    name=group.capitalize(),
-                    orientation="v",
-                    marker=dict(
-                        color=LOOKUP["color_list"][i],
-                        line=dict(color="rgb(158,158,158)", width=1),
-                    ),
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+            # only proceed if remaining data after filter    
+            if plot_data.size > 0:
+                factor = factor.lower()
+                if factor != "all":
+                    assert factor in ["age group", "sex"]
+                    factor_col = LOOKUP["demo_to_col"][factor]
+                    factor_title = "by " + factor.capitalize()
+                    counts = plot_data.pivot_table(
+                        index="cause",
+                        columns=factor_col,
+                        values="id",
+                        aggfunc=pd.Series.nunique,
+                        fill_value=0,
+                        margins=True,
+                    )
+                    plot_fn = go.Scatter
+                else:
+                    counts = pd.DataFrame({"All": plot_data.cause.value_counts()})
+                    factor_title = "Overall"
+                    plot_fn = go.Bar
+                counts["cod"] = counts.index
+                counts = counts[counts["cod"] != "All"]
+                counts = counts.sort_values(by="All", ascending=False).head(N)
+                groups = list(set(counts.columns).difference(set(["cod"])))
+                if factor != "all":
+                    groups.remove("All")
+                for i, group in enumerate(groups):
+                    if agg_type != "counts":
+                        counts[group] = 100 * counts[group] / counts[group].sum()
+                    figure.add_trace(
+                        plot_fn(
+                            y=counts[group],
+                            x=counts["cod"],
+                            name=group.capitalize(),
+                            orientation="v",
+                            marker=dict(
+                                color=LOOKUP["color_list"][i],
+                                line=dict(color="rgb(158,158,158)", width=1),
+                            ),
+                        )
+                    )
+                figure.update_layout(
+                    barmode="stack",
+                    title_text="Top {} Causes of Death {}".format(N, factor_title),
+                    xaxis_tickangle=-45,
+                    yaxis_title="Count" if agg_type == "counts" else "Percent",
                 )
-            )
-        figure.update_layout(
-            barmode="stack",
-            title_text="Top {} Causes of Death {}".format(N, factor_title),
-            xaxis_tickangle=-45,
-            yaxis_title="Count" if agg_type == "counts" else "Percent",
-        )
 
     return dcc.Graph(id="cod_plot", figure=figure)
-
-
+#
+#
 # =========Age Distribution Plot Logic============================================#
 @app.callback(
     Output(component_id="age-container", component_property="children"),
@@ -1197,22 +1277,24 @@ def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_d
 )
 def age_plot(va_data, timeframe, filter_dict=None, bins=9):
     figure = go.Figure()
-    plot_data = pd.read_json(va_data)
-    if plot_data.size > 0:
-        if filter_dict is not None:
-            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
-
-        historgram_data = [plot_data["age"].dropna().tolist()]
-        group_labels = ["Verbal Autopsies"]  # name of the dataset
-
-        figure = ff.create_distplot(
-            historgram_data, group_labels, show_rug=False, bin_size=[bins]
-        )
-        figure.update_layout(
-            title_text="Verbal Autopsy Age Distribution",
-            xaxis_title="Age",
-            yaxis_title="Density",
-        )
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+            # only run if data left after filter
+            if plot_data.size > 0: 
+                historgram_data = [plot_data["age"].dropna().tolist()]
+                group_labels = ["Verbal Autopsies"]  # name of the dataset
+        
+                figure = ff.create_distplot(
+                    historgram_data, group_labels, show_rug=False, bin_size=[bins]
+                )
+                figure.update_layout(
+                    title_text="Verbal Autopsy Age Distribution",
+                    xaxis_title="Age",
+                    yaxis_title="Density",
+                )
 
     return dcc.Graph(id="age_plot", figure=figure)
 
@@ -1228,16 +1310,18 @@ def age_plot(va_data, timeframe, filter_dict=None, bins=9):
 )
 def sex_plot(va_data, timeframe, filter_dict=None):
     figure = go.Figure()
-    plot_data = pd.read_json(va_data)
-    if plot_data.size > 0:
-        if filter_dict is not None:
-            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
-        column_name = LOOKUP["demo_to_col"]["sex"]
-        sex_counts = plot_data[column_name].value_counts()
-        figure.add_trace(
-            go.Pie(labels=sex_counts.index.tolist(), values=sex_counts.values, hole=0.3)
-        )
-        figure.update_layout(title_text="Verbal Autopsies by Gender")
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+            if plot_data.size > 0:
+                column_name = LOOKUP["demo_to_col"]["sex"]
+                sex_counts = plot_data[column_name].value_counts()
+                figure.add_trace(
+                    go.Pie(labels=sex_counts.index.tolist(), values=sex_counts.values, hole=0.3)
+                )
+                figure.update_layout(title_text="Verbal Autopsies by Gender")
     return dcc.Graph(id="sex_plot", figure=figure)
 
 
@@ -1250,111 +1334,116 @@ def sex_plot(va_data, timeframe, filter_dict=None):
         Input(component_id="group_period", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
         Input(component_id="ts_factor", component_property="value"),
-    ],
+    ]
 )
 def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All"):
     figure = go.Figure()
-    plot_data = pd.read_json(va_data)
-    if plot_data.size > 0:
-        if filter_dict is not None:
-            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
-
-        group_period = group_period.lower()
-        aggregate_title = group_period.capitalize()
-        plot_data["date"] = pd.to_datetime(plot_data["date"])
-        plot_data["timegroup"] = pd.to_datetime(plot_data["date"])
-        if group_period == "week":
-            plot_data["timegroup"] = pd.to_datetime(
-                plot_data["date"]
-                .dt.to_period("W")
-                .apply(lambda x: x.strftime("%Y-%m-%d"))
-            )
-        elif group_period == "month":
-            plot_data["timegroup"] = pd.to_datetime(
-                plot_data["date"].dt.to_period("M").apply(lambda x: x.strftime("%Y-%m"))
-            )
-        elif group_period == "year":
-            plot_data["timegroup"] = plot_data["date"].dt.to_period("Y").astype(str)
-
-        dtype = "category" if group_period == "year" else "date"
-
-        factor = factor.lower()
-        if factor != "all":
-            assert factor in LOOKUP["demo_to_col"]
-            factor_col = LOOKUP["demo_to_col"][factor]
-            trend_counts = plot_data.pivot_table(
-                index="timegroup",
-                columns=factor_col,
-                values="id",
-                aggfunc=pd.Series.nunique,
-                fill_value=0,
-                margins=False,
-            )
-            plot_fn = go.Scatter
-        else:
-            trend_counts = (
-                plot_data[["timegroup", "id"]]
-                .groupby("timegroup")
-                .count()
-                .rename(columns={"id": "all"})
-            )
-            plot_fn = go.Bar
-
-        for i, group in enumerate(trend_counts.columns.tolist()):
-            figure.add_trace(
-                plot_fn(
-                    y=trend_counts[group],
-                    x=trend_counts.index,
-                    name=group.capitalize(),
-                    marker=dict(
-                        color=LOOKUP["color_list"][i],
-                        line=dict(color=LOOKUP["color_list"][i], width=1),
-                    ),
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+            # only run if remaining data after filter
+            if plot_data.size > 0:
+                group_period = group_period.lower()
+                aggregate_title = group_period.capitalize()
+                plot_data["date"] = pd.to_datetime(plot_data["date"])
+                plot_data["timegroup"] = pd.to_datetime(plot_data["date"])
+                if group_period == "week":
+                    plot_data["timegroup"] = pd.to_datetime(
+                        plot_data["date"]
+                        .dt.to_period("W")
+                        .apply(lambda x: x.strftime("%Y-%m-%d"))
+                    )
+                elif group_period == "month":
+                    plot_data["timegroup"] = pd.to_datetime(
+                        plot_data["date"].dt.to_period("M").apply(lambda x: x.strftime("%Y-%m"))
+                    )
+                elif group_period == "year":
+                    plot_data["timegroup"] = plot_data["date"].dt.to_period("Y").astype(str)
+        
+                dtype = "category" if group_period == "year" else "date"
+        
+                factor = factor.lower()
+                if factor != "all":
+                    assert factor in LOOKUP["demo_to_col"]
+                    factor_col = LOOKUP["demo_to_col"][factor]
+                    trend_counts = plot_data.pivot_table(
+                        index="timegroup",
+                        columns=factor_col,
+                        values="id",
+                        aggfunc=pd.Series.nunique,
+                        fill_value=0,
+                        margins=False,
+                    )
+                    plot_fn = go.Scatter
+                else:
+                    trend_counts = (
+                        plot_data[["timegroup", "id"]]
+                        .groupby("timegroup")
+                        .count()
+                        .rename(columns={"id": "all"})
+                    )
+                    plot_fn = go.Bar
+        
+                for i, group in enumerate(trend_counts.columns.tolist()):
+                    figure.add_trace(
+                        plot_fn(
+                            y=trend_counts[group],
+                            x=trend_counts.index,
+                            name=group.capitalize(),
+                            marker=dict(
+                                color=LOOKUP["color_list"][i],
+                                line=dict(color=LOOKUP["color_list"][i], width=1),
+                            ),
+                        )
+                    )
+                figure.update_layout(
+                    title_text="Verbal Autopsies by {}".format(aggregate_title),
+                    xaxis_title=aggregate_title,
+                    yaxis_title="Verbal Autopsy Count",
+                    xaxis_type=dtype,
+                    xaxis_tickangle=-45,
+                    xaxis_tickformatstops=[
+                        dict(
+                            dtickrange=[None, None],
+                            value=LOOKUP["date_display_formats"].get(group_period, "%d/%m/%Y"),
+                        )
+                    ],
                 )
-            )
-        figure.update_layout(
-            title_text="Verbal Autopsies by {}".format(aggregate_title),
-            xaxis_title=aggregate_title,
-            yaxis_title="Verbal Autopsy Count",
-            xaxis_type=dtype,
-            xaxis_tickangle=-45,
-            xaxis_tickformatstops=[
-                dict(
-                    dtickrange=[None, None],
-                    value=LOOKUP["date_display_formats"].get(group_period, "%d/%m/%Y"),
-                )
-            ],
-        )
     return dcc.Graph(id="trend_plot", figure=figure)
 
 
-# =========Place of Death Plot Logic============================================#
-@app.callback(
-    Output(component_id="pod-container", component_property="children"),
-    [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="filter_dict", component_property="children")
-    ],
-)
-def place_of_death_plt(va_data, filter_dict=None):
-    figure = go.Figure()
-    plot_data = pd.read_json(va_data)
-    if plot_data.size > 0:
-        if filter_dict is not None:
-            plot_data = plot_data.iloc[json.loads(filter_dict)["ids"], :]
-        plot_data["Id10058"] = plot_data["Id10058"].apply(
-            lambda x: LOOKUP["death_location_names"].get(x, x.capitalize())
-        )
-        location_counts = plot_data["Id10058"].value_counts()
-        figure = go.Figure(
-            go.Pie(
-                labels=location_counts.index.tolist(),
-                values=location_counts.values,
-                hole=0.3,
-            )
-        )
-        figure.update_layout(title_text="VAs by Place of Death")
-    return dcc.Graph(id="pod_plt", figure=figure)
+## =========Place of Death Plot Logic============================================#
+#@app.callback(
+#    Output(component_id="pod-container", component_property="children"),
+#    [
+#        Input(component_id="va_data", component_property="children"),
+#        Input(component_id="filter_dict", component_property="children")
+#    ],
+#)
+#def place_of_death_plt(va_data, filter_dict=None):
+#    figure = go.Figure()
+#    if va_data is not None:
+#        plot_data = pd.read_json(va_data)
+#        if plot_data.size > 0:
+#            if filter_dict is not None:
+#                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+#            # only run if remaining data after filter
+#            if plot_data.size > 0:
+#                plot_data["Id10058"] = plot_data["Id10058"].apply(
+#                    lambda x: LOOKUP["death_location_names"].get(x, x.capitalize())
+#                )
+#                location_counts = plot_data["Id10058"].value_counts()
+#                figure = go.Figure(
+#                    go.Pie(
+#                        labels=location_counts.index.tolist(),
+#                        values=location_counts.values,
+#                        hole=0.3,
+#                    )
+#                )
+#                figure.update_layout(title_text="VAs by Place of Death")
+#    return dcc.Graph(id="pod_plt", figure=figure)
 
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)

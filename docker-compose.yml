@@ -1,3 +1,4 @@
+version: "3"
 services:
   pycrossva:
     build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
