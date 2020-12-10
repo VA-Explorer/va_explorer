@@ -2,7 +2,7 @@ import factory
 from django.contrib.auth import get_user_model, models
 from factory import DjangoModelFactory, Faker, Sequence
 from factory.fuzzy import FuzzyInteger
-from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 
 User = get_user_model()
 
@@ -40,6 +40,11 @@ class LocationFactory(DjangoModelFactory):
     numchild = FuzzyInteger(0, 20)
     path = "001"
 
+class VerbalAutopsyFactory(DjangoModelFactory):
+    class Meta:
+        model = VerbalAutopsy
+    Id10007 = "Example Name"
+    location = factory.SubFactory(LocationFactory)
 
 class UserFactory(DjangoModelFactory):
     class Meta:

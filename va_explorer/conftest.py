@@ -1,9 +1,8 @@
 import pytest
 from django.contrib.auth import models
 from va_explorer.va_data_management.models import Location
-
 from va_explorer.users.models import User
-from va_explorer.users.tests.factories import (
+from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     PermissionFactory,

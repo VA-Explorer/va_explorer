@@ -6,7 +6,7 @@ from va_explorer.users.forms import (
     UserSetPasswordForm,
     UserUpdateForm,
 )
-from va_explorer.users.tests.factories import (
+from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     NewUserFactory,

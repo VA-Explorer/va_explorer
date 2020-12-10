@@ -5,7 +5,7 @@ from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from va_explorer.users.models import User
-from va_explorer.users.tests.factories import GroupFactory, NewUserFactory, UserFactory
+from va_explorer.tests.factories import GroupFactory, NewUserFactory, UserFactory
 from va_explorer.users.views import (
     UserRedirectView,
     UserUpdateView,
