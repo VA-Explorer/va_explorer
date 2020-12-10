@@ -137,7 +137,7 @@ The server will be running at http://0.0.0.0:8000/
 Django can run locally inside Docker. This will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
 
 ```
-docker-compose -f docker-compose.yml -f docker-compose.local.yml up django
+docker-compose -f docker-compose.yml -f docker-compose.local.yml up django postgres
 ```
 
 The server will be running at http://0.0.0.0:5000/
@@ -179,7 +179,19 @@ DJANGO_SECRET_KEY
 DJANGO_ALLOWED_HOSTS
 ```
 
-More coming soon...
+If using Apache, set the following configuration in your apache configuration:
+
+```
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+
+<Location />
+    ProxyPreserveHost on
+    ProxyPass http://localhost:5000/
+    ProxyPassReverse http://localhost:5000/
+</Location>
+```
+
 
 ## Version History
 
