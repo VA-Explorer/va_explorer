@@ -1,9 +1,23 @@
 from django.shortcuts import render, redirect
 from .models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from .forms import VerbalAutopsyForm
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+import numpy as np
 
-def index(request):
-    va_list = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
+
+def index(request, page_size=15):
+    absolute_page = int(request.GET.get('page', 1))
+
+    relative_page = 1 if absolute_page == 1 else 2
+    # only load current page, (if necessary) previous page, and (if necessary) next page of data
+    start_id = (absolute_page - 1) * page_size + 1 
+    stop_id = (absolute_page + relative_page) * page_size + 1
+    va_ids = set(np.arange(start_id, stop_id)) 
+    va_list = (VerbalAutopsy.objects
+        .filter(pk__in=va_ids)
+        .prefetch_related("location", "causes", "coding_issues")
+        .order_by("id")
+        )
     va_data = [{
         "id": va.id,
         "name": va.Id10007,
@@ -12,7 +26,21 @@ def index(request):
         "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
         "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
     } for va in va_list]
-    context = { "va_data": va_data }
+    paginator = Paginator(va_data, page_size)  # 30 posts in each page
+    #try:
+    va_page_data = paginator.page(relative_page)
+    # except PageNotAnInteger:
+    #     # If page is not an integer deliver the first page
+    #     va_page_data = paginator.page(1)
+    # except EmptyPage:
+    #     # If page is out of range deliver last page of results
+    #     va_page_data = paginator.page(paginator.num_pages)
+
+    context = {"va_data": va_page_data, "page": relative_page}
+    # return render(request,
+    #               "va_data_management/index.html",
+    #               {'page': page,
+    #                'post_list': post_list})
     return render(request, "va_data_management/index.html", context)
 
 # TODO: Use standard django CRUD conventions; e.g. see https://stackoverflow.com/questions/4673985/how-to-update-an-object-from-edit-form-in-django

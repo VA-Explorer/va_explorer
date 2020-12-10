@@ -17,7 +17,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for va in va_data.object_list %}
+    {% for va in va_data %}
       <tr>
         <td>{{ va.id }}</td>
         <td>{{ va.name }}</td>
@@ -30,18 +30,5 @@
     {% endfor %}
   </tbody>
 </table>
-{% if va_data.has_other_pages %}
-  <nav aria-label="Page navigation conatiner"></nav>
-    <ul class="pagination justify-content-center">
-      {% if va_data.has_previous %}
-        <li><a href="?page={{ va_data.previous_page_number }}" class="page-link">&laquo; PREV </a></li>
-      {% endif %}
-      {% if va_data.has_next %}
-        <li><a href="?page={{ va_data.next_page_number }}" class="page-link"> NEXT &raquo;</a></li>
-     {% endif %}
-    </ul>
-  </nav>
-{% endif %}
 
 {% endblock %}
-
