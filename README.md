@@ -167,28 +167,41 @@ va_explorer/django
 Set the following environment variables:
 
 ```
-EMAIL_URL
-CELERY_BROKER_URL
-REDIS_URL
-POSTGRES_HOST
-POSTGRES_PORT
-POSTGRES_DB
-POSTGRES_USER
-POSTGRES_PASSWORD
-DJANGO_SECRET_KEY
-DJANGO_ALLOWED_HOSTS
+export EMAIL_URL=smtp://localhost:25 <or>smtp://consolemail
+export CELERY_BROKER_URL=redis://redis:6379/0
+export REDIS_URL=redis://redis:6379/0
+export POSTGRES_HOST=postgres
+export POSTGRES_PORT=5432
+export POSTGRES_DB=va_explorer
+export POSTGRES_USER=postgres
+export POSTGRES_PASSWORD=Pimin73y!we
+export DJANGO_SECRET_KEY=something-secret
+export DJANGO_ALLOWED_HOSTS=localhost
+```
+
+Run docker-compose in daemon mode:
+
+```
+docker-compose up -d django
 ```
 
 If using Apache, set the following configuration in your apache configuration:
 
 ```
+LoadModule rewrite_module modules/mod_rewrite.so
 LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 
 <Location />
     ProxyPreserveHost on
     ProxyPass http://localhost:5000/
     ProxyPassReverse http://localhost:5000/
+
+    RewriteEngine on
+    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+    RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+    RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
 </Location>
 ```
 
