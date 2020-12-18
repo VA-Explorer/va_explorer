@@ -53,7 +53,7 @@ COPY --chown=django:django va_explorer /app/va_explorer
 COPY --chown=django:django config /app/config
 COPY --chown=django:django locale /app/locale
 
-RUN CELERY_BROKER_URL=dummy REDIS_URL=dummy python /app/manage.py collectstatic --settings=config.settings.production
+RUN python /app/manage.py collectstatic --settings=config.settings.production
 
 WORKDIR /app
 
