@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load bootstrap4 %}
+
 {% block title %}Verbal Autopsies{% endblock %}
 
 {% block content %}
@@ -32,6 +34,7 @@
 </table>
 {% if va_data.has_other_pages %}
   <nav aria-label="Page navigation conatiner"></nav>
+    <ul class="justify-content-center">{% bootstrap_pagination va_data size="large"%}</ul>
     <ul class="pagination justify-content-center">
       {% if va_data.has_previous %}
         <li><a href="?page={{ va_data.previous_page_number }}" class="page-link">&laquo; PREV </a></li>

@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 def index(request, page_size=15):
     # active page - default to 1 if not active page
-    absolute_page = int(request.GET.get('page', 1))
+    absolute_page = request.GET.get('page', 1)
 
     # query to retrive all VAs
     va_list = (VerbalAutopsy.objects
@@ -17,7 +17,7 @@ def index(request, page_size=15):
     paginator = Paginator(va_list, page_size)
 
     # hone in on active page objects
-    current_page = paginator.page(absolute_page)
+    current_page = paginator.get_page(absolute_page)
 
     # pull out fields we want from active page objects
     current_page.object_list = [{
