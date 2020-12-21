@@ -57,10 +57,6 @@ if env("USE_DOCKER") == "yes":
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
 
-
-# django-bootstrap
-# ------------------------------------------------------------------------------
-INSTALLED_APPS += ["bootstrap4"]
 # django-extensions
 # ------------------------------------------------------------------------------
 # https://django-extensions.readthedocs.io/en/latest/installation_instructions.html#configuration
