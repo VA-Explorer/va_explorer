@@ -36,6 +36,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dcc02e52ccbb649b9febe9182abfa5e03c49be6c}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost}
+      PYCROSS_HOST: ${PYCROSS_HOST:-http://pycrossva:80}
+      INTERVA_HOST: ${INTERVA_HOST:-http://interva5:5002}
     command: /start
 
   celeryworker:
