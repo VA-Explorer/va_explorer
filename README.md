@@ -205,6 +205,20 @@ LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 </Location>
 ```
 
+### Creating first user
+
+To create a super user while running under Docker, make sure the container is running, then run the following command to enter a shell in the docker container:
+
+```
+docker-compose exec django sh
+```
+
+From there, you can create a super user. Follow the prompts after running this command:
+
+```
+./manage.py createsuperuser
+```
+
 
 ## Version History
 
