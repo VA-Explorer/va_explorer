@@ -4,7 +4,7 @@ from django.test import Client, RequestFactory
 from django.urls import reverse
 
 from va_explorer.users.forms import ExtendedUserCreationForm
-from va_explorer.users.tests.factories import (
+from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     NewUserFactory,

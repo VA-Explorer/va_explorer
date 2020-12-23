@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from .forms import VerbalAutopsyForm
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
+@login_required
 def index(request, page_size=15):
     # active page - default to 1 if not active page
     absolute_page = request.GET.get('page', 1)
@@ -36,6 +38,7 @@ def index(request, page_size=15):
 # TODO: Use standard django CRUD conventions; e.g. see https://stackoverflow.com/questions/4673985/how-to-update-an-object-from-edit-form-in-django
 
 # TODO: Is the convention to use pk instead of id in django?
+@login_required
 def show(request, id):
     va = VerbalAutopsy.objects.get(id=id)
     form = VerbalAutopsyForm(None, instance=va)
@@ -50,15 +53,16 @@ def show(request, id):
     context = { "id": id, "form": form, "warnings": warnings, "errors": errors, "diffs": diffs }
     return render(request, "va_data_management/show.html", context)
 
+@login_required
 def edit(request, id):
     # TODO: We only want to allow editing of some fields
     # TODO: We want to provide context for all the fields
-    # TODO: We probably want to use a django Form here or crispy forms
     va = VerbalAutopsy.objects.get(id=id)
     form = VerbalAutopsyForm(None, instance=va)
     context = { "id": id, "form": form }
     return render(request, "va_data_management/edit.html", context)
 
+@login_required
 def save(request, id):
     # TODO: There are probably more appropriate ways to handle form editing in django
     # TODO: When a record is changed, should it automatically be recoded if it was already coded?
@@ -70,6 +74,7 @@ def save(request, id):
 
 # Reset to the first historical record
 # TODO: If a record is reset, should it automatically be recoded?
+@login_required
 def reset(request, id):
     va = VerbalAutopsy.objects.get(id=id)
     earliest = va.history.earliest()
@@ -80,6 +85,7 @@ def reset(request, id):
 
 # Revert the most recent change
 # TODO: Should record automatically be recoded?
+@login_required
 def revert_latest(request, id):
     va = VerbalAutopsy.objects.get(id=id)
     if va.history.count() > 1:

@@ -1,15 +1,20 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 import pandas as pd
 from django.forms.models import model_to_dict
 from va_explorer.va_data_management.models import Location, VerbalAutopsy
 
-class DashboardView(TemplateView):
+
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "va_analytics/dashboard.html"
 
 
 dashboard_view = DashboardView.as_view()
 
+
+@login_required
 def download_csv(request, out_file="va_download.csv"):
 
     # pull in va records with CODs from database 
