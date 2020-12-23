@@ -800,10 +800,9 @@ def shift_granularity(current_granularity, levels, move_up=False):
 # =========Map Metrics =======================#
 # Top metrics to track for map dropdown
 @app.callback(
-    [
+
      Output(component_id="map_metric", component_property="options"),
-     Output(component_id="bounds", component_property="children"),
-     ],    
+ 
     [
          Input(component_id="va_data", component_property="children"), 
          Input(component_id="filter_dict", component_property="children")
@@ -830,7 +829,7 @@ def get_metrics(va_data, filter_dict=None, N=10):
                     .tolist()
                 )
         
-    return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics], json.dumps(metrics)
+    return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics]
 
 
 def get_metric_display_names(map_metrics):
