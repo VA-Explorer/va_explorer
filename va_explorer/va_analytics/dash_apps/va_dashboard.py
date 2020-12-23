@@ -175,7 +175,6 @@ def load_va_data(geographic_levels=None):
     return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
 
     all_vas = VerbalAutopsy.objects.prefetch_related("location").prefetch_related("causes")
-    #valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
 
     if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data
@@ -710,7 +709,7 @@ def filter_data(
                                           locations=locations)    
         # combine filters into one dictionary to share across callbacks
         combined_filter_dict = {
-            #"granularity": valid_filter["granularity"], # same across both dictionaries
+            "granularity": valid_filter["granularity"], # same across both dictionaries
             "plot_regions": valid_filter["plot_regions"], # same across both dictionaries 
             "geo_filter": valid_filter["geo_filter"], # same across both dictionaries
             "chosen_region": valid_filter["chosen_region"], # same across both dictionaries
@@ -761,7 +760,6 @@ def _get_filter_dict(va_df, selected_json, timeframe="all", search_terms=[], loc
         parent_location_type = shift_granularity(granularity, location_types, move_up=True)
 
         # get all adjacent regions (siblings) to chosen region(s) for plotting
-        
         for parent_name in  filter_df[parent_location_type].unique():
             # get ids of vas in parent region
             va_ids = va_df[va_df[parent_location_type] == parent_name].index.tolist()
@@ -802,8 +800,10 @@ def shift_granularity(current_granularity, levels, move_up=False):
 # =========Map Metrics =======================#
 # Top metrics to track for map dropdown
 @app.callback(
-    Output(component_id="map_metric", component_property="options"),
-    
+    [
+     Output(component_id="map_metric", component_property="options"),
+     Output(component_id="bounds", component_property="children"),
+     ],    
     [
          Input(component_id="va_data", component_property="children"), 
          Input(component_id="filter_dict", component_property="children")
@@ -821,15 +821,16 @@ def get_metrics(va_data, filter_dict=None, N=10):
             # only load options if remaining data after filter
             if metric_data.size > 0:
                 # add top N CODs by incidence to metric list
-                metrics = ["Coded VAs","Mean Age of Death"]
+                metrics = ["Coded VAs","Mean Age of Death"]\
                 + (metric_data["cause"]
-                                .value_counts()
-                                .sort_values(ascending=False)
-                                .head(N)
-                                .index
-                                .tolist())
+                    .value_counts()
+                    .sort_values(ascending=False)
+                    .head(N)
+                    .index
+                    .tolist()
+                )
         
-    return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics]
+    return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics], json.dumps(metrics)
 
 
 def get_metric_display_names(map_metrics):
@@ -1243,7 +1244,7 @@ def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_d
                     groups.remove("All")
                 for i, group in enumerate(groups):
                     if agg_type != "counts":
-                        counts[group] = 100 * counts[group] / counts[group].sum()
+                        counts[group] = np.round(100 * counts[group] / counts[group].sum(), 1)
                     figure.add_trace(
                         plot_fn(
                             y=counts[group],
