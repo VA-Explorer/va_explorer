@@ -55,7 +55,8 @@ THIRD_PARTY_APPS = [
     "channels",
     "debug_toolbar",
     "whitenoise.runserver_nostatic",
-    "django_extensions"
+    "django_extensions",
+    "bootstrap4",
 ]
 
 LOCAL_APPS = [
