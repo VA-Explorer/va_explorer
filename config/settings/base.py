@@ -287,6 +287,4 @@ CHANNEL_LAYERS = {
     },
 }
 
-
 ASGI_APPLICATION = 'va_explorer.va_analytics.routing.applications'
-
