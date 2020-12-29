@@ -1,20 +1,31 @@
-alabaster==0.7.12 # added from local to get dashboard working
-amqp==2.6.0 # added here from local to get dashboard working
-argon2-cffi==20.1.0  # https://github.com/hynek/argon2_cffi
-bootstrap4==0.1.0
-celery==4.4.6  # pyup: < 5.0  # https://github.com/celery/celery
+alabaster==0.7.12
+amqp==2.6.0
+argon2-cffi==20.1.0 
+celery==4.4.6 
+flower==0.9.5 
+hiredis==1.0.1 
+pandas==1.0.5
+Pillow==7.2.0 
+python-slugify==4.0.1 
+pytz==2020.1 
+redis==3.5.3 
+
+# Django
+django==3.0.8 
+django-allauth==0.42.0 
+django-celery-beat==2.0.0 
+django-crispy-forms==1.9.1 
+django-debug-toolbar==3.1.1
+django-environ==0.4.5 
+django-extensions==3.0.9
+django-redis==4.12.1 
+django-simple-history==2.11.0
+django-treebeard==4.3.1
+django-bootstrap4==2.2.0
+whitenoise==5.1.0 
 channels-redis==3.0.1
 channels==2.4.0
 daphne==2.5.0
-dpd-components==0.1.0
-dpd-static-support==0.0.5
-flower==0.9.5  # https://github.com/mher/flower
-hiredis==1.0.1  # https://github.com/redis/hiredis-py
-pandas==1.0.5
-Pillow==7.2.0  # https://github.com/python-pillow/Pillow
-python-slugify==4.0.1  # https://github.com/un33k/python-slugify
-pytz==2020.1  # https://github.com/stub42/pytz
-redis==3.5.3  # https://github.com/andymccurdy/redis-py
 
 # Dash
 dash==1.14.0
@@ -24,20 +35,10 @@ dash-html-components==1.0.3
 dash-renderer==1.6.0
 dash-table==4.9.0
 
-# Django
-django==3.0.8  # pyup: < 3.1  # https://www.djangoproject.com/
-django-allauth==0.42.0  # https://github.com/pennersr/django-allauth
-django-celery-beat==2.0.0  # https://github.com/celery/django-celery-beat
-django-crispy-forms==1.9.1  # https://github.com/django-crispy-forms/django-crispy-forms
-django-debug-toolbar==3.1.1
-django-environ==0.4.5  # https://github.com/joke2k/django-environ
-django-extensions==3.0.9
+# Plotly Dash
 django-plotly-dash==1.4.2
-django-redis==4.12.1  # https://github.com/jazzband/django-redis
-django-simple-history==2.11.0
-django-treebeard==4.3.1
-django-bootstrap4==2.2.0
-whitenoise==5.1.0  # https://github.com/evansd/whitenoise
+dpd-components==0.1.0
+dpd-static-support==0.0.5
 
 # Testing
 pytest==6.1.2
@@ -45,4 +46,4 @@ pytest-django==4.1.0
 factory-boy==2.12.0
 
 # Database
-psycopg2==2.8.5 --no-binary psycopg2  # https://github.com/psycopg/psycopg2
+psycopg2==2.8.5 --no-binary psycopg2 
