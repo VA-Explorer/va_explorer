@@ -14,7 +14,7 @@ services:
     build: https://github.com/VA-Explorer/InterVA5.git#microservice-experiment
 
   redis:
-    image: redis:5.0 te
+    image: redis:5.0
 
   django: &django
     image: va_explorer/django
