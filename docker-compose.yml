@@ -14,7 +14,7 @@ services:
     build: https://github.com/VA-Explorer/InterVA5.git#microservice-experiment
 
   redis:
-    image: redis:5.0
+    image: redis:5.0 te
 
   django: &django
     image: va_explorer/django
@@ -42,16 +42,22 @@ services:
 
   celeryworker:
     <<: *django
+    # Don't publish ports like django does.
+    ports: []
     image: va_explorer/celeryworker
     command: /start-celeryworker
 
   celerybeat:
     <<: *django
+    # Don't publish ports like django does.
+    ports: []
     image: va_explorer/celerybeat
     command: /start-celerybeat
 
   flower:
     <<: *django
+    # Don't publish ports like django does.
+    ports: []
     image: va_explorer/flower
     command: /start-flower
 
