@@ -11,8 +11,6 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", default=get_random_secret_key())
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["va_explorer.org"])
 
-print('ALLOWED HOSTS =', ALLOWED_HOSTS)
-
 # Caches
 
 CACHES = {
