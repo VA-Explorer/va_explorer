@@ -2,8 +2,77 @@
 
 {% block content %}
 
-<div class="row mt-4">
-  <p>Here is some information about VA Explorer.</p>
-</div>
+<main role="main">
+
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">About VA Explorer</h1>
+      <p>VA (Verbal Autopsy) Explorer is a prototype application, built to demonstrate verbal autopsy data management and analysis capabilities. VA Explorer currently supports the following functionality at various degrees of maturity:</p>
+      <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+      <div class="col-md-4">
+        <h2>User Management</h2>
+    	<ul>
+        	<li>Creation/disabling of user accounts by administrators</li>
+			<li>Password management</li>
+			<li>Role-based access for admins, data managers, data viewers, and field workers</li>
+			<li>Geographical assignment and geography-based priveleges</li>
+    	</ul>
+        <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+      </div>
+     <div class="col-md-4">
+        <h2>VA Ingest</h2>
+        	<ul>
+        		<li>Import Verbal Autopsy questionnaire responses</li>
+        		<li>Integrate with survey tools like Open Data Kit (ODK) </li>
+        	</ul>
+      </div>
+      <div class="col-md-4">
+        <h2>COD Assignment</h2>
+        	<ul>
+        		<li>Assign cause of death using InterVA5</li>
+        		<li>Building support for Insilico</li>
+        	</ul>
+      </div>
+
+      <div class="col-md-4">
+        <h2>VA Management</h2>
+        	<ul>
+        		<li>View errors and warnings from COD assignments</li>
+        		<li>Fix errors in existing VAs </li>
+        		<li>Track change history</li>
+        		<li>Revert latest changes</li> 
+        	</ul>
+      </div>
+     <div class="col-md-4">
+        <h2>VA Analytics</h2>
+        <p> A flexible dashboard enabling quick insights. For a chosen region:  
+        	<ul>
+	        	<li>Inspect geospatial trends with dynamic heatmap</li>
+				<li>View top overall causes of death</li>
+				<li>Explore VA distributions by age, gender, and place of death</li>
+				<li>Visualize trends over time</li>
+        	</ul>
+
+         </p>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col-md-4">
+        <h2>Heading</h2>
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+      </div>
+	</div>  
+    <hr>
+
+  </div> <!-- /container -->
+
+</main>
 
 {% endblock %}
