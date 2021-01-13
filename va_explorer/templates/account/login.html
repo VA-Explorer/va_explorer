@@ -1,26 +1,58 @@
-{% extends "account/base.html" %}
+{% comment %}TODO: This has things in common with base files, but not everything; refactor{% endcomment %}
 
-{% load i18n %}
+{% load static i18n %}
 {% load crispy_forms_tags %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}VA Explorer{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
+    {% block css %}
+    <link href="{% static 'vendor/bootstrap-4.3.1/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    {% endblock %}
+  </head>
+  <body class="auth-body">
 
 {% block inner %}
 
-<div class="row mt-4">
-  <h2>{% trans "Sign In" %}</h2>
-</div>
+  <div class="auth-container">
+    <div class="row align-items-center">
+      <div class="col-md-7">
+        <span class="auth-title-name">VA Explorer<img class="auth-logo" src="{% static 'images/logo.png' %}" /></span><br />
+        <span class="auth-title-desc">Open source verbal autopsy data management and analysis</span><br />
+        <a class="auth-title-link" href="https://github.com/VA-Explorer/va_explorer/#va-explorer-web-application-prototype">Learn more</a>
+      </div>
+      <div class="col-md-5">
+        <div class="auth-sign-in-box">
+          <span class="auth-title">Sign in</span><br />
+          <form class="login" method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {{ form|crispy }}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            <button class="primaryAction btn btn-primary" type="submit">{% trans "Sign In" %}</button><br />
+            <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="row mt-3">
-  <form class="login" method="POST" action="{% url 'account_login' %}">
-    {% csrf_token %}
-    {{ form|crispy }}
-    {% if redirect_field_value %}
-    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-    {% endif %}
-    <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-    <button class="primaryAction btn btn-primary" type="submit">{% trans "Sign In" %}</button>
-  </form>
-</div>
+  <div class="auth-attribution">
+    <a href="https://www.flickr.com/photos/37583176@N00/14459661386/">Lower Zambezi, Zambia, Kafue River</a>
+    by
+    <a href="https://www.flickr.com/people/ninara/">Ninara</a>
+    is used under
+    <a href="https://creativecommons.org/publicdomain/mark/1.0/">Public Domain Mark 1.0</a>
+  </div>
 
 {% endblock %}
+
+  </body>
+</html>
