@@ -71,7 +71,8 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
     "django_plotly_dash.apps.DjangoPlotlyDashConfig",
     "simple_history",
-    "channels"
+    "channels",
+    "bootstrap4",
 ]
 
 LOCAL_APPS = [
