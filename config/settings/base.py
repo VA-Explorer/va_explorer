@@ -76,6 +76,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "va_explorer.home.apps.HomeConfig",
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",

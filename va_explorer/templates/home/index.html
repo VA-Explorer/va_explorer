@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row mt-4">
+
+  <p>VA Explorer is a prototype web application built to demonstrate verbal autopsy data management and analysis capabilities and act as a foundation for exploring new concepts. This prototype represents a work-in-progress, and is expected to mature in response to feedback from users and subject matter experts. VA Explorer currently supports the following functionality at various degrees of maturity:</p>
+
+<ul>
+  <li>User account management, including:</li>
+  <ul>
+    <li>Creation/disabling of user accounts by administrators</li>
+    <li>Password management for individual users</li>
+  </ul>
+  <li>User access controls, including:</li>
+  <ul>
+    <li>Role-based access with the following roles: administrators, data managers, data viewers, and field workers</li>
+    <li>Assignment to one or more geographic areas for geographical-level scoping of data</li>
+  </ul>
+  <li>Loading of verbal autopsy questionnaire data</li>
+  <li>Assignment of cause of death using InterVA5 algorithm (Note: relies on external pyCrossVA and InterVA5 services)</li>
+  <li>Exploration of cause of death data via a dynamic, visualization-based dashboard that includes:</li>
+  <ul>
+    <li>A dynamic heatmap showing geographical trends, with zoom capabilities to hone in on regions of interest</li>
+    <li>Cause of death plots for chosen regions</li>
+    <li>Death distributions by age, gender, and place of death for chosen regions</li>
+    <li>Trends over time for chosen regions</li>
+  </ul>
+</ul>
+
+</div>
+
+{% endblock %}
