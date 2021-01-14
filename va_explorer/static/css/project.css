@@ -35,11 +35,18 @@
   justify-content: center;
 }
 
+body {
+   padding-bottom: 70px; 
+}
+
 .btn-light:focus {
   background-color:#bdc0c3;
 }
 
-
+.copyright-text {
+  color: #656565;
+  font-size: 12px;
+}
 .custom-control-label::after,
 .custom-control-label::before {
   display: none;
