@@ -331,3 +331,5 @@ va_explorer/media/
 .env
 .envs/*
 !.envs/.local/
+
+pgdata

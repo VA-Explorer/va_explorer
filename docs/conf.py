@@ -12,12 +12,12 @@
 
 import os
 import sys
+from pathlib import Path
 import django
 
+sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 
-sys.path.insert(0, os.path.abspath("/app"))
 os.environ.setdefault("DATABASE_URL", "")
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 django.setup()
 

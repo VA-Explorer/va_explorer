@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-from pathlib import Path
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
@@ -22,10 +21,5 @@ if __name__ == "__main__":
             )
 
         raise
-
-    # This allows easy placement of apps within the interior
-    # va_explorer directory.
-    current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "va_explorer"))
 
     execute_from_command_line(sys.argv)

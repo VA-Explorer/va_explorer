@@ -1,13 +1,22 @@
-from django.core.management.base import BaseCommand
-from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue
-from django.forms.models import model_to_dict
-from io import StringIO
-from collections import OrderedDict
-import requests
 import csv
 import json
+import os
 import re
+from collections import OrderedDict
+from io import StringIO
+
 import pandas as pd
+import requests
+from django.core.management.base import BaseCommand
+from django.forms.models import model_to_dict
+
+from va_explorer.va_data_management.models import CauseCodingIssue
+from va_explorer.va_data_management.models import CauseOfDeath
+from va_explorer.va_data_management.models import VerbalAutopsy
+
+# Default host-port when running from docker-compose.local.yml
+PYCROSS_HOST = os.environ.get('PYCROSS_HOST', 'http://127.0.0.1:5001')
+INTERVA_HOST = os.environ.get('INTERVA_HOST', 'http://127.0.0.1:5002')
 
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
@@ -34,7 +43,7 @@ class Command(BaseCommand):
         # https://github.com/VA-Explorer/InterVA5/tree/microservice-experiment
 
         # Transform to algorithm format using the pyCrossVA web service
-        transform_url = 'http://127.0.0.1:5001/transform?input=2016WHOv151&output=InterVA5'
+        transform_url = f'{PYCROSS_HOST}/transform?input=2016WHOv151&output=InterVA5'
         transform_response = requests.post(transform_url, data=va_data_csv)
 
         # We need to convert the resulting CSV to JSON
@@ -51,7 +60,7 @@ class Command(BaseCommand):
         algorithm_input_json = algorithm_input_json.replace('"0.0"', '"."').replace('"1.0"', '"y"')
 
         # Send to InterVA algorithm web service
-        algorithm_url = 'http://127.0.0.1:5002/interva5'
+        algorithm_url = f'{INTERVA_HOST}/interva5'
         algorithm_response = requests.post(algorithm_url, data=algorithm_input_json)
         algorithm_response_data = json.loads(algorithm_response.text)
 
