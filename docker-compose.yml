@@ -1,10 +1,77 @@
-version: "3"
+version: '3'
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  
 services:
   pycrossva:
+    image: va_explorer/pycrossva
     build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
-    ports:
-      - "5001:80"
+    
   interva5:
+    image: va_explorer/interva5
     build: https://github.com/VA-Explorer/InterVA5.git#microservice-experiment
+
+  redis:
+    image: redis:5.0
+
+  django: &django
+    image: va_explorer/django
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
     ports:
-      - "5002:5002"
+      - "5000:5000"
+    depends_on:
+      - redis
+    environment:
+      EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dcc02e52ccbb649b9febe9182abfa5e03c49be6c}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost}
+      PYCROSS_HOST: ${PYCROSS_HOST:-http://pycrossva:80}
+      INTERVA_HOST: ${INTERVA_HOST:-http://interva5:5002}
+    command: /start
+
+  celeryworker:
+    <<: *django
+    # Don't publish ports like django does.
+    ports: []
+    image: va_explorer/celeryworker
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    # Don't publish ports like django does.
+    ports: []
+    image: va_explorer/celerybeat
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    # Don't publish ports like django does.
+    ports: []
+    image: va_explorer/flower
+    command: /start-flower
+
+  postgres:
+    image: va_explorer/postgres
+    build:
+      context: .
+      dockerfile: ./compose/postgres/Dockerfile
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
