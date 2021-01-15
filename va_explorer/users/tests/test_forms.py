@@ -4,12 +4,13 @@ from django.test import RequestFactory
 from va_explorer.users.forms import (
     ExtendedUserCreationForm,
     UserSetPasswordForm,
-    UserUpdateForm,
+    UserUpdateForm, UserChangePasswordForm,
 )
 from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     NewUserFactory,
+    UserFactory
 )
 
 pytestmark = pytest.mark.django_db
@@ -198,3 +199,35 @@ class TestUserSetPasswordForm:
         assert not form.is_valid()
         assert "You must type the same password each time." in form.errors["password2"]
         assert len(form.errors) == 1
+
+
+class TestUserChangePasswordForm:
+    def test_valid_form(self, rf: RequestFactory):
+        existing_user = UserFactory.create()
+        existing_user.set_password("Password124!")
+        existing_user.save()
+
+        form = UserChangePasswordForm(
+            data={
+                "current_password": "Password124!",
+                "password1": "MyNewPassword123",
+                "password2": "MyNewPassword123"
+            },
+            user=existing_user
+        )
+
+        assert form.is_valid()
+
+    def test_invalid_form(self, rf: RequestFactory):
+        form = UserChangePasswordForm(
+            {
+                "current_password": "",
+                "password1": "MyNewPassword123",
+                "password2": "MyNewPassword456"
+            }
+        )
+
+        assert not form.is_valid()
+        assert "You must type the same password each time." in form.errors['password2']
+        assert "This field is required" in form.errors['current_password'][0]
+        assert len(form.errors) == 2

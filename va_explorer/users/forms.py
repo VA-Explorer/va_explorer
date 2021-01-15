@@ -213,6 +213,9 @@ class UserUpdateForm(forms.ModelForm):
 
 class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
     """
+    Allows the user to set a password of their choosing after logging in with a system-defined
+    random password.
+
     See allauth:
         https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
         If we do not want this dependency, we can write our own clean method to ensure the
@@ -228,6 +231,48 @@ class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
     def save(self, user):
         user.set_password(self.cleaned_data["password1"])
         user.has_valid_password = True
+        user.save()
+
+        return user
+
+
+class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
+    """
+    Allows the user to change their password if they already have a valid (i.e., non-temporary) password.
+    Requires the user to re-type their old password and type in their new password twice.
+
+    See allauth:
+        https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
+        If we do not want this dependency, we can write our own clean method to ensure the
+        2 typed-in passwords match.
+    """
+    current_password = PasswordField(label="Current Password")
+
+    password1 = SetPasswordField(
+        label="New Password",
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password2 = PasswordField(label="New Password (again)")
+
+    def __init__(self, *args, **kwargs):
+        """
+        Set the current user on the form
+        We need this to call user.check_password in clean_current_password
+        """
+        self.user = kwargs.pop('user', None)
+        super(UserChangePasswordForm, self).__init__(*args, **kwargs)
+
+    def clean_current_password(self):
+        print("User password is: ")
+        print(self.user.password)
+        print("Cleaned data is: ")
+        print(self.cleaned_data.get("current_password"))
+        if not self.user.check_password(self.cleaned_data.get("current_password")):
+            raise forms.ValidationError(("Please type your current password."))
+        return self.cleaned_data["current_password"]
+
+    def save(self, user):
+        user.set_password(self.cleaned_data["password1"])
         user.save()
 
         return user
