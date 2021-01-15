@@ -11,7 +11,6 @@ from va_explorer.users.views import (
     UserUpdateView,
     user_create_view,
     user_detail_view,
-    user_set_password_view,
 )
 
 pytestmark = pytest.mark.django_db
@@ -175,10 +174,52 @@ class TestUserUpdateView:
 
 
 class TestUserSetPasswordView:
-    def test_set_password(self, user: User, rf: RequestFactory):
-        request = rf.get("/fake-url/")
-        request.user = user
+    """
+    TODO: The two tests below are more integration tests because we are testing the
+    "real" URL and request/response cycle instead of only the view.
+    The issue is that Django's RequestFactory doesn't have access to the Middleware:
+    Session and authentication attributes must be supplied by the test itself if
+    required for the view to function properly. So, for these tests we could add the
+    middleware manually if that seems like a better approach.
+    """
+    def test_set_password_without_valid_pw(self, user: User):
+        client = Client()
 
-        response = user_set_password_view(request)
+        user = NewUserFactory.create()
+        user.set_password("mygreatpassword")
+        user.save()
+
+        client.post(
+            reverse("account_login"),
+            {"login": user.email, "password": "mygreatpassword"},
+        )
+
+        url = "/users/set_password"
+        response = client.get(url, follow=True)
 
         assert response.status_code == 200
+        assert {
+            b"Please type in a password of your choosing to replace your temporary password"
+            in response.content
+        }
+
+    def test_set_password_with_valid_pw(self, user: User):
+        client = Client()
+
+        user = UserFactory.create()
+        user.set_password("mygreatpassword")
+        user.save()
+
+        client.post(
+            reverse("account_login"),
+            {"login": user.email, "password": "mygreatpassword"},
+        )
+
+        url = "/users/set_password"
+        response = client.get(url, follow=True)
+
+        assert response.status_code == 200
+        assert (
+            b"User has already set password"
+            in response.content
+        )

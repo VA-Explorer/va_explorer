@@ -27,14 +27,17 @@
       {% endif %}
     </ul>
     <ul class="navbar-nav ml-auto my-2 my-lg-0">
-      {% if request.user.is_authenticated %}
-        <li class="nav-item">
-          <span class="nav navbar-text">{{ request.user.name }} is signed in.</span>
-        </li>
-        <li class="nav-item">
-          {# URL provided by django-allauth/account/urls.py #}
-          <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
-        </li>
+      <li class="nav-item dropdown">
+        {% if request.user.is_authenticated %}
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ request.user.name }} is signed in.
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="{% url 'users:change_password' %}">Change Password</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{% url 'account_logout' %}">Sign Out</a>
+        </div>
+      </li>
       {% else %}
         <li class="nav-item">
           {# URL provided by django-allauth/account/urls.py #}
