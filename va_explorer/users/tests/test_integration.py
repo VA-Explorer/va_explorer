@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import Client, RequestFactory
 from django.urls import reverse
@@ -116,29 +117,26 @@ def test_user_set_password_after_create(rf: RequestFactory):
 def test_user_change_password():
     user = UserFactory.build()
     password = "AReallyGreatPassword1!"
-    user.set_password = password
+    user.set_password(password)
     user.has_valid_password = True
     user.save()
 
     client = Client()
 
-    client.post(
-        reverse("account_login"),
-        {"login": user.email, "password": password},
-        follow=True,
-    )
+    client.force_login(user=user)
 
     response = client.post(
         reverse("users:change_password"),
-        data={
-            "current_password": "Password124!",
+        {
+            "current_password": "AReallyGreatPassword1!",
             "password1": "MyNewPassword123",
             "password2": "MyNewPassword123"
         },
-        user=user
+        follow=True,
     )
 
     assert response.status_code == 200
 
     user.refresh_from_db()
-    assert user.check_password("AReallyGreatNewPassword1") is True
+    assert user.check_password("MyNewPassword123") is True
+
