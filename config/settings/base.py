@@ -4,6 +4,7 @@ Base settings to build other settings files upon.
 from pathlib import Path
 
 import environ
+import os
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = ROOT_DIR / "va_explorer"
@@ -29,7 +30,7 @@ db_host = os.environ.get('POSTGRES_HOST', 'localhost')
 db_port = os.environ.get('POSTGRES_PORT', '5432')
 db_db = os.environ.get('POSTGRES_DB', 'va_explorer')
 
-DATABASES = {"default": env.db("DATABASE_URL", default=f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_db}")
+DATABASES = {"default": env.db("DATABASE_URL", default=f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_db}")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
 
