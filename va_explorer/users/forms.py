@@ -263,10 +263,6 @@ class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
         super(UserChangePasswordForm, self).__init__(*args, **kwargs)
 
     def clean_current_password(self):
-        print("User password is: ")
-        print(self.user.password)
-        print("Cleaned data is: ")
-        print(self.cleaned_data.get("current_password"))
         if not self.user.check_password(self.cleaned_data.get("current_password")):
             raise forms.ValidationError(("Please type your current password."))
         return self.cleaned_data["current_password"]
