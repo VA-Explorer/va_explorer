@@ -23,7 +23,13 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 
 # Databases
 
-DATABASES = {"default": env.db("DATABASE_URL", default="postgres://localhost/va_explorer")}
+db_user = os.environ.get('POSTGRES_USER', 'postgres')
+db_password = os.environ.get('POSTGRES_PASSWORD', 'postgres')
+db_host = os.environ.get('POSTGRES_HOST', 'localhost')
+db_port = os.environ.get('POSTGRES_PORT', '5432')
+db_db = os.environ.get('POSTGRES_DB', 'va_explorer')
+
+DATABASES = {"default": env.db("DATABASE_URL", default=f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_db}")
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
 

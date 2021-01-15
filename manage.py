@@ -5,14 +5,6 @@ import sys
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 
-    # set databse url from other environment variables if it's not defined manually.
-    db_user = os.environ.get('POSTGRES_USER', 'postgres')
-    db_password = os.environ.get('POSTGRES_PASSWORD', 'postgres')
-    db_host = os.environ.get('POSTGRES_HOST', 'localhost')
-    db_port = os.environ.get('POSTGRES_PORT', '5432')
-    db_db = os.environ.get('POSTGRES_DB', 'va_explorer')
-    os.environ.setdefault("DATABASE_URL", f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_db}")
-
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
