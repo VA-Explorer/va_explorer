@@ -27,7 +27,7 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "national",
-                "locations": [],
+                "location_restrictions": [],
             }
         )
 
@@ -49,7 +49,7 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
@@ -71,7 +71,7 @@ class TestUserCreationForm:
                 "email": existing_user.email,
                 "group": group,
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
@@ -86,7 +86,7 @@ class TestUserCreationForm:
                 "email": "",
                 "group": "",
                 "geographic_access": "",
-                "locations": "",
+                "location_restrictions": "",
             }
         )
 
@@ -109,13 +109,13 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "location-specific",
-                "locations": [],
+                "location_restrictions": [],
             }
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-        assert "locations" in form.errors
+        assert "location_restrictions" in form.errors
 
     def test_location_not_required(self):
         # A user with proto_user params does not exist yet.
@@ -129,13 +129,13 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "national",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-        assert "locations" in form.errors
+        assert "location_restrictions" in form.errors
 
 
 class TestUserUpdateForm:
@@ -150,7 +150,7 @@ class TestUserUpdateForm:
                 "group": new_group,
                 "is_active": False,
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
@@ -167,7 +167,7 @@ class TestUserUpdateForm:
                 "email": proto_user.email,
                 "group": "",
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
