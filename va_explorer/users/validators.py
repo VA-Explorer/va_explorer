@@ -1,6 +1,8 @@
 import re
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.hashers import check_password
+from va_explorer.users.models import UserPasswordHistory
 
 
 class PasswordComplexityValidator:
@@ -50,7 +52,7 @@ class PasswordComplexityValidator:
                     code="password_no_special",
                 )
             )
-        if  len(validation_errors) > 0:
+        if len(validation_errors) > 0:
             raise ValidationError(validation_errors)
 
     def get_help_text(self):
@@ -78,3 +80,32 @@ class PasswordComplexityValidator:
         return _("Password does not meet complexity requirements:\n").join(
             validation_reqs
         )
+
+
+class PasswordHistoryValidator:
+    def __init__(self, history=12):
+        self.history = history
+
+    def validate(self, password, user=None):
+        for last_password in self._get_last_passwords(user):
+            if check_password(password=password, encoded=last_password):
+                raise ValidationError(
+                    _(
+                        "Password must not be reused from the previous {} passwords."
+                    ).format(self.history),
+                    code="password_no_reuse",
+                    params={"history": self.history},
+                )
+
+    def get_help_text(self):
+        return _("Password must not be reused from the previous {} passwords.").format(self.history)
+
+    def _get_last_passwords(self, user):
+        user_password_history = UserPasswordHistory.objects.filter(username_id=user).order_by('id')
+        relevant = user_password_history.count() - self.history
+        # Cleanup older history that we no longer care about if needed
+        relevant = relevant if relevant > 0 else None
+        if relevant:
+            [entry.delete() for entry in user_password_history[0:relevant]]
+
+        return [entry.old_password for entry in user_password_history[relevant:]]

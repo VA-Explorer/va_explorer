@@ -1,7 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, CharField, EmailField, ManyToManyField
+from django.db import models
 from django.urls import reverse
+from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 
 # from allauth.account.models import EmailAddress
@@ -44,13 +45,17 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    email = EmailField(_("email address"), unique=True)
-    name = CharField(_("Name of User"), blank=True, max_length=255)
-    has_valid_password = BooleanField(
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.original_password = self.password
+
+    email = models.EmailField(_("email address"), unique=True)
+    name = models.CharField(_("Name of User"), blank=True, max_length=255)
+    has_valid_password = models.BooleanField(
         _("The user has a user-defined password"), default=False
     )
 
-    locations = ManyToManyField(Location, related_name="users")
+    locations = models.ManyToManyField(Location, related_name="users")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -84,3 +89,15 @@ class User(AbstractUser):
         # TODO: May need to be changed depending on how username comes in from ODK?
         self.username = self.email
         super(User, self).save(*args, **kwargs)
+        if self.original_password != self.password:
+            UserPasswordHistory.remember_password(self)
+
+
+class UserPasswordHistory(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    old_password = models.CharField(max_length=128)
+    password_date = models.DateTimeField()
+
+    @classmethod
+    def remember_password(cls, user):
+        cls(username=user, old_password=user.password, password_date=localtime()).save()
