@@ -94,7 +94,7 @@ class UserUpdateView(
         initial = super(UserUpdateView, self).get_initial()
         initial["group"] = self.get_object().groups.first()
         initial["geographic_access"] = (
-            "location-specific" if self.get_object().locations.exists() else "national"
+            "location-specific" if self.get_object().location_restrictions.exists() else "national"
         )
         return initial
 

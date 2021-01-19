@@ -55,7 +55,7 @@ class User(AbstractUser):
         _("The user has a user-defined password"), default=False
     )
 
-    locations = models.ManyToManyField(Location, related_name="users")
+    location_restrictions = ManyToManyField(Location, related_name="users", db_table="users_user_location_restrictions")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
