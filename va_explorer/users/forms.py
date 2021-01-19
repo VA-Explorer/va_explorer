@@ -18,19 +18,19 @@ from va_explorer.va_data_management.models import Location
 User = get_user_model()
 
 
-# Assigns user to national-level access implicitly if no locations are associated with the user.
-def validate_location_access(form, geographic_access, locations):
-    if geographic_access == "location-specific" and len(locations) == 0:
-        form._errors["locations"] = form.error_class(
-            ["You must add one or more locations if access is location-specific."]
+# Assigns user to national-level access implicitly if no location_restrictions are associated with the user.
+def validate_location_access(form, geographic_access, location_restrictions):
+    if geographic_access == "location-specific" and len(location_restrictions) == 0:
+        form._errors["location_restrictions"] = form.error_class(
+            ["You must add one or more location_restrictions if access is location-specific."]
         )
-    elif geographic_access == "national" and len(locations) > 0:
-        form._errors["locations"] = form.error_class(
-            ["You cannot add specific locations if access is national."]
+    elif geographic_access == "national" and len(location_restrictions) > 0:
+        form._errors["location_restrictions"] = form.error_class(
+            ["You cannot add specific location_restrictions if access is national."]
         )
 
 
-class LocationSelectMultiple(SelectMultiple):
+class LocationRestrictionsSelectMultiple(SelectMultiple):
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex, attrs)
         if value:
@@ -57,9 +57,9 @@ class ExtendedUserCreationForm(UserCreationForm):
     password2 = None
     # Allows us to save one group for the user, even though groups are m2m with user by default
     group = ModelChoiceField(queryset=Group.objects.all(), required=True)
-    locations = ModelMultipleChoiceField(
+    location_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
-        widget=LocationSelectMultiple(attrs={"class": "location-select"}),
+        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
     )
     geographic_access = forms.ChoiceField(
@@ -71,7 +71,7 @@ class ExtendedUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["name", "email", "group", "geographic_access", "locations"]
+        fields = ["name", "email", "group", "geographic_access", "location_restrictions"]
 
     def __init__(self, *args, **kwargs):
         """
@@ -89,9 +89,9 @@ class ExtendedUserCreationForm(UserCreationForm):
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
 
-        if "geographic_access" in cleaned_data and "locations" in cleaned_data:
+        if "geographic_access" in cleaned_data and "location_restrictions" in cleaned_data:
             validate_location_access(
-                self, cleaned_data["geographic_access"], cleaned_data["locations"]
+                self, cleaned_data["geographic_access"], cleaned_data["location_restrictions"]
             )
 
         return cleaned_data
@@ -113,7 +113,7 @@ class ExtendedUserCreationForm(UserCreationForm):
             password = get_random_string(length=32)
             user.set_password(password)
 
-            locations = self.cleaned_data["locations"]
+            location_restrictions = self.cleaned_data["location_restrictions"]
             group = self.cleaned_data["group"]
 
             if commit:
@@ -121,7 +121,7 @@ class ExtendedUserCreationForm(UserCreationForm):
 
                 # You cannot associate the user with a m2m field until it’s been saved
                 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-                user.locations.add(*locations)
+                user.location_restrictions.add(*location_restrictions)
                 user.groups.add(*[group])
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
@@ -142,9 +142,9 @@ class UserUpdateForm(forms.ModelForm):
 
     name = forms.CharField(required=True, max_length=100)
     group = ModelChoiceField(queryset=Group.objects.all(), required=True)
-    locations = ModelMultipleChoiceField(
+    location_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
-        widget=LocationSelectMultiple(attrs={"class": "location-select"}),
+        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
     )
     geographic_access = forms.ChoiceField(
@@ -161,7 +161,7 @@ class UserUpdateForm(forms.ModelForm):
             "is_active",
             "group",
             "geographic_access",
-            "locations",
+            "location_restrictions",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -177,24 +177,24 @@ class UserUpdateForm(forms.ModelForm):
         """
         cleaned_data = super(forms.ModelForm, self).clean()
 
-        if "geographic_access" in cleaned_data and "locations" in cleaned_data:
+        if "geographic_access" in cleaned_data and "location_restrictions" in cleaned_data:
             validate_location_access(
-                self, cleaned_data["geographic_access"], cleaned_data["locations"]
+                self, cleaned_data["geographic_access"], cleaned_data["location_restrictions"]
             )
         return cleaned_data
 
     def save(self, commit=True):
         user = super(UserUpdateForm, self).save(commit)
-        locations = self.cleaned_data["locations"]
+        location_restrictions = self.cleaned_data["location_restrictions"]
         group = self.cleaned_data["group"]
 
         if commit:
             """
             You cannot associate the user with a m2m field until it’s been saved
             https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-            Set combines clear() and add(*locations)
+            Set combines clear() and add(*location_restrictions)
             """
-            user.locations.set(locations)
+            user.location_restrictions.set(location_restrictions)
             user.groups.set([group])
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
