@@ -10,7 +10,9 @@ from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     NewUserFactory,
-    UserFactory
+    UserFactory,
+    FieldWorkerGroupFactory,
+    FacilityFactory
 )
 
 pytestmark = pytest.mark.django_db
@@ -60,6 +62,29 @@ class TestUserCreationForm:
 
         assert form.is_valid()
 
+    def test_valid_form_with_facility_specific_access(self, rf: RequestFactory):
+        proto_user = NewUserFactory.build()
+        group = FieldWorkerGroupFactory.create()
+        location = FacilityFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "group": group,
+                "geographic_access": "location-specific",
+                "location_restrictions": [],
+                "facility_restrictions": [location]
+            }
+        )
+
+        # Note: The form expects a request object to be set in order to save it
+        request = rf.get("/fake-url/")
+        form.request = request
+        print(form)
+
+        assert form.is_valid()
+
     def test_email_uniqueness(self):
         # A user with existing_user params exists already.
         existing_user = NewUserFactory.create()
@@ -88,6 +113,7 @@ class TestUserCreationForm:
                 "group": "",
                 "geographic_access": "",
                 "location_restrictions": "",
+                "facility_restrictions": "",
             }
         )
 
@@ -137,6 +163,26 @@ class TestUserCreationForm:
         assert not form.is_valid()
         assert len(form.errors) == 1
         assert "location_restrictions" in form.errors
+
+    def test_facility_required(self):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+        group = FieldWorkerGroupFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "group": group,
+                "geographic_access": "location-specific",
+                "location_restrictions": [],
+                "facility_restrictions": []
+            }
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "facility_restrictions" in form.errors
 
 
 class TestUserUpdateForm:
