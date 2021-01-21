@@ -14,6 +14,11 @@ $(document).ready(function() {
    *          Must explicitly set the width here due to showing/hiding of select2, which
    *          can interfere with the width: https://select2.org/appearance#container-width
    */
+  $(".facility-restrictions-select").select2({
+    placeholder: "Search for facilities to add to Field Worker's geographic access",
+    width:'100%'
+  });
+
   $(".location-restrictions-select").select2({
     placeholder: "Search for location(s) to add to user's geographic access",
     templateResult: formatResult,
@@ -50,7 +55,7 @@ $(document).ready(function() {
    * Functions to call on page load
    *
    */
-  toggleLocationRestrictions();
+  updateFormForRoleSelected();
   disableDescendantsForSelectedLocations();
 
   /**
@@ -131,33 +136,30 @@ $(document).ready(function() {
   }
 
   /**
-   * Summary. Hides/shows the locations controls based on the role selected. The controls include:
+   * Summary. Hides/shows the form locations controls based on the role selected. The controls include:
    *  1. the geographic access radio button
-   *  2. the location restrictions select2
+   *  2. the location restrictions select2 dropdown
+   *  3. the facility restrictions select2 dropdown (visible for Field Worker role only)
    */
-  function toggleLocationRestrictions() {
-    console.log("The group param is: ")
-    console.log($("#id_group option:selected").text());
-
+  function updateFormForRoleSelected() {
     // No Role selected (dropdown is blank or undefined)
     if(!$('#id_group option:selected').val()) {
-      hideGeographicAccessRadio();
-      hideLocationRestrictionsSelect2();
+      formStateNoRole();
     }
+
     // Role selected is Field Worker
     else if($('#id_group option:selected').text() === "Field Workers") {
-      hideGeographicAccessRadio();
-      showLocationRestrictionsSelect2();
+      formStateFieldWorkerRole();
     }
+
     else {
-      showGeographicAccessRadio();
-      toggleLocationRestrictionsSelect2();
+      formStateNonFieldWorkerRole();
     }
   }
 
-  function hideLocationRestrictionsSelect2() {
-    $('#div_id_location_restrictions').hide();
-    $('.location-restrictions-select').val(null).trigger('change');
+  function hideSelect2(select2IdName, select2ClassName) {
+    $('#' + select2IdName).hide();
+    $('.' + select2ClassName).val(null).trigger('change');
   }
 
   function showLocationRestrictionsSelect2() {
@@ -166,6 +168,15 @@ $(document).ready(function() {
     // Add the asterisk as a child of the locations label to indicate the field is required, when visible
     if($("label[for='id_location_restrictions']").get(0).children.length===0) {
       $("label[for='id_location_restrictions']").append('<span class="asteriskField">*</span>');
+    }
+  }
+
+  function showFacilityRestrictionsSelect2() {
+    $('#div_id_facility_restrictions').show();
+
+    // Add the asterisk as a child of the locations label to indicate the field is required, when visible
+    if($("label[for='id_facility_restrictions']").get(0).children.length===0) {
+      $("label[for='id_facility_restrictions']").append('<span class="asteriskField">*</span>');
     }
   }
 
@@ -181,9 +192,9 @@ $(document).ready(function() {
    * Summary. Hides/shows the location select2 dropdown depending on the
    *          value of the geographic_access radio button
    */
-  function toggleLocationRestrictionsSelect2(param) {
+  function updateFormForGeographicAccessSelected(select2IdName, select2ClassName) {
     if($('input[name="geographic_access"]:checked').val() === "national"){
-      hideLocationRestrictionsSelect2()
+      hideSelect2(select2IdName, select2ClassName);
     }
     else{
       showLocationRestrictionsSelect2();
@@ -191,10 +202,52 @@ $(document).ready(function() {
   }
 
   /**
+   * Summary. Updates the form presentation state when no role is selected
+   * Hides:
+   *  (1) the geographic access radio control (toggles between "national" and "location-specific")
+   *  (2) the location restrictions select2 dropdown
+   *  (3) the facility restrictions select2 dropdown
+   */
+  function formStateNoRole() {
+    hideGeographicAccessRadio();
+    hideSelect2('div_id_location_restrictions', 'location-restrictions-select');
+    hideSelect2('div_id_facility_restrictions', 'facility-restrictions-select');
+  }
+
+  /**
+   * Summary. Updates the form presentation state the Field Worker Role is selected
+   * Hides:
+   *  (1) hides the geographic access radio control (toggles between "national" and "location-specific")
+   *  (2) hides the location restrictions select2 dropdown
+   *  (3) shows the facility restrictions select2 dropdown
+   */
+  function formStateFieldWorkerRole() {
+    showFacilityRestrictionsSelect2();
+    hideGeographicAccessRadio();
+    hideSelect2('div_id_location_restrictions', 'location-restrictions-select');
+
+    // Check the location-specific radio to true, which has been hidden
+    $("input[name=geographic_access]").val(["location-specific"]);
+  }
+
+  /**
+   * Summary. Updates the form presentation state when a non-Field Worker role is selected
+   * Hides:
+   *  (1) shows the geographic access radio control (toggles between "national" and "location-specific")
+   *  (2) shows the location restrictions select2 dropdown
+   *  (3) hides the facility restrictions select2 dropdown
+   */
+  function formStateNonFieldWorkerRole() {
+    showGeographicAccessRadio();
+    updateFormForGeographicAccessSelected('div_id_location_restrictions', 'location-restrictions-select');
+    hideSelect2('div_id_facility_restrictions', 'facility-restrictions-select');
+  }
+
+  /**
    * Summary. Event handler that listens for the change of role assignment
    */
   $('#id_group').change(function() {
-    toggleLocationRestrictions(this);
+    updateFormForRoleSelected();
   });
 
   /**
@@ -202,6 +255,8 @@ $(document).ready(function() {
    *          from location-specific to national
    */
   $('input[type=radio][name=geographic_access]').on('change',function(){
-    toggleLocationRestrictionsSelect2();
+    updateFormForGeographicAccessSelected(
+        'div_id_location_restrictions', 'location-restrictions-select'
+    );
   });
 });
