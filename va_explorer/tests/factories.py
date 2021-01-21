@@ -96,3 +96,11 @@ class DataViewerFactory(UserFactory):
 
 class FieldWorkerFactory(UserFactory):
     is_superuser = False
+
+
+class FieldWorkerGroupFactory(GroupFactory):
+    name = "Field Workers"
+
+
+class FacilityFactory(LocationFactory):
+    location_type = "facility"
