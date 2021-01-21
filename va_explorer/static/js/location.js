@@ -118,7 +118,11 @@ $(document).ready(function() {
   function createDescendantsHash(descendants) {
     let descendantsHash = {};
 
-    JSON.parse(descendants.split(/, */)).forEach(function(element) {
+    if (descendants !== undefined) {
+      descendants = descendants.replace(/'/g, '"')
+    }
+
+    JSON.parse(descendants).forEach(function(element) {
       descendantsHash[element] = true;
     });
 
