@@ -13,6 +13,7 @@ from django.views.generic import (
 
 from ..utils.mixins import CustomAuthMixin
 from .forms import ExtendedUserCreationForm, UserSetPasswordForm, UserUpdateForm
+from ..va_data_management.models import Location
 
 User = get_user_model()
 
@@ -85,15 +86,21 @@ class UserUpdateView(
         manually initialize the UpdateForm since we are imposing a change on the relation through how we
         allow the user to be assigned to groups.
 
-        Initializes the form display to show whether the user has national or location-specific
-        geographic access. If there are any locations associated with the user in the database,
-        they have location-specific access; else national access.
+        Initializes the user's geographic access on the form:
+            (1) Set the national or location-specific geographic access. If there are any locations
+            restrictions associated with the user in the database, they have location-specific access;
+            else national access.
+            (2) Set the facilities restrictions associated with the user, if any
         """
         initial = super(UserUpdateView, self).get_initial()
         initial["group"] = self.get_object().groups.first()
         initial["geographic_access"] = (
             "location-specific" if self.get_object().location_restrictions.exists() else "national"
         )
+        initial["facility_restrictions"] = (
+                self.get_object().location_restrictions.filter(location_type="facility")
+        )
+
         return initial
 
     # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
