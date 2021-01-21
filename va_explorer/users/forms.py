@@ -18,15 +18,35 @@ from va_explorer.va_data_management.models import Location
 User = get_user_model()
 
 
-# Assigns user to national-level access implicitly if no location_restrictions are associated with the user.
-def validate_location_access(form, geographic_access, location_restrictions):
+def get_location_restrictions(cleaned_data):
+    """
+    Utility method to determine if the user locations are from the location_restrictions
+    dropdown or facility restrictions dropdown (Field Worker role only)
+    """
+    if "location_restrictions" in cleaned_data and len(cleaned_data["facility_restrictions"]) == 0:
+        return cleaned_data["location_restrictions"]
+    elif "facility_restrictions" in cleaned_data and len(cleaned_data["location_restrictions"]) == 0:
+        return cleaned_data["facility_restrictions"]
+    else:
+        return []
+
+
+def validate_location_access(form, geographic_access, location_restrictions, group):
+    """
+    Custom form validations related to geographic access and location restrictions
+    """
     if geographic_access == "location-specific" and len(location_restrictions) == 0:
-        form._errors["location_restrictions"] = form.error_class(
-            ["You must add one or more location_restrictions if access is location-specific."]
-        )
+        if group.name == "Field Workers":
+            form._errors["facility_restrictions"] = form.error_class(
+                ["You must add one or more facilities."]
+            )
+        else:
+            form._errors["location_restrictions"] = form.error_class(
+                ["You must add one or more locations if access is location-specific."]
+            )
     elif geographic_access == "national" and len(location_restrictions) > 0:
         form._errors["location_restrictions"] = form.error_class(
-            ["You cannot add specific location_restrictions if access is national."]
+            ["You cannot add specific locations if access is national."]
         )
 
 
@@ -65,6 +85,14 @@ class ExtendedUserCreationForm(UserCreationForm):
         widget=location_restrictions_selectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
     )
+
+    facility_restrictions = ModelMultipleChoiceField(
+        queryset=Location.objects.filter(location_type="facility").order_by("name"),
+        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
+        required=False,
+        help_text="Field Workers must be assigned to at least one facility."
+    )
+
     geographic_access = forms.ChoiceField(
         choices=(("national", "National"), ("location-specific", "Location-specific")),
         initial="location-specific",
@@ -74,7 +102,14 @@ class ExtendedUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["name", "email", "group", "geographic_access", "location_restrictions"]
+        fields = [
+            "name",
+            "email",
+            "group",
+            "geographic_access",
+            "location_restrictions",
+            "facility_restrictions"
+        ]
 
     def __init__(self, *args, **kwargs):
         """
@@ -84,6 +119,7 @@ class ExtendedUserCreationForm(UserCreationForm):
         self.request = kwargs.pop("request", None)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
+
         self.fields["group"].label = "Role"
 
     def clean(self, *args, **kwargs):
@@ -92,9 +128,11 @@ class ExtendedUserCreationForm(UserCreationForm):
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
 
-        if "geographic_access" in cleaned_data and "location_restrictions" in cleaned_data:
+        if "geographic_access" and "group" in cleaned_data:
+            location_restrictions = get_location_restrictions(cleaned_data)
+
             validate_location_access(
-                self, cleaned_data["geographic_access"], cleaned_data["location_restrictions"]
+                self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
             )
 
         return cleaned_data
@@ -116,7 +154,7 @@ class ExtendedUserCreationForm(UserCreationForm):
             password = get_random_string(length=32)
             user.set_password(password)
 
-            location_restrictions = self.cleaned_data["location_restrictions"]
+            location_restrictions = get_location_restrictions(self.cleaned_data)
             group = self.cleaned_data["group"]
 
             if commit:
@@ -150,6 +188,14 @@ class UserUpdateForm(forms.ModelForm):
         widget=location_restrictions_selectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
     )
+
+    facility_restrictions = ModelMultipleChoiceField(
+        queryset=Location.objects.filter(location_type="facility").order_by("name"),
+        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
+        required=False,
+        help_text="Field Workers must be assigned to at least one facility."
+    )
+
     geographic_access = forms.ChoiceField(
         choices=(("national", "National"), ("location-specific", "Location-specific")),
         widget=RadioSelect(),
@@ -165,6 +211,7 @@ class UserUpdateForm(forms.ModelForm):
             "group",
             "geographic_access",
             "location_restrictions",
+            "facility_restrictions"
         ]
 
     def __init__(self, *args, **kwargs):
@@ -180,15 +227,18 @@ class UserUpdateForm(forms.ModelForm):
         """
         cleaned_data = super(forms.ModelForm, self).clean()
 
-        if "geographic_access" in cleaned_data and "location_restrictions" in cleaned_data:
+        if "geographic_access" and "group" in cleaned_data:
+            location_restrictions = get_location_restrictions(cleaned_data)
+
             validate_location_access(
-                self, cleaned_data["geographic_access"], cleaned_data["location_restrictions"]
+                self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
             )
+
         return cleaned_data
 
     def save(self, commit=True):
         user = super(UserUpdateForm, self).save(commit)
-        location_restrictions = self.cleaned_data["location_restrictions"]
+        location_restrictions = get_location_restrictions(self.cleaned_data)
         group = self.cleaned_data["group"]
 
         if commit:
