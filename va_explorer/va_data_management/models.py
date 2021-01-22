@@ -23,7 +23,7 @@ class Location(MP_Node):
     def __str__(self):
         return self.name
 
-    def descendant_ids(self):
+    def get_descendant_ids(self):
         return [descendant.id for descendant in self.get_descendants()]
 
     def parent_id(self):

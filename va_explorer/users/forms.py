@@ -37,7 +37,7 @@ class LocationSelectMultiple(SelectMultiple):
             option['attrs']['data-depth'] = value.instance.depth
             # Only query for descendants if there are any
             if value.instance.numchild > 0:
-                option['attrs']['data-descendants'] = value.instance.descendant_ids
+                option['attrs']['data-descendants'] = value.instance.get_descendant_ids()
         return option
 
 
