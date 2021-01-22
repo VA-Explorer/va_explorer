@@ -6,7 +6,7 @@
 
 <h4>Update Verbal Autopsy</h4>
 
-<form method="POST" action="{% url 'data_management:save' id=id %}">
+<form method="POST" action="{% url 'data_management:edit' id=id %}">
   {% csrf_token %}
   {% for field in form %}
     <div class="form-group row">

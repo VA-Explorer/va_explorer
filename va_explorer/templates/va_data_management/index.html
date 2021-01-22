@@ -19,7 +19,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for va in va_data.object_list %}
+    {% for va in object_list %}
       <tr>
         <td>{{ va.id }}</td>
         <td>{{ va.name }}</td>
@@ -32,15 +32,15 @@
     {% endfor %}
   </tbody>
 </table>
-{% if va_data.has_other_pages %}
+{% if page_obj.has_other_pages %}
   <nav aria-label="Page navigation conatiner"></nav>
-    <ul class="justify-content-center">{% bootstrap_pagination va_data size="large"%}</ul>
+    <ul class="justify-content-center">{% bootstrap_pagination page_obj size="large"%}</ul>
     <ul class="pagination justify-content-center">
-      {% if va_data.has_previous %}
-        <li><a href="?page={{ va_data.previous_page_number }}" class="page-link">&laquo; PREV </a></li>
+      {% if page_obj.has_previous %}
+        <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; PREV </a></li>
       {% endif %}
-      {% if va_data.has_next %}
-        <li><a href="?page={{ va_data.next_page_number }}" class="page-link"> NEXT &raquo;</a></li>
+      {% if page_obj.has_next %}
+        <li><a href="?page={{ page_obj.next_page_number }}" class="page-link"> NEXT &raquo;</a></li>
      {% endif %}
     </ul>
   </nav>
