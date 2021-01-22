@@ -37,7 +37,6 @@ class Show(CustomAuthMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
-        context['id'] = self.object.id
 
         coding_issues = self.object.coding_issues.all()
         context['warnings'] = [issue for issue in coding_issues if issue.severity == 'warning']
