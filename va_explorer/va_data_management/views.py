@@ -23,7 +23,8 @@ def index(request, page_size=15):
     #myForm = VAFilterForm(request.GET)
     #myForm = DateRangeForm()
     # parse url to determine if any filters in place
-    has_filter = any(field in request.GET for field in set(myFilter.get_fields()))
+    has_filter = any(field in request.GET for field in set(myFilter.get_filters().keys()))
+    #has_filter = True
 
     # create paginator from query and bucket vas into pages of size page_size
     paginator = Paginator(va_list, page_size)
