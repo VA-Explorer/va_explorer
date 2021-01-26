@@ -19,13 +19,15 @@
     {% block css %}
     <link href="{% static 'vendor/bootstrap-4.3.1/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/select2-4.1.0-beta.1/select2.css' %}" rel="stylesheet">
-
+    
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fab.css' %}" rel="stylesheet">
+    
     {% endblock %}
-
-  {% load plotly_dash%}
-  {% plotly_header %}
-
+    
+    {% load plotly_dash%}
+    {% plotly_header %}
+    
   </head>
   <body>
     <div class="mb-1">
@@ -33,22 +35,23 @@
     </div>
     <div class="{% block container-type %}container{% endblock %}">
       {% include "partials/_messages.html" %}
-
+      
       {% block content %}
       {% endblock content %}
-
+      
     </div> <!-- /container -->
-
+    
     {% block modal %}{% endblock modal %}
-
+    
     <script src="{% static 'vendor/jquery-3.5.1/jquery.js' %}"></script>
     <script src="{% static 'vendor/popper-1.14.3/popper.js' %}"></script>
     <script src="{% static 'vendor/bootstrap-4.3.1/bootstrap.js' %}"></script>
+    <script src="{% static 'vendor/font-awesome-5.6.3/font-awesome.min.js' %}"></script>
 
     <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
 
     <script src="{% static 'js/project.js' %}"></script>
-  
+    <script src="{% static 'js/fab.js' %}"></script>
     <!-- Template scripts will be loaded here -->
     {% block page_scripts %}{% endblock %}
 
