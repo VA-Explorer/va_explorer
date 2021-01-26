@@ -1,6 +1,6 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 #from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
@@ -23,7 +23,7 @@ class Location(MP_Node):
     def __str__(self):
         return self.name
 
-    def descendant_ids(self):
+    def get_descendant_ids(self):
         return [descendant.id for descendant in self.get_descendants()]
 
     def parent_id(self):

@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
-from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect
+from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect, SelectMultiple
 from django.utils.crypto import get_random_string
 from va_explorer.va_data_management.models import Location
 
@@ -30,17 +30,14 @@ def validate_location_access(form, geographic_access, locations):
         )
 
 
-# TODO: Update to Django 3.1 to get access to the instance via value without making another query
-class LocationSelectMultiple(forms.SelectMultiple):
-    def create_option(self, name, value, *args, **kwargs):
-        option = super().create_option(name, value, *args, **kwargs)
+class LocationSelectMultiple(SelectMultiple):
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
         if value:
-            instance = self.choices.queryset.get(pk=value)  # get instance
-            option["attrs"]["data-depth"] = instance.depth  # set option attribute
-
+            option['attrs']['data-depth'] = value.instance.depth
             # Only query for descendants if there are any
-            if instance.numchild > 0:
-                option["attrs"]["data-descendants"] = instance.descendant_ids
+            if value.instance.numchild > 0:
+                option['attrs']['data-descendants'] = value.instance.get_descendant_ids()
         return option
 
 
