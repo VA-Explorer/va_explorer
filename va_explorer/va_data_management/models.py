@@ -584,6 +584,15 @@ class VerbalAutopsy(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    # function to tell if VA had any coding errors
+    def any_errors(self):
+        return len([e for e in self.coding_issues.all() if e.severity=='error']) > 0
+
+    # function to tell if VA had any coding warnings
+    def any_warnings(self):
+        return len([w for w in self.coding_issues.all() if w.severity=='warning']) > 0
+
+
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='causes', on_delete=models.CASCADE)
@@ -621,3 +630,19 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
+
+# class VerbalAutopsySummary(models.Model):
+#     # pointer to associated VerbalAutopsy object
+#     verbalautopsy = models.ForeignKey(VerbalAutopsy, on_delete=models.CASCADE)
+#     # name = models.TextField()
+#     date = models.DateTimeField()
+#     facility = models.TextField()
+#     cause = models.TextField()
+#     warnings = models.TextField()
+#     errors = models.TextField()
+#     @property
+#     def name(self):
+#         return self.id.Id10007
+
+#     def __str__(self):
+#         return str(self.__dict__.items())

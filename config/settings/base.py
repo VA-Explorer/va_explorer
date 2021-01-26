@@ -64,6 +64,8 @@ THIRD_PARTY_APPS = [
     "whitenoise.runserver_nostatic",
     "django_extensions",
     "bootstrap4",
+    "django_filters",
+    'bootstrap_datepicker_plus',
 ]
 
 LOCAL_APPS = [
@@ -182,7 +184,9 @@ TEMPLATES = [
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
-
+#BOOTSTRAP4 = {
+#    'include_jquery': True,
+#}
 # Fixtures
 
 FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)

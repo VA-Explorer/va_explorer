@@ -1,0 +1,49 @@
+.backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #ECECEC;
+	opacity: 0.6;
+	display: none;
+}
+
+.fab{
+	background: #0070FF;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	text-align:center;
+	color: #FFF;
+	box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.25);
+	position: fixed;
+	bottom: 50px;
+	right: 25px;
+	font-size: 25px;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.fab i {
+  vertical-align:middle;
+}
+
+.fab .fa-caret-down,.fab .fa-sort {
+  padding-top: 8px;
+}
+
+.fab .fa-angle-double-left {
+  padding-top: 6px;
+  font-weight: bold;
+}
+
+.fab.child {
+	right: 25px;
+	width: 42px;
+	height: 42px;
+	display: none;
+  opacity: 0;
+  font-size: 21px;
+  box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.25);
+}

@@ -1,8 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
-from .forms import VerbalAutopsyForm
+from .forms import VerbalAutopsyForm#, VAFilterForm, DatePickerForm, DateRangeForm
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from .filters import VAFilter
+import pandas as pd
 
 @login_required
 def index(request, page_size=15):
@@ -15,24 +17,39 @@ def index(request, page_size=15):
         .order_by("id")
     )
 
+     # filter va records before pagination
+    myFilter = VAFilter(request.GET, queryset=va_list)
+    va_list = myFilter.qs
+    #myForm = VAFilterForm(request.GET)
+    #myForm = DateRangeForm()
+    # parse url to determine if any filters in place
+    has_filter = any(field in request.GET for field in set(myFilter.get_fields()))
+
     # create paginator from query and bucket vas into pages of size page_size
     paginator = Paginator(va_list, page_size)
 
     # hone in on active page objects
     current_page = paginator.get_page(absolute_page)
 
-    # pull out fields we want from active page objects
+       # pull out fields we want from active page objects
     current_page.object_list = [{
         "id": va.id,
         "name": va.Id10007,
+        "date": pd.to_datetime(va.Id10023).strftime("%Y-%m-%d") if len(va.Id10023) > 0 else "",
         "facility": va.location.name,
         "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
         "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
         "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
     } for va in current_page.object_list]
-
+    
     # return current page of paginator, as well as the absolute page
-    context = {"va_data": current_page, "page": absolute_page}
+    context = {
+        "myFilter": myFilter,
+        "has_filter": has_filter,
+        #"form": myForm,
+        "va_data": current_page,
+        "page": absolute_page
+    }
     return render(request, "va_data_management/index.html", context)
 
 # TODO: Use standard django CRUD conventions; e.g. see https://stackoverflow.com/questions/4673985/how-to-update-an-object-from-edit-form-in-django

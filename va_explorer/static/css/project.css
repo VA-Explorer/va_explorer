@@ -35,6 +35,11 @@
   justify-content: center;
 }
 
+.filter-button {
+  margin-left: 1%;
+  margin-bottom: 1.5%;
+  margin-top: 2.5%;
+}
 body {
    padding-bottom: 70px; 
 }

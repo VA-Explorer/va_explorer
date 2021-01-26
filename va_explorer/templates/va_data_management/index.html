@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+<!--{% extends "base.html" %}-->
 
 {% load bootstrap4 %}
 
@@ -6,10 +6,29 @@
 
 {% block content %}
 
+{% load crispy_forms_tags %}
+
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker();
+});
+</script>
+
+<form method="get">
+  <div class="row justify-content-center">
+    {{myFilter.form | crispy}}
+    <button class="btn btn-primary filter-button" type="submit">Search</button>
+    <button class="btn btn-secondary filter-button" href="{% url 'data_management:index' %}">Reset</button>
+  </div>
+  
+</form>
+
 <table class="table table-sm">
   <thead>
     <tr>
       <th>ID</th>
+      <th>Date</th>
       <th>Name</th>
       <th>Facility</th>
       <th>Cause</th>
@@ -22,6 +41,7 @@
     {% for va in va_data.object_list %}
       <tr>
         <td>{{ va.id }}</td>
+        <td>{{ va.date }}</td>
         <td>{{ va.name }}</td>
         <td>{{ va.facility }}</td>
         <td>{{ va.cause }}</td>
