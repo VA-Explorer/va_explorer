@@ -5,6 +5,8 @@ from django.urls import reverse
 
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver import FirefoxOptions
+
 
 User = get_user_model()
 
@@ -38,7 +40,11 @@ class BrowserTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = WebDriver()
+
+        opts = FirefoxOptions()
+        opts.add_argument("--headless")
+
+        cls.selenium = WebDriver(options=opts)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
