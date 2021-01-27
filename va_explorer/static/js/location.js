@@ -52,9 +52,16 @@ $(document).ready(function() {
   });
 
   /**
-   * Functions to call on page load
+   * Functions to call and variables to define on page load
    *
    */
+  const geographicAccessID = 'div_id_geographic_access';
+  const locationRestrictionsID= 'div_id_location_restrictions';
+  const facilityRestrictionsID = 'div_id_facility_restrictions';
+
+  const locationRestrictionsClass = 'location-restrictions-select';
+  const facilityRestrictionsClass = 'facility-restrictions-select';
+
   updateFormForRoleSelected();
   disableDescendantsForSelectedLocations();
 
@@ -142,105 +149,69 @@ $(document).ready(function() {
    *  3. the facility restrictions select2 dropdown (visible for Field Worker role only)
    */
   function updateFormForRoleSelected() {
+    let elemToHide = [];
+    let elemToShow = [];
+    let select2ToClear = [];
+
     // No Role selected (dropdown is blank or undefined)
     if(!$('#id_group option:selected').val()) {
-      formStateNoRole();
+      elemToHide.push(geographicAccessID, locationRestrictionsID, facilityRestrictionsID);
+      select2ToClear.push(locationRestrictionsClass, facilityRestrictionsClass)
     }
 
     // Role selected is Field Worker
     else if($('#id_group option:selected').text() === "Field Workers") {
-      formStateFieldWorkerRole();
+      elemToHide.push(geographicAccessID, locationRestrictionsID);
+      elemToShow.push(facilityRestrictionsID);
+      select2ToClear.push(locationRestrictionsClass);
+
+      // Add asterisk to facility restrictions select2 indicating it is required
+      addRequiredAsterisk($("label[for='id_facility_restrictions']"));
+
+      // Check the location-specific radio to true, which has been hidden
+      $("input[name=geographic_access]").val(["location-specific"]);
     }
 
+    // Role selected is not Field Worker (Admin, Data Manager, Data Viewer)
     else {
-      formStateNonFieldWorkerRole();
+      elemToHide.push(facilityRestrictionsID);
+      elemToShow.push(geographicAccessID);
+      select2ToClear.push(facilityRestrictionsClass);
+
+      // This method will determine if the locationRestrictions select2 should be shown/hidden
+      updateFormForGeographicAccess();
     }
+
+    elemToHide.forEach(elem => $('#' + elem).hide());
+    elemToShow.forEach(elem =>$('#' + elem).show());
+    select2ToClear.forEach(select2 => $('.' + select2).val(null).trigger('change'));
+    addRequiredAsterisk();
   }
 
-  function hideSelect2(select2IdName, select2ClassName) {
-    $('#' + select2IdName).hide();
-    $('.' + select2ClassName).val(null).trigger('change');
-  }
-
-  function showLocationRestrictionsSelect2() {
-    $('#div_id_location_restrictions').show();
-
-    // Add the asterisk as a child of the locations label to indicate the field is required, when visible
-    if($("label[for='id_location_restrictions']").get(0).children.length===0) {
-      $("label[for='id_location_restrictions']").append('<span class="asteriskField">*</span>');
-    }
-  }
-
-  function showFacilityRestrictionsSelect2() {
-    $('#div_id_facility_restrictions').show();
-
-    // Add the asterisk as a child of the locations label to indicate the field is required, when visible
-    if($("label[for='id_facility_restrictions']").get(0).children.length===0) {
-      $("label[for='id_facility_restrictions']").append('<span class="asteriskField">*</span>');
-    }
-  }
-
-  function showGeographicAccessRadio() {
-    $('#div_id_geographic_access').show()
-  }
-
-  function hideGeographicAccessRadio() {
-    $('#div_id_geographic_access').hide()
+  /**
+   * Summary. Adds a span with an asterisk to facility restrictions and location restrictions
+   *          as a visual cue to the user that the field is required
+   */
+  function addRequiredAsterisk() {
+    [$("label[for='id_location_restrictions']"), $("label[for='id_facility_restrictions']")].forEach(function(elem){
+      if(elem && elem.children().length==0) {
+        elem.append('<span class="asteriskField">*</span>');
+      }
+    })
   }
 
   /**
    * Summary. Hides/shows the location select2 dropdown depending on the
    *          value of the geographic_access radio button
    */
-  function updateFormForGeographicAccessSelected(select2IdName, select2ClassName) {
-    if($('input[name="geographic_access"]:checked').val() === "national"){
-      hideSelect2(select2IdName, select2ClassName);
+  function updateFormForGeographicAccess() {
+    if($('input[name="geographic_access"]:checked').val() === "national") {
+      $('#' + locationRestrictionsID).hide();
+      $('.' + locationRestrictionsClass).val(null).trigger('change');
     }
     else{
-      showLocationRestrictionsSelect2();
+      $('#' + locationRestrictionsID).show();
     }
-  }
-
-  /**
-   * Summary. Updates the form presentation state when no role is selected
-   * Hides:
-   *  (1) the geographic access radio control (toggles between "national" and "location-specific")
-   *  (2) the location restrictions select2 dropdown
-   *  (3) the facility restrictions select2 dropdown
-   */
-  function formStateNoRole() {
-    hideGeographicAccessRadio();
-    hideSelect2('div_id_location_restrictions', 'location-restrictions-select');
-    hideSelect2('div_id_facility_restrictions', 'facility-restrictions-select');
-  }
-
-  /**
-   * Summary. Updates the form presentation state the Field Worker Role is selected
-   * Hides:
-   *  (1) hides the geographic access radio control (toggles between "national" and "location-specific")
-   *  (2) hides the location restrictions select2 dropdown
-   *  (3) shows the facility restrictions select2 dropdown
-   */
-  function formStateFieldWorkerRole() {
-    showFacilityRestrictionsSelect2();
-    hideGeographicAccessRadio();
-    hideSelect2('div_id_location_restrictions', 'location-restrictions-select');
-
-    // Check the location-specific radio to true, which has been hidden
-    $("input[name=geographic_access]").val(["location-specific"]);
-  }
-
-  /**
-   * Summary. Updates the form presentation state when a non-Field Worker role is selected
-   * Hides:
-   *  (1) shows the geographic access radio control (toggles between "national" and "location-specific")
-   *  (2) shows the location restrictions select2 dropdown
-   *  (3) hides the facility restrictions select2 dropdown
-   */
-  function formStateNonFieldWorkerRole() {
-    showGeographicAccessRadio();
-    updateFormForGeographicAccessSelected('div_id_location_restrictions', 'location-restrictions-select');
-    hideSelect2('div_id_facility_restrictions', 'facility-restrictions-select');
   }
 
   /**
@@ -255,8 +226,6 @@ $(document).ready(function() {
    *          from location-specific to national
    */
   $('input[type=radio][name=geographic_access]').on('change',function(){
-    updateFormForGeographicAccessSelected(
-        'div_id_location_restrictions', 'location-restrictions-select'
-    );
+    updateFormForGeographicAccess();
   });
 });

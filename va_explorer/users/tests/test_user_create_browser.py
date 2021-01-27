@@ -1,10 +1,11 @@
-import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver import FirefoxOptions
+
 
 User = get_user_model()
 
@@ -27,7 +28,7 @@ def login_active_user(self):
     password_input.send_keys(password)
     self.selenium.find_element_by_xpath('//button[text()="Sign In"]').click()
 
-
+# TODO: Extract some of this out into a pytest fixture that can be shared across tests
 class BrowserTests(StaticLiveServerTestCase):
     """
     Group fixture created via this command:
@@ -35,10 +36,15 @@ class BrowserTests(StaticLiveServerTestCase):
     """
     fixtures = ['fixtures/group.json']
 
+    #TODO: Needs to be headless to run on CI. Any value to running non-headless locally?
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = WebDriver()
+
+        opts = FirefoxOptions()
+        opts.add_argument("--headless")
+
+        cls.selenium = WebDriver(options=opts)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
