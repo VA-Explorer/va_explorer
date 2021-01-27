@@ -188,7 +188,7 @@ class UserUpdateForm(forms.ModelForm):
 
     facility_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.filter(location_type="facility").order_by("name"),
-        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
+        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
         help_text="Field Workers must be assigned to at least one facility."
     )
