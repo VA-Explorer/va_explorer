@@ -165,6 +165,9 @@ $(document).ready(function() {
       elemToShow.push(facilityRestrictionsID);
       select2ToClear.push(locationRestrictionsClass);
 
+      // Add asterisk to facility restrictions select2 indicating it is required
+      addRequiredAsterisk($("label[for='id_facility_restrictions']"));
+
       // Check the location-specific radio to true, which has been hidden
       $("input[name=geographic_access]").val(["location-specific"]);
     }
@@ -175,19 +178,26 @@ $(document).ready(function() {
       elemToShow.push(geographicAccessID);
       select2ToClear.push(facilityRestrictionsClass);
 
-      // This method will determine if the locationRestrictions select2 dropdown should be shown/hidden
+      // This method will determine if the locationRestrictions select2 should be shown/hidden
       updateFormForGeographicAccess();
     }
 
     elemToHide.forEach(elem => $('#' + elem).hide());
     elemToShow.forEach(elem =>$('#' + elem).show());
-    select2ToClear.forEach(select2 => $('.' + select2).val(null).trigger('change'))
+    select2ToClear.forEach(select2 => $('.' + select2).val(null).trigger('change'));
+    addRequiredAsterisk();
   }
 
-  function addRequiredAsterisk(selector) {
-    if(selector.get(0).children.length===0) {
-      selector.append('<span class="asteriskField">*</span>');
-    }
+  /**
+   * Summary. Adds a span with an asterisk to facility restrictions and location restrictions
+   *          as a visual cue to the user that the field is required
+   */
+  function addRequiredAsterisk() {
+    [$("label[for='id_location_restrictions']"), $("label[for='id_facility_restrictions']")].forEach(function(elem){
+      if(elem && elem.children().length==0) {
+        elem.append('<span class="asteriskField">*</span>');
+      }
+    })
   }
 
   /**
@@ -197,13 +207,12 @@ $(document).ready(function() {
   function updateFormForGeographicAccess() {
     if($('input[name="geographic_access"]:checked').val() === "national") {
       $('#' + locationRestrictionsID).hide();
-      $('.' + locationRestrictionsClass).val(null).trigger('change')
+      $('.' + locationRestrictionsClass).val(null).trigger('change');
     }
     else{
       $('#' + locationRestrictionsID).show();
     }
   }
-
 
   /**
    * Summary. Event handler that listens for the change of role assignment
