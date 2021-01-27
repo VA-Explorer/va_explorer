@@ -81,7 +81,6 @@ class TestUserCreationForm:
         # Note: The form expects a request object to be set in order to save it
         request = rf.get("/fake-url/")
         form.request = request
-        print(form)
 
         assert form.is_valid()
 
