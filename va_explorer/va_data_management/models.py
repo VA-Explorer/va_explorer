@@ -584,6 +584,26 @@ class VerbalAutopsy(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+class dhisStatus(models.Model):
+    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
+    vaid = models.TextField(blank=False)
+    edate = models.DateTimeField(auto_now_add=True)
+    status = models.TextField(blank=False, default="SUCCESS")
+
+    def __str__(self):
+        return self.vaid
+
+class cod_codes_dhis(models.Model):
+    codsource = models.TextField(blank=False)
+    codcode = models.TextField(blank=False)
+    codname =models.TextField(blank=False)
+    codid =models.TextField(blank=False)
+
+    def __str__(self):
+        return self.codname
+
+
+
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='causes', on_delete=models.CASCADE)
