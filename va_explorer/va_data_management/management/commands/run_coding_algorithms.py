@@ -39,16 +39,18 @@ class Command(BaseCommand):
 
         # We need to convert the resulting CSV to JSON
         # TODO: settings need to be configurable
-        algorithm_settings = { 'HIV': 'l', 'Malaria': 'l' }
+        algorithm_settings = { 'HIV': 'l', 'Malaria': 'l', 'groupcode': 'True'}
         # TODO: should this use pandas?
         transform_response_reader = csv.DictReader(StringIO(transform_response.text))
         algorithm_input_rows = []
         for row in transform_response_reader:
             # Replace blank key with ID and append to list for later jsonification
             algorithm_input_rows.append(OrderedDict([('ID', v) if k == '' else (k, v) for k, v in row.items()]))
+
         algorithm_input_json = json.dumps({ 'Input': algorithm_input_rows, **algorithm_settings })
         # TODO: Temporary hack to get to the required algorithm format
         algorithm_input_json = algorithm_input_json.replace('"0.0"', '"."').replace('"1.0"', '"y"')
+
 
         # Send to InterVA algorithm web service
         algorithm_url = 'http://127.0.0.1:5002/interva5'
