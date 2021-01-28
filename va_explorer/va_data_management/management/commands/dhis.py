@@ -386,7 +386,7 @@ class DHIS():
                     blobFile = "{}.db".format(
                         os.path.join(self.dirDHIS, "blobs", vaID)
                     )
-                    print(str(row[0]))
+                    #print(str(row[0]))
 
                     blobRecord = grouped.get_group(str(row[0]))
                     blobEVA = blobRecord.values.tolist()
