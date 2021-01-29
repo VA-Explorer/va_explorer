@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import Client, RequestFactory
 from django.urls import reverse
@@ -7,7 +8,7 @@ from va_explorer.users.forms import ExtendedUserCreationForm
 from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
-    NewUserFactory,
+    NewUserFactory, UserFactory,
 )
 
 pytestmark = pytest.mark.django_db
@@ -111,3 +112,31 @@ def test_user_set_password_after_create(rf: RequestFactory):
     user.refresh_from_db()
     assert user.has_valid_password is True
     assert user.check_password("AReallyGreatPassword1!") is True
+
+
+def test_user_change_password():
+    user = UserFactory.build()
+    password = "AReallyGreatPassword1!"
+    user.set_password(password)
+    user.has_valid_password = True
+    user.save()
+
+    client = Client()
+
+    client.force_login(user=user)
+
+    response = client.post(
+        reverse("users:change_password"),
+        {
+            "current_password": "AReallyGreatPassword1!",
+            "password1": "MyNewPassword123",
+            "password2": "MyNewPassword123"
+        },
+        follow=True,
+    )
+
+    assert response.status_code == 200
+
+    user.refresh_from_db()
+    assert user.check_password("MyNewPassword123") is True
+

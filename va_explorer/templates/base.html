@@ -41,19 +41,19 @@
 
     {% block modal %}{% endblock modal %}
 
-    {% block javascript %}
-      <script src="{% static 'vendor/jquery-3.5.1/jquery.js' %}"></script>
-      <script src="{% static 'vendor/popper-1.14.3/popper.js' %}"></script>
-      <script src="{% static 'vendor/bootstrap-4.3.1/bootstrap.js' %}"></script>
-      <script src="{% static 'vendor/select2-4.1.0-beta.1/select2.js' %}"></script>
-      <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
+    <script src="{% static 'vendor/jquery-3.5.1/jquery.js' %}"></script>
+    <script src="{% static 'vendor/popper-1.14.3/popper.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap-4.3.1/bootstrap.js' %}"></script>
 
-      <script src="{% static 'js/project.js' %}"></script>
-    {% endblock javascript %}
+    <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
+
+    <script src="{% static 'js/project.js' %}"></script>
+  
+    <!-- Template scripts will be loaded here -->
+    {% block page_scripts %}{% endblock %}
 
     <div class="navbar fixed-bottom copyright-text">Copyright 2020-2021 The MITRE Corporation</div>
-
   </body>
   {% plotly_footer %}
- 
+
 </html>
