@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Verbal Autopsy {{ id }}{% endblock %}
+{% block title %}Edit Verbal Autopsy {{ id }}{% endblock %}
+
+{% block heading %}Edit Verbal Autopsy #{{ id }}{% endblock %}
 
 {% block content %}
-
-<h4>Update Verbal Autopsy</h4>
-
+<div class="row mt-4">
 <form method="POST" action="{% url 'data_management:edit' id=id %}">
   {% csrf_token %}
   {% for field in form %}
     <div class="form-group row">
-      <label for="{{ field.name }}" class="col-sm-2 col-form-label"><b>{{ field.name }}:</b> {{ field.label }}</label>
-      <div class="col-sm-10">
+      <div class="col-sm-2">
+        <label for="{{ field.name }}" class="col-form-label"><b>{{ field.name }}</b></label>
+      </div>
+      <div class="col-sm-4">
+        <div class="col-form-label">{{ field.label }}</div>
+      </div>
+      <div class="col-sm-4">
         <input type="text" class="form-control" id="{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}">
       </div>
     </div>
@@ -26,5 +31,5 @@
   <div class="flt-action-btn child" data-subitem="1"><i class="fas fa-angle-double-left"></i></div>
 </a>
 <div class="flt-action-btn" id="main-fab"><i class="fas fa-sort"></i></div>
-
+</div>
 {% endblock %}

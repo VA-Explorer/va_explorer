@@ -38,9 +38,16 @@
   <div class="{% block container-type %}container{% endblock %}">
     {% include "partials/_messages.html" %}
 
+    <div class="row mt-4">
+      <h2>
+        {% block heading %}
+        {% endblock heading %}
+      </h2>
+      <br>
+    </div>
+
     {% block content %}
     {% endblock content %}
-
   </div> <!-- /container -->
 
   {% block modal %}{% endblock modal %}
@@ -58,6 +65,7 @@
   {% block page_scripts %}{% endblock %}
 
   <div class="navbar fixed-bottom copyright-text">Copyright 2020-2021 The MITRE Corporation</div>
+
 </body>
 {% plotly_footer %}
 

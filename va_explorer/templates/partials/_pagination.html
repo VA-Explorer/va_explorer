@@ -1,0 +1,12 @@
+{% load bootstrap4 %}
+<nav aria-label="Page navigation container">
+  <ul class="justify-content-center">{% bootstrap_pagination page_obj size="large"%}</ul>
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; PREV </a></li>
+    {% endif %}
+    {% if page_obj.has_next %}
+      <li><a href="?page={{ page_obj.next_page_number }}" class="page-link"> NEXT &raquo;</a></li>
+   {% endif %}
+  </ul>
+</nav>
