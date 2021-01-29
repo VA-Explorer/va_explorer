@@ -16,7 +16,7 @@ services:
   django:
     environment:
       DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
-      EMAIL_URL: smtp://consolemail
+      EMAIL_URL: consolemail://
   postgres:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
