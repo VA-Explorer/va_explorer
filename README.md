@@ -167,7 +167,7 @@ va_explorer/django
 Set the following environment variables:
 
 ```
-export EMAIL_URL=smtp://localhost:25 <or>smtp://consolemail
+export EMAIL_URL=smtp://localhost:25 <or> consolemail://
 export CELERY_BROKER_URL=redis://redis:6379/0
 export REDIS_URL=redis://redis:6379/0
 export POSTGRES_HOST=postgres
