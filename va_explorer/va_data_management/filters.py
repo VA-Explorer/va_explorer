@@ -1,12 +1,10 @@
 import django_filters
 from django import forms
 
-from .models import *
+from .models import VerbalAutopsy
 from django_filters import DateFilter, CharFilter, DateRangeFilter
 
-from functools import partial
 
-#DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 class DateInput(forms.DateInput):
     input_type = 'date'
 
@@ -18,3 +16,9 @@ class VAFilter(django_filters.FilterSet):
 	class Meta:
 		model = VerbalAutopsy
 		fields = []
+
+	def filter_errors(self, queryset, name, value):
+		# filter Coding issues to only those marked as errors
+		errors = CauseCodingIssue.objects.filter(severity='error')
+		va_ids_w_errors = [e.verbalautopsy_id for e in errors]      
+		return queryset.filter(pk__in=va_ids_w_errors)  

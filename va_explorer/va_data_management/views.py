@@ -7,7 +7,7 @@ from .filters import VAFilter
 import pandas as pd
 
 @login_required
-def index(request, page_size=15):
+def index(request, page_size=11):
     # active page - default to 1 if not active page
     absolute_page = request.GET.get('page', 1)
 
@@ -20,8 +20,7 @@ def index(request, page_size=15):
      # filter va records before pagination
     myFilter = VAFilter(request.GET, queryset=va_list)
     va_list = myFilter.qs
-    #myForm = VAFilterForm(request.GET)
-    #myForm = DateRangeForm()
+
     # parse url to determine if any filters in place
     has_filter = any(field in request.GET for field in set(myFilter.get_filters().keys()))
     #has_filter = True
@@ -47,7 +46,6 @@ def index(request, page_size=15):
     context = {
         "myFilter": myFilter,
         "has_filter": has_filter,
-        #"form": myForm,
         "va_data": current_page,
         "page": absolute_page
     }
