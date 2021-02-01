@@ -1,4 +1,4 @@
-.backdrop {
+.flt-action-backdrop {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -9,7 +9,7 @@
 	display: none;
 }
 
-.fab{
+.flt-action-btn {
 	background: #0070FF;
 	width: 50px;
 	height: 50px;
@@ -21,24 +21,16 @@
 	bottom: 50px;
 	right: 25px;
 	font-size: 25px;
-	display: inline-block;
+	display: table-cell;
 	cursor: pointer;
 }
 
-.fab i {
-  vertical-align:middle;
+.flt-action-btn svg {
+	vertical-align: middle;
+	padding-top: 4px;
 }
 
-.fab .fa-caret-down,.fab .fa-sort {
-  padding-top: 8px;
-}
-
-.fab .fa-angle-double-left {
-  padding-top: 6px;
-  font-weight: bold;
-}
-
-.fab.child {
+.flt-action-btn.child {
 	right: 25px;
 	width: 42px;
 	height: 42px;

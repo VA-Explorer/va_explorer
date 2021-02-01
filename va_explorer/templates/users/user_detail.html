@@ -45,7 +45,5 @@
     </div>
 </div>
 <br/>
-<a href="{{request.META.HTTP_REFERER}}" class="btn btn-primary">
-  <i class="fa fa-angle-double-left"></i> Back
-</a>
+<a href="{% url 'users:index' %}" class="btn btn-primary">Back</a>
 {% endblock content %}

@@ -1,12 +1,12 @@
 $(document).ready(function () {
   /**
    * Simple toggle to show or hide a floating action button's menu items and
-   * associated backdrop
+   * associated flt-action-backdrop
    */
-  $(".fab,.backdrop").click(function () {
-    if ($(".backdrop").is(":visible")) {
-      $(".backdrop").fadeOut(125);
-      $(".fab.child")
+  $(".flt-action-btn,.flt-action-backdrop").click(function () {
+    if ($(".flt-action-backdrop").is(":visible")) {
+      $(".flt-action-backdrop").fadeOut(125);
+      $(".flt-action-btn.child")
         .stop()
         .animate({
           bottom: $("#main-fab").css("bottom"),
@@ -15,13 +15,13 @@ $(document).ready(function () {
           $(this).hide();
         });
     } else {
-      $(".backdrop").fadeIn(125);
-      $(".fab.child").each(function () {
+      $(".flt-action-backdrop").fadeIn(125);
+      $(".flt-action-btn.child").each(function () {
         $(this)
           .stop()
           .show()
           .animate({
-            bottom: (parseInt($("#main-fab").css("bottom")) + parseInt($("#main-fab").outerHeight()) + 55 * $(this).data("subitem") - $(".fab.child").outerHeight()) + "px",
+            bottom: (parseInt($("#main-fab").css("bottom")) + parseInt($("#main-fab").outerHeight()) + 55 * $(this).data("subitem") - $(".flt-action-btn.child").outerHeight()) + "px",
             opacity: 1
           }, 125);
       });
@@ -29,7 +29,7 @@ $(document).ready(function () {
   });
 
   // Start a scroll to top of page animation
-  $('.fab.to-top').click(function () {
+  $('.flt-action-btn.to-top').click(function () {
     $('html, body').animate({
       scrollTop: 0
     }, 1600);
@@ -37,7 +37,7 @@ $(document).ready(function () {
   });
   
   // Start a scroll to bottom of page animation
-  $('.fab.to-bottom').click(function () {
+  $('.flt-action-btn.to-bottom').click(function () {
     $('html, body').animate({
       scrollTop: document.body.scrollHeight
     }, 1600);
