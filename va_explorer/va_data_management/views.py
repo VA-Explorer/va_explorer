@@ -1,6 +1,8 @@
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
 
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
@@ -51,11 +53,12 @@ class Show(CustomAuthMixin, DetailView):
         return context
 
 
-class Edit(CustomAuthMixin, UpdateView):
+class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView):
     template_name = 'va_data_management/edit.html'
     form_class = VerbalAutopsyForm
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
+    success_message = "Verbal Autopsy successfully updated!"
 
     def get_success_url(self):
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
@@ -69,18 +72,21 @@ class Edit(CustomAuthMixin, UpdateView):
 class Reset(CustomAuthMixin, DetailView):
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
+    success_message = "Verbal Autopsy changes successfully reverted to original!"
 
     def render_to_response(self, context):
         earliest = self.object.history.earliest()
         latest = self.object.history.latest()
         if earliest and len(latest.diff_against(earliest).changes) > 0:
             earliest.instance.save()
+        messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
 
 
 class RevertLatest(CustomAuthMixin, DetailView):
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
+    success_message = "Verbal Autopsy changes successfully reverted to previous!"
 
     def render_to_response(self, context):
         # TODO: Should record automatically be recoded?    
@@ -89,4 +95,5 @@ class RevertLatest(CustomAuthMixin, DetailView):
             latest = self.object.history.latest()
             if len(latest.diff_against(previous).changes) > 0:
                 previous.instance.save()
+        messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
