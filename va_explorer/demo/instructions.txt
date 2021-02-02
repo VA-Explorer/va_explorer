@@ -1,0 +1,52 @@
+Steps to get ODK Central docker containers working:
+	# clone central repo
+	git clone https://github.com/getodk/central
+	# download submodules in central repo
+	git submodule update -i
+	# change .env file to use these settings:
+		SSL_TYPE=selfsign
+		DOMAIN=local
+		SYSADMIN_EMAIL=administrator@email.com
+		NOTE: Can only open the application in firefox
+	# had to comment out following line in service.dockerfile:
+	echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list;
+	# had to change mount directory of nginx from data/tr... to /Volume/data/tr... in docker-compose.yml
+	# build containers and run
+	docker-compose build; docker-compose up -d
+	
+Steps to create odk central project
+	# create admin account:	
+        docker-compose exec service odk-cmd --email admin@example.com user-create
+	docker-compose exec service odk-cmd --email admin@example.com user-promote
+	# log into gui (should be accesible at https://localhost)
+	# create new project (keep track of the project name. I called it zambia-test)
+	# upload VA form (I used WHO 2016 - ignored the warning the system throws)
+        # publish draft
+
+Uploading the ODX XLS file:
+
+Create an ODK project named "Verbal Autopsy Demo"
+
+For now use WHOVA2016_v1_5_2_XLS_form_for_ODK.xlsx, the Zambia-specific form is not currently working
+
+Uploading data:
+
+python manage.py shell
+from va_explorer.utils.odk_api import upload_sample_to_odk;
+upload_sample_to_odk("va_explorer/demo/va_xml_template.xml", "va_explorer/demo/sample_records_to_load_into_odk.csv", project_name="Verbal Autopsy Demo")
+
+Moving records:
+
+Press the "Import VAs from ODK" button on the Data Management page
+Command line: python manage.py pull_records_from_odk --project_name "Verbal Autopsy Demo"
+
+Coding records:
+
+Press the "Run Coding Algorithms" button on the Data Management page
+
+If you need to reset postgres DB:
+
+docker-compose rm postgres
+docker-compose build postgres
+docker-compose exec service odk-cmd --email admin@example.com user-create
+docker-compose exec service odk-cmd --email admin@example.com user-promote

@@ -6,6 +6,16 @@
 
 {% block content %}
 
+<form class="form-inline float-left mt-2 mb-3" method="POST" action="{% url 'data_management:import_from_odk' %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary">Import VAs From ODK</button>
+</form>
+
+<form class="form-inline float-left ml-3 mt-2 mb-3" method="POST" action="{% url 'data_management:run_coding_algorithms' %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary">Run Coding Algorithms</button>
+</form>
+
 <table class="table table-sm">
   <thead>
     <tr>

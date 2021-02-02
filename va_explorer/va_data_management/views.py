@@ -4,6 +4,26 @@ from .models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from .forms import VerbalAutopsyForm
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
+from va_explorer.utils.coding import run_coding_algorithms as run_algorithms
+from va_explorer.utils import odk_api as odk
+from va_explorer.utils.data_import import load_records_from_dataframe
+
+# TODO: This endpoint is intended for demonstration purposes, and should be removed once in a production footing
+def run_coding_algorithms(request):
+    run_algorithms()
+    return redirect("va_data_management:index")
+
+# TODO: This endpoint is intended for demonstration purposes, and should be removed once in a production footing
+def import_from_odk(request):
+    # TODO: Pull these options from a configuration file
+    domain_name = "127.0.0.1"
+    project_name = "Verbal Autopsy Demo"
+    odk_records = odk.download_responses(domain_name=domain_name, project_name=project_name, fmt='csv', export=False)
+    # TODO: For demo purposes we reverse the order; determine if that's needed in production
+    odk_records = odk_records.reindex(index=odk_records.index[::-1]).reset_index(drop=True)
+    load_records_from_dataframe(odk_records)
+    return redirect("va_data_management:index")
+
 @login_required
 def index(request, page_size=15):
     # active page - default to 1 if not active page
