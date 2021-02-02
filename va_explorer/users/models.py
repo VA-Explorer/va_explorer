@@ -94,10 +94,10 @@ class User(AbstractUser):
 
 
 class UserPasswordHistory(models.Model):
-    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     old_password = models.CharField(max_length=128)
-    password_date = models.DateTimeField()
+    auto_now_add = True
 
     @classmethod
     def remember_password(cls, user):
-        cls(username=user, old_password=user.password, password_date=localtime()).save()
+        cls(user=user, old_password=user.password).save()

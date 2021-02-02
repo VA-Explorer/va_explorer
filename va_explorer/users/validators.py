@@ -101,11 +101,11 @@ class PasswordHistoryValidator:
         return _("Password must not be reused from the previous {} passwords.").format(self.history)
 
     def _get_last_passwords(self, user):
-        user_password_history = UserPasswordHistory.objects.filter(username_id=user).order_by('id')
+        user_password_history = UserPasswordHistory.objects.filter(user_id=user).order_by('id')
         relevant = user_password_history.count() - self.history
         # Cleanup older history that we no longer care about if needed
-        relevant = relevant if relevant > 0 else None
+        relevant = relevant if relevant > 0 else None   # prevents negative indexing
         if relevant:
-            [entry.delete() for entry in user_password_history[0:relevant]]
+            UserPasswordHistory.objects.filter(pk__in=user_password_history[0:relevant]).delete()
 
         return [entry.old_password for entry in user_password_history[relevant:]]

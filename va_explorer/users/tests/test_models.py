@@ -15,5 +15,5 @@ def test_user_password_history_exists():
     user.set_password("test")
     user.save()
 
-    password_history = UserPasswordHistory.objects.filter(username_id=user)
+    password_history = UserPasswordHistory.objects.filter(user_id=user)
     assert password_history.count() == 1

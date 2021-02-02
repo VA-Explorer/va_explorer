@@ -210,8 +210,8 @@ class TestUserChangePasswordForm:
         form = UserChangePasswordForm(
             data={
                 "current_password": "Password124!",
-                "password1": "MyNewPassword123",
-                "password2": "MyNewPassword123"
+                "password1": "MyNewPassword123!",
+                "password2": "MyNewPassword123!"
             },
             user=existing_user
         )
@@ -222,8 +222,8 @@ class TestUserChangePasswordForm:
         form = UserChangePasswordForm(
             {
                 "current_password": "",
-                "password1": "MyNewPassword123",
-                "password2": "MyNewPassword456"
+                "password1": "MyNewPassword123!",
+                "password2": "MyNewPassword456!"
             }
         )
 
