@@ -12,6 +12,11 @@
 <form method="get">
   <div class="row justify-content-center">
     {{myFilter.form | crispy}}
+    <!-- error filter -->
+    <div id='error checkbox' class="form-check-label form-check-inline checkbox-div">
+      <input class="form-check-input" type="checkbox" value="" name="error_checkbox" checked>
+      <label class="form-check-label" for="errorCheckbox">Only Errors</label>
+    </div>
     <button class="btn btn-primary filter-button" type="submit">Search</button>
     {% if has_filter %}
      <a class="btn btn-secondary filter-button" href="{% url 'data_management:index' %}">Reset</a>

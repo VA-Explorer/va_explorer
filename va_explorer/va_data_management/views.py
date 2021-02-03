@@ -11,15 +11,24 @@ def index(request, page_size=11):
     # active page - default to 1 if not active page
     absolute_page = request.GET.get('page', 1)
 
+    if 'error_checkbox' in request.GET:
+        va_objects = [err.verbalautopsy for err in CauseCodingIssue.objects.filter(severity__exact='error')]
+    else:
+        va_objects = VerbalAutopsy.objects
+
     # query to retrive all VAs
-    va_list = (VerbalAutopsy.objects
+    va_list = (va_objects
         .prefetch_related("location", "causes", "coding_issues")
         .order_by("id")
     )
 
      # filter va records before pagination
     myFilter = VAFilter(request.GET, queryset=va_list)
+    # apply django-filter
     va_list = myFilter.qs
+    # apply error filter
+    # if 'error_checkbox' in request.GET:
+    #     va_list = [va for va in filter(lambda x: x.any_errors()==True, va_list)]
 
     # parse url to determine if any filters in place
     has_filter = any(field in request.GET for field in set(myFilter.get_filters().keys()))
