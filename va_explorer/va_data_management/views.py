@@ -38,6 +38,7 @@ class Show(CustomAuthMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['id'] = self.object.id
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
