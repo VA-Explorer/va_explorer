@@ -129,8 +129,8 @@ def test_user_change_password():
         reverse("users:change_password"),
         {
             "current_password": "AReallyGreatPassword1!",
-            "password1": "MyNewPassword123",
-            "password2": "MyNewPassword123"
+            "password1": "MyNewPassword123!",
+            "password2": "MyNewPassword123!"
         },
         follow=True,
     )
@@ -138,5 +138,5 @@ def test_user_change_password():
     assert response.status_code == 200
 
     user.refresh_from_db()
-    assert user.check_password("MyNewPassword123") is True
+    assert user.check_password("MyNewPassword123!") is True
 
