@@ -3,7 +3,6 @@ from django.test import Client
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import VerbalAutopsyFactory
-from va_explorer.va_data_management.views import index, show, edit, save, reset, revert_latest
 
 pytestmark = pytest.mark.django_db
 
@@ -41,7 +40,7 @@ def test_save(user: User):
     va = VerbalAutopsyFactory.create()
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    response = client.post(f"/va_data_management/save/{va.id}", { "Id10007": new_name })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
@@ -60,11 +59,12 @@ def test_reset(user: User):
     va = VerbalAutopsyFactory.create()
     original_name = va.Id10007
     new_name = "Updated Name"
-    client.post(f"/va_data_management/save/{va.id}", { "Id10007": new_name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == new_name
     assert va.history.count() == 2
-    response = client.post(f"/va_data_management/reset/{va.id}")
+    # TODO: Switch the buttons to forms in show.html and make this a POST.
+    response = client.get(f"/va_data_management/reset/{va.id}")
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
@@ -80,15 +80,16 @@ def test_revert_latest(user: User):
     original_name = va.Id10007
     second_name = "Second Name"
     third_name = "Third Name"
-    client.post(f"/va_data_management/save/{va.id}", { "Id10007": second_name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": second_name })
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == second_name
     assert va.history.count() == 2
-    client.post(f"/va_data_management/save/{va.id}", { "Id10007": third_name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": third_name })
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == third_name
     assert va.history.count() == 3
-    response = client.post(f"/va_data_management/revert_latest/{va.id}")
+    # TODO: Switch the buttons to forms in show.html and make this a POST.
+    response = client.get(f"/va_data_management/revert_latest/{va.id}")
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Verbal Autopsy #{{ id }}{% endblock %}
+{% block title %}Verbal Autopsy #{{ object.id }}{% endblock %}
 
 {% block content %}
 
-<h4>Verbal Autopsy #{{ id }}</h4>
+<h4>Verbal Autopsy #{{ object.id }}</h4>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
   <li class="nav-item">
@@ -109,6 +109,7 @@
             </tr>
           {% endfor %}
       </table>
+      <!-- TODO: these should be buttons in forms and making a POST request instead of GET -->
       <p><a class="btn btn-primary" href="{% url 'data_management:revert_latest' id=id %}">Revert Most Recent Change</a></p>
       <p><a class="btn btn-primary" href="{% url 'data_management:reset' id=id %}">Reset to Original</a></p>
     </div>

@@ -5,10 +5,9 @@ from . import views
 app_name = "data_management"
 
 urlpatterns = [
-    path("", view=views.index, name="index"),
-    path("show/<int:id>", view=views.show, name="show"),
-    path("edit/<int:id>", view=views.edit, name="edit"),
-    path("save/<int:id>", view=views.save, name="save"),
-    path("reset/<int:id>", view=views.reset, name="reset"),
-    path("revert_latest/<int:id>", view=views.revert_latest, name="revert_latest")
+    path("", view=views.Index.as_view(), name="index"),
+    path("show/<int:id>", view=views.Show.as_view(), name="show"),
+    path("edit/<int:id>", view=views.Edit.as_view(), name="edit"),
+    path("reset/<int:id>", view=views.Reset.as_view(), name="reset"),
+    path("revert_latest/<int:id>", view=views.RevertLatest.as_view(), name="revert_latest")
 ]

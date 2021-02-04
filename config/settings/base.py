@@ -279,7 +279,6 @@ PLOTLY_DASH = {
     "cache_arguments": True, # True for cache, False for session-based argument propagation
     #"serve_locally":True, # True to serve assets locally, False to use their unadulterated urls (eg a CDN)
     "stateless_loader": "demo.scaffold.stateless_app_loader",
-    "view_decorator": "django_plotly_dash.access.login_required",
 }
 
 # Channels
