@@ -75,9 +75,6 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-# Migrations
-MIGRATION_MODULES = {"sites": "va_explorer.contrib.sites.migrations"}
-
 # Authentication
 
 AUTHENTICATION_BACKENDS = [
