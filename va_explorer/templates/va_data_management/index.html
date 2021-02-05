@@ -14,7 +14,11 @@
     {{myFilter.form | crispy}}
     <!-- error filter -->
     <div id='error checkbox' class="form-check-label form-check-inline checkbox-div">
-      <input class="form-check-input" type="checkbox" value="" name="error_checkbox" checked>
+      {% if only_errors %}
+        <input class="form-check-input" type="checkbox" value="" name="error_checkbox" checked>
+      {% else %}
+        <input class="form-check-input" type="checkbox" value="" name="error_checkbox">
+      {% endif %}
       <label class="form-check-label" for="errorCheckbox">Only Errors</label>
     </div>
     <button class="btn btn-primary filter-button" type="submit">Search</button>

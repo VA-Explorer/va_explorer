@@ -11,10 +11,14 @@ def index(request, page_size=11):
     # active page - default to 1 if not active page
     absolute_page = request.GET.get('page', 1)
 
-    if 'error_checkbox' in request.GET:
-        va_objects = [err.verbalautopsy for err in CauseCodingIssue.objects.filter(severity__exact='error')]
-    else:
-        va_objects = VerbalAutopsy.objects
+    va_objects = VerbalAutopsy.objects
+
+    # apply error filter
+    only_errors = ('error_checkbox' in request.GET)
+    if only_errors:
+        errors = CauseCodingIssue.objects.filter(severity='error')
+        va_ids_w_errors = [e.verbalautopsy_id for e in errors]      
+        va_objects = va_objects.filter(pk__in=va_ids_w_errors)        
 
     # query to retrive all VAs
     va_list = (va_objects
@@ -26,9 +30,6 @@ def index(request, page_size=11):
     myFilter = VAFilter(request.GET, queryset=va_list)
     # apply django-filter
     va_list = myFilter.qs
-    # apply error filter
-    # if 'error_checkbox' in request.GET:
-    #     va_list = [va for va in filter(lambda x: x.any_errors()==True, va_list)]
 
     # parse url to determine if any filters in place
     has_filter = any(field in request.GET for field in set(myFilter.get_filters().keys()))
@@ -56,7 +57,8 @@ def index(request, page_size=11):
         "myFilter": myFilter,
         "has_filter": has_filter,
         "va_data": current_page,
-        "page": absolute_page
+        "page": absolute_page, 
+        "only_errors": only_errors
     }
     return render(request, "va_data_management/index.html", context)
 
