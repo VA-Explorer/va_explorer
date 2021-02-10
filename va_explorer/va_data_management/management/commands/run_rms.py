@@ -5,8 +5,7 @@ from io import StringIO
 from collections import OrderedDict
 import dateutil.parser,os,requests,collections
 import csv, environ
-#from . import dhis as dhis
-import openva_pipeline.dhis as dhis
+from . import dhis_rms as dhis
 import pandas as pd
 
 # TODO: Temporary script to run COD assignment algorithms; this should
@@ -46,10 +45,10 @@ class Command(BaseCommand):
         metadatacode = "InterVA5|5|Custom|1|2016 WHO Verbal Autopsy Form|v1_5_1"
 
         # Load all verbal autopsies that have a cause coding
-        dhisdata = dhisStatus.objects.values_list("verbalautopsy_id", flat=True)
+        #dhisdata = dhisStatus.objects.values_list("verbalautopsy_id", flat=True)
 
         #to subset few rows,add at the end [:10] for 10 rows etc..
-        vadata = VerbalAutopsy.objects.filter(causes__isnull=False).exclude(id__in=set(dhisdata)) #[:30]
+        vadata = VerbalAutopsy.objects.filter(causes__isnull=False)[:100] #[:30]
 
         #ceate a list of available VA IDs to help during filtering queries
         list1 = list()
@@ -96,36 +95,40 @@ class Command(BaseCommand):
         # producing KeyError trying to compare string/integer numbers
         eadata['ID'] =["A"+str(i) for i in eadata['ID']]
         if os.path.exists("OpenVAFiles"):
-            eadata.to_csv("OpenVAFiles/entityAttributeValue.csv", index=False)
+            eadata.to_csv("OpenVAFiles/entityAttributeValue2.csv", index=False)
         else:
             os.makedirs("OpenVAFiles")
-            eadata.to_csv("OpenVAFiles/entityAttributeValue.csv", index=False)
+            eadata.to_csv("OpenVAFiles/entityAttributeValue2.csv", index=False)
 
         codva['metadataCode'] = metadatacode
         codva['odkMetaInstanceID'] = codva['id']
-        vasubset= codva[{"id","Id10019","Id10021","Id10023","ageInYears2","cause","metadataCode","odkMetaInstanceID"}]
+        vasubset= codva[{"id","Id10019","Id10021","Id10023","ageInYears2","Id10058",
+                         "Id10055","cause","metadataCode","odkMetaInstanceID"}]
         vasubset = vasubset.rename(columns={"Id10019":"sex", "Id10021":"dob",
                                             "Id10023":"dod","ageInYears2":"age",
-                                            "cause":"cod"})
-        vasubset = vasubset[['id', 'sex', 'dob', 'dod', 'age', 'cod', 'metadataCode','odkMetaInstanceID']]
+                                            "cause":"cod","Id10058":"pod",
+                                            "Id10055":"por"})
+        vasubset = vasubset[['id', 'sex', 'dob', 'dod', 'age', 'cod', 'metadataCode','odkMetaInstanceID','pod','por']]
 
 
         storagev = vasubset.join(crossva, how='outer')
         storagev= storagev.drop(['ID'], axis=1)
-        storagev.to_csv("OpenVAFiles/recordStorage.csv", index=False)
+        storagev.to_csv("OpenVAFiles/recordStorage2.csv", index=False)
 
         # Ensure all variables are formatted as required
-        vadata = pd.read_csv("OpenVAFiles/recordStorage.csv")
+        vadata = pd.read_csv("OpenVAFiles/recordStorage2.csv")
         vadata["age"] = vadata["age"].astype(float)
         vadata['dod'][vadata.dod.isnull()] = '1900-01-01'
         vadata['dob'][vadata.dob.isnull()] = '1900-01-01'
+        vadata['pod'][vadata.pod.isnull()] = 'Q'
+        vadata['por'][vadata.por.isnull()] = 'Q'
         vadata['id'] = ["A" + str(i) for i in vadata['id']]
         for i in range(len(vadata["sex"])):
             vadata["dob"][i] = dateutil.parser.parse(vadata["dob"][i]).date().strftime("%Y-%m-%d")
             vadata["dod"][i] = dateutil.parser.parse(vadata["dod"][i]).date().strftime("%Y-%m-%d")
             vadata["cod"][i] = vadata["cod"][i].strip()
             vadata["metadataCode"][i] =  metadatacode
-        vadata.to_csv("OpenVAFiles/recordStorage.csv", index=False)
+        vadata.to_csv("OpenVAFiles/recordStorage2.csv", index=False)
 
         # dhis settings
         ntDHIS = collections.namedtuple("ntDHIS",
@@ -148,15 +151,17 @@ class Command(BaseCommand):
         apiDHIS = pipelineDHIS.connect()
         postLog = pipelineDHIS.postVA(apiDHIS)
         self.clearFolder("DHIS/blobs/")
-        if postLog['response']['status']=='SUCCESS' and postLog['response']['imported']==len(list1):
-            self.InsertDHISStatus(list1)
+        #if postLog['response']['status']=='SUCCESS' and postLog['response']['imported']==len(list1):
+            #self.InsertDHISStatus(list1)
 
         ## ADD Function to post to table dhis tracker
 
     def InsertDHISStatus(self,list1):
+        i = 0
+        tot = len(list1)
         for item in list1:
             ds = dhisStatus.objects.create(vaid=item,verbalautopsy_id=item)
             ds.save()
-
-
+            print("logging item.."+str(int((i/tot)*100))+"%")
+            i = i + 1
 

@@ -5,14 +5,11 @@ openva_pipeline.dhis
 This module posts VA records with assigned causes of death to a DHIS server.
 """
 
-
+#from pysqlcipher3 import dbapi2 as sqlcipher
 import requests
 from pandas import read_csv
-from pandas import DataFrame
 from pandas import isnull
 from math import isnan
-import sqlite3
-import pickle
 import os
 import csv
 import datetime
@@ -20,12 +17,7 @@ import json
 import sqlite3
 import re
 
-#try:
- #   from pysqlcipher3 import dbapi2 as sqlcipher
-#except:
- #   pass
-from openva_pipeline.exceptions import PipelineError
-from openva_pipeline.exceptions import DHISError
+from .exceptions import DHISError
 
 class API(object):
     """This class provides methods for interacting with the DHIS2 API.
@@ -163,6 +155,7 @@ class VerbalAutopsyEvent(object):
     """
 
     def __init__(self, va_id, program, dhis_orgunit, event_date, sex, dob, age,
+                 pod,por,
                  cod_code, algorithm_metadata, odk_id, file_id):
         self.va_id = va_id
         self.program = program
@@ -171,6 +164,8 @@ class VerbalAutopsyEvent(object):
         self.sex = sex
         self.dob = datetime.datetime.strftime(dob, "%Y-%m-%d")
         self.age = age
+        self.pod = pod
+        self.por = por
         self.cod_code = cod_code
         self.algorithm_metadata = algorithm_metadata
         self.odk_id = odk_id
@@ -183,6 +178,8 @@ class VerbalAutopsyEvent(object):
                 {"dataElement": "F4XGdOBvWww", "value": self.cod_code},
                 {"dataElement": "wiJviUqN1io", "value": self.algorithm_metadata},
                 {"dataElement": "oPAg4MA0880", "value": self.age},
+                {"dataElement": "rz7C7xebsxs", "value": self.pod},
+                {"dataElement": "HtO0KPXKHOM", "value": self.por},
                 {"dataElement": "LwXZ2dZmJb0", "value": self.odk_id},
                 {"dataElement": "XLHIBoLtjGt", "value": file_id}
             ]
@@ -192,6 +189,8 @@ class VerbalAutopsyEvent(object):
                 {"dataElement": "hi7qRC4SMMk", "value": self.sex},
                 {"dataElement": "mwSaVq64k7j", "value": self.dob},
                 {"dataElement": "F4XGdOBvWww", "value": self.cod_code},
+                {"dataElement": "rz7C7xebsxs", "value": self.pod},
+                {"dataElement": "HtO0KPXKHOM", "value": self.por},
                 {"dataElement": "wiJviUqN1io", "value": self.algorithm_metadata},
                 {"dataElement": "LwXZ2dZmJb0", "value": self.odk_id},
                 {"dataElement": "XLHIBoLtjGt", "value": file_id}
@@ -320,7 +319,7 @@ class DHIS():
             raise DHISError(str(e))
 
         vaPrograms = apiDHIS.get("programs",
-                                 params={"filter": "name:like:Verbal Autopsy"}
+                                 params={"filter": "name:like:Rapid Mortality Surveillance"}
                                  ).get("programs")
         if len(vaPrograms) == 0:
             raise DHISError("No Verbal Autopsy Program found.")
@@ -350,13 +349,13 @@ class DHIS():
         :raises: DHISError
         """
 
-        evaPath = os.path.join(self.dirOpenVA, "entityAttributeValue.csv")
+        evaPath = os.path.join(self.dirOpenVA, "entityAttributeValue2.csv")
         if not os.path.isfile(evaPath):
             raise DHISError("Missing: " + evaPath)
-        recordStoragePath = os.path.join(self.dirOpenVA, "recordStorage.csv")
+        recordStoragePath = os.path.join(self.dirOpenVA, "recordStorage2.csv")
         if not os.path.isfile(evaPath):
             raise DHISError("Missing: " + recordStoragePath)
-        newStoragePath = os.path.join(self.dirOpenVA, "newStorage.csv")
+        newStoragePath = os.path.join(self.dirOpenVA, "newStorage2.csv")
 
         blobPath = os.path.join(self.dirDHIS, "blobs")
         try:
@@ -444,8 +443,10 @@ class DHIS():
                     algorithmMetadataCode = row[6]
 
                     odkID = row[7]
+                    pod = row[8]
+                    por = row[9]
                     e = VerbalAutopsyEvent(vaID, self.vaProgramUID, self.dhisOrgUnit,
-                                           eventDate, sex, dob, age,
+                                           eventDate, sex, dob, age,pod,por,
                                            codCode, algorithmMetadataCode,
                                            odkID, fileID)
                     events.append(e.format_to_dhis2(self.dhisUser))
@@ -479,11 +480,11 @@ class DHIS():
 
         vaReferences = list(findKeyValue("reference", d = postLog["response"]))
         try:
-            dfNewStorage = read_csv(self.dirOpenVA + "/newStorage.csv")
+            dfNewStorage = read_csv(self.dirOpenVA + "/newStorage2.csv")
         except:
             raise DHISError\
                 ("Problem with DHIS.verifyPost...Can't find file " +
-                 self.dirOpenVA + "/newStorage.csv")
+                 self.dirOpenVA + "/newStorage2.csv")
         try:
             for vaReference in vaReferences:
                 postedDataValues = apiDHIS.get("events/{}".format(vaReference)).get("dataValues")
@@ -491,7 +492,7 @@ class DHIS():
                 postedVAID       = postedDataValues[postedVAIDIndex]["value"]
                 rowVAID          = dfNewStorage["dhisVerbalAutopsyID"] == postedVAID
                 dfNewStorage.loc[rowVAID,"pipelineOutcome"] = "Pushed to DHIS2"
-            dfNewStorage.to_csv(self.dirOpenVA + "/newStorage.csv", index = False)
+            dfNewStorage.to_csv(self.dirOpenVA + "/newStorage2.csv", index = False)
         except:
             raise DHISError\
                 ("Problem with DHIS.postVA...couldn't verify posted records.")
