@@ -16,6 +16,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
+import plotly.express as px
 import os
 import numpy as np
 import datetime as dt
@@ -23,6 +24,8 @@ import datetime as dt
 from django_plotly_dash import DjangoDash
 from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from django.forms.models import model_to_dict
+
+import va_explorer.utils.plotting as plotting
 
 import re
 
@@ -520,17 +523,21 @@ app.layout = html.Div(
                                             ],
                                         ),
                                         dcc.Tab(
-                                            label="Age Distribution",
-                                            children=[dcc.Loading(html.Div(id="age-container"), type='circle')]
+                                            label="Demographics",
+                                            children=[dcc.Loading(html.Div(id="demos-container"), type='circle')]
                                         ),
-                                        dcc.Tab(
-                                            label="Gender Distribution",
-                                            children=[dcc.Loading(html.Div(id="sex-container"))]
-                                        ),
-                                        dcc.Tab(
-                                            label="Place of Death Distribution",
-                                            children=[dcc.Loading(html.Div(id="pod-container"))]
-                                        ),
+#                                        dcc.Tab(
+#                                            label="Age Distribution",
+#                                            children=[dcc.Loading(html.Div(id="age-container"), type='circle')]
+#                                        ),
+#                                        dcc.Tab(
+#                                            label="Gender Distribution",
+#                                            children=[dcc.Loading(html.Div(id="sex-container"))]
+#                                        ),
+#                                        dcc.Tab(
+#                                            label="Place of Death Distribution",
+#                                            children=[dcc.Loading(html.Div(id="pod-container"))]
+#                                        ),
                                         dcc.Tab(
                                             label="VA Trends",
                                             children=[
@@ -1195,6 +1202,25 @@ def make_card(
     card_container = html.Div(card_obj, style=style)
     return card_container
 
+# =========Demographic plot logic==============================================#
+@app.callback(
+    Output(component_id="demos-container", component_property="children"),
+    [
+        Input(component_id="va_data", component_property="children"),
+        Input(component_id="timeframe", component_property="value"),
+        Input(component_id="filter_dict", component_property="children"),
+    ],
+)
+def demographic_plot(va_data, timeframe, filter_dict=None):
+    figure = go.Figure()
+    if va_data is not None:
+        plot_data = pd.read_json(va_data)
+        if plot_data.size > 0:
+            if filter_dict is not None:
+                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+            figure = plotting.demographic_plot(plot_data)
+    return dcc.Graph(id="demos_plot", figure=figure)
+            
 
 # =========Cause of Death Plot Logic============================================#
 @app.callback(
@@ -1434,15 +1460,18 @@ def place_of_death_plt(va_data, filter_dict=None):
                 plot_data["Id10058"] = plot_data["Id10058"].apply(
                     lambda x: LOOKUP["death_location_names"].get(x, x.capitalize())
                 )
-                location_counts = plot_data["Id10058"].value_counts()
-                figure = go.Figure(
-                    go.Pie(
-                        labels=location_counts.index.tolist(),
-                        values=location_counts.values,
-                        hole=0.3,
-                    )
+                location_counts = (
+                    plot_data['Id10058']
+                    .value_counts()
+                    .reset_index()
+                    .rename(columns={'index': 'location', 'Id10058':'count'})
+                    .assign(percent = lambda df: np.round(100*df['count']/df['count'].sum(), 2))
+                    .assign(label = lambda df: df['count'].astype(str) + '<br>(' + df['percent'].astype(str) + '%)')
                 )
-                figure.update_layout(title_text="VAs by Place of Death")
+                figure = px.bar(location_counts, y='location', x='count', color='location', text='label', orientation='h')
+                figure.update_layout(title_text='VA Counts by Place of Death', showlegend=False,
+                                  xaxis_title='Verbal Autopsies', yaxis_title=None)
+
     return dcc.Graph(id="pod_plt", figure=figure)
 
 
