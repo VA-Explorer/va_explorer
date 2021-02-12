@@ -52,82 +52,7 @@ INITIAL_MAP_METRIC = "Coded VAs"
 # ============Lookup dictionaries =================#
 
 
-def load_lookup_dicts():
-    lookup = dict()
-    # dictionary mapping time labels to days (or all)
-    lookup["time_dict"] = {"1 week": 7, "1 month": 30, "1 year": 365, "all": "all"}
-    # dictionary mapping demographic variable names to corresponding VA survey columns
-    lookup["demo_to_col"] = {
-        "age group": "age_group",
-        "sex": "Id10019",
-        "place of death": "Id10058",
-    }
-    # colors used for plotting
-    lookup["color_list"] = [
-        "rgb(24,162,185)",
-        "rgb(201,0,1)",
-        "rgb(8,201,0)",
-        "rgb(240,205,21)",
-        "rgb(187,21,240)",
-        "rgb(250,250,248)",
-        "rgb(162,162,162)",
-    ]
-    # colorscale used for map
-    lookup["colorscales"] = {
-            "primary": [(0.0, 'rgb(255,255,255)'),
-                 (1e-20, 'rgb(0, 147, 146)'),
-                 (0.167, 'rgb(0, 147, 146)'),
-                 (0.167, 'rgb(57, 177, 133)'),
-                 (0.333, 'rgb(57, 177, 133)'),
-                 (0.333, 'rgb(156, 203, 134)'),
-                 (0.5, 'rgb(156, 203, 134)'),
-                 (0.5, 'rgb(233, 226, 156)'),
-                 (0.667, 'rgb(233, 226, 156)'),
-                 (0.667, 'rgb(238, 180, 121)'),
-                 (0.833, 'rgb(238, 180, 121)'),
-                 (0.833, 'rgb(232, 132, 113)'),
-                 (1.0, 'rgb(232, 132, 113)')],
-            "secondary": [(0.0, 'rgb(255,255,255)'),
-                  (0.001, 'rgb(230,230,230)'),
-                  (1.0, 'rgb(230,230,230)')]
-        }
-            
-    lookup["line_colors"] = {
-            "primary": "black", 
-            "secondary": "gray"
-    }
-    # dictionary mapping raw map metrics to human-readable names
-    lookup["metric_names"] = {
-        "Coded VAs": "Coded VAs",
-        "Mean Age of Death": "Mean Age of Death",
-        "HIV/AIDS related death": "HIV/AIDS",
-        "Diabetes mellitus": "Diabetes Mellitus",
-        "Acute resp infect incl pneumonia": "Pneumonia",
-        "Other and unspecified cardiac dis": "Other Cardiac",
-        "Diarrhoeal diseases": "Diarrhoeal Diseases",
-        "Other and unspecified neoplasms": "Unspecified Neoplasm",
-        "Renal failure": "Renal Failure",
-        "Liver cirrhosis": "Liver Cirrhosis",
-        "Digestive neoplasms": "Digestive Neoplasm",
-        "Other and unspecified infect dis": "Other",
-    }    
-    # dictionary mapping place of death names to more human-readable names
-    lookup["death_location_names"] = {
-        "on_route_to_hospital_or_facility": "En Route to Facility",
-        "DK": "Unknown",
-        "other_health_facility": "Other Health Facility",
-    }    
-    # formats for montly, weekly, and yearly dates
-    lookup["date_display_formats"] = {
-        "week": "%d/%m/%Y",
-        "month": "%m/%Y",
-        "year": "%Y",
-    }
-
-    return lookup
-
-
-LOOKUP = load_lookup_dicts()
+LOOKUP = plotting.load_lookup_dicts()
 
 
 # =============Geo dictionaries and global variables ========#
@@ -526,18 +451,6 @@ app.layout = html.Div(
                                             label="Demographics",
                                             children=[dcc.Loading(html.Div(id="demos-container"), type='circle')]
                                         ),
-#                                        dcc.Tab(
-#                                            label="Age Distribution",
-#                                            children=[dcc.Loading(html.Div(id="age-container"), type='circle')]
-#                                        ),
-#                                        dcc.Tab(
-#                                            label="Gender Distribution",
-#                                            children=[dcc.Loading(html.Div(id="sex-container"))]
-#                                        ),
-#                                        dcc.Tab(
-#                                            label="Place of Death Distribution",
-#                                            children=[dcc.Loading(html.Div(id="pod-container"))]
-#                                        ),
                                         dcc.Tab(
                                             label="VA Trends",
                                             children=[
@@ -1243,114 +1156,12 @@ def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_d
                 plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
             # only proceed if remaining data after filter    
             if plot_data.size > 0:
-                factor = factor.lower()
-                if factor != "all":
-                    assert factor in ["age group", "sex"]
-                    factor_col = LOOKUP["demo_to_col"][factor]
-                    factor_title = "by " + factor.capitalize()
-                    counts = plot_data.pivot_table(
-                        index="cause",
-                        columns=factor_col,
-                        values="id",
-                        aggfunc=pd.Series.nunique,
-                        fill_value=0,
-                        margins=True,
-                    )
-                    plot_fn = go.Scatter
-                else:
-                    counts = pd.DataFrame({"All": plot_data.cause.value_counts()})
-                    factor_title = "Overall"
-                    plot_fn = go.Bar
-                counts["cod"] = counts.index
-                counts = counts[counts["cod"] != "All"]
-                counts = counts.sort_values(by="All", ascending=False).head(N)
-                groups = list(set(counts.columns).difference(set(["cod"])))
-                if factor != "all":
-                    groups.remove("All")
-                for i, group in enumerate(groups):
-                    if agg_type != "counts":
-                        counts[group] = np.round(100 * counts[group] / counts[group].sum(), 1)
-                    figure.add_trace(
-                        plot_fn(
-                            y=counts[group],
-                            x=counts["cod"],
-                            name=group.capitalize(),
-                            orientation="v",
-                            marker=dict(
-                                color=LOOKUP["color_list"][i],
-                                line=dict(color="rgb(158,158,158)", width=1),
-                            ),
-                        )
-                    )
-                figure.update_layout(
-                    barmode="stack",
-                    title_text="Top {} Causes of Death {}".format(N, factor_title),
-                    xaxis_tickangle=-45,
-                    yaxis_title="Count" if agg_type == "counts" else "Percent",
-                )
-
+                # cause_of_death_plot(plot_data, factor, N, agg)
+                figure = plotting.cause_of_death_plot(plot_data, factor=factor, N=N,\
+                                                      agg_type=agg_type)
     return dcc.Graph(id="cod_plot", figure=figure)
 #
 #
-# =========Age Distribution Plot Logic============================================#
-@app.callback(
-    Output(component_id="age-container", component_property="children"),
-    [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="timeframe", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
-    ],
-)
-def age_plot(va_data, timeframe, filter_dict=None, bins=9):
-    figure = go.Figure()
-    if va_data is not None:
-        plot_data = pd.read_json(va_data)
-        if plot_data.size > 0:
-            if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
-            # only run if data left after filter
-            if plot_data.size > 0: 
-                historgram_data = [plot_data["age"].dropna().tolist()]
-                group_labels = ["Verbal Autopsies"]  # name of the dataset
-        
-                figure = ff.create_distplot(
-                    historgram_data, group_labels, show_rug=False, bin_size=[bins]
-                )
-                figure.update_layout(
-                    title_text="Verbal Autopsy Age Distribution",
-                    xaxis_title="Age",
-                    yaxis_title="Density",
-                )
-
-    return dcc.Graph(id="age_plot", figure=figure)
-
-
-# =========Gender Plot Logic============================================#
-@app.callback(
-    Output(component_id="sex-container", component_property="children"),
-    [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="timeframe", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
-    ],
-)
-def sex_plot(va_data, timeframe, filter_dict=None):
-    figure = go.Figure()
-    if va_data is not None:
-        plot_data = pd.read_json(va_data)
-        if plot_data.size > 0:
-            if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
-            if plot_data.size > 0:
-                column_name = LOOKUP["demo_to_col"]["sex"]
-                sex_counts = plot_data[column_name].value_counts()
-                figure.add_trace(
-                    go.Pie(labels=sex_counts.index.tolist(), values=sex_counts.values, hole=0.3)
-                )
-                figure.update_layout(title_text="Verbal Autopsies by Gender")
-    return dcc.Graph(id="sex_plot", figure=figure)
-
-
 # ========= Time Series Plot Logic============================================#
 @app.callback(
     Output(component_id="ts-container", component_property="children"),
@@ -1371,108 +1182,9 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
                 plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
             # only run if remaining data after filter
             if plot_data.size > 0:
-                group_period = group_period.lower()
-                aggregate_title = group_period.capitalize()
-                plot_data["date"] = pd.to_datetime(plot_data["date"])
-                plot_data["timegroup"] = pd.to_datetime(plot_data["date"])
-                if group_period == "week":
-                    plot_data["timegroup"] = pd.to_datetime(
-                        plot_data["date"]
-                        .dt.to_period("W")
-                        .apply(lambda x: x.strftime("%Y-%m-%d"))
-                    )
-                elif group_period == "month":
-                    plot_data["timegroup"] = pd.to_datetime(
-                        plot_data["date"].dt.to_period("M").apply(lambda x: x.strftime("%Y-%m"))
-                    )
-                elif group_period == "year":
-                    plot_data["timegroup"] = plot_data["date"].dt.to_period("Y").astype(str)
-        
-                dtype = "category" if group_period == "year" else "date"
-        
-                factor = factor.lower()
-                if factor != "all":
-                    assert factor in LOOKUP["demo_to_col"]
-                    factor_col = LOOKUP["demo_to_col"][factor]
-                    trend_counts = plot_data.pivot_table(
-                        index="timegroup",
-                        columns=factor_col,
-                        values="id",
-                        aggfunc=pd.Series.nunique,
-                        fill_value=0,
-                        margins=False,
-                    )
-                    plot_fn = go.Scatter
-                else:
-                    trend_counts = (
-                        plot_data[["timegroup", "id"]]
-                        .groupby("timegroup")
-                        .count()
-                        .rename(columns={"id": "all"})
-                    )
-                    plot_fn = go.Bar
-        
-                for i, group in enumerate(trend_counts.columns.tolist()):
-                    figure.add_trace(
-                        plot_fn(
-                            y=trend_counts[group],
-                            x=trend_counts.index,
-                            name=group.capitalize(),
-                            marker=dict(
-                                color=LOOKUP["color_list"][i],
-                                line=dict(color=LOOKUP["color_list"][i], width=1),
-                            ),
-                        )
-                    )
-                figure.update_layout(
-                    title_text="Verbal Autopsies by {}".format(aggregate_title),
-                    xaxis_title=aggregate_title,
-                    yaxis_title="Verbal Autopsy Count",
-                    xaxis_type=dtype,
-                    xaxis_tickangle=-45,
-                    xaxis_tickformatstops=[
-                        dict(
-                            dtickrange=[None, None],
-                            value=LOOKUP["date_display_formats"].get(group_period, "%d/%m/%Y"),
-                        )
-                    ],
-                )
+               figure = plotting.va_trend_plot(plot_data, group_period, factor)
     return dcc.Graph(id="trend_plot", figure=figure)
 
-
-## =========Place of Death Plot Logic============================================#
-@app.callback(
-    Output(component_id="pod-container", component_property="children"),
-    [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="filter_dict", component_property="children")
-    ],
-)
-def place_of_death_plt(va_data, filter_dict=None):
-    figure = go.Figure()
-    if va_data is not None:
-        plot_data = pd.read_json(va_data)
-        if plot_data.size > 0:
-            if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
-            # only run if remaining data after filter
-            if plot_data.size > 0:
-                plot_data["Id10058"] = plot_data["Id10058"].apply(
-                    lambda x: LOOKUP["death_location_names"].get(x, x.capitalize())
-                )
-                location_counts = (
-                    plot_data['Id10058']
-                    .value_counts()
-                    .reset_index()
-                    .rename(columns={'index': 'location', 'Id10058':'count'})
-                    .assign(percent = lambda df: np.round(100*df['count']/df['count'].sum(), 2))
-                    .assign(label = lambda df: df['count'].astype(str) + '<br>(' + df['percent'].astype(str) + '%)')
-                )
-                figure = px.bar(location_counts, y='location', x='count', color='location', text='label', orientation='h')
-                figure.update_layout(title_text='VA Counts by Place of Death', showlegend=False,
-                                  xaxis_title='Verbal Autopsies', yaxis_title=None)
-
-    return dcc.Graph(id="pod_plt", figure=figure)
 
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)
