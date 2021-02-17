@@ -27,16 +27,6 @@
       <a class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit Record</a>
     </div>
 
-    <a class="btn btn-primary mt-3 mb-3 " href="{% url 'data_management:edit' id=id %}">Edit Record</a>
-    <table class="table table-hover table-sm">
-      <thead>
-        <tr>
-          <th style="width: 50%">Field</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for field in form %}
     <div class="row mt-4">
       <table class="table table-hover table-sm">
         <thead>
