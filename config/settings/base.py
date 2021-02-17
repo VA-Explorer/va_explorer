@@ -64,6 +64,7 @@ THIRD_PARTY_APPS = [
     "whitenoise.runserver_nostatic",
     "django_extensions",
     "bootstrap4",
+    "django_filters",
 ]
 
 LOCAL_APPS = [
@@ -182,8 +183,6 @@ TEMPLATES = [
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
-
-# Fixtures
 
 FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)
 
