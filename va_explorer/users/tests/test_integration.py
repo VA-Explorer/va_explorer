@@ -36,7 +36,7 @@ def create_and_return_a_new_user(rf, proto_user):
             "email": proto_user.email,
             "group": group,
             "geographic_access": "location-specific",
-            "locations": [location],
+            "location_restrictions": [location],
         }
     )
 

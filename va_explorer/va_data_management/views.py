@@ -4,9 +4,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
+import pandas
 
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
+from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.utils.mixins import CustomAuthMixin
 
 
@@ -15,12 +17,24 @@ class Index(CustomAuthMixin, ListView):
     paginate_by = 15
     queryset = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # do the filtering thing
+        self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+        queryset = self.filterset.qs
+
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context["filterset"] = self.filterset
 
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
+            "date": va.Id10023,
             "facility": va.location.name,
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
