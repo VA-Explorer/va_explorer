@@ -65,7 +65,6 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
-    'bootstrap_datepicker_plus',
 ]
 
 LOCAL_APPS = [
