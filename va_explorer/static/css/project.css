@@ -57,18 +57,6 @@ body {
   color: #656565;
   font-size: 12px;
 }
-.custom-control-label::after,
-.custom-control-label::before {
-  display: none;
-}
-
-.custom-control {
-  padding-left: 0;
-}
-
-.custom-control-inline {
-  margin-right: 0;
-}
 
 .input-label {
   margin-top: 18px;
