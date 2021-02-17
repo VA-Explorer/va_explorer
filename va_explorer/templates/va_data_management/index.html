@@ -6,31 +6,28 @@
 
 {% load crispy_forms_tags %}
 
+{% block content %}
+
 <form method="get">
-  <div class="row justify-content-center">
-    {{myFilter.form | crispy}}
-    <!-- error filter -->
-    <div id='error checkbox' class="form-check-label form-check-inline checkbox-div">
-      {% if only_errors %}
-        <input class="form-check-input" type="checkbox" value="" name="error_checkbox" checked>
-      {% else %}
-        <input class="form-check-input" type="checkbox" value="" name="error_checkbox">
-      {% endif %}
-      <label class="form-check-label" for="errorCheckbox">Only Errors</label>
+  <div class="form-row align-items-end">
+    {% crispy filterset.form %}
+    <div class="form-group">
+      <button class="form-control btn btn-primary filter-button" type="submit">Search</button>
     </div>
-    <button class="btn btn-primary filter-button" type="submit">Search</button>
-    {% if has_filter %}
-     <a class="btn btn-secondary filter-button" href="{% url 'data_management:index' %}">Reset</a>
+    {% if filterset.is_valid %}
+      <div class="form-group">
+        <a class="btn btn-secondary form-control filter-button" href="{% url 'data_management:index' %}">Reset</a>
+      </div>
     {% endif %}
   </div>
 </form>
 
-{% block content %}
 <div class="row mt-4">
   <table class="table table-sm">
     <thead>
       <tr>
         <th>ID</th>
+        <th>Date</th>
         <th>Name</th>
         <th>Facility</th>
         <th>Cause</th>
@@ -41,21 +38,21 @@
     </thead>
     <tbody>
       {% for va in object_list %}
-        <tr>
-          <td>{{ va.id }}</td>
-          <td>{{ va.name }}</td>
-          <td>{{ va.facility }}</td>
-          <td>{{ va.cause }}</td>
-          <td>{{ va.warnings }}</td>
-          <td>{{ va.errors }}</td>
-          <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
-        </tr>
+      <tr>
+        <td>{{ va.id }}</td>
+        <td>{{ va.date }}</td>
+        <td>{{ va.name }}</td>
+        <td>{{ va.facility }}</td>
+        <td>{{ va.cause }}</td>
+        <td>{{ va.warnings }}</td>
+        <td>{{ va.errors }}</td>
+        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+      </tr>
       {% endfor %}
     </tbody>
   </table>
   {% if page_obj.has_other_pages %}
-    {% include "partials/_pagination.html" %}
+  {% include "partials/_pagination.html" %}
   {% endif %}
 </div>
 {% endblock %}
-

@@ -18,10 +18,10 @@ class Index(CustomAuthMixin, ListView):
     queryset = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
 
     def get_queryset(self):
-        querysest = super().get_queryset()
+        queryset = super().get_queryset()
 
         # do the filtering thing
-        self.filterset = VAFilter(data=self.request.GET, queryset=queryset)
+        self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
         queryset = self.filterset.qs
 
         return queryset
@@ -34,7 +34,7 @@ class Index(CustomAuthMixin, ListView):
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
-            "date": pandas.to_datetime(va.Id10023).strftime("%Y-%m-%d") if len(va.Id10023) > 0 else "",
+            "date": va.Id10023,
             "facility": va.location.name,
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
