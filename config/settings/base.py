@@ -77,9 +77,6 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-# Migrations
-MIGRATION_MODULES = {"sites": "va_explorer.contrib.sites.migrations"}
-
 # Authentication
 
 AUTHENTICATION_BACKENDS = [
@@ -89,6 +86,7 @@ AUTHENTICATION_BACKENDS = [
 AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "users:redirect"
 LOGIN_URL = "account_login"
+ACCOUNT_LOGOUT_REDIRECT_URL = "account_login"
 
 # Passwords
 
@@ -104,6 +102,8 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "va_explorer.users.validators.PasswordComplexityValidator"},
+    {"NAME": "va_explorer.users.validators.PasswordHistoryValidator"},
 ]
 
 # Middleware
@@ -280,7 +280,6 @@ PLOTLY_DASH = {
     "cache_arguments": True, # True for cache, False for session-based argument propagation
     #"serve_locally":True, # True to serve assets locally, False to use their unadulterated urls (eg a CDN)
     "stateless_loader": "demo.scaffold.stateless_app_loader",
-    "view_decorator": "django_plotly_dash.access.login_required",
 }
 
 # Channels

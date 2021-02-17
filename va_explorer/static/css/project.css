@@ -46,7 +46,7 @@
   margin-top: 2.5%;
 }
 body {
-   padding-bottom: 70px; 
+   padding-bottom: 70px;
 }
 
 .btn-light:focus {
@@ -87,7 +87,7 @@ body {
   margin-left: 20px;
   margin-top: 5px;
 }
-                                                               
+
 .radio-group-labels {
   border: 1px solid #ccc;
   border-radius: 3px;
@@ -98,13 +98,11 @@ body {
   cursor: pointer;
 }
 
-
 .radio-group-labels-checked {
   background-image: -webkit-linear-gradient(top, #eee, #e3e3e3);
   background-image: -moz-linear-gradient(top, #eee, #e3e3e3);
   box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.2);
 }
-
 
 .radio-group-labels:hover {
   box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.2);
@@ -208,4 +206,11 @@ a.auth-title-link:hover {
 a.auth-title-link:active {
   color: white !important;
   background-color: inherit;
+}
+
+.tab-spacing {
+  margin-left: -15px;
+  margin-right: -15px;
+  display: flex;
+  margin-top: 1rem!important;
 }

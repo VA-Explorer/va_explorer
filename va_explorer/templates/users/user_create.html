@@ -16,14 +16,16 @@
         <div class="control-group">
           <div class="controls">
             <button type="submit" class="btn btn-primary">Create</button>
+            <a href="{% url 'users:index' %}" class="btn btn-link">Cancel</a>
           </div>
         </div>
       </form>
     </div>
   </div>
+{% endblock %}
 
-  {% block javascript %}
-    {{ block.super }}
-    <script src="{% static 'js/location.js' %}"></script>
-  {% endblock %}
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'vendor/select2-4.1.0-beta.1/select2.js' %}"></script>
+  <script src="{% static 'js/location.js' %}"></script>
 {% endblock %}

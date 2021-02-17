@@ -4,12 +4,15 @@ from django.test import RequestFactory
 from va_explorer.users.forms import (
     ExtendedUserCreationForm,
     UserSetPasswordForm,
-    UserUpdateForm,
+    UserUpdateForm, UserChangePasswordForm,
 )
 from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     NewUserFactory,
+    UserFactory,
+    FieldWorkerGroupFactory,
+    FacilityFactory
 )
 
 pytestmark = pytest.mark.django_db
@@ -27,7 +30,7 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "national",
-                "locations": [],
+                "location_restrictions": [],
             }
         )
 
@@ -49,7 +52,29 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
+            }
+        )
+
+        # Note: The form expects a request object to be set in order to save it
+        request = rf.get("/fake-url/")
+        form.request = request
+
+        assert form.is_valid()
+
+    def test_valid_form_with_facility_specific_access(self, rf: RequestFactory):
+        proto_user = NewUserFactory.build()
+        group = FieldWorkerGroupFactory.create()
+        location = FacilityFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "group": group,
+                "geographic_access": "location-specific",
+                "location_restrictions": [],
+                "facility_restrictions": [location]
             }
         )
 
@@ -71,7 +96,7 @@ class TestUserCreationForm:
                 "email": existing_user.email,
                 "group": group,
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
@@ -86,7 +111,8 @@ class TestUserCreationForm:
                 "email": "",
                 "group": "",
                 "geographic_access": "",
-                "locations": "",
+                "location_restrictions": "",
+                "facility_restrictions": "",
             }
         )
 
@@ -109,13 +135,13 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "location-specific",
-                "locations": [],
+                "location_restrictions": [],
             }
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-        assert "locations" in form.errors
+        assert "location_restrictions" in form.errors
 
     def test_location_not_required(self):
         # A user with proto_user params does not exist yet.
@@ -129,13 +155,33 @@ class TestUserCreationForm:
                 "email": proto_user.email,
                 "group": group,
                 "geographic_access": "national",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-        assert "locations" in form.errors
+        assert "location_restrictions" in form.errors
+
+    def test_facility_required(self):
+        # A user with proto_user params does not exist yet.
+        proto_user = NewUserFactory.build()
+        group = FieldWorkerGroupFactory.create()
+
+        form = ExtendedUserCreationForm(
+            {
+                "name": proto_user.name,
+                "email": proto_user.email,
+                "group": group,
+                "geographic_access": "location-specific",
+                "location_restrictions": [],
+                "facility_restrictions": []
+            }
+        )
+
+        assert not form.is_valid()
+        assert len(form.errors) == 1
+        assert "facility_restrictions" in form.errors
 
 
 class TestUserUpdateForm:
@@ -150,7 +196,7 @@ class TestUserUpdateForm:
                 "group": new_group,
                 "is_active": False,
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
@@ -167,7 +213,7 @@ class TestUserUpdateForm:
                 "email": proto_user.email,
                 "group": "",
                 "geographic_access": "location-specific",
-                "locations": [location],
+                "location_restrictions": [location],
             }
         )
 
@@ -198,3 +244,35 @@ class TestUserSetPasswordForm:
         assert not form.is_valid()
         assert "You must type the same password each time." in form.errors["password2"]
         assert len(form.errors) == 1
+
+
+class TestUserChangePasswordForm:
+    def test_valid_form(self, rf: RequestFactory):
+        existing_user = UserFactory.create()
+        existing_user.set_password("Password124!")
+        existing_user.save()
+
+        form = UserChangePasswordForm(
+            data={
+                "current_password": "Password124!",
+                "password1": "MyNewPassword123!",
+                "password2": "MyNewPassword123!"
+            },
+            user=existing_user
+        )
+
+        assert form.is_valid()
+
+    def test_invalid_form(self, rf: RequestFactory):
+        form = UserChangePasswordForm(
+            {
+                "current_password": "",
+                "password1": "MyNewPassword123!",
+                "password2": "MyNewPassword456!"
+            }
+        )
+
+        assert not form.is_valid()
+        assert "You must type the same password each time." in form.errors['password2']
+        assert "This field is required" in form.errors['current_password'][0]
+        assert len(form.errors) == 2

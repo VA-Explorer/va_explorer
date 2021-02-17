@@ -1,9 +1,12 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.views.generic import TemplateView
 
-@login_required
-def index(request):
-    return render(request, "home/index.html")
+from va_explorer.utils.mixins import CustomAuthMixin
 
-def about(request):
-    return render(request, "home/about.html")
+
+class Index(CustomAuthMixin, TemplateView):
+    template_name = "home/index.html"
+
+
+index = Index.as_view()
+
+about = TemplateView.as_view(template_name="home/index.html")

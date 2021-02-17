@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 
-{% load bootstrap4 %}
-
 {% block title %}Verbal Autopsies{% endblock %}
 
-{% block content %}
+{% block heading %}Verbal Autopsies{% endblock %}
 
 {% load crispy_forms_tags %}
-
 
 <form method="get">
   <div class="row justify-content-center">
@@ -25,52 +22,40 @@
     {% if has_filter %}
      <a class="btn btn-secondary filter-button" href="{% url 'data_management:index' %}">Reset</a>
     {% endif %}
-    
   </div>
-  
 </form>
 
-<table class="table table-sm">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Date</th>
-      <th>Name</th>
-      <th>Facility</th>
-      <th>Cause</th>
-      <th>Warnings</th>
-      <th>Errors</th>
-      <th>View</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for va in va_data.object_list %}
+{% block content %}
+<div class="row mt-4">
+  <table class="table table-sm">
+    <thead>
       <tr>
-        <td>{{ va.id }}</td>
-        <td>{{ va.date }}</td>
-        <td>{{ va.name }}</td>
-        <td>{{ va.facility }}</td>
-        <td>{{ va.cause }}</td>
-        <td>{{ va.warnings }}</td>
-        <td>{{ va.errors }}</td>
-        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Facility</th>
+        <th>Cause</th>
+        <th>Warnings</th>
+        <th>Errors</th>
+        <th>View</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% if va_data.has_other_pages %}
-  <nav aria-label="Page navigation conatiner"></nav>
-    <ul class="justify-content-center">{% bootstrap_pagination va_data size="large"%}</ul>
-    <ul class="pagination justify-content-center">
-      {% if va_data.has_previous %}
-        <li><a href="?page={{ va_data.previous_page_number }}" class="page-link">&laquo; PREV </a></li>
-      {% endif %}
-      {% if va_data.has_next %}
-        <li><a href="?page={{ va_data.next_page_number }}" class="page-link"> NEXT &raquo;</a></li>
-     {% endif %}
-    </ul>
-  </nav>
-{% endif %}
-
+    </thead>
+    <tbody>
+      {% for va in object_list %}
+        <tr>
+          <td>{{ va.id }}</td>
+          <td>{{ va.name }}</td>
+          <td>{{ va.facility }}</td>
+          <td>{{ va.cause }}</td>
+          <td>{{ va.warnings }}</td>
+          <td>{{ va.errors }}</td>
+          <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if page_obj.has_other_pages %}
+    {% include "partials/_pagination.html" %}
+  {% endif %}
+</div>
 {% endblock %}
 
