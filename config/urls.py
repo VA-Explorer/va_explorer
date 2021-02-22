@@ -4,11 +4,13 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
+
     # User management
     path("users/", include("va_explorer.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
@@ -16,7 +18,8 @@ urlpatterns = [
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     # Your stuff: custom urls includes go here
     path("va_analytics/", include("va_explorer.va_analytics.urls", namespace="va_analytics")),
-    path("va_data_management/", include("va_explorer.va_data_management.urls", namespace="va_data_management"))
+    path("va_data_management/", include("va_explorer.va_data_management.urls", namespace="va_data_management")),
+    path("dhis/",include("va_explorer.dhis_manager.urls", namespace="dhis_manager"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

@@ -1,10 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+  function updatePush(){
+    document.getElementById('pushing').innerHTML = "PUSHING......"
+  }
+</script>
+<div class="row mt-4">
+  <p>Here you can push your VA records to DHIS2 seamlessly.</p>
+</div>
+
+{% block dhis_block %}
+<div class="row mt-4">
+  <table class="">
+    <tr>
+      <th></th>
+      <th></th>
+    </tr>
+    <tr>
+      <td><b>Records to push</b></td>
+      <td align="right"><h3 class="text-danger">{{vanum}}</h3></td>
+    </tr>
+     <tr>
+      <td> <a href="{% url 'dhis_manager:dhishome' %}" >
+          <button class="btn btn-primary">Get records</button></a></td>
+      <td><a href="{% url 'dhis_manager:dhisrecords' %}" >
+        <button class="btn btn-primary" onclick="updatePush()">Push to dhis</button></a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td> <div id="pushing"></div></td>
+    </tr>
+  </table>
+
+</div>
+
+<div class="row mt-4">
+ {% if btnpush == 'OK' %}
+  <h3>Pushed success {{ txt }}</h3>
+  {%else%}
+   <h3></h3>
+  {% endif %}
+</div>
+{% endblock %}
+
+
+{% endblock %}
