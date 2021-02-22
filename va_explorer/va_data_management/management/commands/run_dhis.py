@@ -45,10 +45,11 @@ class Command(BaseCommand):
 
         metadatacode = "InterVA5|5|Custom|1|2016 WHO Verbal Autopsy Form|v1_5_1"
 
-        # Load all verbal autopsies that have a cause coding
+        # Load all verbal autopsies that have been pushed to dhis2
         dhisdata = dhisStatus.objects.values_list("verbalautopsy_id", flat=True)
 
         #to subset few rows,add at the end [:10] for 10 rows etc..
+        #exclude vas that have no dhis2 status; not pushed
         vadata = VerbalAutopsy.objects.filter(causes__isnull=False).exclude(id__in=set(dhisdata)) #[:30]
 
         #ceate a list of available VA IDs to help during filtering queries
@@ -56,6 +57,7 @@ class Command(BaseCommand):
         for va in vadata:
             list1.append(va.id)
 
+        #load VAs with causes
         cod = CauseOfDeath.objects.filter(verbalautopsy_id__in=list1).values()
         cod = pd.DataFrame.from_records(cod)
         cod = cod[{"verbalautopsy_id","cause"}]
@@ -150,8 +152,12 @@ class Command(BaseCommand):
         self.clearFolder("DHIS/blobs/")
         if postLog['response']['status']=='SUCCESS' and postLog['response']['imported']==len(list1):
             self.InsertDHISStatus(list1)
-
+            numPushed = postLog['response']['imported']
+            numTotal = postLog['response']['total']
+            status = postLog['response']['status']
+        self.stdout.write(f' Uploaded {numPushed} out of {numTotal} verbal autopsies ')
         ## ADD Function to post to table dhis tracker
+        return numPushed,numTotal,status
 
     def InsertDHISStatus(self,list1):
         for item in list1:
