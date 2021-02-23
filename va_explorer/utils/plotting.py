@@ -20,7 +20,7 @@ PLOTLY = px.colors.qualitative.Plotly
 def load_lookup_dicts():
     lookup = dict()
     # dictionary mapping time labels to days (or all)
-    lookup["time_dict"] = {"1 week": 7, "1 month": 30, "1 year": 365, "all": "all"}
+    lookup["time_dict"] = {"last week": 7, "last month": 30, "last year": 365, "last 6 months": 182, "all": "all"}
     # dictionary mapping demographic variable names to corresponding VA survey columns
     lookup["demo_to_col"] = {
         "age group": "age_group",
@@ -63,10 +63,11 @@ def load_lookup_dicts():
     }
     # dictionary mapping raw map metrics to human-readable names
     lookup["metric_names"] = {
+        "all": "All",
         "Coded VAs": "Coded VAs",
         "Mean Age of Death": "Mean Age of Death",
         "HIV/AIDS related death": "HIV/AIDS",
-        "Diabetes mellitus": "Diabetes Mellitus",
+        "Diabetes mellitus": "Diabetes",
         "Acute resp infect incl pneumonia": "Pneumonia",
         "Other and unspecified cardiac dis": "Other Cardiac",
         "Diarrhoeal diseases": "Diarrhoeal Diseases",
@@ -122,7 +123,7 @@ def get_field_counts(va_df, field_name, full_labels=False, display_name=None):
 
 #===========DEMOGRAPHIC PLOT LOGIC=========================#
 # create a multiplot of va counts by gender, age, and place of death
-def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
+def demographic_plot(va_df, no_grids=True, column_widths=None, height=600, title=None):
     if not column_widths:
         first_width = .4
         column_widths = [first_width, 1 - first_width]
@@ -131,7 +132,8 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
         specs=[[{'type': 'bar'}, {'type': 'bar'}],
                [{"colspan": 2}, None]],
         subplot_titles=("Gender","Age Group", "Place of Death"), 
-        column_widths=column_widths)
+        column_widths=column_widths, 
+        vertical_spacing=.15)
 
     # gender
     sex_df = get_field_counts(va_df, 'sex', display_name='gender')
@@ -159,14 +161,19 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
     if no_grids:
         comb_fig.update_xaxes(showgrid=False)
         comb_fig.update_yaxes(showgrid=False)
+    
+    if title:
+        comb_fig.update_layout(title=title)
         
     return comb_fig.update_layout(height=height)
 
 #===========CAUSE OF DEATH PLOT LOGIC=========================#
 # plot top N causes of death in va_data either overall or by factor/demographic
-def cause_of_death_plot(va_df, factor, agg_type='counts', N=10):
+def cause_of_death_plot(va_df, factor, agg_type='counts', N=10, chosen_cod="all"):
     figure = go.Figure()
     factor = factor.lower()
+    plot_fn = go.Bar
+    
     if factor != "all":
         assert factor in ["age group", "sex"]
         factor_col = LOOKUP["demo_to_col"][factor]
@@ -179,15 +186,28 @@ def cause_of_death_plot(va_df, factor, agg_type='counts', N=10):
             fill_value=0,
             margins=True,
         )
-        plot_fn = go.Scatter
+#        if chosen_cod == "all":
+#            plot_fn = go.Scatter
     else:
         counts = pd.DataFrame({"All": va_df.cause.value_counts()})
         factor_title = "Overall"
-        plot_fn = go.Bar
+
+    # make index labels pretty
+    counts.index = [LOOKUP["metric_names"].get(x, x) for x in counts.index]
     counts["cod"] = counts.index
-    counts = counts[counts["cod"] != "All"]
-    counts = counts.sort_values(by="All", ascending=False).head(N)
+    counts = (counts[counts["cod"] != "All"].sort_values(by="All", ascending=False).head(N))
     groups = list(set(counts.columns).difference(set(["cod"])))
+    
+    lines = [LOOKUP["line_colors"]["secondary"] for j in range(len(counts['cod']))]
+    widths = np.repeat(1, len(counts['cod']))
+    if chosen_cod != "all":
+        chosen_cod = LOOKUP["metric_names"].get(chosen_cod, chosen_cod.capitalize())
+        if chosen_cod in counts.index:
+            chosen_idx = counts.index.get_loc(chosen_cod)
+            lines[chosen_idx] = "#e0b816" #"black"#"#f5ed3c"
+            widths[chosen_idx] = 4
+            counts["cod"][chosen_idx] = "<b>" + counts["cod"][chosen_idx] + "</b>"
+
     if factor != "all":
         groups.remove("All")
     for i, group in enumerate(groups):
@@ -200,14 +220,14 @@ def cause_of_death_plot(va_df, factor, agg_type='counts', N=10):
                 name=group.capitalize(),
                 orientation="v",
                 marker=dict(
-                    color=LOOKUP["color_list"][i],
-                    line=dict(color="rgb(158,158,158)", width=1),
+                    color= LOOKUP["color_list"][i],
+                    line=dict(color=lines, width=widths),
                 ),
             )
         )
     figure.update_layout(
         barmode="stack",
-        title_text="Top {} Causes of Death {}".format(N, factor_title),
+        title_text="Top Causes of Death {}".format(factor_title),
         xaxis_tickangle=-45,
         yaxis_title="Count" if agg_type == "counts" else "Percent",
     )

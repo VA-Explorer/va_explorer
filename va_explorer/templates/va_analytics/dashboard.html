@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 {% load plotly_dash %}
-
-<div class="{% block container-type %}container-fluid{% endblock %}">
-	{% if messages %}
+<span class="dashboard-title"> Analytics Dashboard </span>
+<div ><!--class="{% block container-type %}container-fluid{% endblock %}"> -->
+	<!--{% if messages %}
 	    {% for message in messages %}
 	        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
 	    {% endfor %}
-	{% endif %}
-
+	{% endif %}-->
 	{% block content %}
 		{% plotly_direct name='va_dashboard' %}
 	{% endblock %}

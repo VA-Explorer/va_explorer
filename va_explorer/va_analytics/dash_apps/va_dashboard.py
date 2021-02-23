@@ -6,30 +6,28 @@ Created on Wed Jul 29 15:25:20 2020
 @author: babraham
 """
 
+# generic imports
+import pandas as pd
 import json
+import re
+import time
+import os
+import numpy as np
+import datetime as dt
+
+# plotly and dash imports
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-
-import pandas as pd
 import plotly.graph_objs as go
-import plotly.figure_factory as ff
-import plotly.express as px
-import os
-import numpy as np
-import datetime as dt
-
 from django_plotly_dash import DjangoDash
+
+# va explorer imports
 from va_explorer.va_data_management.models import Location, VerbalAutopsy
-from django.forms.models import model_to_dict
-
 import va_explorer.utils.plotting as plotting
-
-import re
-
-import time
+from va_explorer.va_analytics.dash_apps.plotting_tabs import TABS
 
 # ================APP DEFINITION===============#
 # NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
@@ -46,9 +44,9 @@ JSON_DIR = "va_explorer/va_analytics/dash_apps/geojson"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
 JSON_FILE = "zambia_geojson.json"
 # initial granularity
-INITIAL_GRANULARITY = "province"
+INITIAL_GRANULARITY = "district"
 # initial metric to plot on map
-INITIAL_MAP_METRIC = "Coded VAs"
+INITIAL_COD_TYPE = "all"
 # ============Lookup dictionaries =================#
 
 
@@ -185,51 +183,121 @@ app.layout = html.Div(
                 # global filters (affect entire dashboard)
                 dbc.Row(
                     [
-                        html.Span("Analytics Dashboard", className="dashboard-title"),
-                        html.Div(
-                            className="dashboard-comp-container",
-                            children=[
-                                html.P("Time Frame", className="input-label"),
-                                dcc.Dropdown(
-                                    id="timeframe",
-                                    options=[
-                                        {"label": o, "value": o.lower()}
-                                        for o in [
-                                            "1 Day ",
-                                            "1 Week",
-                                            "1 Month",
-                                            "All",
-                                        ]
-                                    ],
-                                    value=INITIAL_TIMEFRAME,
-                                    style={
-                                        "margin-top": "5px",
-                                        "margin-bottom": "5px",
-                                        "width": "120px",
-                                    },
-                                    searchable=False,
-                                    clearable=False,
-                                    disabled=False
-                                ),
-                            ],
-                            style={
-                                "display": "flex",
-                                "margin-right": "10px",
-                                "margin-left": "10px",
-                            },
+                         html.Div(className='dashborad-comp-container',
+                            id='search-container',
+                            children = [
+                                    html.P("Location", className="input-label"),
+                                    dcc.Dropdown(
+                                        id='map_search',
+                                        options= [],
+                                        multi=False, 
+                                        placeholder='Search Locations', 
+                                        clearable=True,
+                                       )], 
+                             style={
+                                     "margin-left": "10px",
+                                     "width": "220px",
+                            }
                         ),
-                        html.Div([html.A(dbc.Button("Download Data", color="info"),
-                                        href="/va_analytics/download")], 
-                          style={
-                                  "margin-top": "10px",
-                                 "margin-left": "20px"
-                          }
-                        )
+                        html.Div(className="dashboard-comp-container",
+                             children = [
+                                    html.P("Time Period", className="input-label"),
+                                    dcc.Dropdown(
+                                        id="timeframe",
+                                        options=[
+                                            {"label": o, "value": o.lower()}
+                                            for o in [
+                                                "Today",
+                                                "Last Week",
+                                                "Last Month",
+                                                "Last 6 Months",
+                                                "Last Year",
+                                                "All",
+                                            ]
+                                        ],
+                                        value=INITIAL_TIMEFRAME,
+                                        style={
+                                            "margin-top": "5px",
+                                            "margin-bottom": "5px",
+                                            "width": "140px",
+                                        },
+                                        searchable=False,
+                                        clearable=False,
+                                        disabled=False
+                                    )
+                            ], 
+                            style={"display": "inline-block"}
+                    ),        
+ 
+                    html.Div(
+                        className="dashboard-comp-container",
+                        children=[
+                            html.P(
+                                "Cause of Death",
+                                className="input-label",
+                            ),
+                            dcc.Dropdown(
+                                id="cod_type",
+                                value=INITIAL_COD_TYPE,  
+                                options=[{"label": "All", "value": "all"}],                                          
+                                style={
+                                    "margin-top": "5px",
+                                    "margin-bottom": "5px",
+                                    "width": "200px",
+                                },
+                                searchable=True,
+                                clearable=False,
+                            ),
+                        ],
+                        style={"display": "inline-block"},
+                    ),
+                    html.Div(
+                        className="dashboard-comp-container",
+                        children=[
+                            html.P(
+                                "View",
+                                id="view_label",
+                                className="input-label",
+                            ),
+                            dcc.Dropdown(
+                                id="view_level",
+                                value='',
+                                placeholder = "Auto",
+                                style={
+                                    "margin-top": "5px",
+                                    "margin-bottom": "5px",
+                                    "width": "100px",
+                                },
+                                searchable=False,
+                                clearable=False,
+                                disabled=False
+                            ),
+                        ],
+                        style={"display": "inline-block"},
+                    ),
+                    html.Div(id="button-container", 
+                        children=[
+                             html.Div(id="reset_container", 
+                                className="dashboard-comp-container",
+                                children = [ 
+                                        dbc.Button("Reset",
+                                           id="reset",
+                                           color="secondary",
+                                           className="mr-1",
+                                           n_clicks=0)
+                                ]), 
+                                
+                            html.Div(id="download_container", 
+                                className="dashboard-comp-container",
+                                children = [html.A(dbc.Button("Download Data", color="primary"),href="/va_analytics/download")
+                                ])
+                        
+                        ],
+                        style={"align-items": "flex-end", "display": "flex"}
+                    )
 
-
-                    ],
-                    style={"margin-left": "0px"},
-                ),
+                ], 
+                style={"margin-left": "10px"}),
                 html.Div(
                     [
                         dbc.Col(
@@ -243,85 +311,11 @@ app.layout = html.Div(
                                                 "text-align": "center",
                                             },
                                         )
-                                        
-                                       
                                     ],
                                     style={"margin-left": "0px"},
                                 ),
                                 dbc.Row(
                                     [
-                                        html.Div(
-                                            className="dashboard-comp-container",
-                                            children=[
-                                                html.P(
-                                                    "Map Metric",
-                                                    className="input-label",
-                                                ),
-                                                dcc.Dropdown(
-                                                    id="map_metric",                                                    
-                                                    style={
-                                                        "margin-top": "5px",
-                                                        "margin-bottom": "5px",
-                                                        "width": "200px",
-                                                    },
-                                                    searchable=False,
-                                                    clearable=False,
-                                                ),
-                                            ],
-                                            style={"display": "flex"},
-                                        ),
-                                        html.Div(className='dashborad-comp-container',
-                                            id='search-container',
-                                            children = [
-                                                    dcc.Dropdown(
-                                                        id='map_search',
-                                                        options= [],
-                                                        multi=False, 
-                                                        placeholder='Search Locations', 
-                                                        clearable=True,
-                                                       )], 
-                                             style={
-                                                     "margin-left": "10px",
-                                                     "width": "220px",
-                                            }
-                                        ),
-                                         html.Div(
-                                            className="dashboard-comp-container",
-                                            children=[
-                                                html.P(
-                                                    "View",
-                                                    id="view_label",
-                                                    className="input-label",
-                                                ),
-                                                dcc.Dropdown(
-                                                    id="view_level",
-#                                                    options = [{"value": o, "label": o.capitalize()}
-#                                                    for o in [INITIAL_GRANULARITY]], 
-#                                                    value=INITIAL_GRANULARITY,
-                                                    value="",
-                                                    placeholder = "Auto",
-                                                    style={
-                                                        "margin-top": "5px",
-                                                        "margin-bottom": "5px",
-                                                        "width": "100px",
-                                                    },
-                                                    searchable=False,
-                                                    clearable=False,
-                                                    disabled=False
-                                                ),
-                                            ],
-                                            style={"display": "flex"},
-                                        ),
-                                        html.Div(className='dashboard-comp-container', 
-                                            children = [ 
-                                                    dbc.Button("Reset Map",
-                                                       id="reset",
-                                                       color="info",
-                                                       className="mr-1",
-                                                       n_clicks=0)
-                                            ]
-                                        )
-
                                     ],
                                     style={"align-items": "center"},
                                 ),
@@ -346,187 +340,11 @@ app.layout = html.Div(
                         ),
                         dbc.Col(
                             [
-                                dcc.Tabs(
-                                    [  # graph tabs
-                                        dcc.Tab(
-                                            label="COD Analysis",
-                                            children=[  # tab 1: COD Analysis
-                                                html.Div(
-                                                    id="cod_buttons",
-                                                    children=[
-                                                        html.Div(
-                                                            [
-                                                                html.P(
-                                                                    "Demographic",
-                                                                    className="input-label",
-                                                                ),
-                                                                dcc.Dropdown(
-                                                                    id="cod_factor",
-                                                                    options=[
-                                                                        {
-                                                                            "label": o,
-                                                                            "value": o,
-                                                                        }
-                                                                        for o in [
-                                                                            "All",
-                                                                            "Age Group",
-                                                                            "Sex",
-                                                                        ]
-                                                                    ],
-                                                                    value="All",
-                                                                    style={
-                                                                        "margin-top": "5px",
-                                                                        "margin-bottom": "5px",
-                                                                        "width": "120px",
-                                                                    },
-                                                                    searchable=False,
-                                                                    clearable=False,
-                                                                ),
-                                                            ],
-                                                            style={
-                                                                "display": "flex",
-                                                                "margin-right": "30px",
-                                                            },
-                                                        ),
-                                                        html.Div(
-                                                            [
-                                                                html.P(
-                                                                    "N",
-                                                                    className="input-label",
-                                                                ),
-                                                                dcc.Dropdown(
-                                                                    id="cod_n",
-                                                                    options=[
-                                                                        {
-                                                                            "label": o,
-                                                                            "value": o,
-                                                                        }
-                                                                        for o in [5,10,15,20]
-                                                                    ],
-                                                                    value=10,
-                                                                    style={
-                                                                        "margin-top": "5px",
-                                                                        "margin-bottom": "5px",
-                                                                        "width": "60px",
-                                                                    },
-                                                                    searchable=False,
-                                                                    clearable=False,
-                                                                ),
-                                                            ],
-                                                            style={"display": "flex"},
-                                                        ),
-                                                        dbc.RadioItems(
-                                                            id="cod-aggtype",
-                                                            options=[
-                                                                {
-                                                                    "label": "% of Total",
-                                                                    "value": "percent_total",
-                                                                },
-                                                                {
-                                                                    "label": "Counts",
-                                                                    "value": "counts",
-                                                                },
-                                                            ],
-                                                            value="cts",
-                                                            labelStyle={
-                                                                "display": "inline-block"
-                                                            },
-                                                            labelClassName="radio-group-labels",
-                                                            labelCheckedClassName="radio-group-labels-checked",
-                                                            style={
-                                                                "margin-left": "30px",
-                                                                "display": "flex",
-                                                            },
-                                                        ),
-                                                    ],
-                                                    style={
-                                                        "display": "flex",
-                                                        "align-items": "center",
-                                                    },
-                                                ),
-                                                dcc.Loading(html.Div(id="cod-container"), type='circle'),
-                                            ],
-                                        ),
-                                        dcc.Tab(
-                                            label="Demographics",
-                                            children=[dcc.Loading(html.Div(id="demos-container"), type='circle')]
-                                        ),
-                                        dcc.Tab(
-                                            label="VA Trends",
-                                            children=[
-                                                html.Div(
-                                                    id="ts_buttons",
-                                                    children=[
-                                                        html.Div(
-                                                            [
-                                                                html.P(
-                                                                    "Aggregation",
-                                                                    className="input-label",
-                                                                ),
-                                                                dcc.Dropdown(
-                                                                    id="group_period",
-                                                                    options=[
-                                                                        {
-                                                                            "label": o,
-                                                                            "value": o,
-                                                                        }
-                                                                        for o in [
-                                                                            "Day",
-                                                                            "Week",
-                                                                            "Month",
-                                                                            "Year",
-                                                                        ]
-                                                                    ],
-                                                                    value="Month",
-                                                                    style={
-                                                                        "margin-top": "5px",
-                                                                        "margin-bottom": "5px",
-                                                                        "width": "120px",
-                                                                        "margin-right": "30px",
-                                                                    },
-                                                                    searchable=False,
-                                                                    clearable=False,
-                                                                ),
-                                                                html.P(
-                                                                    "Demographic",
-                                                                    className="input-label",
-                                                                ),
-                                                                dcc.Dropdown(
-                                                                    id="ts_factor",
-                                                                    options=[
-                                                                        {
-                                                                            "label": o,
-                                                                            "value": o,
-                                                                        }
-                                                                        for o in [
-                                                                            "All",
-                                                                            "Age Group",
-                                                                            "Sex",
-                                                                            "Place of Death",
-                                                                        ]
-                                                                    ],
-                                                                    value="All",
-                                                                    style={
-                                                                        "margin-top": "5px",
-                                                                        "margin-bottom": "5px",
-                                                                        "width": "140px",
-                                                                    },
-                                                                    searchable=False,
-                                                                    clearable=False,
-                                                                ),
-                                                            ],
-                                                            style={
-                                                                "display": "flex",
-                                                                "margin-right": "30px",
-                                                            },
-                                                        ),
-                                                        dcc.Loading(html.Div(id="ts-container"), type='circle'),
-                                                    ],
-                                                )
-                                            ],
-                                        ),
-                                    ]
-                                )
+                                dcc.Tabs(id='plot_tabs',
+                                    value='demographic_tab',
+                                    children= [tab for tab in TABS.values()]
+                                ),
+                                html.Div(id='plot_tabs_content')
                             ]
                         ),
                     ],
@@ -541,7 +359,7 @@ app.layout = html.Div(
 @app.callback(
     [
          Output(component_id="map_search", component_property="value"), 
-         Output(component_id="map_metric", component_property="value")
+         Output(component_id="cod_type", component_property="value")
     ], 
          
     [
@@ -550,7 +368,7 @@ app.layout = html.Div(
 )
 
 def reset(n_clicks=0):
-    return  "", INITIAL_MAP_METRIC                                                    
+    return  "", INITIAL_COD_TYPE                                                  
 
 # ============ VA data (loaded from database and shared across components) ========
 
@@ -603,13 +421,14 @@ def update_options(search_value, location_json):
         Input(component_id="invalid_va_data", component_property="children"),
         Input(component_id="choropleth", component_property="selectedData"),
         Input(component_id="timeframe", component_property="value"),
+        Input(component_id="cod_type", component_property="value"),
         Input(component_id="map_search", component_property="value"), 
         Input(component_id="locations", component_property="children"), 
         Input(component_id="location_types", component_property="children")
     ]
 )
 def filter_data(
-    va_data, invalid_va_data, selected_json, timeframe="all", search_terms=[], locations=None, location_types=None
+    va_data, invalid_va_data, selected_json, timeframe="all", cod_type="all", search_terms=[], locations=None, location_types=None
 ):
     if va_data is not None:
         valid_va_df = pd.read_json(va_data)
@@ -634,7 +453,8 @@ def filter_data(
             "geo_filter": valid_filter["geo_filter"], # same across both dictionaries
             "chosen_region": valid_filter["chosen_region"], # same across both dictionaries
             "ids": {"valid": valid_filter["ids"],
-                    "invalid": invalid_filter["ids"]}, 
+                    "invalid": invalid_filter["ids"]},
+            "cod_type": cod_type,
             "plot_ids": {"valid": valid_filter["plot_ids"],
                          "invalid": invalid_filter["plot_ids"]}
         }
@@ -721,7 +541,7 @@ def shift_granularity(current_granularity, levels, move_up=False):
 # Top metrics to track for map dropdown
 @app.callback(
 
-     Output(component_id="map_metric", component_property="options"),
+     Output(component_id="cod_type", component_property="options"),
  
     [
          Input(component_id="va_data", component_property="children"), 
@@ -740,7 +560,7 @@ def get_metrics(va_data, filter_dict=None, N=10):
             # only load options if remaining data after filter
             if metric_data.size > 0:
                 # add top N CODs by incidence to metric list
-                metrics = ["Coded VAs","Mean Age of Death"]\
+                metrics = ["all",]\
                 + (metric_data["cause"]
                     .value_counts()
                     .sort_values(ascending=False)
@@ -752,9 +572,9 @@ def get_metrics(va_data, filter_dict=None, N=10):
     return [{"label": LOOKUP["metric_names"].get(m,m),"value": m} for m in metrics]
 
 
-def get_metric_display_names(map_metrics):
+def get_metric_display_names(cod_types):
     names = []
-    for metric in map_metrics:
+    for metric in cod_types:
         metric_name = LOOKUP["metric_names"].get(metric, None)
         if metric_name is None:
             metric_name = " ".join([x.capitalize() for x in metric.strip().split(" ")])
@@ -814,13 +634,13 @@ def reset_view_value(is_disabled=False):
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
-        Input(component_id="map_metric", component_property="value"),
+        Input(component_id="cod_type", component_property="value"),
         Input(component_id="view_level", component_property="value"),
         Input(component_id="location_types", component_property="children"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=None,\
+def update_choropleth(va_data, timeframe, cod_type="All", view_level=None,\
                       location_types=None, filter_dict=None, geojson=GEOJSON, zoom_in=False ):
     # first, see which input triggered update. If granularity change, only run 
     # if value is non-empty
@@ -841,7 +661,7 @@ def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=Non
         ret_val = dict()       
         border_thickness = .25 # thickness of borders on map        
         # name of column to plot
-        data_value = "age_mean" if len(re.findall("[mM]ean", map_metric)) > 0 else "age_count"
+        data_value = "age_mean" if len(re.findall("[mM]ean", cod_type)) > 0 else "age_count"
         
         if plot_data.size > 0:
             timeframe = timeframe.lower()
@@ -885,15 +705,15 @@ def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=Non
                                                                    
                                 # background plotting - adjacent regions
                                 adjacent_map_df = generate_map_data(adjacent_data, plot_geos, granularity,\
-                                                                    zoom_in, map_metric)
+                                                                    zoom_in, cod_type)
                                 figure = add_trace_to_map(figure, adjacent_map_df, geojson, theme_name="secondary",\
                                                           z_col=data_value, location_col=granularity)
                                 # only plot non-empty regions in main layer so as not to hide secondary layer
                                 include_no_datas = False                   
                                 border_thickness = 2 * border_thickness
     
-            if map_metric not in ["Coded VAs", "Mean Age of Death"]:
-                plot_data = plot_data[plot_data["cause"] == map_metric]
+            if cod_type != "all":
+                plot_data = plot_data[plot_data["cause"] == cod_type]
                 
             # only proceed if there's data
             if plot_data.size > 0:
@@ -902,12 +722,15 @@ def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=Non
                 view_level = view_level if len(view_level) > 0 else granularity
                 
                 # get map tooltips to match view level (disstrict or province)
-                map_df = generate_map_data(plot_data, plot_geos, view_level, zoom_in, map_metric, include_no_datas)
+                map_df = generate_map_data(plot_data, plot_geos, view_level, zoom_in, cod_type, include_no_datas)
                         
                 highlight_region = (map_df.shape[0] == 1)
                 if highlight_region: 
                     # increse border thickness to highlight selcted region
                     border_thickness = 3 * border_thickness
+                    
+                # Set plot title to Total VAs if cod_type=='all'
+                cod_title = "Total VAs" if cod_type == "all" else cod_type.capitalize()
                     
                 figure.add_trace(go.Choropleth(
                         locations=map_df[view_level],
@@ -923,7 +746,7 @@ def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=Non
                         marker_line_width=border_thickness,
                         colorbar=dict(
                             title="{} by {}".format(
-                                map_metric.capitalize(), granularity.capitalize()
+                                cod_title, view_level.capitalize()
                             ),
                             thicknessmode="fraction",
                             thickness=0.03,
@@ -989,7 +812,7 @@ def add_trace_to_map(figure, trace_data, geojson, trace_type=go.Choropleth, feat
 
 # ==========Map dataframe (built from va dataframe)============#
 def generate_map_data(va_df, chosen_geojson, view_level="district",\
-                      zoom_in=False, metric="Coded VAs", include_no_datas=True):
+                      zoom_in=False, metric="All", include_no_datas=True):
     if va_df.size > 0:
         map_df = (
             va_df[[view_level, "age", "location"]]
@@ -1068,7 +891,7 @@ def update_callouts(va_data, invalid_va_data, timeframe, filter_dict=None, geojs
             # TODO: get field worker data from ODK - this is just a janky hack
             num_field_workers = int(1.25 * active_facilities)
     
-            # region coverage
+            # region representation (coverage)
             total_regions = geojson[f"{granularity}_count"]
             
             if filter_dict is not None:
@@ -1088,7 +911,7 @@ def update_callouts(va_data, invalid_va_data, timeframe, filter_dict=None, geojs
         make_card(uncoded_vas, header="Uncoded VAs"),
         make_card(active_facilities, header="Active Facilities"),
         make_card(num_field_workers, header="Field Workers"),
-        make_card(coverage, header="Region Coverage"),
+        make_card(coverage, header="Representation"),
     ]
         
 
@@ -1115,9 +938,11 @@ def make_card(
     card_container = html.Div(card_obj, style=style)
     return card_container
 
+
 # =========Demographic plot logic==============================================#
 @app.callback(
     Output(component_id="demos-container", component_property="children"),
+    #Output(component_id="bounds", component_property="children"),
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
@@ -1130,7 +955,14 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
         plot_data = pd.read_json(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+                filter_dict = json.loads(filter_dict)
+                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                # if cod chosen, filter down to only vas with chosen cod
+                if filter_dict["cod_type"].lower() != "all":
+                    plot_data = plot_data[plot_data["cause"] == filter_dict["cod_type"]]
+                    plot_title = f"{filter_dict['cod_type']} Demographics"
+                else:
+                    plot_title = "All-Cause Demographics"
             figure = plotting.demographic_plot(plot_data)
     return dcc.Graph(id="demos_plot", figure=figure)
             
@@ -1153,12 +985,15 @@ def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_d
         plot_data = pd.read_json(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+                filter_dict = json.loads(filter_dict)
+                cod = filter_dict["cod_type"]
+                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+
             # only proceed if remaining data after filter    
             if plot_data.size > 0:
                 # cause_of_death_plot(plot_data, factor, N, agg)
                 figure = plotting.cause_of_death_plot(plot_data, factor=factor, N=N,\
-                                                      agg_type=agg_type)
+                                                      agg_type=agg_type, chosen_cod=cod)
     return dcc.Graph(id="cod_plot", figure=figure)
 #
 #
@@ -1179,7 +1014,11 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
         plot_data = pd.read_json(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+                filter_dict = json.loads(filter_dict)
+                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                # if cod chosen, filter down to only vas with chosen cod
+                if filter_dict["cod_type"] != "all":
+                    plot_data = plot_data.loc[plot_data["cause"] == filter_dict["cod_type"]]
             # only run if remaining data after filter
             if plot_data.size > 0:
                figure = plotting.va_trend_plot(plot_data, group_period, factor)
