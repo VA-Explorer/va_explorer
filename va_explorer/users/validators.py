@@ -56,30 +56,7 @@ class PasswordComplexityValidator:
             raise ValidationError(validation_errors)
 
     def get_help_text(self):
-        validation_reqs = []
-        if self.password_no_number:
-            validation_reqs.append(_("Password requires at least one number"))
-        if self.password_no_uppercase:
-            validation_reqs.append(
-                _(
-                    "Password requires at least one uppercase letter from Latin alphabet (A–Z)"
-                )
-            )
-        if self.password_no_lowercase:
-            validation_reqs.append(
-                _(
-                    "Password requires at least one lowercase letter from Latin alphabet (a-z)"
-                )
-            )
-        if self.password_no_special:
-            validation_reqs.append(
-                _(
-                    "Password requires at least one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '"
-                )
-            )
-        return _("Password does not meet complexity requirements:\n").join(
-            validation_reqs
-        )
+        return _("Your password requires at least one number, one lowercase letter, one uppercase letter, and one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '")
 
 
 class PasswordHistoryValidator:
