@@ -226,7 +226,7 @@ app.layout = html.Div(
                           }
                         )
                     ],
-                    style={"margin-left": "0px"},
+                    style={"padding-bottom": "10px"},
                 ),
                 dbc.Row(
                     [
@@ -237,7 +237,7 @@ app.layout = html.Div(
                                         html.Div(
                                             id="callout-container",
                                             style={
-                                                "display": "flex",
+                                                "display": "contents",
                                                 "text-align": "center",
                                             },
                                         )                           
@@ -264,7 +264,6 @@ app.layout = html.Div(
                                                     clearable=False,
                                                 ),
                                             ],
-                                            style={"display": "flex"},
                                         ),
                                          html.Div(
                                             className="dashboard-comp-container",
@@ -288,7 +287,6 @@ app.layout = html.Div(
                                                     disabled=False
                                                 ),
                                             ],
-                                            style={"display": "flex"},
                                         ),
                                         html.Div(className='dashboard-comp-container', 
                                             children = [ 
@@ -311,7 +309,6 @@ app.layout = html.Div(
                                         id="choropleth-container",
                                         children=dcc.Graph(id="choropleth"),
                                     )
-                                        
                                 ]),
                                 dbc.Row([
                                     html.Span(className='fas fa-search', style={ "margin-top": "10px"}),
@@ -532,7 +529,6 @@ app.layout = html.Div(
                             width=5,
                         ),
                     ],
-                    style={"display": "flex", "margin-top": "10px"},
                 ),
             ]
         )
