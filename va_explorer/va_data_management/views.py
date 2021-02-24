@@ -4,8 +4,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
-import pandas
-
+from django.views.generic.detail import SingleObjectMixin
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.filters import VAFilter
@@ -15,10 +14,10 @@ from va_explorer.utils.mixins import CustomAuthMixin
 class Index(CustomAuthMixin, ListView):
     template_name = 'va_data_management/index.html'
     paginate_by = 15
-    queryset = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Restrict to VAs this user can access and prefetch related for performance
+        queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
 
         # do the filtering thing
         self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
@@ -43,8 +42,13 @@ class Index(CustomAuthMixin, ListView):
 
         return context
 
+# Mixin just for the individual verbal autopsy data management views to restrict access based on user
+class AccessRestrictionMixin(SingleObjectMixin):
+    def get_queryset(self):
+        # Restrict to VAs this user can access
+        return self.request.user.verbal_autopsies()
 
-class Show(CustomAuthMixin, DetailView):
+class Show(CustomAuthMixin, DetailView, AccessRestrictionMixin):
     template_name = 'va_data_management/show.html'
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -68,7 +72,7 @@ class Show(CustomAuthMixin, DetailView):
         return context
 
 
-class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView):
+class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView, AccessRestrictionMixin):
     template_name = 'va_data_management/edit.html'
     form_class = VerbalAutopsyForm
     model = VerbalAutopsy
@@ -84,7 +88,7 @@ class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class Reset(CustomAuthMixin, DetailView):
+class Reset(CustomAuthMixin, DetailView, AccessRestrictionMixin):
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to original!"
@@ -98,7 +102,7 @@ class Reset(CustomAuthMixin, DetailView):
         return redirect('va_data_management:show', id=self.object.id)
 
 
-class RevertLatest(CustomAuthMixin, DetailView):
+class RevertLatest(CustomAuthMixin, DetailView, AccessRestrictionMixin):
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to previous!"
