@@ -225,12 +225,10 @@ app.layout = html.Div(
                                  "margin-left": "20px"
                           }
                         )
-
-
                     ],
                     style={"margin-left": "0px"},
                 ),
-                html.Div(
+                dbc.Row(
                     [
                         dbc.Col(
                             [
@@ -242,9 +240,7 @@ app.layout = html.Div(
                                                 "display": "flex",
                                                 "text-align": "center",
                                             },
-                                        )
-                                        
-                                       
+                                        )                           
                                     ],
                                     style={"margin-left": "0px"},
                                 ),
@@ -270,21 +266,6 @@ app.layout = html.Div(
                                             ],
                                             style={"display": "flex"},
                                         ),
-                                        html.Div(className='dashborad-comp-container',
-                                            id='search-container',
-                                            children = [
-                                                    dcc.Dropdown(
-                                                        id='map_search',
-                                                        options= [],
-                                                        multi=False, 
-                                                        placeholder='Search Locations', 
-                                                        clearable=True,
-                                                       )], 
-                                             style={
-                                                     "margin-left": "10px",
-                                                     "width": "220px",
-                                            }
-                                        ),
                                          html.Div(
                                             className="dashboard-comp-container",
                                             children=[
@@ -295,9 +276,6 @@ app.layout = html.Div(
                                                 ),
                                                 dcc.Dropdown(
                                                     id="view_level",
-#                                                    options = [{"value": o, "label": o.capitalize()}
-#                                                    for o in [INITIAL_GRANULARITY]], 
-#                                                    value=INITIAL_GRANULARITY,
                                                     value="",
                                                     placeholder = "Auto",
                                                     style={
@@ -335,6 +313,29 @@ app.layout = html.Div(
                                     )
                                         
                                 ]),
+                                dbc.Row([
+                                    html.Span(className='fas fa-search', style={ "margin-top": "10px"}),
+                                    html.Div(className='dashborad-comp-container',
+                                        id='search-container',
+                                        children = [
+                                                dcc.Dropdown(
+                                                    id='map_search',
+                                                    options= [],
+                                                    multi=False, 
+                                                    placeholder='Search Locations', 
+                                                    clearable=True,
+                                                    )], 
+                                            style={
+                                                    "margin-left": "10px",
+                                                    "width": "90%",
+                                            }
+                                        ),
+                                    ],
+                                    style={
+                                        "padding-left": "15px",
+                                        "padding-right": "15px",
+                                    }
+                                ),
                                 html.Div(id="bounds"),
                                 html.Div(id="va_data", style={"display": "none"}),
                                 html.Div(id="invalid_va_data", style={"display": "none"}),
@@ -527,7 +528,8 @@ app.layout = html.Div(
                                         ),
                                     ]
                                 )
-                            ]
+                            ],
+                            width=5,
                         ),
                     ],
                     style={"display": "flex", "margin-top": "10px"},
