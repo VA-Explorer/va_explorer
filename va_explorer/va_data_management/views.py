@@ -64,7 +64,6 @@ class Show(CustomAuthMixin, DetailView, AccessRestrictionMixin):
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
 
         # TODO: date in diff info should be formatted in local time
-        # TODO: history should eventually show user who made the change
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
