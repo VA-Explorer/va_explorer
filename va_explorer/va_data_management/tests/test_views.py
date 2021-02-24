@@ -2,7 +2,7 @@ import pytest
 from django.test import Client
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.tests.factories import VerbalAutopsyFactory
+from va_explorer.tests.factories import VerbalAutopsyFactory, LocationFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -96,3 +96,28 @@ def test_revert_latest(user: User):
     assert va.Id10007 == second_name
     assert va.history.count() == 4
     assert va.history.first().history_user == user
+
+# Test all methods for access control restrictions
+def test_access_control(user: User):
+    # Set up a location tree so the user can be scoped without access to a VA
+    province = LocationFactory.create()
+    district1 = province.add_child(name='District1', location_type='district')
+    district2 = province.add_child(name='District2', location_type='district')
+    facility = district1.add_child(name='Facility', location_type='facility')
+    va = VerbalAutopsyFactory.create(location=facility)
+    user.location_restrictions.set([district2]) # Should not have access to VA
+    client = Client()
+    client.force_login(user=user)
+    response = client.get("/va_data_management/")
+    assert response.status_code == 200
+    assert bytes(va.Id10007, "utf-8") not in response.content
+    response = client.get(f"/va_data_management/show/{va.id}")
+    assert response.status_code == 404
+    response = client.get(f"/va_data_management/edit/{va.id}")
+    assert response.status_code == 404
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": "New Name" })
+    assert response.status_code == 404
+    response = client.get(f"/va_data_management/reset/{va.id}")
+    assert response.status_code == 404
+    response = client.get(f"/va_data_management/revert_latest/{va.id}")
+    assert response.status_code == 404
