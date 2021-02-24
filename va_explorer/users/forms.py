@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
-from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect
+from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect, SelectMultiple
 from django.utils.crypto import get_random_string
 from va_explorer.va_data_management.models import Location
 
@@ -18,29 +18,46 @@ from va_explorer.va_data_management.models import Location
 User = get_user_model()
 
 
-# Assigns user to national-level access implicitly if no locations are associated with the user.
-def validate_location_access(form, geographic_access, locations):
-    if geographic_access == "location-specific" and len(locations) == 0:
-        form._errors["locations"] = form.error_class(
-            ["You must add one or more locations if access is location-specific."]
-        )
-    elif geographic_access == "national" and len(locations) > 0:
-        form._errors["locations"] = form.error_class(
+def get_location_restrictions(cleaned_data):
+    """
+    Utility method to determine if the user locations are from the location_restrictions
+    dropdown or facility restrictions dropdown (Field Worker role only)
+    """
+    if "location_restrictions" in cleaned_data and len(cleaned_data["facility_restrictions"]) == 0:
+        return cleaned_data["location_restrictions"]
+    elif "facility_restrictions" in cleaned_data and len(cleaned_data["location_restrictions"]) == 0:
+        return cleaned_data["facility_restrictions"]
+    else:
+        return []
+
+
+def validate_location_access(form, geographic_access, location_restrictions, group):
+    """
+    Custom form validations related to geographic access and location restrictions
+    """
+    if geographic_access == "location-specific" and len(location_restrictions) == 0:
+        if group.name == "Field Workers":
+            form._errors["facility_restrictions"] = form.error_class(
+                ["You must add one or more facilities."]
+            )
+        else:
+            form._errors["location_restrictions"] = form.error_class(
+                ["You must add one or more locations if access is location-specific."]
+            )
+    elif geographic_access == "national" and len(location_restrictions) > 0:
+        form._errors["location_restrictions"] = form.error_class(
             ["You cannot add specific locations if access is national."]
         )
 
 
-# TODO: Update to Django 3.1 to get access to the instance via value without making another query
-class LocationSelectMultiple(forms.SelectMultiple):
-    def create_option(self, name, value, *args, **kwargs):
-        option = super().create_option(name, value, *args, **kwargs)
+class LocationRestrictionsSelectMultiple(SelectMultiple):
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
         if value:
-            instance = self.choices.queryset.get(pk=value)  # get instance
-            option["attrs"]["data-depth"] = instance.depth  # set option attribute
-
+            option['attrs']['data-depth'] = value.instance.depth
             # Only query for descendants if there are any
-            if instance.numchild > 0:
-                option["attrs"]["data-descendants"] = instance.descendant_ids
+            if value.instance.numchild > 0:
+                option['attrs']['data-descendants'] = value.instance.get_descendant_ids()
         return option
 
 
@@ -60,11 +77,19 @@ class ExtendedUserCreationForm(UserCreationForm):
     password2 = None
     # Allows us to save one group for the user, even though groups are m2m with user by default
     group = ModelChoiceField(queryset=Group.objects.all(), required=True)
-    locations = ModelMultipleChoiceField(
+    location_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
-        widget=LocationSelectMultiple(attrs={"class": "location-select"}),
+        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
     )
+
+    facility_restrictions = ModelMultipleChoiceField(
+        queryset=Location.objects.filter(location_type="facility").order_by("name"),
+        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
+        required=False,
+        help_text="Field Workers must be assigned to at least one facility."
+    )
+
     geographic_access = forms.ChoiceField(
         choices=(("national", "National"), ("location-specific", "Location-specific")),
         initial="location-specific",
@@ -74,7 +99,14 @@ class ExtendedUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["name", "email", "group", "geographic_access", "locations"]
+        fields = [
+            "name",
+            "email",
+            "group",
+            "geographic_access",
+            "location_restrictions",
+            "facility_restrictions"
+        ]
 
     def __init__(self, *args, **kwargs):
         """
@@ -84,6 +116,7 @@ class ExtendedUserCreationForm(UserCreationForm):
         self.request = kwargs.pop("request", None)
 
         super(UserCreationForm, self).__init__(*args, **kwargs)
+
         self.fields["group"].label = "Role"
 
     def clean(self, *args, **kwargs):
@@ -92,9 +125,11 @@ class ExtendedUserCreationForm(UserCreationForm):
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
 
-        if "geographic_access" in cleaned_data and "locations" in cleaned_data:
+        if "geographic_access" and "group" in cleaned_data:
+            location_restrictions = get_location_restrictions(cleaned_data)
+
             validate_location_access(
-                self, cleaned_data["geographic_access"], cleaned_data["locations"]
+                self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
             )
 
         return cleaned_data
@@ -116,7 +151,7 @@ class ExtendedUserCreationForm(UserCreationForm):
             password = get_random_string(length=32)
             user.set_password(password)
 
-            locations = self.cleaned_data["locations"]
+            location_restrictions = get_location_restrictions(self.cleaned_data)
             group = self.cleaned_data["group"]
 
             if commit:
@@ -124,7 +159,7 @@ class ExtendedUserCreationForm(UserCreationForm):
 
                 # You cannot associate the user with a m2m field until it’s been saved
                 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-                user.locations.add(*locations)
+                user.location_restrictions.add(*location_restrictions)
                 user.groups.add(*[group])
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
@@ -145,11 +180,19 @@ class UserUpdateForm(forms.ModelForm):
 
     name = forms.CharField(required=True, max_length=100)
     group = ModelChoiceField(queryset=Group.objects.all(), required=True)
-    locations = ModelMultipleChoiceField(
+    location_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
-        widget=LocationSelectMultiple(attrs={"class": "location-select"}),
+        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
         required=False,
     )
+
+    facility_restrictions = ModelMultipleChoiceField(
+        queryset=Location.objects.filter(location_type="facility").order_by("name"),
+        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
+        required=False,
+        help_text="Field Workers must be assigned to at least one facility."
+    )
+
     geographic_access = forms.ChoiceField(
         choices=(("national", "National"), ("location-specific", "Location-specific")),
         widget=RadioSelect(),
@@ -164,7 +207,8 @@ class UserUpdateForm(forms.ModelForm):
             "is_active",
             "group",
             "geographic_access",
-            "locations",
+            "location_restrictions",
+            "facility_restrictions"
         ]
 
     def __init__(self, *args, **kwargs):
@@ -180,24 +224,27 @@ class UserUpdateForm(forms.ModelForm):
         """
         cleaned_data = super(forms.ModelForm, self).clean()
 
-        if "geographic_access" in cleaned_data and "locations" in cleaned_data:
+        if "geographic_access" and "group" in cleaned_data:
+            location_restrictions = get_location_restrictions(cleaned_data)
+
             validate_location_access(
-                self, cleaned_data["geographic_access"], cleaned_data["locations"]
+                self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
             )
+
         return cleaned_data
 
     def save(self, commit=True):
         user = super(UserUpdateForm, self).save(commit)
-        locations = self.cleaned_data["locations"]
+        location_restrictions = get_location_restrictions(self.cleaned_data)
         group = self.cleaned_data["group"]
 
         if commit:
             """
             You cannot associate the user with a m2m field until it’s been saved
             https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-            Set combines clear() and add(*locations)
+            Set combines clear() and add(*location_restrictions)
             """
-            user.locations.set(locations)
+            user.location_restrictions.set(location_restrictions)
             user.groups.set([group])
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
@@ -216,6 +263,9 @@ class UserUpdateForm(forms.ModelForm):
 
 class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
     """
+    Allows the user to set a password of their choosing after logging in with a system-defined
+    random password.
+
     See allauth:
         https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
         If we do not want this dependency, we can write our own clean method to ensure the
@@ -231,6 +281,44 @@ class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
     def save(self, user):
         user.set_password(self.cleaned_data["password1"])
         user.has_valid_password = True
+        user.save()
+
+        return user
+
+
+class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
+    """
+    Allows the user to change their password if they already have a valid (i.e., non-temporary) password.
+    Requires the user to re-type their old password and type in their new password twice.
+
+    See allauth:
+        https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
+        If we do not want this dependency, we can write our own clean method to ensure the
+        2 typed-in passwords match.
+    """
+    current_password = PasswordField(label="Current Password")
+
+    password1 = SetPasswordField(
+        label="New Password",
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password2 = PasswordField(label="New Password (again)")
+
+    def __init__(self, *args, **kwargs):
+        """
+        Set the current user on the form
+        We need this to call user.check_password in clean_current_password
+        """
+        self.user = kwargs.pop('user', None)
+        super(UserChangePasswordForm, self).__init__(*args, **kwargs)
+
+    def clean_current_password(self):
+        if not self.user.check_password(self.cleaned_data.get("current_password")):
+            raise forms.ValidationError(("Please type your current password."))
+        return self.cleaned_data["current_password"]
+
+    def save(self, user):
+        user.set_password(self.cleaned_data["password1"])
         user.save()
 
         return user

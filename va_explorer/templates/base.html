@@ -1,68 +1,68 @@
 {% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}VA Explorer{% endblock title %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
 
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>{% block title %}VA Explorer{% endblock title %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+      <script src="{% static 'vendor/html5shiv-3.7.3/html5shiv.js' %}"></script>
     <![endif]-->
 
-    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
+  <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
 
-    {% block css %}
-    <!-- Latest compiled and minified Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <!-- Your stuff: Third-party CSS libraries go here -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
-
-    <!-- This file stores project-specific CSS -->
-    <link href="{% static 'css/project.css' %}" rel="stylesheet">
-
-    {% endblock %}
+  {% block css %}
+  <link href="{% static 'vendor/bootstrap-4.3.1/bootstrap.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/select2-4.1.0-beta.1/select2.css' %}" rel="stylesheet">
+  <link href="{% static 'css/project.css' %}" rel="stylesheet">
+  <link href="{% static 'css/fab.css' %}" rel="stylesheet">
+  {% endblock %}
 
   {% load plotly_dash%}
   {% plotly_header %}
 
-  </head>
-  <body>
-    <div class="mb-1">
-      {% include "partials/_top_navigation.html" %}
+</head>
+
+<body>
+  <div class="mb-1">
+    {% include "partials/_top_navigation.html" %}
+  </div>
+  <div class="{% block container-type %}container{% endblock %}">
+    {% include "partials/_messages.html" %}
+
+    <div class="row mt-4">
+      <h2>
+        {% block heading %}
+        {% endblock heading %}
+      </h2>
+      <br>
     </div>
-    <div class="{% block container-type %}container{% endblock %}">
-      {% include "partials/_messages.html" %}
 
-      {% block content %}
-      {% endblock content %}
+    {% block content %}
+    {% endblock content %}
+  </div> <!-- /container -->
 
-    </div> <!-- /container -->
+  {% block modal %}{% endblock modal %}
 
-    {% block modal %}{% endblock modal %}
+  <script src="{% static 'vendor/jquery-3.5.1/jquery.js' %}"></script>
+  <script src="{% static 'vendor/popper-1.14.3/popper.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap-4.3.1/bootstrap.js' %}"></script>
+  <script src="{% static 'vendor/font-awesome-5.6.3/font-awesome.min.js' %}"></script>
+  <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
+  <script src="{% static 'js/project.js' %}"></script>
+  <script src="{% static 'js/fab.js' %}"></script>
 
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    {% block javascript %}
+  {% block page_scripts %}{% endblock %}
 
-      <!-- Bootstrap JS and its dependencies-->
-      <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <div class="navbar fixed-bottom copyright-text">Copyright 2020-2021 The MITRE Corporation</div>
 
-      <!-- Your stuff: Third-party javascript libraries go here -->
-      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</body>
+{% plotly_footer %}
 
-      <!-- place project specific Javascript in this file -->
-      <script src="{% static 'js/project.js' %}"></script>
-
-    {% endblock javascript %}
-  </body>
-  {% plotly_footer %}
 </html>

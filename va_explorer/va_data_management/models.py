@@ -1,6 +1,6 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 #from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
@@ -23,7 +23,7 @@ class Location(MP_Node):
     def __str__(self):
         return self.name
 
-    def descendant_ids(self):
+    def get_descendant_ids(self):
         return [descendant.id for descendant in self.get_descendants()]
 
     def parent_id(self):
@@ -584,6 +584,14 @@ class VerbalAutopsy(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+     # function to tell if VA had any coding errors
+    def any_errors(self):
+        return self.coding_issues.filter(severity='error').exists()
+
+    # function to tell if VA had any coding warnings
+    def any_warnings(self):
+        return self.coding_issues.filter(severity='warning').exists()
+
 class dhisStatus(models.Model):
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
     vaid = models.TextField(blank=False)
@@ -601,7 +609,6 @@ class cod_codes_dhis(models.Model):
 
     def __str__(self):
         return self.codname
-
 
 
 class CauseOfDeath(models.Model):
