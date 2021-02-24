@@ -2,16 +2,15 @@
 
 {% block title %}Users{% endblock %}
 
+{% block heading %}Users{% endblock %}
+
 {% block content %}
   <div class="row mt-4">
-    <h2>Users</h2>
+    {% if perms.users.add_user %}
+      <a href="{% url 'users:create' %}" class="btn btn-success" role="button">Create User</a>
+    {% endif %}
   </div>
-  <div class="row mt-3">
-  {% if perms.users.add_user %}
-    <a href="{% url 'users:create' %}" class="btn btn-success" role="button">Create User</a>
-  {% endif %}
-  </div>
-  <div class="row mt-3">
+  <div class="row mt-4">
     <table class="table">
       <thead>
         <tr>
@@ -47,27 +46,7 @@
         </tbody>
     </table>
     {% if is_paginated %}
-      <nav aria-label="Page navigation example">
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-            <li class="page-item"><a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a></li>
-          {% else %}
-            <li class="page-item disabled"><a href="#" class="page-link" tabindex="-1">Previous</a></li>
-          {% endif %}
-          {% for i in paginator.page_range %}
-            {% if page_obj.number == i %}
-              <li class="page-item active"><a class="page-link">{{ i }}</a></li>
-            {% else %}
-              <li class="page-item"><a href="?page={{ i }}" class="page-link">{{ i }}</a></li>
-            {% endif %}
-          {% endfor %}
-          {% if page_obj.has_next %}
-            <li class="page-item"><a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a></li>
-          {% else %}
-            <li class="page-item disabled"><a href="#" class="page-link" tabindex="-1">Next</a></li>
-          {% endif %}
-        </ul>
-      </nav>
+      {% include "partials/_pagination.html" %}
     {% endif %}
   </div>
 {% endblock %}

@@ -1,6 +1,6 @@
-Hello from {{ current_site }}!
+Hello from VA Explorer!
 
-You are receiving this e-mail because an administrator from {{ current_site }} has signed up your email address for an account.
+You are receiving this e-mail because an administrator from VA Explorer has signed up your email address for an account.
 
 To access your account, please visit the URL below and sign in with the temporary password provided. You will be prompted to create a
 new password upon signing in for the first time.
@@ -8,4 +8,4 @@ new password upon signing in for the first time.
 URL: {{ url }}
 Temporary password: {{ temporary_password }}
 
-Thank you for using {{ current_site }}!
+Thank you for using VA Explorer!

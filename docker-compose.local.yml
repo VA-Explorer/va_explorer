@@ -1,0 +1,23 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  pycrossva:
+    ports:
+      - "5001:80"
+
+  interva5:
+    ports:
+      - "5002:5002"
+
+  django:
+    environment:
+      DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
+      EMAIL_URL: consolemail://
+  postgres:
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups

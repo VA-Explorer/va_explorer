@@ -6,13 +6,11 @@ from django.views.generic import TemplateView
 
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path(
-        "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
-    ),
-
+    path("", include("va_explorer.home.urls")),
     # User management
     path("users/", include("va_explorer.users.urls", namespace="users")),
+    # Allauth
+    path("accounts/email/", default_views.page_not_found, kwargs={"exception": Exception("Page not Found")}),
     path("accounts/", include("allauth.urls")),
     # django-plotly-dash
     path('django_plotly_dash/', include('django_plotly_dash.urls')),

@@ -14,7 +14,12 @@ $(document).ready(function() {
    *          Must explicitly set the width here due to showing/hiding of select2, which
    *          can interfere with the width: https://select2.org/appearance#container-width
    */
-  $(".location-select").select2({
+  $(".facility-restrictions-select").select2({
+    placeholder: "Search for facilities to add to Field Worker's geographic access",
+    width:'100%'
+  });
+
+  $(".location-restrictions-select").select2({
     placeholder: "Search for location(s) to add to user's geographic access",
     templateResult: formatResult,
     width:'100%'
@@ -24,7 +29,7 @@ $(document).ready(function() {
    * Summary. Disables the descendant locations, if any, of a location that is selected
    *          Removes any previously-selected descendant locations from the select2 input field
    */
-  $(".location-select").on('select2:select', function(e) {
+  $(".location-restrictions-select").on('select2:select', function(e) {
     let descendants = e.params.data.element.dataset.descendants;
 
     if(descendants !== undefined) {
@@ -38,7 +43,7 @@ $(document).ready(function() {
   /**
    * Summary. Enables the descendant locations, if any, of a location that is unselected
    */
-  $(".location-select").on('select2:unselect', function(e) {
+  $(".location-restrictions-select").on('select2:unselect', function(e) {
     let descendants = e.params.data.element.dataset.descendants;
 
     if(descendants !== undefined) {
@@ -46,11 +51,19 @@ $(document).ready(function() {
     }
   });
 
-  // Call disableDescendantsForSelectedLocations on page load
-  disableDescendantsForSelectedLocations();
+  /**
+   * Functions to call and variables to define on page load
+   *
+   */
+  const geographicAccessID = 'div_id_geographic_access';
+  const locationRestrictionsID= 'div_id_location_restrictions';
+  const facilityRestrictionsID = 'div_id_facility_restrictions';
 
-  // Call toggleGeographicAccess() on page load
-  toggleGeographicAccess();
+  const locationRestrictionsClass = 'location-restrictions-select';
+  const facilityRestrictionsClass = 'facility-restrictions-select';
+
+  updateFormForRoleSelected();
+  disableDescendantsForSelectedLocations();
 
   /**
    * Summary. Applies the relevant CSS style to the location in the select2 dropdown menu, based on depth
@@ -74,7 +87,7 @@ $(document).ready(function() {
    *          Necessary for user edit, where locations were previously assigned
    */
   function disableDescendantsForSelectedLocations() {
-    $('#id_locations').select2('data').forEach(function(location) {
+    $('#id_location_restrictions').select2('data').forEach(function(location) {
       let descendants = location.element.getAttribute("data-descendants");
 
       // Note: getAttribute returns null if the attribute does not exist
@@ -91,7 +104,7 @@ $(document).ready(function() {
    * @param {boolean}  disabledState  boolean to indicate if disabled is true or false
    */
   function toggleDisabledStateOfDescendants(locationsHash, disabledState) {
-    $(".location-select option").filter(function() {
+    $(".location-restrictions-select option").filter(function() {
       return this.value in locationsHash;
     }).prop('disabled', disabledState);
   }
@@ -103,13 +116,13 @@ $(document).ready(function() {
   function removeSelectedDescendants(descendantsHash) {
     let updatedLocations = []
 
-    $('#id_locations').select2('data').forEach(function(element) {
+    $('#id_location_restrictions').select2('data').forEach(function(element) {
       if(!(element["id"] in descendantsHash)) {
         updatedLocations.push(element["id"]);
       }
     });
 
-    $('#id_locations').val(updatedLocations).trigger('change');
+    $('#id_location_restrictions').val(updatedLocations).trigger('change');
   }
 
   /**
@@ -118,7 +131,11 @@ $(document).ready(function() {
   function createDescendantsHash(descendants) {
     let descendantsHash = {};
 
-    JSON.parse(descendants.split(/, */)).forEach(function(element) {
+    if (descendants !== undefined) {
+      descendants = descendants.replace(/'/g, '"')
+    }
+
+    JSON.parse(descendants).forEach(function(element) {
       descendantsHash[element] = true;
     });
 
@@ -126,29 +143,89 @@ $(document).ready(function() {
   }
 
   /**
+   * Summary. Hides/shows the form locations controls based on the role selected. The controls include:
+   *  1. the geographic access radio button
+   *  2. the location restrictions select2 dropdown
+   *  3. the facility restrictions select2 dropdown (visible for Field Worker role only)
+   */
+  function updateFormForRoleSelected() {
+    let elemToHide = [];
+    let elemToShow = [];
+    let select2ToClear = [];
+
+    // No Role selected (dropdown is blank or undefined)
+    if(!$('#id_group option:selected').val()) {
+      elemToHide.push(geographicAccessID, locationRestrictionsID, facilityRestrictionsID);
+      select2ToClear.push(locationRestrictionsClass, facilityRestrictionsClass)
+    }
+
+    // Role selected is Field Worker
+    else if($('#id_group option:selected').text() === "Field Workers") {
+      elemToHide.push(geographicAccessID, locationRestrictionsID);
+      elemToShow.push(facilityRestrictionsID);
+      select2ToClear.push(locationRestrictionsClass);
+
+      // Add asterisk to facility restrictions select2 indicating it is required
+      addRequiredAsterisk($("label[for='id_facility_restrictions']"));
+
+      // Check the location-specific radio to true, which has been hidden
+      $("input[name=geographic_access]").val(["location-specific"]);
+    }
+
+    // Role selected is not Field Worker (Admin, Data Manager, Data Viewer)
+    else {
+      elemToHide.push(facilityRestrictionsID);
+      elemToShow.push(geographicAccessID);
+      select2ToClear.push(facilityRestrictionsClass);
+
+      // This method will determine if the locationRestrictions select2 should be shown/hidden
+      updateFormForGeographicAccess();
+    }
+
+    elemToHide.forEach(elem => $('#' + elem).hide());
+    elemToShow.forEach(elem =>$('#' + elem).show());
+    select2ToClear.forEach(select2 => $('.' + select2).val(null).trigger('change'));
+    addRequiredAsterisk();
+  }
+
+  /**
+   * Summary. Adds a span with an asterisk to facility restrictions and location restrictions
+   *          as a visual cue to the user that the field is required
+   */
+  function addRequiredAsterisk() {
+    [$("label[for='id_location_restrictions']"), $("label[for='id_facility_restrictions']")].forEach(function(elem){
+      if(elem && elem.children().length==0) {
+        elem.append('<span class="asteriskField">*</span>');
+      }
+    })
+  }
+
+  /**
    * Summary. Hides/shows the location select2 dropdown depending on the
    *          value of the geographic_access radio button
    */
-  function toggleGeographicAccess() {
-    if($('input[name="geographic_access"]:checked').val() === "national"){
-      $('#div_id_locations').hide()
-      $('.location-select').val(null).trigger('change');
+  function updateFormForGeographicAccess() {
+    if($('input[name="geographic_access"]:checked').val() === "national") {
+      $('#' + locationRestrictionsID).hide();
+      $('.' + locationRestrictionsClass).val(null).trigger('change');
     }
     else{
-      $('#div_id_locations').show();
-
-      // Add the asterisk as a child of the locations label to indicate the field is required, when visible
-      if($("label[for='id_locations']").get(0).children.length===0) {
-        $("label[for='id_locations']").append('<span class="asteriskField">*</span>');
-      }
+      $('#' + locationRestrictionsID).show();
     }
   }
 
   /**
-   * Summary. Event listener that listens for the change of geographic access
+   * Summary. Event handler that listens for the change of role assignment
+   */
+  $('#id_group').change(function() {
+    updateFormForRoleSelected();
+  });
+
+  /**
+   * Summary. Event handler that listens for the change of geographic access
    *          from location-specific to national
    */
   $('input[type=radio][name=geographic_access]').on('change',function(){
-    toggleGeographicAccess(this);
+    updateFormForGeographicAccess();
   });
 });
