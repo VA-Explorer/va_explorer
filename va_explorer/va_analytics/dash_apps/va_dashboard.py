@@ -359,7 +359,8 @@ app.layout = html.Div(
 @app.callback(
     [
          Output(component_id="map_search", component_property="value"), 
-         Output(component_id="cod_type", component_property="value")
+         Output(component_id="cod_type", component_property="value"),
+         Output(component_id="timeframe", component_property="value")
     ], 
          
     [
@@ -368,7 +369,7 @@ app.layout = html.Div(
 )
 
 def reset(n_clicks=0):
-    return  "", INITIAL_COD_TYPE                                                  
+    return  "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME                                                
 
 # ============ VA data (loaded from database and shared across components) ========
 
@@ -745,7 +746,7 @@ def update_choropleth(va_data, timeframe, cod_type="All", view_level=None,\
                         marker_line_color=LOOKUP["line_colors"]["primary"],  # line markers between states
                         marker_line_width=border_thickness,
                         colorbar=dict(
-                            title="{} by {}".format(
+                            title="{} <br>by {}".format(
                                 cod_title, view_level.capitalize()
                             ),
                             thicknessmode="fraction",

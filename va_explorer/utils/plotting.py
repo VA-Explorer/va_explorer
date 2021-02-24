@@ -128,7 +128,7 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600, title
         first_width = .4
         column_widths = [first_width, 1 - first_width]
     comb_fig = make_subplots(
-        rows=2, cols=2,
+        rows=2, cols=2, shared_yaxes=True,
         specs=[[{'type': 'bar'}, {'type': 'bar'}],
                [{"colspan": 2}, None]],
         subplot_titles=("Gender","Age Group", "Place of Death"), 
@@ -146,7 +146,8 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600, title
     comb_fig.add_trace(go.Bar(name='Age Group', x=age_df['age_group'], y=age_df['count'], text=age_df['label'], textposition='auto',
                showlegend=False, marker_color=D3),
         row=1, col=2,)
-
+    comb_fig.update_yaxes(showticklabels=True, row=1, col=2)
+    
     # place of death
     loc_cts = get_field_counts(va_df, 'place of death', display_name='location')
     lookup = LOOKUP['death_location_names']
