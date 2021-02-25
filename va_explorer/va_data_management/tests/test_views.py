@@ -2,7 +2,7 @@ import pytest
 from django.test import Client
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.tests.factories import VerbalAutopsyFactory
+from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -25,13 +25,27 @@ def test_show(user: User):
     assert bytes(va.Id10007, "utf-8") in response.content
 
 # Request the edit form of a VA and make sure the data is as expected
-def test_edit(user: User):
+def test_edit_with_valid_permissions(user: User):
+    can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    user = UserFactory.create(groups=[can_edit_record_group])
+
     client = Client()
     client.force_login(user=user)
+
     va = VerbalAutopsyFactory.create()
     response = client.get(f"/va_data_management/edit/{va.id}")
     assert response.status_code == 200
     assert bytes(va.Id10007, "utf-8") in response.content
+
+# Request the edit form of a VA without permissions and make sure its forbidden
+def test_edit_without_valid_permissions(user: User):
+    client = Client()
+    client.force_login(user=user)
+
+    va = VerbalAutopsyFactory.create()
+    response = client.get(f"/va_data_management/edit/{va.id}")
+    assert response.status_code == 403
 
 # Update a VA and make sure 1) the data is changed and 2) the history is tracked
 def test_save(user: User):
