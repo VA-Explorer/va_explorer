@@ -1,1 +1,88 @@
-[{"model": "auth.group", "fields": {"name": "Admins", "permissions": [["add_user", "users", "user"], ["change_user", "users", "user"], ["delete_user", "users", "user"], ["view_user", "users", "user"]]}}, {"model": "auth.group", "fields": {"name": "Data Managers", "permissions": [["add_user", "users", "user"], ["change_user", "users", "user"], ["delete_user", "users", "user"], ["view_user", "users", "user"]]}}, {"model": "auth.group", "fields": {"name": "Data Viewers", "permissions": [["view_user", "users", "user"]]}}, {"model": "auth.group", "fields": {"name": "Field Workers", "permissions": []}}]
+[
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "Admins",
+            "permissions": [
+                [
+                    "add_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "change_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "delete_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "view_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "change_verbalautopsy",
+                    "va_data_management",
+                    "verbalautopsy"
+                ]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "Data Managers",
+            "permissions": [
+                [
+                    "add_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "change_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "delete_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "view_user",
+                    "users",
+                    "user"
+                ],
+                [
+                    "change_verbalautopsy",
+                    "va_data_management",
+                    "verbalautopsy"
+                ]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "Data Viewers",
+            "permissions": [
+                [
+                    "view_user",
+                    "users",
+                    "user"
+                ]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "Field Workers",
+            "permissions": []
+        }
+    }
+]
