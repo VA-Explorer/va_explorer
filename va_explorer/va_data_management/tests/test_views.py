@@ -1,5 +1,6 @@
 import pytest
 from django.test import Client
+from django.contrib.auth.models import Permission
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory
@@ -49,6 +50,10 @@ def test_edit_without_valid_permissions(user: User):
 
 # Update a VA and make sure 1) the data is changed and 2) the history is tracked
 def test_save(user: User):
+    can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    user = UserFactory.create(groups=[can_edit_record_group])
+
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create()
@@ -68,6 +73,10 @@ def test_save(user: User):
 
 # Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
 def test_reset(user: User):
+    can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    user = UserFactory.create(groups=[can_edit_record_group])
+
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create()
@@ -88,6 +97,10 @@ def test_reset(user: User):
 
 # Revert an updated VA and make sure 1) the data is reset to previous version and 2) the history is tracked
 def test_revert_latest(user: User):
+    can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    user = UserFactory.create(groups=[can_edit_record_group])
+
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create()
