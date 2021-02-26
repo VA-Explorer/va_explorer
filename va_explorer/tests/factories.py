@@ -34,11 +34,12 @@ class LocationFactory(DjangoModelFactory):
     class Meta:
         model = Location
 
+    # Create a root node by default
     name = Faker("city")
-    depth = FuzzyInteger(0, 4, 1)
-    location_type = "district"
-    numchild = FuzzyInteger(0, 20)
-    path = "001"
+    depth = 1
+    numchild = 0
+    location_type = "province"
+    path = "0001"
 
 class VerbalAutopsyFactory(DjangoModelFactory):
     class Meta:
@@ -67,15 +68,15 @@ class UserFactory(DjangoModelFactory):
                 self.groups.add(group)
 
     @factory.post_generation
-    def locations(self, create, extracted, *kwargs):
+    def location_restrictions(self, create, extracted, *kwargs):
         if not create:
             # Simple build, do nothing.
             return
 
         if extracted:
-            # A list of groups were passed in, use them
+            # A list of locations were passed in, use them
             for location in extracted:
-                self.locations.add(location)
+                self.location_restrictions.add(location)
 
 
 class NewUserFactory(UserFactory):
