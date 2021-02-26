@@ -244,6 +244,30 @@ app.layout = html.Div(
                                     ],
                                     style={"margin-left": "0px"},
                                 ),
+                                dbc.Row([
+                                    html.Span(className='fas fa-search', style={ "margin-top": "10px"}),
+                                    html.Div(className='dashborad-comp-container',
+                                        id='search-container',
+                                        children = [
+                                                dcc.Dropdown(
+                                                    id='map_search',
+                                                    options= [],
+                                                    multi=False, 
+                                                    placeholder='Search Locations', 
+                                                    clearable=True,
+                                                    )], 
+                                            style={
+                                                    "margin-left": "10px",
+                                                    "width": "90%",
+                                            }
+                                        ),
+                                    ],
+                                    style={
+                                        "padding-left": "20px",
+                                        "padding-right": "15px",
+                                        "margin-top": "15px"
+                                    }
+                                ),
                                 dbc.Row(
                                     [
                                         html.Div(
@@ -310,29 +334,6 @@ app.layout = html.Div(
                                         children=dcc.Graph(id="choropleth"),
                                     )
                                 ]),
-                                dbc.Row([
-                                    html.Span(className='fas fa-search', style={ "margin-top": "10px"}),
-                                    html.Div(className='dashborad-comp-container',
-                                        id='search-container',
-                                        children = [
-                                                dcc.Dropdown(
-                                                    id='map_search',
-                                                    options= [],
-                                                    multi=False, 
-                                                    placeholder='Search Locations', 
-                                                    clearable=True,
-                                                    )], 
-                                            style={
-                                                    "margin-left": "10px",
-                                                    "width": "90%",
-                                            }
-                                        ),
-                                    ],
-                                    style={
-                                        "padding-left": "15px",
-                                        "padding-right": "15px",
-                                    }
-                                ),
                                 html.Div(id="bounds"),
                                 html.Div(id="va_data", style={"display": "none"}),
                                 html.Div(id="invalid_va_data", style={"display": "none"}),
@@ -340,7 +341,7 @@ app.layout = html.Div(
                                 html.Div(id="location_types", style={"display": "none"}),
                                 html.Div(id="filter_dict", style={"display": "none"}),
                             ],
-                            width=7,
+                            width=8,
                             style={
                                 "min-width": "480px",
                                 "margin-bottom": "15px"
@@ -449,7 +450,7 @@ app.layout = html.Div(
                                                                     "display": "flex",
                                                                 },
                                                             ),
-                                                        ], style={ "padding-left": 0}, width=4)
+                                                        ], style={ "padding-left": 0}, width=5)
                                                     ],
                                                     style={
                                                         "display": "flex",
@@ -544,7 +545,7 @@ app.layout = html.Div(
                                     ]
                                 )
                             ],
-                            width=5,
+                            width=4,
                             style={
                                 "min-width": "480px",
                                 "margin-bottom": "15px"
