@@ -164,11 +164,13 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
 
 #===========CAUSE OF DEATH PLOT LOGIC=========================#
 # plot top N causes of death in va_data either overall or by factor/demographic
-def cause_of_death_plot(va_df, factor, agg_type='counts', N=10):
+def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all"):
     figure = go.Figure()
     factor = factor.lower()
+    plot_fn = go.Bar
+    
     if factor != "all":
-        assert factor in ["age group", "sex"]
+        assert factor in ["age group", "sex", "place of death"]
         factor_col = LOOKUP["demo_to_col"][factor]
         factor_title = "by " + factor.capitalize()
         counts = va_df.pivot_table(
@@ -179,38 +181,95 @@ def cause_of_death_plot(va_df, factor, agg_type='counts', N=10):
             fill_value=0,
             margins=True,
         )
-        plot_fn = go.Scatter
     else:
         counts = pd.DataFrame({"All": va_df.cause.value_counts()})
         factor_title = "Overall"
-        plot_fn = go.Bar
+
+    # make index labels pretty
+    counts.index = [LOOKUP["metric_names"].get(x, x) for x in counts.index]
     counts["cod"] = counts.index
-    counts = counts[counts["cod"] != "All"]
-    counts = counts.sort_values(by="All", ascending=False).head(N)
+    counts = (counts[counts["cod"] != "All"].sort_values(by="All", ascending=False).head(N))
     groups = list(set(counts.columns).difference(set(["cod"])))
+    
+    lines = [LOOKUP["line_colors"]["secondary"] for j in range(len(counts['cod']))]
+    widths = np.repeat(1, len(counts['cod']))
+    if chosen_cod != "all":
+        chosen_cod = LOOKUP["metric_names"].get(chosen_cod, chosen_cod.capitalize())
+        if chosen_cod in counts.index:
+            chosen_idx = counts.index.get_loc(chosen_cod)
+            lines[chosen_idx] = "#e0b816" 
+            widths[chosen_idx] = 4
+            counts["cod"][chosen_idx] = "<b>" + counts["cod"][chosen_idx] + "</b>"
+
     if factor != "all":
         groups.remove("All")
     for i, group in enumerate(groups):
-        if agg_type != "counts":
-            counts[group] = np.round(100 * counts[group] / counts[group].sum(), 1)
+        if factor == "all": 
+            # calculate percent as % of all cods (column-wise calculation)
+            counts[f"{group}_pct"] = np.round(100 * counts[group] / counts[group].sum(), 1)
+        else:
+            # calculate percent as % across groups for specific cod (row-wise calculation)
+            counts[f"{group}_pct"] = counts.apply(lambda row: np.round(100 * row[group] / row[groups].sum(), 1), axis=1)
+        counts["text"] = f"<i>{group.capitalize()}</i>: " + counts[group].astype(str) + " (" + counts[f"{group}_pct"].astype(str) + " %)"
+        
+        # counts
         figure.add_trace(
             plot_fn(
                 y=counts[group],
                 x=counts["cod"],
+                text=counts["text"],
                 name=group.capitalize(),
                 orientation="v",
+                hovertemplate = "<b>%{x}</b><br>%{text}<extra></extra>",
                 marker=dict(
-                    color=LOOKUP["color_list"][i],
-                    line=dict(color="rgb(158,158,158)", width=1),
+                    color= LOOKUP["color_list"][i],
+                    line=dict(color=lines, width=widths),
+                ),
+            )
+        )
+        # percents
+        figure.add_trace(
+            plot_fn(
+                y=counts[f"{group}_pct"],
+                x=counts["cod"],
+                text=counts["text"],
+                hovertemplate = "<b>%{x}</b> <br> %{text}<extra></extra>",
+                name=group.capitalize(),
+                orientation="v",
+                visible=False,
+                marker=dict(
+                    color= LOOKUP["color_list"][i],
+                    line=dict(color=lines, width=widths),
                 ),
             )
         )
     figure.update_layout(
         barmode="stack",
-        title_text="Top {} Causes of Death {}".format(N, factor_title),
+        title_text="Top Causes of Death {}".format(factor_title),
         xaxis_tickangle=-45,
-        yaxis_title="Count" if agg_type == "counts" else "Percent",
-    )
+        yaxis_title="Count",
+        updatemenus=[
+        dict(
+            type="buttons",
+            direction="right",
+            x = 1,
+            y=1.2,
+            active=0,
+            buttons=list([
+                dict(label="Counts",
+                     method="update",
+                     args=[{"visible": [True, False] * len(groups)},
+                           {"yaxis": {"title": "Count"}}
+                          ]),
+                dict(label="Percents",
+                     method="update",
+                     args = [{"visible": [False, True] * len(groups)},
+                             {'yaxis': {'title': '% of Total'}}
+                            ]),
+  
+            ]),
+        )])
+    
     return figure
 
 #========TREND/TIMESERIES PLOT LOGI======================#
