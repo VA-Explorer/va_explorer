@@ -3,7 +3,7 @@ from django.test import Client
 from django.contrib.auth.models import Permission
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory
+from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory, LocationFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -71,7 +71,7 @@ def test_save_with_valid_permissions(user: User):
     assert bytes(va.history.first().history_date.strftime('%Y-%m-%d %H:%M'), "utf-8") in response.content
     assert bytes(va.history.first().history_user.name, "utf-8") in response.content
 
-# Update a VA and make sure 1) the data is changed and 2) the history is tracked
+# Verify save access is restricted
 def test_save_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
@@ -105,7 +105,7 @@ def test_reset_with_valid_permissions(user: User):
     assert va.history.count() == 3
     assert va.history.first().history_user == user
 
-# Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
+# Verify reset access is restricted
 def test_reset_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
@@ -141,9 +141,39 @@ def test_revert_latest_with_valid_permissions(user: User):
     assert va.history.count() == 4
     assert va.history.first().history_user == user
 
+# Verify revert access is restricted 
 def test_revert_latest_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create()
     response = client.get(f"/va_data_management/revert_latest/{va.id}")
     assert response.status_code == 403
+
+# Test all methods for access control restrictions
+def test_access_control(user: User):
+    # Set up a location tree so the user can be scoped without access to a VA
+    can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    user = UserFactory.create(groups=[can_edit_record_group])
+
+    province = LocationFactory.create()
+    district1 = province.add_child(name='District1', location_type='district')
+    district2 = province.add_child(name='District2', location_type='district')
+    facility = district1.add_child(name='Facility', location_type='facility')
+    va = VerbalAutopsyFactory.create(location=facility)
+    user.location_restrictions.set([district2]) # Should not have access to VA
+    client = Client()
+    client.force_login(user=user)
+    response = client.get("/va_data_management/")
+    assert response.status_code == 200
+    assert bytes(va.Id10007, "utf-8") not in response.content
+    response = client.get(f"/va_data_management/show/{va.id}")
+    assert response.status_code == 404
+    response = client.get(f"/va_data_management/edit/{va.id}")
+    assert response.status_code == 404
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": "New Name" })
+    assert response.status_code == 404
+    response = client.get(f"/va_data_management/reset/{va.id}")
+    assert response.status_code == 404
+    response = client.get(f"/va_data_management/revert_latest/{va.id}")
+    assert response.status_code == 404

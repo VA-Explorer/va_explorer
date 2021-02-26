@@ -5,11 +5,12 @@ from django.db.models import ManyToManyField
 from django.urls import reverse
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
+from functools import reduce
 
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
-from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.models import VerbalAutopsy, Location
 
 
 class CustomUserManager(BaseUserManager):
@@ -57,6 +58,21 @@ class User(AbstractUser):
     )
 
     location_restrictions = ManyToManyField(Location, related_name="users", db_table="users_user_location_restrictions")
+
+    # The query set of verbal autopsies that this user has access to, based on location restrictions
+    # Note: locations are organized in a tree structure, and users have access to all children of any
+    # parent location nodes they have access to
+    def verbal_autopsies(self):
+      if self.location_restrictions.count() > 0:
+        # Get the query set of all locations at or below the parent nodes the user can access by joining
+        # the query sets of all the location trees; using the | operator leads to an efficient query
+        location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
+        locations = reduce((lambda set1, set2: set1 | set2), location_sets)
+        # Return the list of all verbal autopsies associated with that query set of locations
+        return VerbalAutopsy.objects.filter(location__in=locations)
+      else:
+        # No location restrictions, which implies access to all data
+        return VerbalAutopsy.objects.all()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

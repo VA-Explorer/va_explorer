@@ -5,8 +5,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
-import pandas
-
+from django.views.generic.detail import SingleObjectMixin
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.filters import VAFilter
@@ -16,10 +15,10 @@ from va_explorer.utils.mixins import CustomAuthMixin
 class Index(CustomAuthMixin, ListView):
     template_name = 'va_data_management/index.html'
     paginate_by = 15
-    queryset = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Restrict to VAs this user can access and prefetch related for performance
+        queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
 
         # do the filtering thing
         self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
@@ -44,8 +43,13 @@ class Index(CustomAuthMixin, ListView):
 
         return context
 
+# Mixin just for the individual verbal autopsy data management views to restrict access based on user
+class AccessRestrictionMixin(SingleObjectMixin):
+    def get_queryset(self):
+        # Restrict to VAs this user can access
+        return self.request.user.verbal_autopsies()
 
-class Show(CustomAuthMixin, DetailView):
+class Show(CustomAuthMixin, DetailView, AccessRestrictionMixin):
     template_name = 'va_data_management/show.html'
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -61,7 +65,6 @@ class Show(CustomAuthMixin, DetailView):
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
 
         # TODO: date in diff info should be formatted in local time
-        # TODO: history should eventually show user who made the change
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
@@ -69,7 +72,8 @@ class Show(CustomAuthMixin, DetailView):
         return context
 
 
-class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+
+class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView, AccessRestrictionMixin):
     template_name = 'va_data_management/edit.html'
     permission_required = "va_data_management.change_verbalautopsy"
     form_class = VerbalAutopsyForm
@@ -86,7 +90,8 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, Update
         return context
 
 
-class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView):
+
+class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrictionMixin):
     permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -101,7 +106,8 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView):
         return redirect('va_data_management:show', id=self.object.id)
 
 
-class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, DetailView):
+
+class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrictionMixin):
     permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
