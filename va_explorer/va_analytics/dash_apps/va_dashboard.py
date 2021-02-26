@@ -943,7 +943,7 @@ def update_choropleth(va_data, timeframe, map_metric="Coded VAs", view_level=Non
                         marker_line_color=LOOKUP["line_colors"]["primary"],  # line markers between states
                         marker_line_width=border_thickness,
                         colorbar=dict(
-                            title="{} by {}".format(
+                            title="{}<br>by {}".format(
                                 map_metric.capitalize(), granularity.capitalize()
                             ),
                             thicknessmode="fraction",
