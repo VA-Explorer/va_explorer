@@ -2,15 +2,16 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.core.management import BaseCommand
 
+from va_explorer.va_data_management.models import VerbalAutopsy 
+
 User = get_user_model()
 
 GROUPS_PERMISSIONS = {
-    "Admins": {User: ["add", "change", "delete", "view"]},
-    "Data Managers": {User: ["add", "change", "delete", "view"]},
+    "Admins": {User: ["add", "change", "delete", "view"], VerbalAutopsy: ["change"]},
+    "Data Managers": {User: ["add", "change","delete", "view"], VerbalAutopsy: ["change"]},
     "Data Viewers": {User: ["view"]},
     "Field Workers": {User: []},
 }
-
 
 class Command(BaseCommand):
     def __init__(self, *args, **kwargs):

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
@@ -71,8 +72,10 @@ class Show(CustomAuthMixin, DetailView, AccessRestrictionMixin):
         return context
 
 
-class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView, AccessRestrictionMixin):
+
+class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView, AccessRestrictionMixin):
     template_name = 'va_data_management/edit.html'
+    permission_required = "va_data_management.change_verbalautopsy"
     form_class = VerbalAutopsyForm
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -87,7 +90,9 @@ class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView, AccessRestrictionMi
         return context
 
 
-class Reset(CustomAuthMixin, DetailView, AccessRestrictionMixin):
+
+class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrictionMixin):
+    permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to original!"
@@ -101,7 +106,9 @@ class Reset(CustomAuthMixin, DetailView, AccessRestrictionMixin):
         return redirect('va_data_management:show', id=self.object.id)
 
 
-class RevertLatest(CustomAuthMixin, DetailView, AccessRestrictionMixin):
+
+class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrictionMixin):
+    permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to previous!"
