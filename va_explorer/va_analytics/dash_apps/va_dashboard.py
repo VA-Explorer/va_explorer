@@ -976,11 +976,10 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_factor", component_property="value"),
         Input(component_id="cod_n", component_property="value"),
-        Input(component_id="cod-aggtype", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_dict=None):
+def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -992,9 +991,8 @@ def cod_plot(va_data, timeframe, factor="All", N=10, agg_type="counts", filter_d
 
             # only proceed if remaining data after filter    
             if plot_data.size > 0:
-                # cause_of_death_plot(plot_data, factor, N, agg)
                 figure = plotting.cause_of_death_plot(plot_data, factor=factor, N=N,\
-                                                      agg_type=agg_type, chosen_cod=cod)
+                                                      chosen_cod=cod)
     return dcc.Graph(id="cod_plot", figure=figure)
 #
 #

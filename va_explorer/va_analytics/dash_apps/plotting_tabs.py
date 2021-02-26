@@ -39,19 +39,20 @@ TABS[cod_key] = dcc.Tab(
                             options=[
                                 {
                                     "label": o,
-                                    "value": o,
+                                    "value": o.lower(),
                                 }
                                 for o in [
                                     "All",
                                     "Age Group",
                                     "Sex",
+                                    "Place of Death"
                                 ]
                             ],
-                            value="All",
+                            value="all",
                             style={
                                 "margin-top": "5px",
                                 "margin-bottom": "5px",
-                                "width": "120px",
+                                "width": "140px",
                             },
                             searchable=False,
                             clearable=False,
@@ -88,30 +89,7 @@ TABS[cod_key] = dcc.Tab(
                         ),
                     ],
                     style={"display": "flex"},
-                ),
-                dbc.RadioItems(
-                    id="cod-aggtype",
-                    options=[
-                        {
-                            "label": "% of Total",
-                            "value": "percent_total",
-                        },
-                        {
-                            "label": "Counts",
-                            "value": "counts",
-                        },
-                    ],
-                    value="cts",
-                    labelStyle={
-                        "display": "inline-block"
-                    },
-                    labelClassName="radio-group-labels",
-                    labelCheckedClassName="radio-group-labels-checked",
-                    style={
-                        "margin-left": "30px",
-                        "display": "flex",
-                    },
-                ),
+                )
             ],
             style={
                 "display": "flex",
