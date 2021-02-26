@@ -278,7 +278,9 @@ app.layout = html.Div(
                                 ])
 
                         ],
-                        style={"align-items": "flex-end", "display": "flex"}
+                        style={"align-items": "flex-end",
+                               "display": "flex",
+                               "margin-bottom": "10px"}
                     )
                     ],
                     style={"padding-bottom": "10px"},
@@ -383,13 +385,14 @@ app.layout = html.Div(
                                                                                     "All",
                                                                                     "Age Group",
                                                                                     "Sex",
+                                                                                    "Place of Death"
                                                                                 ]
                                                                             ],
                                                                             value="All",
                                                                             style={
                                                                                 "margin-top": "5px",
                                                                                 "margin-bottom": "5px",
-                                                                                "width": "120px",
+                                                                                "width": "140px",
                                                                             },
                                                                             searchable=False,
                                                                             clearable=False,
@@ -916,7 +919,7 @@ def update_choropleth(va_data, timeframe, cod_type="All", view_level=None,\
                 if highlight_region: 
                     # increse border thickness to highlight selcted region
                     border_thickness = 3 * border_thickness
-                    
+                
                 figure.add_trace(go.Choropleth(
                         locations=map_df[view_level],
                         z=map_df[data_value].astype(float),
@@ -930,8 +933,8 @@ def update_choropleth(va_data, timeframe, cod_type="All", view_level=None,\
                         marker_line_color=LOOKUP["line_colors"]["primary"],  # line markers between states
                         marker_line_width=border_thickness,
                         colorbar=dict(
-                            title="{} by {}".format(
-                                cod_type.capitalize(), view_level.capitalize()
+                            title="{}<br>by {}".format(
+                                cod_title, view_level.capitalize()
                             ),
                             thicknessmode="fraction",
                             thickness=0.03,
