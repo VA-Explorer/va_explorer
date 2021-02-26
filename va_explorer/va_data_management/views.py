@@ -86,7 +86,8 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, Update
         return context
 
 
-class Reset(CustomAuthMixin, DetailView):
+class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView):
+    permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to original!"
@@ -100,7 +101,8 @@ class Reset(CustomAuthMixin, DetailView):
         return redirect('va_data_management:show', id=self.object.id)
 
 
-class RevertLatest(CustomAuthMixin, DetailView):
+class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, DetailView):
+    permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to previous!"

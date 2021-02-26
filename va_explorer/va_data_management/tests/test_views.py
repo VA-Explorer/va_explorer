@@ -49,7 +49,7 @@ def test_edit_without_valid_permissions(user: User):
     assert response.status_code == 403
 
 # Update a VA and make sure 1) the data is changed and 2) the history is tracked
-def test_save(user: User):
+def test_save_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
     user = UserFactory.create(groups=[can_edit_record_group])
@@ -71,8 +71,18 @@ def test_save(user: User):
     assert bytes(va.history.first().history_date.strftime('%Y-%m-%d %H:%M'), "utf-8") in response.content
     assert bytes(va.history.first().history_user.name, "utf-8") in response.content
 
+# Update a VA and make sure 1) the data is changed and 2) the history is tracked
+def test_save_without_valid_permissions(user: User):
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create()
+    assert va.history.count() == 1
+    new_name = "Updated Example Name"
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
+    assert response.status_code == 403
+
 # Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
-def test_reset(user: User):
+def test_reset_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
     user = UserFactory.create(groups=[can_edit_record_group])
@@ -95,8 +105,15 @@ def test_reset(user: User):
     assert va.history.count() == 3
     assert va.history.first().history_user == user
 
+# Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
+def test_reset_without_valid_permissions(user: User):
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create()
+    response = client.get(f"/va_data_management/reset/{va.id}")
+
 # Revert an updated VA and make sure 1) the data is reset to previous version and 2) the history is tracked
-def test_revert_latest(user: User):
+def test_revert_latest_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
     user = UserFactory.create(groups=[can_edit_record_group])
@@ -123,3 +140,10 @@ def test_revert_latest(user: User):
     assert va.Id10007 == second_name
     assert va.history.count() == 4
     assert va.history.first().history_user == user
+
+def test_revert_latest_without_valid_permissions(user: User):
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create()
+    response = client.get(f"/va_data_management/revert_latest/{va.id}")
+    assert response.status_code == 403
