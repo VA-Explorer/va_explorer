@@ -46,7 +46,9 @@
         <td>{{ va.cause }}</td>
         <td>{{ va.warnings }}</td>
         <td>{{ va.errors }}</td>
-        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+        {% if perms.va_data_management.view_verbalautopsy %}
+          <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
