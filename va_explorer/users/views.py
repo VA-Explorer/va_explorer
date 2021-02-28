@@ -13,7 +13,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from ..utils.mixins import CustomAuthMixin
+from ..utils.mixins import CustomAuthMixin, UserDetailViewMixin
 from .forms import ExtendedUserCreationForm, UserChangePasswordForm, UserSetPasswordForm, UserUpdateForm
 
 User = get_user_model()
@@ -52,9 +52,8 @@ class UserCreateView(
 user_create_view = UserCreateView.as_view()
 
 
-class UserDetailView(CustomAuthMixin, PermissionRequiredMixin, DetailView):
+class UserDetailView(CustomAuthMixin, UserDetailViewMixin, DetailView):
     login_url = reverse_lazy("account_login")
-    permission_required = "users.view_user"
     model = User
 
 
