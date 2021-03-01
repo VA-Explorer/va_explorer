@@ -63,6 +63,7 @@ def load_lookup_dicts():
     }
     # dictionary mapping raw map metrics to human-readable names
     lookup["metric_names"] = {
+        "all": "All Causes",
         "Coded VAs": "Coded VAs",
         "Mean Age of Death": "Mean Age of Death",
         "HIV/AIDS related death": "HIV/AIDS",
@@ -131,7 +132,8 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
         specs=[[{'type': 'bar'}, {'type': 'bar'}],
                [{"colspan": 2}, None]],
         subplot_titles=("Gender","Age Group", "Place of Death"), 
-        column_widths=column_widths)
+        column_widths=column_widths, 
+        vertical_spacing=.15)
 
     # gender
     sex_df = get_field_counts(va_df, 'sex', display_name='gender')

@@ -15,8 +15,6 @@ import dash_bootstrap_components as dbc
 
 import pandas as pd
 import plotly.graph_objs as go
-import plotly.figure_factory as ff
-import plotly.express as px
 import os
 import numpy as np
 import datetime as dt
@@ -28,7 +26,6 @@ from django.forms.models import model_to_dict
 import va_explorer.utils.plotting as plotting
 
 import re
-
 import time
 
 # ================APP DEFINITION===============#
@@ -226,7 +223,7 @@ app.layout = html.Div(
                             dcc.Dropdown(
                                 id="cod_type",
                                 value=INITIAL_COD_TYPE,  
-                                options=[{"label": "All", "value": "all"}],                                          
+                                options=[{"label": "All Causes", "value": "all"}],                                          
                                 style={
                                     "margin-top": "5px",
                                     "margin-bottom": "5px",
@@ -310,7 +307,7 @@ app.layout = html.Div(
                                                     id='map_search',
                                                     options= [],
                                                     multi=False, 
-                                                    placeholder='Search Locations', 
+                                                    placeholder='Search Locations (or click on map)', 
                                                     clearable=True,
                                                     )], 
                                             style={
@@ -362,88 +359,76 @@ app.layout = html.Div(
                                         dcc.Tab(
                                             label="COD Analysis",
                                             children=[  # tab 1: COD Analysis
-                                                dbc.Row(
+                                                html.Div(
                                                     id="cod_buttons",
                                                     children=[
-                                                        # dbc
-                                                        dbc.Col([
-                                                            dbc.Row([
-                                                                dbc.Col(
-                                                                    [
-                                                                        html.P(
-                                                                            "Demographic",
-                                                                            className="input-label",
-                                                                        ),
-                                                                        dcc.Dropdown(
-                                                                            id="cod_factor",
-                                                                            options=[
-                                                                                {
-                                                                                    "label": o,
-                                                                                    "value": o,
-                                                                                }
-                                                                                for o in [
-                                                                                    "All",
-                                                                                    "Age Group",
-                                                                                    "Sex",
-                                                                                    "Place of Death"
-                                                                                ]
-                                                                            ],
-                                                                            value="All",
-                                                                            style={
-                                                                                "margin-top": "5px",
-                                                                                "margin-bottom": "5px",
-                                                                                "width": "140px",
-                                                                            },
-                                                                            searchable=False,
-                                                                            clearable=False,
-                                                                        ),
-                                                                    ],
-                                                                    style={
-                                                                        "display": "flex",
-                                                                    },
-                                                                    width=8,
+                                                        dbc.Row(
+                                                            [
+                                                                dbc.Col([
+                                                                    html.P(
+                                                                        "Demographic",
+                                                                        className="input-label",
+                                                                    ),
+                                                                    dcc.Dropdown(
+                                                                        id="cod_factor",
+                                                                        options=[
+                                                                            {
+                                                                                "label": o,
+                                                                                "value": o,
+                                                                            }
+                                                                            for o in [
+                                                                                "All",
+                                                                                "Age Group",
+                                                                                "Sex",
+                                                                                "Place of Death",
+                                                                            ]
+                                                                        ],
+                                                                        value="All",
+                                                                        style={
+                                                                            "margin-top": "5px",
+                                                                            "margin-bottom": "5px",
+                                                                            "width": "140px",
+                                                                        },
+                                                                        searchable=False,
+                                                                        clearable=False,
+                                                                    ),
+                                                                ], style={ "display": "flex" }, width=6),
+                                                                dbc.Col([
+#                                                                    html.P(
+#                                                                        "Aggregation",
+#                                                                        className="input-label",
+#                                                                    ),
+                                                                    dcc.Dropdown(
+                                                                        id="cod_n",
+                                                                        options=[
+                                                                            {
+                                                                                "label": f"Top {o}",
+                                                                                "value": o,
+                                                                            }
+                                                                            for o in [5,10,15,20]
+                                                                        ],
+                                                                        value=10,
+                                                                        style={
+                                                                            "margin-top": "5px",
+                                                                            "margin-bottom": "5px"
+                                                                        },
+                                                                        searchable=False,
+                                                                        clearable=False,
+                                                                    )
+                                                                ],
+                                                                width=3, 
+                                                                style={"margin-top": "5px"}
                                                                 ),
-                                                                dbc.Col(
-                                                                    [
-                                                                        html.P(
-                                                                            "N",
-                                                                            className="input-label",
-                                                                        ),
-                                                                        dcc.Dropdown(
-                                                                            id="cod_n",
-                                                                            options=[
-                                                                                {
-                                                                                    "label": o,
-                                                                                    "value": o,
-                                                                                }
-                                                                                for o in [5,10,15,20]
-                                                                            ],
-                                                                            value=10,
-                                                                            style={
-                                                                                "margin-top": "5px",
-                                                                                "margin-bottom": "5px",
-                                                                                "width": "60px",
-                                                                            },
-                                                                            searchable=False,
-                                                                            clearable=False,
-                                                                        ),
-                                                                    ],
-                                                                    style={"display": "flex"},
-                                                                    width=4,
-                                                                ),
-                                                            ])
-                                                        ], width=8),
-                                                        # TODO: placeholder for COD grouping dropdown
-                                                        dbc.Col([], width=4)
-                                                                        
-                                                    ],
-                                                    style={
-                                                        "display": "flex",
-                                                        "align-items": "center",
-                                                    },
-                                                ),
-                                                dcc.Loading(html.Div(id="cod-container"), type='circle'),
-                                            ],
+                                                            # TODO: add COD groupings dropdown
+                                                            dbc.Col([], width=3)
+
+                                                            ],
+                                                        ),
+                                                                    
+                                                        dcc.Loading(html.Div(id="cod-container"), type='circle'),
+                                                    ])
+                                                ]
+                                            
                                         ),
                                         dcc.Tab(
                                             label="Demographics",
@@ -457,40 +442,6 @@ app.layout = html.Div(
                                                     children=[
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col([
-                                                                    html.P(
-                                                                        "Aggregation",
-                                                                        className="input-label",
-                                                                    ),
-                                                                    dcc.Dropdown(
-                                                                        id="group_period",
-                                                                        options=[
-                                                                            {
-                                                                                "label": o,
-                                                                                "value": o,
-                                                                            }
-                                                                            for o in [
-                                                                                "Day",
-                                                                                "Week",
-                                                                                "Month",
-                                                                                "Year",
-                                                                            ]
-                                                                        ],
-                                                                        value="Month",
-                                                                        style={
-                                                                            "margin-top": "5px",
-                                                                            "margin-bottom": "5px",
-                                                                            "width": "120px",
-                                                                            "margin-right": "30px",
-                                                                        },
-                                                                        searchable=False,
-                                                                        clearable=False,
-                                                                    ),
-                                                                ],
-                                                                style={ 
-                                                                    "display": "flex",
-                                                                    "margin-right": "48px"
-                                                                }, width=4),
                                                                 dbc.Col([
                                                                     html.P(
                                                                         "Demographic",
@@ -519,7 +470,40 @@ app.layout = html.Div(
                                                                         searchable=False,
                                                                         clearable=False,
                                                                     ),
-                                                                ], style={ "display": "flex" }, width=7)
+                                                                ], style={ "display": "flex" }, width=6),
+                                                                dbc.Col([
+#                                                                    html.P(
+#                                                                        "Aggregation",
+#                                                                        className="input-label",
+#                                                                    ),
+                                                                    dcc.Dropdown(
+                                                                        id="group_period",
+                                                                        options=[
+                                                                            {
+                                                                                "label": f"By {o}",
+                                                                                "value": o,
+                                                                            }
+                                                                            for o in [
+                                                                                "Day",
+                                                                                "Week",
+                                                                                "Month",
+                                                                                "Year",
+                                                                            ]
+                                                                        ],
+                                                                        value="Month",
+                                                                        style={
+                                                                            "margin-top": "5px",
+                                                                            "margin-bottom": "5px",
+                                                                            "width": "120px"
+                                                                        },
+                                                                        searchable=False,
+                                                                        clearable=False,
+                                                                    ),
+                                                                ],
+                                                                style={ 
+                                                                    "display": "flex",
+                                                                }, width=4)
+
                                                             ],
                                                         ),
                                                         dcc.Loading(html.Div(id="ts-container"), type='circle'),
