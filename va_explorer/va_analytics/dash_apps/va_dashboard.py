@@ -1129,11 +1129,13 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
                 # if cod chosen, filter down to only vas with chosen cod
                 if filter_dict["cod_type"].lower() != "all":
-                    plot_data = plot_data[plot_data["cause"] == filter_dict["cod_type"]]
-                    plot_title = f"{filter_dict['cod_type']} Demographics"
+                    cod = filter_dict["cod_type"]
+                    plot_data = plot_data[plot_data["cause"] == cod]
+                    cod_title = LOOKUP["metric_names"].get(cod, cod)
+                    plot_title = f"{cod_title} Demographics"
                 else:
                     plot_title = "All-Cause Demographics"
-            figure = plotting.demographic_plot(plot_data)
+            figure = plotting.demographic_plot(plot_data, title=plot_title)
     return dcc.Graph(id="demos_plot", figure=figure)
             
 
@@ -1182,11 +1184,17 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
         plot_data = pd.read_json(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
-                plot_data = plot_data.iloc[json.loads(filter_dict)["ids"]["valid"], :]
+                filter_dict = json.loads(filter_dict)
+                cod = filter_dict['cod_type']
+                cod_title = LOOKUP['metric_names'].get(cod, cod) 
+                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                if filter_dict["cod_type"].lower() != "all":
+                    plot_data = plot_data[plot_data["cause"] == filter_dict["cod_type"]]
+                plot_title = f"{cod_title} Trend by {group_period}"
             # only run if remaining data after filter
             if plot_data.size > 0:
-               figure = plotting.va_trend_plot(plot_data, group_period, factor)
-    return dcc.Graph(id="trend_plot", figure=figure)
+               figure = plotting.va_trend_plot(plot_data, group_period, factor, title=plot_title)
+    return dcc.Graph(id="trend_plot", figure=figure)    
 
 
 

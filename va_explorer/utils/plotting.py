@@ -123,7 +123,7 @@ def get_field_counts(va_df, field_name, full_labels=False, display_name=None):
 
 #===========DEMOGRAPHIC PLOT LOGIC=========================#
 # create a multiplot of va counts by gender, age, and place of death
-def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
+def demographic_plot(va_df, no_grids=True, column_widths=None, height=600, title=None):
     if not column_widths:
         first_width = .4
         column_widths = [first_width, 1 - first_width]
@@ -161,6 +161,9 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600):
     if no_grids:
         comb_fig.update_xaxes(showgrid=False)
         comb_fig.update_yaxes(showgrid=False)
+        
+    if title:
+        comb_fig.update_layout(title_text=title)
         
     return comb_fig.update_layout(height=height)
 
@@ -275,7 +278,7 @@ def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all"):
     return figure
 
 #========TREND/TIMESERIES PLOT LOGI======================#
-def va_trend_plot(va_df, group_period, factor="All"):
+def va_trend_plot(va_df, group_period, factor="All", title=None):
     figure = go.Figure()
     group_period = group_period.lower()
     aggregate_title = group_period.capitalize()
@@ -330,10 +333,12 @@ def va_trend_plot(va_df, group_period, factor="All"):
                 ),
             )
         )
+    if not title:
+        title = "VA Counts by {}".format(aggregate_title)
     figure.update_layout(
-        title_text="Verbal Autopsies by {}".format(aggregate_title),
+        title_text=title,
         xaxis_title=aggregate_title,
-        yaxis_title="Verbal Autopsy Count",
+        yaxis_title="Count",
         xaxis_type=dtype,
         xaxis_tickangle=-45,
         xaxis_tickformatstops=[
