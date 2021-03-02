@@ -610,10 +610,6 @@ class cod_codes_dhis(models.Model):
     def __str__(self):
         return self.codname
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='causes', on_delete=models.CASCADE)

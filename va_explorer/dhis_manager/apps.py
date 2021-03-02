@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class DhisManagerConfig(AppConfig):
-    name = 'dhis_manager'
+    name = 'va_explorer.dhis_manager'

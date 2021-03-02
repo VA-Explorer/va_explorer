@@ -1,0 +1,174 @@
+Name,Type,Parent
+Central Province,province,
+Chibombo District,district,Central Province
+Chisamba District,district,Central Province
+Chitambo District,district,Central Province
+Itezhi-Tezhi District,district,Central Province
+Kabwe District,district,Central Province
+Kapiri Mposhi District,district,Central Province
+Luano District,district,Central Province
+Mkushi District,district,Central Province
+Mumbwa District,district,Central Province
+Ngabwe District,district,Central Province
+Serenje District,district,Central Province
+Shibuyunji District,district,Central Province
+Copperbelt Province,province,
+Chililabombwe District,district,Copperbelt Province
+Chingola District,district,Copperbelt Province
+Kalulushi District,district,Copperbelt Province
+Kitwe District,district,Copperbelt Province
+Luanshya District,district,Copperbelt Province
+Lufwanyama District,district,Copperbelt Province
+Masaiti District,district,Copperbelt Province
+Mpongwe District,district,Copperbelt Province
+Mufulira District,district,Copperbelt Province
+Ndola District,district,Copperbelt Province
+Eastern Province,province,
+Chadiza District,district,Eastern Province
+Chasefu District,district,Eastern Province
+Chipangali District,district,Eastern Province
+Chipata District,district,Eastern Province
+Kasenengwa District,district,Eastern Province
+Katete District,district,Eastern Province
+Lumezi District,district,Eastern Province
+Lundazi District,district,Eastern Province
+Mambwe District,district,Eastern Province
+Lusangazi District,district,Eastern Province
+Nyimba District,district,Eastern Province
+Petauke District,district,Eastern Province
+Sinda District,district,Eastern Province
+Vubwi District,district,Eastern Province
+Luapula Province,province,
+Chembe District,district,Luapula Province
+Chiengi District,district,Luapula Province
+Chifunabuli District,district,Luapula Province
+Chipili District,district,Luapula Province
+Kawambwa District,district,Luapula Province
+Lunga District,district,Luapula Province
+Mansa District,district,Luapula Province
+Milenge District,district,Luapula Province
+Mwansabombwe District,district,Luapula Province
+Mwense District,district,Luapula Province
+Nchelenge District,district,Luapula Province
+Samfya District,district,Luapula Province
+Lusaka Province,province,
+Chilanga District,district,Lusaka Province
+Chirundu District,district,Lusaka Province
+Chongwe District,district,Lusaka Province
+Kafue District,district,Lusaka Province
+Luangwa District,district,Lusaka Province
+Lusaka District,district,Lusaka Province
+Rufunsa District,district,Lusaka Province
+Muchinga Province,province,
+Chama District,district,Muchinga Province
+Chinsali District,district,Muchinga Province
+Chilinda District,district,Muchinga Province
+Isoka District,district,Muchinga Province
+Kanchibiya District,district,Muchinga Province
+Lavushimanda District,district,Muchinga Province
+Mafinga District,district,Muchinga Province
+Mpika District,district,Muchinga Province
+Nakonde District,district,Muchinga Province
+Shiwang'andu District,district,Muchinga Province
+Northern Province,province,
+Chilubi District,district,Northern Province
+Kaputa District,district,Northern Province
+Kasama District,district,Northern Province
+Lunte District,district,Northern Province
+Lupososhi District,district,Northern Province
+Luwingu District,district,Northern Province
+Mbala District,district,Northern Province
+Mporokoso District,district,Northern Province
+Mpulungu District,district,Northern Province
+Mungwi District,district,Northern Province
+Nsama District,district,Northern Province
+Senga District,district,Northern Province
+North-Western Province,province,
+Chavuma District,district,North-Western Province
+Ikelenge District,district,North-Western Province
+Kabompo District,district,North-Western Province
+Kasempa District,district,North-Western Province
+Kalumbila District,district,North-Western Province
+Manyinga District,district,North-Western Province
+Mufumbwe District,district,North-Western Province
+Mushindamo District,district,North-Western Province
+Mwinilunga District,district,North-Western Province
+Solwezi District,district,North-Western Province
+Zambezi District,district,North-Western Province
+Southern Province,province,
+Chikankata District,district,Southern Province
+Choma District,district,Southern Province
+Gwembe District,district,Southern Province
+Kalomo District,district,Southern Province
+Kazungula District,district,Southern Province
+Livingstone District,district,Southern Province
+Mazabuka District,district,Southern Province
+Monze District,district,Southern Province
+Namwala District,district,Southern Province
+Pemba District,district,Southern Province
+Siavonga District,district,Southern Province
+Sinazongwe District,district,Southern Province
+Zimba District,district,Southern Province
+Western Province,province,
+Kalabo District,district,Western Province
+Kaoma District,district,Western Province
+Limulunga District,district,Western Province
+Luampa District,district,Western Province
+Lukulu District,district,Western Province
+Mitete District,district,Western Province
+Mongu District,district,Western Province
+Mulobezi District,district,Western Province
+Mwandi District,district,Western Province
+Nalolo District,district,Western Province
+Nkeyema District,district,Western Province
+Senanga District,district,Western Province
+Sesheke District,district,Western Province
+Shang'ombo District,district,Western Province
+Sikongo District,district,Western Province
+Sioma District,district,Western Province
+Ndola Teaching Hospital,facility,Ndola District
+University Teaching Hospital,facility,Lusaka District
+Kabwe General Hospital,facility,Kabwe District
+Kitwe Teaching Hospital,facility,Kitwe District
+Kapiri General Hospital,facility,Kapiri Mposhi District
+Arthur Davison Childrens Hospital,facility,Ndola District
+Kafue General Hospital,facility,Kafue District
+Levy Mwanawasa Teaching Hospital,facility,Lusaka District
+Kapiri Urban Clinic,facility,Kapiri Mposhi District
+Chilenje Z6,facility,Lusaka District
+Matero Level One Hospital,facility,Lusaka District
+Chelstone Zonal Clinic,facility,Lusaka District
+Chipata Level One Hospital,facility,Lusaka District
+Kanyama Level One Hospital,facility,Lusaka District
+Chawama Level One Hospital,facility,Lusaka District
+Chongwe District Hospital,facility,Chongwe District
+Nangongwe Clinic,facility,Kafue District
+Roan Antelope General Hospital,facility,Luanshya District
+Thompson Distict Hospital,facility,Luanshya District
+Ronald Ross Hospital,facility,Mufulira District
+Kamuchanga District Hospital,facility,Mufulira District
+Chililabombwe District TBA,facility,Chililabombwe District
+Chingola District TBA,facility,Chingola District
+Chipata Central Hospital,facility,Chipata District
+Katete District TBA,facility,Katete District
+Petauke District TBA,facility,Petauke District
+Mwami Mission Hospital,facility,Chipata District
+Livingstone Central Hospital,facility,Livingstone District
+Kalomo Urban Clinic,facility,Kalomo District
+Request Muntanga District Hospital,facility,Kalomo District
+Namwala District Hospital,facility,Namwala District
+Maamba Hospital,facility,Sinazongwe District
+Choma General Hospital,facility,Choma District
+Mazabuka General Hospital,facility,Mazabuka District
+Siavonga District TBA,facility,Siavonga District
+Choma District TBA,facility,Choma District
+Chikankata District TBA,facility,Chikankata District
+Chikuni District TBA,facility,Monze District
+Monze Mission Hospital,facility,Monze District
+Lewanika General Hospital,facility,Mongu District
+Kaoma District Hospital,facility,Kaoma District
+Mwandi Mission Hospital,facility,Sesheke District
+Senanga General Hospital,facility,Senanga District
+Solwezi District TBA,facility,Solwezi District
+Mansa District TBA,facility,Mansa District
+Chinsali District TBA,facility,Chinsali District
