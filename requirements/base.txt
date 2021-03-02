@@ -54,4 +54,5 @@ psycopg2==2.8.5 --no-binary psycopg2
 
 #openva pipeline
 openva-pipeline == 0.0.0.9011
+sqlcipher3 == 0.4.5
 pysqlcipher3 == 1.0.3
