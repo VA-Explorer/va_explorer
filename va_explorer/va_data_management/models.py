@@ -583,12 +583,10 @@ class VerbalAutopsy(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
-     # function to tell if VA had any coding errors
+      # function to tell if VA had any coding errors
     def any_errors(self):
         return self.coding_issues.filter(severity='error').exists()
-
-    # function to tell if VA had any coding warnings
+        # function to tell if VA had any coding errors
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
