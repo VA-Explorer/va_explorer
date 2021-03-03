@@ -18,15 +18,20 @@
       <th></th>
     </tr>
     <tr>
+      <td><b>Total records pushed</b></td>
+      <td align="right"><h3 class="text-danger">{{total}}</h3></td>
+    </tr>
+    <tr>
       <td><b>Records to push</b></td>
       <td align="right"><h3 class="text-danger">{{vanum}}</h3></td>
     </tr>
      <tr>
       <td> <a href="{% url 'dhis_manager:dhishome' %}" >
-          <button class="btn btn-primary">Get records</button></a></td>
+          <button class="btn btn-primary">Refresh</button></a></td>
       <td><a href="{% url 'dhis_manager:dhisrecords' %}" >
         <button class="btn btn-primary" onclick="updatePush()">Push to dhis</button></a></td>
     </tr>
+
     <tr>
       <td></td>
       <td> <div id="pushing"></div></td>
@@ -37,7 +42,7 @@
 
 <div class="row mt-4">
  {% if btnpush == 'OK' %}
-  <h3>Pushed success {{ txt }}</h3>
+  <h3>{{ txt }}</h3>
   {%else%}
    <h3></h3>
   {% endif %}
