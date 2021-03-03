@@ -51,3 +51,6 @@ selenium==3.141.0
 
 # Database
 psycopg2==2.8.5 --no-binary psycopg2
+
+#openva pipeline
+git+https://github.com/QollinsOchieng/openva_pipeline.git@master
