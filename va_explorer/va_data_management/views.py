@@ -1,24 +1,27 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
-import pandas
-
+from django.views.generic.detail import SingleObjectMixin
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
+
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.utils.mixins import CustomAuthMixin
 
 
-class Index(CustomAuthMixin, ListView):
+class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
+    permission_required = "va_data_management.view_verbalautopsy"
     template_name = 'va_data_management/index.html'
     paginate_by = 15
-    queryset = VerbalAutopsy.objects.prefetch_related("location", "causes", "coding_issues").order_by("id")
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Restrict to VAs this user can access and prefetch related for performance
+        queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
 
         # do the filtering thing
         self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
@@ -44,7 +47,15 @@ class Index(CustomAuthMixin, ListView):
         return context
 
 
-class Show(CustomAuthMixin, DetailView):
+# Mixin just for the individual verbal autopsy data management views to restrict access based on user
+class AccessRestrictionMixin(SingleObjectMixin):
+    def get_queryset(self):
+        # Restrict to VAs this user can access
+        return self.request.user.verbal_autopsies()
+
+
+class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, DetailView):
+    permission_required = "va_data_management.view_verbalautopsy"
     template_name = 'va_data_management/show.html'
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -60,7 +71,6 @@ class Show(CustomAuthMixin, DetailView):
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
 
         # TODO: date in diff info should be formatted in local time
-        # TODO: history should eventually show user who made the change
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
@@ -68,7 +78,8 @@ class Show(CustomAuthMixin, DetailView):
         return context
 
 
-class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView):
+class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):
+    permission_required = "va_data_management.change_verbalautopsy"
     template_name = 'va_data_management/edit.html'
     form_class = VerbalAutopsyForm
     model = VerbalAutopsy
@@ -84,7 +95,8 @@ class Edit(CustomAuthMixin, SuccessMessageMixin, UpdateView):
         return context
 
 
-class Reset(CustomAuthMixin, DetailView):
+class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView):
+    permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to original!"
@@ -98,13 +110,14 @@ class Reset(CustomAuthMixin, DetailView):
         return redirect('va_data_management:show', id=self.object.id)
 
 
-class RevertLatest(CustomAuthMixin, DetailView):
+class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView):
+    permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to previous!"
 
     def render_to_response(self, context):
-        # TODO: Should record automatically be recoded?    
+        # TODO: Should record automatically be recoded?
         if self.object.history.count() > 1:
             previous = self.object.history.all()[1]
             latest = self.object.history.latest()

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 
@@ -18,3 +18,9 @@ class CustomAuthMixin(AccessMixin):
 
     def user_has_valid_password(self, request):
         return request.user.has_valid_password
+
+
+class UserDetailViewMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.has_perm('users.view_user') or self.request.user.pk == self.kwargs.get('pk')
+
