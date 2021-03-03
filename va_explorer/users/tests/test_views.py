@@ -36,10 +36,24 @@ class TestUserRedirectView:
 
 
 class TestUserDetailView:
-    def test_view_with_valid_permission(self, user: User, rf: RequestFactory):
+    def test_with_view_permission(self, rf: RequestFactory):
         can_view_user = Permission.objects.filter(codename="view_user").first()
         can_view_user_group = GroupFactory.create(permissions=[can_view_user])
         user = UserFactory.create(groups=[can_view_user_group])
+
+        another_user = UserFactory.create()
+
+        request = rf.get("/users/")
+        request.user = user
+
+        response = user_detail_view(request, pk=another_user.id)
+
+        assert response.status_code == 200
+
+    # NOTE: All users can view their own profile (detail page), regardless of permission
+    def test_can_view_own_profile_without_view_permission(self, user: User, rf: RequestFactory):
+        no_permissions_group = GroupFactory.create(permissions=[])
+        user = UserFactory.create(groups=[no_permissions_group])
 
         request = rf.get("/users/")
         request.user = user
@@ -48,15 +62,16 @@ class TestUserDetailView:
 
         assert response.status_code == 200
 
-    def test_view_without_valid_permission(self, user: User, rf: RequestFactory):
+    def test_cannot_view_other_profile_without_view_permission(self, user: User, rf: RequestFactory):
         no_permissions_group = GroupFactory.create(permissions=[])
         user = UserFactory.create(groups=[no_permissions_group])
+        other_user = UserFactory.create()
 
         request = rf.get("/users/")
         request.user = user
 
         with pytest.raises(PermissionDenied):
-            user_detail_view(request, pk=user.id)
+            user_detail_view(request, pk=other_user.id)
 
     """
     TODO: The two tests below are more integration tests because we are testing the

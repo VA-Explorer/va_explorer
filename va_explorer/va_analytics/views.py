@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView, View
 from django.http import HttpResponse
 from django.forms.models import model_to_dict
@@ -7,17 +8,23 @@ from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from va_explorer.utils.mixins import CustomAuthMixin
 
 
-class DashboardView(CustomAuthMixin, TemplateView):
+class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "va_analytics/dashboard.html"
+    permission_required = "va_analytics.view_dashboard"
+
 
 dashboard_view = DashboardView.as_view()
 
 
-class DownloadCsv(CustomAuthMixin, View):
-    out_file = "va_download.csv"
+# NOTE: At the moment, all roles who can view the Dashboard can also download
+# the dashboard data
+class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
+    permission_required = "va_analytics.view_dashboard"
 
     def get(self, request, *args, **kwargs):
-        # pull in va records with CODs from database 
+        out_file = "va_download.csv"
+
+        # pull in va records with CODs from database
         valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
 
         # Build a location ancestors lookup and add location information at all levels to all vas
@@ -39,9 +46,10 @@ class DownloadCsv(CustomAuthMixin, View):
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = f'attachment; filename="{out_file}"'
-        
+
         va_df.to_csv(response, index=False)
-        
+
         return response
+
 
 download_csv = DownloadCsv.as_view()

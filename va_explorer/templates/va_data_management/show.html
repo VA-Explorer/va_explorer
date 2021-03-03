@@ -119,9 +119,8 @@
       </div>
       <div class="row mt-4">
         {% if perms.va_data_management.change_verbalautopsy %}
-        <!-- TODO: these should be buttons in forms and making a POST request instead of GET -->
-        <a class="btn btn-primary mx-2" href="{% url 'data_management:reset' id=id %}">Reset to Original</a></p>
-        <a class="btn btn-primary mx-2" href="{% url 'data_management:revert_latest' id=id %}">Revert Most Recent Change</a>
+          <a class="btn btn-primary mx-2" href="{% url 'data_management:reset' id=id %}">Reset to Original</a></p>
+          <a class="btn btn-primary mx-2" href="{% url 'data_management:revert_latest' id=id %}">Revert Most Recent Change</a>
         {% endif %}
       </div>
     </div>
