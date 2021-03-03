@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
@@ -7,12 +8,14 @@ from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, UpdateView, ListView
 from django.views.generic.detail import SingleObjectMixin
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
+
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.utils.mixins import CustomAuthMixin
 
 
-class Index(CustomAuthMixin, ListView):
+class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
+    permission_required = "va_data_management.view_verbalautopsy"
     template_name = 'va_data_management/index.html'
     paginate_by = 15
 
@@ -43,13 +46,16 @@ class Index(CustomAuthMixin, ListView):
 
         return context
 
+
 # Mixin just for the individual verbal autopsy data management views to restrict access based on user
 class AccessRestrictionMixin(SingleObjectMixin):
     def get_queryset(self):
         # Restrict to VAs this user can access
         return self.request.user.verbal_autopsies()
 
-class Show(CustomAuthMixin, DetailView, AccessRestrictionMixin):
+
+class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, DetailView):
+    permission_required = "va_data_management.view_verbalautopsy"
     template_name = 'va_data_management/show.html'
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -72,10 +78,9 @@ class Show(CustomAuthMixin, DetailView, AccessRestrictionMixin):
         return context
 
 
-
-class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView, AccessRestrictionMixin):
-    template_name = 'va_data_management/edit.html'
+class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):
     permission_required = "va_data_management.change_verbalautopsy"
+    template_name = 'va_data_management/edit.html'
     form_class = VerbalAutopsyForm
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -90,8 +95,7 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, Update
         return context
 
 
-
-class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrictionMixin):
+class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView):
     permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
@@ -106,15 +110,14 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrict
         return redirect('va_data_management:show', id=self.object.id)
 
 
-
-class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, DetailView, AccessRestrictionMixin):
+class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView):
     permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
     pk_url_kwarg = 'id'
     success_message = "Verbal Autopsy changes successfully reverted to previous!"
 
     def render_to_response(self, context):
-        # TODO: Should record automatically be recoded?    
+        # TODO: Should record automatically be recoded?
         if self.object.history.count() > 1:
             previous = self.object.history.all()[1]
             latest = self.object.history.latest()
