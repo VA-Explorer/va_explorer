@@ -22,13 +22,13 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
     permission_required = "va_analytics.view_dashboard"
 
     def get(self, request, *args, **kwargs):
-        out_file = "va_download.csv"
-
-        # pull in va records with CODs from database
-        valid_vas = VerbalAutopsy.objects.exclude(causes=None).prefetch_related("location").prefetch_related("causes")
+        valid_vas = self.request.user.verbal_autopsies() \
+            .exclude(causes=None).prefetch_related("location").prefetch_related("causes")
 
         # Build a location ancestors lookup and add location information at all levels to all vas
-        location_ancestors = { location.id:location.get_ancestors() for location in Location.objects.filter(location_type="facility") }
+        location_ancestors = { 
+            location.id:location.get_ancestors() for location in Location.objects.filter(location_type="facility") 
+        }
 
         va_data = []
         # extract COD and location-based fields for each va object and convert to dicts
@@ -45,8 +45,7 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
         va_df = pd.DataFrame.from_records(va_data)
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = f'attachment; filename="{out_file}"'
-
+        response["Content-Disposition"] = 'attachment; filename="va_download.csv"'
         va_df.to_csv(response, index=False)
 
         return response
