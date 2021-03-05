@@ -1,0 +1,65 @@
+﻿algorithm,cod,ncd,infectious,parasitic,zambia_notifiable_disease,respiratory,maternal,neonatal
+Interva5,Not pregnant or recently delivered,0,0,0,0,0,1,0
+Interva5,Pregnancy ended within 6 weeks of death,0,0,0,0,0,1,0
+Interva5,Pregnant at death,0,0,0,0,0,1,0
+Interva5,Sepsis (non-obstetric),0,0,0,0,0,1,0
+Interva5,Acute resp infect incl pneumonia,0,0,0,0,1,0,0
+Interva5,HIV/AIDS related death,0,1,0,0,0,0,0
+Interva5,Diarrhoeal diseases,0,1,1,0,0,0,1
+Interva5,Malaria,0,1,1,0,0,0,0
+Interva5,Measles,0,1,0,1,0,0,0
+Interva5,Meningitis and encephalitis,0,1,0,0,0,0,0
+Interva5,Tetanus,0,1,0,1,0,0,1
+Interva5,Pulmonary tuberculosis,0,1,0,1,1,0,0
+Interva5,Pertussis,0,1,0,0,1,0,0
+Interva5,Haemorrhagic fever (non-dengue),0,1,0,0,0,0,0
+Interva5,Dengue fever,0,1,1,0,0,0,0
+Interva5,Other and unspecified infect dis,0,1,0,0,0,0,0
+Interva5,Oral neoplasms,1,0,0,0,0,0,0
+Interva5,Digestive neoplasms,1,0,0,0,0,0,0
+Interva5,Respiratory neoplasms,1,0,0,0,0,0,0
+Interva5,Breast neoplasms,1,0,0,0,0,0,0
+Interva5,Reproductive neoplasms MF,1,0,0,0,0,0,0
+Interva5,Other and unspecified neoplasms,1,0,0,0,0,0,0
+Interva5,Severe anaemia,1,0,0,0,0,0,0
+Interva5,Severe malnutrition,1,0,0,0,0,0,1
+Interva5,Diabetes mellitus,1,0,0,0,0,0,0
+Interva5,Acute cardiac disease,1,0,0,0,0,0,0
+Interva5,Stroke,1,0,0,0,0,0,0
+Interva5,Sickle cell with crisis,1,0,0,0,0,0,0
+Interva5,Other and unspecified cardiac dis,1,0,0,0,0,0,0
+Interva5,Chronic obstructive pulmonary dis,0,0,0,0,0,0,0
+Interva5,Asthma,0,0,0,0,1,0,0
+Interva5,Acute abdomen,1,0,0,0,0,0,0
+Interva5,Liver cirrhosis,1,0,0,0,0,0,0
+Interva5,Renal failure,1,0,0,0,0,0,0
+Interva5,Epilepsy,1,0,0,0,0,0,0
+Interva5,Ectopic pregnancy,0,0,0,0,0,1,0
+Interva5,Abortion-related death,0,0,0,0,0,1,0
+Interva5,Pregnancy-induced hypertension,0,0,0,0,0,1,0
+Interva5,Obstetric haemorrhage,0,0,0,0,0,1,0
+Interva5,Obstructed labour,0,0,0,0,0,1,0
+Interva5,Pregnancy-related sepsis,0,0,0,0,0,1,0
+Interva5,Anaemia of pregnancy,0,0,0,0,0,1,0
+Interva5,Ruptured uterus,0,0,0,0,0,1,0
+Interva5,Other and unspecified maternal CoD,0,0,0,0,0,1,0
+Interva5,Prematurity,0,0,0,0,0,0,1
+Interva5,Birth asphyxia,0,0,0,0,0,0,1
+Interva5,Neonatal pneumonia,0,0,0,0,0,0,1
+Interva5,Neonatal sepsis,0,0,0,0,0,0,1
+Interva5,Congenital malformation,0,0,0,0,0,0,1
+Interva5,Other and unspecified neonatal CoD,0,0,0,0,0,0,1
+Interva5,Fresh stillbirth,0,0,0,0,0,0,1
+Interva5,Macerated stillbirth,0,0,0,0,0,0,1
+Interva5,Road traffic accident,0,0,0,0,0,0,0
+Interva5,Other transport accident,0,0,0,0,0,0,0
+Interva5,Accid fall,0,0,0,0,0,0,0
+Interva5,Accid drowning and submersion,0,0,0,0,0,0,0
+Interva5,Accid expos to smoke fire & flame,0,0,0,0,0,0,0
+Interva5,Contact with venomous plant/animal,0,0,0,0,0,0,0
+Interva5,Accid poisoning & noxious subs,0,0,0,0,0,0,0
+Interva5,Intentional self-harm,0,0,0,0,0,0,0
+Interva5,Assault,0,0,0,0,0,0,0
+Interva5,Exposure to force of nature,0,0,0,0,0,0,0
+Interva5,Other and unspecified external CoD,0,0,0,0,0,0,0
+Interva5,Other and unspecified NCD,1,0,0,0,0,0,0
