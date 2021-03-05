@@ -35,19 +35,18 @@ app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=Tr
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timeframe for map data to display
 INITIAL_TIMEFRAME = "all"
-# folder where geojson is kept
-JSON_DIR = "va_explorer/va_analytics/dash_apps/geojson"
+# folder where all data and settings local to app are kept
+DATA_DIR = "va_explorer/va_analytics/dash_apps/dashboard_data"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
 JSON_FILE = "zambia_geojson.json"
 # initial granularity
 INITIAL_GRANULARITY = "district"
 # initial metric to plot on map
 INITIAL_COD_TYPE = "all"
+
 # ============Lookup dictionaries =================#
-
-
 LOOKUP = plotting.load_lookup_dicts()
-
+COD_GROUPS = plotting.load_cod_groupings(data_dir=DATA_DIR)
 
 # =============Geo dictionaries and global variables ========#
 # load geojson data from flat file (will likely migrate to a database later)
@@ -102,7 +101,7 @@ def load_geojson_data(json_file):
     return geojson
 
 
-GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
+GEOJSON = load_geojson_data(json_file=f"{DATA_DIR}/{JSON_FILE}")
 
 
 # ============ VA Data =================
@@ -119,6 +118,7 @@ def load_va_data(user, geographic_levels=None):
                 "id": va.id,
                 "Id10019": va.Id10019,
                 "Id10058": va.Id10058,
+                "Id10305": va.Id10305, # check for pregnancy
                 "ageInYears": va.ageInYears,
                 "location": va.location.name,
                 "cause": get_va_cause(va),
@@ -398,25 +398,21 @@ app.layout = html.Div(
                                                             [
                                                                 dbc.Col(
                                                                     [
-                                                                        html.P(
-                                                                            "Demographic",
-                                                                            className="input-label",
-                                                                        ),
                                                                         dcc.Dropdown(
                                                                             id="cod_factor",
                                                                             options=[
                                                                                 {
-                                                                                    "label": o,
+                                                                                    "label": "By {}".format(o) if o != "Overall" else o,
                                                                                     "value": o,
                                                                                 }
                                                                                 for o in [
-                                                                                    "All",
+                                                                                    "Overall",
                                                                                     "Age Group",
                                                                                     "Sex",
                                                                                     "Place of Death",
                                                                                 ]
                                                                             ],
-                                                                            value="All",
+                                                                            value="Overall",
                                                                             style={
                                                                                 "margin-top": "5px",
                                                                                 "margin-bottom": "5px",
@@ -426,10 +422,7 @@ app.layout = html.Div(
                                                                             clearable=False,
                                                                         ),
                                                                     ],
-                                                                    style={
-                                                                        "display": "flex"
-                                                                    },
-                                                                    width=6,
+                                                                    width=4,
                                                                 ),
                                                                 dbc.Col(
                                                                     [
@@ -457,13 +450,30 @@ app.layout = html.Div(
                                                                         )
                                                                     ],
                                                                     width=3,
-                                                                    style={
-                                                                        "margin-top": "5px"
-                                                                    },
                                                                 ),
                                                                 # TODO: add COD groupings dropdown
-                                                                dbc.Col([], width=3),
+                                                                dbc.Col([
+                                                                            dcc.Dropdown(
+                                                                             id='cod_group',
+                                                                             options=[
+                                                                                {
+                                                                                    "label": LOOKUP['cod_group_names'].get(o,o.capitalize()), 
+                                                                                    "value": o,                                                                                         
+                                                                                }
+                                                                                for o in ['All CODs'] + COD_GROUPS.columns[2:].tolist()
+                                                                            ], 
+                                                                            value='All CODs', 
+                                                                            style={
+                                                                                "margin-top": "5px",
+                                                                                "margin-bottom": "5px",
+                                                                            },
+                                                                            searchable=False,
+                                                                            clearable=False
+                                                                                    
+                                                                            )
+                                                                            ], width=5),
                                                             ],
+                                                            style={"margin-top": "5px"}
                                                         ),
                                                         dcc.Loading(
                                                             html.Div(
@@ -1366,11 +1376,13 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_factor", component_property="value"),
+        Input(component_id="cod_group", component_property="value"),
         Input(component_id="cod_n", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None, **kwargs):
+
+def cod_plot(va_data, timeframe, factor="Overall", cod_group="All CODs", N=10, filter_dict=None, **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -1379,11 +1391,19 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None, **kwargs)
                 filter_dict = json.loads(filter_dict)
                 cod = filter_dict["cod_type"]
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
-
-            figure = plotting.cause_of_death_plot(
-                plot_data, factor=factor, N=N, chosen_cod=cod
-            )
-    return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
+            
+            # only proceed if remaining data after filter
+            if plot_data.size > 0:
+                # if no cod group filter (default), call standard cod plotting function
+                if cod_group == "All CODs":
+                    figure = plotting.cause_of_death_plot(
+                        plot_data, factor=factor, N=N, chosen_cod=cod
+                    )
+                else:
+                    figure = plotting.cod_group_plot(
+                        plot_data, cod_group, factor=factor, cod_groups=COD_GROUPS, N=N
+                    )
+    return dcc.Graph(id="cod_plot", figure=figure,  config=LOOKUP["chart_config"])
 
 
 #

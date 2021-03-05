@@ -84,6 +84,17 @@ def load_lookup_dicts():
         "Digestive neoplasms": "Digestive Neoplasm",
         "Other and unspecified infect dis": "Other",
     }
+    
+    # mapping between internal cod group labels and plot titles
+    lookup["cod_group_names"] = {
+        "All CODs": "All CODs",
+        "ncd": "Non-Communicable",
+        "parasitic": "Parasitic",
+        "infectious": "Infectious", 
+        "zambia_notifiable_disease": "Zambian Notifiable Disease",
+        "respiratory": "Respiratory"
+    }
+    
     # dictionary mapping place of death names to more human-readable names
     lookup["death_location_names"] = {
         "on_route_to_hospital_or_facility": "En Route to Facility",
@@ -277,14 +288,47 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600, title
     return comb_fig.update_layout(height=height)
 
 
-# ===========CAUSE OF DEATH PLOT LOGIC=========================#
+# ===========CAUSE OF DEATH PLOTTING LOGIC=========================#
+
+# function to load cod groupings csv file used for cod group plotting. 
+# each cod is a row, and each column is a possible group. 
+    
+def load_cod_groupings(data_dir=None):
+    data_dir = "va_explorer/va_analytics/dash_apps/dashboard_data" if not data_dir else data_dir
+    return pd.read_csv(f"{data_dir}/cod_groupings.csv")
+    
+# generate top N cause of death plot for specific group of CODs
+def cod_group_plot(va_df, group, factor="all", cod_groups=pd.DataFrame(), N=10):
+    fig = go.Figure(layout={"title_text": f"No {group} CODs in Data"})
+    if cod_groups.size == 0:
+        cod_groups = load_cod_groupings()
+    group = group.lower()
+    va_filtered = va_df
+    # TODO: VERIFY IF THIS IS CORRECT APPROACH
+    # filter vas to only mothers
+    if group == 'maternal':
+        va_filtered = va_df[va_df['Id10305'] == 'yes']
+    elif group == 'neonatal':
+        # definition from 2016 WHO VA form
+        va_filtered = va_df[va_df['ageInYears'] <= 1]
+    else:
+        if group not in cod_groups.columns:
+            raise Exception(f"group not found in COD groupings ({cod_groups.columns.tolist()})")
+        cod_group = cod_groups.loc[cod_groups[group]==1, 'cod']
+        va_filtered = va_df[va_df['cause'].isin(cod_group)]
+    if va_filtered.size > 0:
+        group_title = LOOKUP["cod_group_names"].get(group, group.capitalize())
+        plot_title = f"Top <b>{group_title}</b> Causes of Death"
+        fig = cause_of_death_plot(va_filtered, factor=factor, N=N, title=plot_title)
+    return fig
+
 # plot top N causes of death in va_data either overall or by factor/demographic
-def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all"):
+def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all", title=None):
     figure = go.Figure()
     factor = factor.lower()
     plot_fn = go.Bar
-
-    if factor != "all":
+    
+    if factor not in ["all", "overall"]:
         assert factor in ["age group", "sex", "place of death"]
         factor_col = LOOKUP["demo_to_col"][factor]
         factor_title = "by " + factor.capitalize()
@@ -299,6 +343,8 @@ def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all"):
     else:
         counts = pd.DataFrame({"All": va_df.cause.value_counts()})
         factor_title = "Overall"
+        
+    plot_title = "Top Causes of Death {}".format(factor_title) if not title else title
 
     if va_df.size > 0:
         # make index labels pretty
@@ -426,8 +472,50 @@ def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all"):
             yaxis_title="Count",
         )  
 
+        # percents
+        figure.add_trace(
+            plot_fn(
+                y=counts[f"{group}_pct"],
+                x=counts["cod"],
+                text=counts["text"],
+                hovertemplate = "<b>%{x}</b> <br> %{text}<extra></extra>",
+                name=group.capitalize(),
+                orientation="v",
+                visible=False,
+                marker=dict(
+                    color= LOOKUP["color_list"][i],
+                    line=dict(color=lines, width=widths),
+                ),
+            )
+        )
+    figure.update_layout(
+        barmode="stack",
+        title_text=plot_title,
+        xaxis_tickangle=-45,
+        yaxis_title="Count",
+        updatemenus=[
+        dict(
+            type="buttons",
+            direction="right",
+            x = 1,
+            y=1.2,
+            active=0,
+            buttons=list([
+                dict(label="Counts",
+                     method="update",
+                     args=[{"visible": [True, False] * len(groups)},
+                           {"yaxis": {"title": "Count"}}
+                          ]),
+                dict(label="Percents",
+                     method="update",
+                     args = [{"visible": [False, True] * len(groups)},
+                             {'yaxis': {'title': '% of Total'}}
+                            ]),
+  
+            ]),
+        )])
+    
     return figure
-
 
 # ========TREND/TIMESERIES PLOT LOGI======================#
 def va_trend_plot(va_df, group_period, factor="All", title=None):
