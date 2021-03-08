@@ -23,34 +23,7 @@
 </form>
 
 <div class="row mt-4">
-  <table class="table table-sm">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Date</th>
-        <th>Name</th>
-        <th>Facility</th>
-        <th>Cause</th>
-        <th>Warnings</th>
-        <th>Errors</th>
-        <th>View</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for va in object_list %}
-      <tr>
-        <td>{{ va.id }}</td>
-        <td>{{ va.date }}</td>
-        <td>{{ va.name }}</td>
-        <td>{{ va.facility }}</td>
-        <td>{{ va.cause }}</td>
-        <td>{{ va.warnings }}</td>
-        <td>{{ va.errors }}</td>
-        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% include 'partials/_va_table.html' with va_list=object_list %}
   {% if page_obj.has_other_pages %}
   {% include "partials/_pagination.html" %}
   {% endif %}
