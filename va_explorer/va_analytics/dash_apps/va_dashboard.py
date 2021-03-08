@@ -42,7 +42,7 @@ JSON_DIR = "va_explorer/va_analytics/dash_apps/geojson"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
 JSON_FILE = "zambia_geojson.json"
 # initial granularity
-INITIAL_GRANULARITY = "province"
+INITIAL_GRANULARITY = "district"
 # initial metric to plot on map
 INITIAL_COD_TYPE = "all"
 # ============Lookup dictionaries =================#
