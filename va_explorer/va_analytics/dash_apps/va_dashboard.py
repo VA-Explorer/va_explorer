@@ -29,6 +29,9 @@ from va_explorer.va_data_management.models import Location, VerbalAutopsy
 # app = dash.Dash(__name__)  # Dash constructor
 app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=True)
 
+# Toolbar configurations
+graph_config = {"displayModeBar": True, "scrollZoom": True, "displaylogo": False, "modeBarButtonsToRemove":["zoomInGeo", "zoomOutGeo", "select2d", "lasso2d"]}
+chart_config = {"displayModeBar": True, "displaylogo":False, "modeBarButtonsToRemove":["pan2d", "zoom2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"]}
 
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
@@ -365,7 +368,7 @@ app.layout = html.Div(
                                     children=[
                                         html.Div(
                                             id="choropleth-container",
-                                            children=dcc.Graph(id="choropleth"),
+                                            children=dcc.Graph(id="choropleth", config=graph_config),
                                         )
                                     ],
                                 ),
@@ -1051,10 +1054,10 @@ def update_choropleth(
                     margin={"r": 0, "t": 0, "l": 0, "b": 0},
                     # clickmode="event" if zoom_in else "event+select",
                     clickmode="event+select",
-                    dragmode="select",
+                    dragmode="pan",
                 )
                 # additional styling
-                config = {"displayModeBar": True}
+                config = graph_config
                 figure.update_geos(
                     fitbounds="locations",
                     visible=True,
@@ -1066,7 +1069,7 @@ def update_choropleth(
                     framewidth=0,
                 )
         ret_val = json.dumps(filter_dict)
-    return_value = dcc.Graph(id="choropleth", figure=figure, config=config)
+    return_value = dcc.Graph(id="choropleth", figure=figure, config=graph_config)
 
     return return_value  # , json.dumps(ret_val)
 
@@ -1289,7 +1292,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
                 else:
                     plot_title = "All-Cause Demographics"
             figure = plotting.demographic_plot(plot_data, title=plot_title)
-    return dcc.Graph(id="demos_plot", figure=figure)
+    return dcc.Graph(id="demos_plot", figure=figure, config=chart_config)
 
 
 # =========Cause of Death Plot Logic============================================#
@@ -1318,7 +1321,7 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
                 figure = plotting.cause_of_death_plot(
                     plot_data, factor=factor, N=N, chosen_cod=cod
                 )
-    return dcc.Graph(id="cod_plot", figure=figure)
+    return dcc.Graph(id="cod_plot", figure=figure, config=chart_config)
 
 
 #
@@ -1352,7 +1355,7 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
                 figure = plotting.va_trend_plot(
                     plot_data, group_period, factor, title=plot_title
                 )
-    return dcc.Graph(id="trend_plot", figure=figure)
+    return dcc.Graph(id="trend_plot", figure=figure, config=chart_config)
 
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)
