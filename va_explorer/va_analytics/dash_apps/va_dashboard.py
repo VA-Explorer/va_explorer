@@ -1235,22 +1235,34 @@ def update_callouts(
             coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
 
     return [
-        make_card(coded_vas, header="Coded VAs"),
-        make_card(uncoded_vas, header="Uncoded VAs"),
-        make_card(active_facilities, header="Active Facilities"),
-        make_card(num_field_workers, header="Field Workers"),
-        make_card(coverage, header="Region Representation"),
+        make_card(coded_vas, header="Coded VAs", tooltip="# of VAs with COD assignments in chosen region and time period"),
+        make_card(uncoded_vas, header="Uncoded VAs", tooltip="# of VAs in system missing COD assignments in chosen region and time period"),
+        make_card(active_facilities, header="Active Facilities", tooltip="# of facilities that have submitted VAs in chosen region and time period"),
+        make_card(num_field_workers, header="Field Workers", tooltip="# of Field Workers that have submitted VAs in chosen region and time period"),
+        make_card(coverage, header="Region Representation", tooltip="% of regions within geography type - ie. Districts within Provice or Provices within Country", style={"width": "225px"}),
     ]
 
 
 # build a calloutbox with specific value
 # colors: primary, secondary, info, success, warning, danger, light, dark
 def make_card(
-    value, header=None, description="", color="light", inverse=False, style=None
+    value, header=None, description="", tooltip="", color="light", inverse=False, style=None
 ):
     card_content = []
     if header is not None:
-        card_content.append(dbc.CardHeader(header, style={"padding": ".5rem"}))
+        card_id = header.replace(" ", "")
+        card_content.append(dbc.CardHeader([
+            header,
+            html.Span(
+                html.Span(className="fas fa-info-circle"),
+                style={"margin-left": "5px"},
+                id=f"{card_id}-tooltip-target"
+            ),
+            dbc.Tooltip(
+                tooltip,
+                target=f"{card_id}-tooltip-target",
+            ),
+        ], style={"padding": ".5rem"}))
     body = dbc.CardBody(
         [
             html.H3(value, className="card-title"),
