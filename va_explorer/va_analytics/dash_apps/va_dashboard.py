@@ -251,27 +251,6 @@ app.layout = html.Div(
                             ],
                         ),
                         html.Div(
-                            className="dashboard-comp-container",
-                            children=[
-                                html.P(
-                                    "View", id="view_label", className="input-label",
-                                ),
-                                dcc.Dropdown(
-                                    id="view_level",
-                                    value="",
-                                    placeholder="Auto",
-                                    style={
-                                        "margin-top": "5px",
-                                        "margin-bottom": "5px",
-                                        "width": "100px",
-                                    },
-                                    searchable=False,
-                                    clearable=False,
-                                    disabled=False,
-                                ),
-                            ],
-                        ),
-                        html.Div(
                             id="button-container",
                             children=[
                                 html.Div(
@@ -345,8 +324,25 @@ app.layout = html.Div(
                                             ],
                                             style={
                                                 "margin-left": "10px",
-                                                "width": "90%",
+                                                "width": "80%",
                                             },
+                                        ),
+                                         html.Div(
+                                            className="dashboard-comp-container",
+                                            children=[
+                                                dcc.Dropdown(
+                                                    id="view_level",
+                                                    value="",
+                                                    placeholder="View",
+                                                    style={
+                                                        "margin-bottom": "5px",
+                                                        "width": "100px",
+                                                    },
+                                                    searchable=False,
+                                                    clearable=False,
+                                                    disabled=False,
+                                                ),
+                                            ],
                                         ),
                                     ],
                                     style={
@@ -381,7 +377,7 @@ app.layout = html.Div(
                                 # used to trigger data ingest when page first loads
                                 html.Div(id="hidden_trigger", style={"display": "none"})
                             ],
-                            width=8,
+                            width=7,
                             style={"min-width": "480px", "margin-bottom": "15px"},
                         ),
                         dbc.Col(
@@ -396,34 +392,6 @@ app.layout = html.Div(
                                                     children=[
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col(
-                                                                    [
-                                                                        dcc.Dropdown(
-                                                                            id="cod_factor",
-                                                                            options=[
-                                                                                {
-                                                                                    "label": "By {}".format(o) if o != "Overall" else o,
-                                                                                    "value": o,
-                                                                                }
-                                                                                for o in [
-                                                                                    "Overall",
-                                                                                    "Age Group",
-                                                                                    "Sex",
-                                                                                    "Place of Death",
-                                                                                ]
-                                                                            ],
-                                                                            value="Overall",
-                                                                            style={
-                                                                                "margin-top": "5px",
-                                                                                "margin-bottom": "5px",
-                                                                                "width": "140px",
-                                                                            },
-                                                                            searchable=False,
-                                                                            clearable=False,
-                                                                        ),
-                                                                    ],
-                                                                    width=4,
-                                                                ),
                                                                 dbc.Col(
                                                                     [
                                                                         dcc.Dropdown(
@@ -451,13 +419,14 @@ app.layout = html.Div(
                                                                     ],
                                                                     width=3,
                                                                 ),
-                                                                # TODO: add COD groupings dropdown
+    
+                                                                # COD groups dropdown
                                                                 dbc.Col([
                                                                             dcc.Dropdown(
                                                                              id='cod_group',
                                                                              options=[
                                                                                 {
-                                                                                    "label": LOOKUP['cod_group_names'].get(o,o.capitalize()), 
+                                                                                    "label": LOOKUP['display_names'].get(o,o.capitalize()), 
                                                                                     "value": o,                                                                                         
                                                                                 }
                                                                                 for o in ['All CODs'] + COD_GROUPS.columns[2:].tolist()
@@ -467,11 +436,40 @@ app.layout = html.Div(
                                                                                 "margin-top": "5px",
                                                                                 "margin-bottom": "5px",
                                                                             },
-                                                                            searchable=False,
-                                                                            clearable=False
+                                                                            searchable=True,
+                                                                            clearable=False,
+                                                                            multi=True,
                                                                                     
                                                                             )
                                                                             ], width=5),
+                                                                # COD factor (demographic) dropdown
+                                                                dbc.Col([
+                                                                        dcc.Dropdown(
+                                                                            id="cod_factor",
+                                                                            options=[
+                                                                                {
+                                                                                    "label": "By {}".format(o) if o != "Overall" else o,
+                                                                                    "value": o,
+                                                                                }
+                                                                                for o in [
+                                                                                    "Overall",
+                                                                                    "Age Group",
+                                                                                    "Sex",
+                                                                                    "Place of Death",
+                                                                                ]
+                                                                            ],
+                                                                            value="Overall",
+                                                                            style={
+                                                                                "margin-top": "5px",
+                                                                                "margin-bottom": "5px",
+                                                                                "width": "150px",
+                                                                            },
+                                                                            searchable=False,
+                                                                            clearable=False,
+                                                                        ),
+                                                                    ],
+                                                                    width=4,
+                                                                ),
                                                             ],
                                                             style={"margin-top": "5px"}
                                                         ),
@@ -502,43 +500,56 @@ app.layout = html.Div(
                                                     children=[
                                                         dbc.Row(
                                                             [
-                                                                dbc.Col(
-                                                                    [
-                                                                        html.P(
-                                                                            "Demographic",
-                                                                            className="input-label",
-                                                                        ),
+                                                                html.Div(
+                                                                        className="dashboard-comp-container",
+                                                                        children=[
+                                                                            dcc.Dropdown(
+                                                                                 id='ts_search',
+                                                                                options = [],
+                                                                                placeholder = "Search COD Keywords",
+                                                                                style={
+                                                                                    "margin-top": "5px",
+                                                                                    "margin-bottom": "5px",
+                                                                                    "width": "250px"
+                                                                                },
+                                                                                searchable=True,
+                                                                                clearable=True,
+                                                                                multi=True,
+                                                                                                
+                                                                            )]
+                                                                ),
+                                                                html.Div(
+                                                                        className="dashboard-comp-container",
+                                                                        children=[
                                                                         dcc.Dropdown(
                                                                             id="ts_factor",
                                                                             options=[
                                                                                 {
-                                                                                    "label": o,
+                                                                                    "label": "By {}".format(o) if o != "Overall" else o,
                                                                                     "value": o,
                                                                                 }
                                                                                 for o in [
-                                                                                    "All",
+                                                                                    "Overall",
                                                                                     "Age Group",
                                                                                     "Sex",
                                                                                     "Place of Death",
                                                                                 ]
                                                                             ],
-                                                                            value="All",
+                                                                            value="Overall",
                                                                             style={
                                                                                 "margin-top": "5px",
                                                                                 "margin-bottom": "5px",
-                                                                                "width": "140px",
+                                                                                "width": "150px",
                                                                             },
                                                                             searchable=False,
                                                                             clearable=False,
-                                                                        ),
-                                                                    ],
-                                                                    style={
-                                                                        "display": "flex"
-                                                                    },
-                                                                    width=6,
+                                                                        )
+                                                                    ]
                                                                 ),
-                                                                dbc.Col(
-                                                                    [
+
+                                                            html.Div(
+                                                                    className="dashboard-comp-container",
+                                                                    children=[
                                                                         dcc.Dropdown(
                                                                             id="group_period",
                                                                             options=[
@@ -562,12 +573,9 @@ app.layout = html.Div(
                                                                             searchable=False,
                                                                             clearable=False,
                                                                         ),
-                                                                    ],
-                                                                    style={
-                                                                        "display": "flex",
-                                                                    },
-                                                                    width=4,
-                                                                ),
+                                                                       ]
+                                                                )
+
                                                             ],
                                                         ),
                                                         dcc.Loading(
@@ -581,8 +589,8 @@ app.layout = html.Div(
                                     ]
                                 )
                             ],
-                            width=4,
-                            style={"min-width": "480px", "margin-bottom": "15px"},
+                            width=5,
+                            style={"min-width": "480px", "margin-bottom": "15px", "margin-top": "40px"},
                         ),
                     ],
                 ),
@@ -647,7 +655,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
         Input(component_id="locations", component_property="children"),
     ],
 )
-def update_options(search_value, location_json, **kwargs):
+def update_map_options(search_value, location_json, **kwargs):
     if search_value and location_json:
         locations = json.loads(location_json).keys()
         options = [
@@ -662,11 +670,11 @@ def update_options(search_value, location_json, **kwargs):
 
 # ============ Filter logic (update filter table used by other componenets)========#
 @app.callback(
-    [
+#    [
         Output(component_id="filter_dict", component_property="children"),
-        Output(component_id="timeframe", component_property="disabled"),
+#        Output(component_id="timeframe", component_property="disabled"),
 #        Output(component_id="bounds", component_property="children")
-    ],
+#    ],
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="invalid_va_data", component_property="children"),
@@ -697,7 +705,7 @@ def filter_data(
         location_types = (
             json.loads(location_types) if location_types is not None else location_types
         )
-        disable_timeframe = False
+        #disable_timeframe = False
         
         # get user location restrictions. If none, will return an empty queryset
         location_restrictions = kwargs["user"].location_restrictions.values("name", "id")
@@ -741,11 +749,11 @@ def filter_data(
         }
 
         # if no valid or invalid data, turn off timeframe
-        if (len(valid_filter["ids"]) == 0) and (len(invalid_filter["ids"]) == 0):
-            disable_timeframe = True
+#        if (len(valid_filter["ids"]) == 0) and (len(invalid_filter["ids"]) == 0):
+#            disable_timeframe = True
         
 
-        return json.dumps(combined_filter_dict), disable_timeframe
+        return json.dumps(combined_filter_dict)#, disable_timeframe
 
 
 # helper method to get filter ids given adjacent plot regions
@@ -887,13 +895,13 @@ def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
                     .index.tolist()
                 )
 
-    return [{"label": LOOKUP["metric_names"].get(m, m), "value": m} for m in metrics]
+    return [{"label": LOOKUP["display_names"].get(m, m), "value": m} for m in metrics]
 
 
 def get_metric_display_names(map_metrics):
     names = []
     for metric in map_metrics:
-        metric_name = LOOKUP["metric_names"].get(metric, None)
+        metric_name = LOOKUP["display_names"].get(metric, None)
         if metric_name is None:
             metric_name = " ".join([x.capitalize() for x in metric.strip().split(" ")])
         names.append(metric_name)
@@ -905,7 +913,7 @@ def get_metric_display_names(map_metrics):
     [
         Output(component_id="view_level", component_property="options"),
         Output(component_id="view_level", component_property="disabled"),
-        Output(component_id="view_label", component_property="className"),
+        #Output(component_id="view_label", component_property="className"),
     ],
     [
         Input(component_id="filter_dict", component_property="children"),
@@ -920,12 +928,12 @@ def update_view_options(filter_dict, location_types, **kwargs):
         disable = (filter_dict["geo_filter"] or filter_dict["search_filter"])
         if not disable:
             view_options = json.loads(location_types)
-            label_class = "input-label"
+           # label_class = "input-label"
         else:
             view_options = []
-            label_class = "input-label-disabled"
+            #label_class = "input-label-disabled"
         options = [{"label": o.capitalize(), "value": o} for o in view_options]
-        return options, disable, label_class
+        return options, disable #, label_class
 
 
 # ====================Map Logic===================================#
@@ -1194,7 +1202,7 @@ def generate_map_data(
         map_df.reset_index(inplace=True)
 
         # generate tooltips for regions with data
-        metric_name = LOOKUP["metric_names"].get(metric, metric)
+        metric_name = LOOKUP["display_names"].get(metric, metric)
         map_df["age_mean"] = np.round(map_df["age_mean"], 1)
         map_df["tooltip"] = (
             "<b>"
@@ -1335,7 +1343,7 @@ def make_card(
     )
     card_content.append(body)
     if style is None:
-        style = {"width": "190px"}
+        style = {"width": "185px"}
     card_obj = dbc.Card(card_content, color=color, inverse=inverse, className="mr-2")
     card_container = html.Div(card_obj, style=style)
     return card_container
@@ -1362,7 +1370,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
                 if filter_dict["cod_type"].lower() != "all":
                     cod = filter_dict["cod_type"]
                     plot_data = plot_data[plot_data["cause"] == cod]
-                    cod_title = LOOKUP["metric_names"].get(cod, cod)
+                    cod_title = LOOKUP["display_names"].get(cod, cod)
                     plot_title = f"{cod_title} Demographics"
                 else:
                     plot_title = "All-Cause Demographics"
@@ -1382,59 +1390,118 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
     ],
 )
 
-def cod_plot(va_data, timeframe, factor="Overall", cod_group="All CODs", N=10, filter_dict=None, **kwargs):
+def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, filter_dict=None, **kwargs):
     figure = go.Figure()
-    if va_data is not None:
-        plot_data = pd.read_json(va_data)
-        if plot_data.size > 0:
+    if len(cod_groups) > 0:
+        if va_data is not None:
+            plot_data = pd.read_json(va_data)
             if filter_dict is not None:
                 filter_dict = json.loads(filter_dict)
                 cod = filter_dict["cod_type"]
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
             
-            # only proceed if remaining data after filter
-            if plot_data.size > 0:
                 # if no cod group filter (default), call standard cod plotting function
-                if cod_group == "All CODs":
-                    figure = plotting.cause_of_death_plot(
-                        plot_data, factor=factor, N=N, chosen_cod=cod
-                    )
-                else:
-                    figure = plotting.cod_group_plot(
-                        plot_data, cod_group, factor=factor, cod_groups=COD_GROUPS, N=N
-                    )
-    return dcc.Graph(id="cod_plot", figure=figure,  config=LOOKUP["chart_config"])
+            cod_groups = [cod_groups] if type(cod_groups) is str else cod_groups
+            figure = plotting.cod_group_plot(
+                plot_data, cod_groups, demographic=factor, N=N, chosen_cod=cod, height=560
+            )
+        
+        return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
+    else:
+        raise dash.exceptions.PreventUpdate
+        
+# ============ Trend search options ==================
+@app.callback(
+    Output(component_id="ts_search", component_property="options"),
+    [
+        Input(component_id="ts_search", component_property="search_value"),
+        Input(component_id="va_data", component_property="children"),
+        Input(component_id="filter_dict", component_property="children"),
+    ],
+)
 
+def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, **kwargs):
+    if search_value and va_data:
+        if not cod_groups:
+            cod_groups = COD_GROUPS
+        
+        # load cod groups
+        all_options = [(cod_group, "group") for cod_group in cod_groups.columns[1:].tolist()]
+        
+        # load unique cods in selected data
+        va_data = pd.read_json(va_data)
+        if va_data.size > 0 and filter_dict:
+            filter_dict = json.loads(filter_dict)
+            valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
+            unique_cods = valid_va_data["cause"].unique().tolist()
+            all_options += [(cod_name, "cod") for cod_name in unique_cods]
+            
+        # filter options based on search criteria
+        matching_options = [
+            {"label": LOOKUP["display_names"].get(name, name.capitalize()),
+             "value": f"{name}.{type}"}
+            for name, type in all_options #if search_value.lower() in name.lower()
+        ]  
+        return matching_options
+    raise dash.exceptions.PreventUpdate
+            
 
-#
-#
 # ========= Time Series Plot Logic============================================#
 @app.callback(
-    Output(component_id="ts-container", component_property="children"),
+#    [
+     Output(component_id="ts-container", component_property="children"),
+#     Output(component_id="bounds", component_property="children"),
+#     ],
+    
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="group_period", component_property="value"),
         Input(component_id="filter_dict", component_property="children"),
         Input(component_id="ts_factor", component_property="value"),
+        Input(component_id="ts_search", component_property="value")
     ],
 )
-def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All", **kwargs):
-    figure = go.Figure()
+def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All", search_terms=None, **kwargs):
+    figure, plot_title = go.Figure(), None
+    search_term_ids = {}
     if va_data is not None:
         plot_data = pd.read_json(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
                 filter_dict = json.loads(filter_dict)
                 cod = filter_dict["cod_type"]
-                cod_title = LOOKUP["metric_names"].get(cod, cod)
-                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
-                if filter_dict["cod_type"].lower() != "all":
-                    plot_data = plot_data[plot_data["cause"] == filter_dict["cod_type"]]
-                plot_title = f"{cod_title} Trend by {group_period}"
+                # first, check for search terms. If any, use as filter
+                if search_terms and len(search_terms) > 0:
+                    if type(search_terms) is str:
+                        search_terms = [search_terms]
+                    cod_groups = COD_GROUPS
+                    #ret_val["groups"] = cod_groups.to_json()
+                   
+                    for search_value in search_terms:
+                        key, key_type = search_value.split(".")
+                        # if keyword is a cod group, filter to only CODs in that group
+                        if key_type == "group":
+                            group_cods = cod_groups[cod_groups[key]==1]["cod"].tolist()
+                            match_ids = plot_data[plot_data["cause"].isin(group_cods)].index.tolist()
+                        elif key_type == "cod":
+                            match_ids = plot_data[plot_data["cause"] == key].index.tolist()
+                        search_term_ids[search_value] = match_ids
+                    
+                    # TODO: make this more generic (only assumes one search term)
+                    search_key = search_terms[0].split('.')[0]
+                    term_title = LOOKUP["display_names"].get(search_key,\
+                                       search_key.capitalize())
+                    plot_title = f"{term_title} Trend by {group_period}"
+                # otherwise, check if global cod has been chosen   
+                elif cod.lower() != "all":
+                    cod_title = LOOKUP["display_names"].get(cod, cod)
+                    plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                    search_term_ids[cod] = plot_data[plot_data["cause"] == cod].index.tolist()
+                    plot_title = f"{cod_title} Trend by {group_period}"
 
             figure = plotting.va_trend_plot(
-                plot_data, group_period, factor, title=plot_title
+                plot_data, group_period, factor, title=plot_title, search_term_ids=search_term_ids, height=560
             )
     return dcc.Graph(id="trend_plot", figure=figure, config=LOOKUP["chart_config"])
 
