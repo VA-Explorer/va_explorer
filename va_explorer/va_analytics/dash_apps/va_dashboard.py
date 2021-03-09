@@ -398,6 +398,55 @@ app.layout = html.Div(
                                                                 dbc.Col(
                                                                     [
                                                                         dcc.Dropdown(
+                                                                            id="cod_n",
+                                                                            options=[
+                                                                                {
+                                                                                    "label": f"Top {o}",
+                                                                                    "value": o,
+                                                                                }
+                                                                                for o in [
+                                                                                    5,
+                                                                                    10,
+                                                                                    15,
+                                                                                    20,
+                                                                                ]
+                                                                            ],
+                                                                            value=10,
+                                                                            style={
+                                                                                "margin-top": "5px",
+                                                                                "margin-bottom": "5px",
+                                                                            },
+                                                                            searchable=False,
+                                                                            clearable=False,
+                                                                        )
+                                                                    ],
+                                                                    width=3,
+                                                                ),
+    
+                                                                # COD groups dropdown
+                                                                dbc.Col([
+                                                                            dcc.Dropdown(
+                                                                             id='cod_group',
+                                                                             options=[
+                                                                                {
+                                                                                    "label": LOOKUP['cod_group_names'].get(o,o.capitalize()), 
+                                                                                    "value": o,                                                                                         
+                                                                                }
+                                                                                for o in ['All CODs'] + COD_GROUPS.columns[2:].tolist()
+                                                                            ], 
+                                                                            value='All CODs', 
+                                                                            style={
+                                                                                "margin-top": "5px",
+                                                                                "margin-bottom": "5px",
+                                                                            },
+                                                                            searchable=False,
+                                                                            clearable=False
+                                                                                    
+                                                                            )
+                                                                            ], width=5),
+                                                                # COD factor (demographic) dropdown
+                                                                dbc.Col([
+                                                                        dcc.Dropdown(
                                                                             id="cod_factor",
                                                                             options=[
                                                                                 {
@@ -423,54 +472,6 @@ app.layout = html.Div(
                                                                     ],
                                                                     width=4,
                                                                 ),
-                                                                dbc.Col(
-                                                                    [
-                                                                        dcc.Dropdown(
-                                                                            id="cod_n",
-                                                                            options=[
-                                                                                {
-                                                                                    "label": f"Top {o}",
-                                                                                    "value": o,
-                                                                                }
-                                                                                for o in [
-                                                                                    5,
-                                                                                    10,
-                                                                                    15,
-                                                                                    20,
-                                                                                ]
-                                                                            ],
-                                                                            value=10,
-                                                                            style={
-                                                                                "margin-top": "5px",
-                                                                                "margin-bottom": "5px",
-                                                                            },
-                                                                            searchable=False,
-                                                                            clearable=False,
-                                                                        )
-                                                                    ],
-                                                                    width=3,
-                                                                ),
-                                                                # TODO: add COD groupings dropdown
-                                                                dbc.Col([
-                                                                            dcc.Dropdown(
-                                                                             id='cod_group',
-                                                                             options=[
-                                                                                {
-                                                                                    "label": LOOKUP['cod_group_names'].get(o,o.capitalize()), 
-                                                                                    "value": o,                                                                                         
-                                                                                }
-                                                                                for o in ['All CODs'] + COD_GROUPS.columns[2:].tolist()
-                                                                            ], 
-                                                                            value='All CODs', 
-                                                                            style={
-                                                                                "margin-top": "5px",
-                                                                                "margin-bottom": "5px",
-                                                                            },
-                                                                            searchable=False,
-                                                                            clearable=False
-                                                                                    
-                                                                            )
-                                                                            ], width=5),
                                                             ],
                                                             style={"margin-top": "5px"}
                                                         ),

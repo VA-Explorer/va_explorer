@@ -86,7 +86,7 @@ def load_lookup_dicts():
         "ncd": "Non-Communicable",
         "parasitic": "Parasitic",
         "infectious": "Infectious", 
-        "zambia_notifiable_disease": "Zambian Notifiable Disease",
+        "zambia_notifiable_disease": "Zambian Notifiable",
         "respiratory": "Respiratory"
     }
     
