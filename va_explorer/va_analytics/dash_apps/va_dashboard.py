@@ -378,6 +378,8 @@ app.layout = html.Div(
                                     id="location_types", style={"display": "none"}
                                 ),
                                 html.Div(id="filter_dict", style={"display": "none"}),
+                                # used to trigger data ingest when page first loads
+                                html.Div(id="hidden_trigger", style={"display": "none"})
                             ],
                             width=8,
                             style={"min-width": "480px", "margin-bottom": "15px"},
@@ -585,11 +587,13 @@ app.layout = html.Div(
     [
         Output(component_id="map_search", component_property="value"),
         Output(component_id="cod_type", component_property="value"),
+        Output(component_id="timeframe", component_property="value"),
     ],
     [Input(component_id="reset", component_property="n_clicks")],
 )
-def reset(n_clicks=0, **kwargs):
-    return "", INITIAL_COD_TYPE
+
+def reset(n_clicks=0):
+    return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 
 # ============ VA data (loaded from database and shared across components) ========
@@ -613,8 +617,9 @@ designated as "expanded"
         Output(component_id="locations", component_property="children"),
         Output(component_id="location_types", component_property="children"),
     ],
-    [Input(component_id="timeframe", component_property="value"),],
+    [Input(component_id="hidden_trigger", component_property="children")],
 )
+
 def init_va_data(timeframe="All", **kwargs):
     res = load_va_data(kwargs['user'])
     valid_va_data = res["data"]["valid"].to_json()
@@ -958,8 +963,6 @@ def update_choropleth(
         plot_data = all_data.copy()
         return_value = html.Div(id="choropleth")
         granularity = INITIAL_GRANULARITY
-        # assume View dropdown is disabled by default
-        view_disabled = True
         location_types = json.loads(location_types)
         include_no_datas = True
         ret_val = dict()
