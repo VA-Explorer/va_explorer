@@ -208,6 +208,7 @@ class Command(BaseCommand):
 
     def getEventsValues(self,prg, auth):
         env = environ.Env()
+
         # DHIS2 VARIABLES
         DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")

@@ -11,6 +11,7 @@ def index(request):
     # exclude vas that have no dhis2 status; not pushed
     push = "notyet"
     env = environ.Env()
+
     # DHIS2 VARIABLES
     DHIS2_USER = env("DHIS2_USER")
     DHIS2_PASS = env("DHIS2_PASS")
