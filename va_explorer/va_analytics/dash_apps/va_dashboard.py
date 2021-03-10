@@ -108,13 +108,11 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 
 # ============ VA Data =================
-def load_va_data(geographic_levels=None):
+def load_va_data(user, geographic_levels=None):
     np.random.seed(23)
     return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
 
-    all_vas = VerbalAutopsy.objects.prefetch_related("location").prefetch_related(
-        "causes"
-    )
+    all_vas = user.verbal_autopsies().prefetch_related("location").prefetch_related("causes")
 
     if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data
@@ -592,12 +590,25 @@ app.layout = html.Div(
     ],
     [Input(component_id="reset", component_property="n_clicks")],
 )
-def reset(n_clicks=0):
+def reset(n_clicks=0, **kwargs):
     return "", INITIAL_COD_TYPE
 
 
 # ============ VA data (loaded from database and shared across components) ========
-@app.callback(
+'''
+Note on the use of expanded_callback in django_plotly_dash
+
+The expanded_callback gives us access to additional arguments passed as kwargs, including
+the Django user instance.
+
+As per documentation:
+This function registers the callback function, and sets an internal flag that mandates that
+ALL callbacks are passed the enhanced arguments
+
+Thus, we must add **kwargs to all callbacks in the app, even though they are not explicitly
+designated as "expanded"
+'''
+@app.expanded_callback(
     [
         Output(component_id="va_data", component_property="children"),
         Output(component_id="invalid_va_data", component_property="children"),
@@ -606,8 +617,8 @@ def reset(n_clicks=0):
     ],
     [Input(component_id="timeframe", component_property="value"),],
 )
-def init_va_data(timeframe="All"):
-    res = load_va_data()
+def init_va_data(timeframe="All", **kwargs):
+    res = load_va_data(kwargs['user'])
     valid_va_data = res["data"]["valid"].to_json()
     invalid_va_data = res["data"]["invalid"].to_json()
     locations = json.dumps(res.get("locations", []))
@@ -623,7 +634,7 @@ def init_va_data(timeframe="All"):
         Input(component_id="locations", component_property="children"),
     ],
 )
-def update_options(search_value, location_json):
+def update_options(search_value, location_json, **kwargs):
     if search_value and location_json:
         locations = json.loads(location_json).keys()
         options = [
@@ -662,6 +673,7 @@ def filter_data(
     search_terms=[],
     locations=None,
     location_types=None,
+    **kwargs
 ):
     if va_data is not None:
         valid_va_df = pd.read_json(va_data)
@@ -808,7 +820,7 @@ def shift_granularity(current_granularity, levels, move_up=False):
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def get_metrics(va_data, filter_dict=None, N=10):
+def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
     # by default, start with aggregate measures
     metrics = []
     metric_data = pd.read_json(va_data)
@@ -852,7 +864,7 @@ def get_metric_display_names(map_metrics):
         Input(component_id="location_types", component_property="children"),
     ],
 )
-def update_view_options(filter_dict, location_types):
+def update_view_options(filter_dict, location_types, **kwargs):
     if filter_dict is not None:
         filter_dict = json.loads(filter_dict)
 
@@ -873,7 +885,7 @@ def update_view_options(filter_dict, location_types):
     Output(component_id="view_level", component_property="value"),
     [Input(component_id="view_level", component_property="disabled"),],
 )
-def reset_view_value(is_disabled=False):
+def reset_view_value(is_disabled=False, **kwargs):
     if is_disabled:
         return ""
 
@@ -904,6 +916,7 @@ def update_choropleth(
     filter_dict=None,
     geojson=GEOJSON,
     zoom_in=False,
+    **kwargs
 ):
     # first, see which input triggered update. If granularity change, only run
     # if value is non-empty
@@ -1186,7 +1199,7 @@ def generate_map_data(
     ],
 )
 def update_callouts(
-    va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON
+    va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON, **kwargs
 ):
     coded_vas, uncoded_vas, active_facilities, num_field_workers, coverage = (
         0,
@@ -1275,7 +1288,7 @@ def make_card(
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def demographic_plot(va_data, timeframe, filter_dict=None):
+def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -1306,7 +1319,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
+def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None, **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -1337,7 +1350,7 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
         Input(component_id="ts_factor", component_property="value"),
     ],
 )
-def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All"):
+def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All", **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
