@@ -21,13 +21,12 @@ PLOTLY = px.colors.qualitative.Plotly
 def load_lookup_dicts():
     lookup = dict()
     # dictionary mapping time labels to days (or all)
-    lookup["time_dict"] = {"today": 1,
-                        "last week": 7,
-                        "last month": 30,
-                        "last 6 months": 30.4 * 6, # last 182.5 days
-                        "last year": 365,
-                        "all": "all"}
-
+    lookup["time_dict"] = {"today": 1, 
+                          "last week": 7,
+                          "last month": 30,
+                          "last 6 months": 30.4 * 6, # last 182.5 days
+                          "last year": 365,
+                          "all": "all"}
     # dictionary mapping demographic variable names to corresponding VA survey columns
     lookup["demo_to_col"] = {
         "age group": "age_group",
