@@ -696,7 +696,8 @@ def filter_data(
             "granularity": valid_filter["granularity"],  # same across both dictionaries
             "plot_regions": valid_filter[
                 "plot_regions"
-            ],  # same across both dictionaries
+            ],  
+            "search_filter": valid_filter["search_filter"], # same across both dictionaries
             "geo_filter": valid_filter["geo_filter"],  # same across both dictionaries
             "chosen_region": valid_filter[
                 "chosen_region"
@@ -732,6 +733,7 @@ def _get_filter_dict(
 
     filter_dict = {
         "geo_filter": (selected_json is not None) or (len(search_terms) > 0),
+        "search_filter": (len(search_terms) > 0),
         "plot_regions": [],
         "chosen_region": "all",
         "ids": [],
@@ -740,7 +742,7 @@ def _get_filter_dict(
     if filter_dict["geo_filter"]:
         # first, check if user searched anything. If yes, use that as filter.
         if search_terms is not None:
-            if len(search_terms) > 0:
+            if filter_dict["search_filter"]:
                 search_terms = (
                     [search_terms] if isinstance(search_terms, str) else search_terms
                 )
@@ -856,8 +858,8 @@ def update_view_options(filter_dict, location_types):
     if filter_dict is not None:
         filter_dict = json.loads(filter_dict)
 
-        # only activate this dropdown when user is zoomed out
-        disable = filter_dict["geo_filter"]
+        # only activate when user is zoomed out and hasn't searched for anything
+        disable = (filter_dict["geo_filter"] or filter_dict["search_filter"])
         if not disable:
             view_options = json.loads(location_types)
             label_class = "input-label"
@@ -868,16 +870,16 @@ def update_view_options(filter_dict, location_types):
         return options, disable, label_class
 
 
-# when view dropdown is disabled, reset selected value to null
-@app.callback(
-    Output(component_id="view_level", component_property="value"),
-    [Input(component_id="view_level", component_property="disabled"),],
-)
-def reset_view_value(is_disabled=False):
-    if is_disabled:
-        return ""
-
-    raise dash.exceptions.PreventUpdate
+## when view dropdown is disabled, reset selected value to null
+#@app.callback(
+#    Output(component_id="view_level", component_property="value"),
+#    [Input(component_id="view_level", component_property="disabled"),],
+#)
+#def reset_view_value(is_disabled=False):
+#    if is_disabled:
+#        return ""
+#
+#    raise dash.exceptions.PreventUpdate
 
 
 # ====================Map Logic===================================#
@@ -907,10 +909,10 @@ def update_choropleth(
 ):
     # first, see which input triggered update. If granularity change, only run
     # if value is non-empty
-    context = dash.callback_context
-    trigger = context.triggered[0]
-    if trigger["prop_id"].split(".")[0] == "view_level" and trigger["value"] == "":
-        raise dash.exceptions.PreventUpdate
+#    context = dash.callback_context
+#    trigger = context.triggered[0]
+#    if trigger["prop_id"].split(".")[0] == "view_level" and trigger["value"] == "":
+#        raise dash.exceptions.PreventUpdate
     figure = go.Figure()
     config = None
     if va_data is not None:
@@ -919,6 +921,8 @@ def update_choropleth(
         plot_data = all_data.copy()
         return_value = html.Div(id="choropleth")
         granularity = INITIAL_GRANULARITY
+        # assume View dropdown is disabled by default
+        view_disabled = True
         location_types = json.loads(location_types)
         include_no_datas = True
         ret_val = dict()
@@ -937,6 +941,7 @@ def update_choropleth(
             if filter_dict is not None:
                 filter_dict = json.loads(filter_dict)
                 granularity = filter_dict.get("granularity", granularity)
+
                 # only proceed if filter is non-empty
 
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
@@ -998,8 +1003,8 @@ def update_choropleth(
             # only proceed if there's data
             if plot_data.size > 0:
 
-                # if user has not chosen a view level or its disabled, default to using granularity
-                view_level = view_level if len(view_level) > 0 else granularity
+                # if user has not chosen a view level or user is zooming in, default to granularity
+                view_level = granularity if len(view_level) == 0 or zoom_in else view_level
 
                 # get map tooltips to match view level (disstrict or province)
                 map_df = generate_map_data(
