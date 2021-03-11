@@ -19,11 +19,11 @@
     </tr>
     <tr>
       <td><b>Total records pushed</b></td>
-      <td align="right"><h3 class="text-danger">{{total}}</h3></td>
+      <td align="right"><h3 class="text-danger">{{object_list.total}}</h3></td>
     </tr>
     <tr>
       <td><b>Records to push</b></td>
-      <td align="right"><h3 class="text-danger">{{vanum}}</h3></td>
+      <td align="right"><h3 class="text-danger">{{object_list.vanum}}</h3></td>
     </tr>
      <tr>
       <td> <a href="{% url 'dhis_manager:dhishome' %}" >
@@ -40,8 +40,8 @@
 </div>
 
 <div class="row mt-4">
- {% if btnpush == 'OK' %}
-  <h3>{{ txt }}</h3>
+ {% if object_list.btnpush == 'OK' %}
+  <h3>{{ object_list.txt }}</h3>
   {%else%}
    <h3></h3>
   {% endif %}
