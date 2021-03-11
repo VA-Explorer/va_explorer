@@ -8,6 +8,7 @@ pandas==1.1.5
 python-slugify==4.0.1
 pytz==2020.1
 redis==3.5.3
+requests==2.25.1
 
 # Django
 django==3.1.5

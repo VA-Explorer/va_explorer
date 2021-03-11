@@ -27,9 +27,9 @@ COPY ./compose/django/celery/worker/start /start-celeryworker
 COPY ./compose/django/celery/beat/start /start-celerybeat
 COPY ./compose/django/celery/flower/start /start-flower
 
-RUN chmod +x /entrypoint /start /start-celeryworker /start-celerybeat
-RUN chown django /entrypoint /start /start-celeryworker /start-celerybeat
-RUN sed -i 's/\r$//g' /entrypoint /start /start-celeryworker /start-celerybeat
+RUN chmod +x /entrypoint /start /start-celeryworker /start-celerybeat /start-celeryflower
+RUN chown django /entrypoint /start /start-celeryworker /start-celerybeat /start-celeryflower
+RUN sed -i 's/\r$//g' /entrypoint /start /start-celeryworker /start-celerybeat /start-celeryflower
 
 RUN mkdir /app && chown django /app
 
