@@ -1239,7 +1239,7 @@ def update_callouts(
         make_card(uncoded_vas, header="Uncoded VAs", tooltip="# of VAs in system missing COD assignments in chosen region and time period"),
         make_card(active_facilities, header="Active Facilities", tooltip="# of facilities that have submitted VAs in chosen region and time period"),
         make_card(num_field_workers, header="Field Workers", tooltip="# of Field Workers that have submitted VAs in chosen region and time period"),
-        make_card(coverage, header="Region Representation", tooltip="% of regions within geography type - ie. Districts within Provice or Provices within Country", style={"width": "225px"}),
+        make_card(coverage, header="Region Representation", tooltip="% of regions with data within geography type - ie. Districts with data within Provice or Provices with data within Country", style={"width": "225px"}),
     ]
 
 
@@ -1255,7 +1255,7 @@ def make_card(
             header,
             html.Span(
                 html.Span(className="fas fa-info-circle"),
-                style={"margin-left": "5px"},
+                style={"margin-left": "5px", "color": "rgba(75,75,75,0.5)"},
                 id=f"{card_id}-tooltip-target"
             ),
             dbc.Tooltip(
