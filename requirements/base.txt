@@ -4,7 +4,7 @@ argon2-cffi==20.1.0
 celery==4.4.6
 flower==0.9.5
 hiredis==1.0.1
-pandas==1.0.5
+pandas==1.1.5
 python-slugify==4.0.1
 pytz==2020.1
 redis==3.5.3
