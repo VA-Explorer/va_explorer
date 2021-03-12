@@ -1294,7 +1294,6 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
             figure = plotting.demographic_plot(plot_data, title=plot_title)
     return dcc.Graph(id="demos_plot", figure=figure, config=chart_config)
 
-
 # =========Cause of Death Plot Logic============================================#
 @app.callback(
     Output(component_id="cod-container", component_property="children"),
@@ -1317,10 +1316,9 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
 
             # only proceed if remaining data after filter
-            if plot_data.size > 0:
-                figure = plotting.cause_of_death_plot(
-                    plot_data, factor=factor, N=N, chosen_cod=cod
-                )
+            figure = plotting.cause_of_death_plot(
+                plot_data, factor=factor, N=N, chosen_cod=cod
+            )
     return dcc.Graph(id="cod_plot", figure=figure, config=chart_config)
 
 
@@ -1351,10 +1349,10 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
                     plot_data = plot_data[plot_data["cause"] == filter_dict["cod_type"]]
                 plot_title = f"{cod_title} Trend by {group_period}"
             # only run if remaining data after filter
-            if plot_data.size > 0:
-                figure = plotting.va_trend_plot(
-                    plot_data, group_period, factor, title=plot_title
-                )
+            
+            figure = plotting.va_trend_plot(
+                plot_data, group_period, factor, title=plot_title
+            )
     return dcc.Graph(id="trend_plot", figure=figure, config=chart_config)
 
 
