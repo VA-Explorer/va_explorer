@@ -619,9 +619,14 @@ designated as "expanded"
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
+<<<<<<< HEAD
 
 def init_va_data(timeframe="All", **kwargs):
     res = load_va_data(kwargs['user'])
+=======
+def init_va_data(hidden_trigger=None):
+    res = load_va_data()
+>>>>>>> 9772e88bee03e77ccd9af2610dcf2505723e5e94
     valid_va_data = res["data"]["valid"].to_json()
     invalid_va_data = res["data"]["invalid"].to_json()
     locations = json.dumps(res.get("locations", []))
@@ -760,7 +765,11 @@ def _get_filter_dict(
     plot_ids, plot_regions = list(), list()
     
     filter_dict = {
+<<<<<<< HEAD
         "geo_filter": any(map(lambda x: len(x) > 0, [restrictions, selected_json, search_terms])),
+=======
+        "geo_filter": (selected_json is not None) or (len(search_terms) > 0),
+>>>>>>> 9772e88bee03e77ccd9af2610dcf2505723e5e94
         "search_filter": (len(search_terms) > 0),
         "plot_regions": [],
         "chosen_region": "all",
@@ -923,6 +932,21 @@ def update_view_options(filter_dict, location_types, **kwargs):
         return options, disable, label_class
 
 
+<<<<<<< HEAD
+=======
+## when view dropdown is disabled, reset selected value to null
+#@app.callback(
+#    Output(component_id="view_level", component_property="value"),
+#    [Input(component_id="view_level", component_property="disabled"),],
+#)
+#def reset_view_value(is_disabled=False):
+#    if is_disabled:
+#        return ""
+#
+#    raise dash.exceptions.PreventUpdate
+
+
+>>>>>>> 9772e88bee03e77ccd9af2610dcf2505723e5e94
 # ====================Map Logic===================================#
 @app.callback(
 #       [
