@@ -29,9 +29,7 @@ from va_explorer.va_data_management.models import Location, VerbalAutopsy
 # app = dash.Dash(__name__)  # Dash constructor
 app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=True)
 
-# Toolbar configurations
-graph_config = {"displayModeBar": True, "scrollZoom": True, "displaylogo": False, "modeBarButtonsToRemove":["zoomInGeo", "zoomOutGeo", "select2d", "lasso2d"]}
-chart_config = {"displayModeBar": True, "displaylogo":False, "modeBarButtonsToRemove":["pan2d", "zoom2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"]}
+# NOTE: moved Toolbar configurations to plotting.py
 
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
@@ -108,13 +106,11 @@ GEOJSON = load_geojson_data(json_file=f"{JSON_DIR}/{JSON_FILE}")
 
 
 # ============ VA Data =================
-def load_va_data(geographic_levels=None):
+def load_va_data(user, geographic_levels=None):
     np.random.seed(23)
     return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
 
-    all_vas = VerbalAutopsy.objects.prefetch_related("location").prefetch_related(
-        "causes"
-    )
+    all_vas = user.verbal_autopsies().prefetch_related("location").prefetch_related("causes")
 
     if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data
@@ -368,7 +364,7 @@ app.layout = html.Div(
                                     children=[
                                         html.Div(
                                             id="choropleth-container",
-                                            children=dcc.Graph(id="choropleth", config=graph_config),
+                                            children=dcc.Graph(id="choropleth"),
                                         )
                                     ],
                                 ),
@@ -592,12 +588,25 @@ app.layout = html.Div(
     ],
     [Input(component_id="reset", component_property="n_clicks")],
 )
-def reset(n_clicks=0):
+def reset(n_clicks=0, **kwargs):
     return "", INITIAL_COD_TYPE
 
 
 # ============ VA data (loaded from database and shared across components) ========
-@app.callback(
+'''
+Note on the use of expanded_callback in django_plotly_dash
+
+The expanded_callback gives us access to additional arguments passed as kwargs, including
+the Django user instance.
+
+As per documentation:
+This function registers the callback function, and sets an internal flag that mandates that
+ALL callbacks are passed the enhanced arguments
+
+Thus, we must add **kwargs to all callbacks in the app, even though they are not explicitly
+designated as "expanded"
+'''
+@app.expanded_callback(
     [
         Output(component_id="va_data", component_property="children"),
         Output(component_id="invalid_va_data", component_property="children"),
@@ -606,8 +615,8 @@ def reset(n_clicks=0):
     ],
     [Input(component_id="timeframe", component_property="value"),],
 )
-def init_va_data(timeframe="All"):
-    res = load_va_data()
+def init_va_data(timeframe="All", **kwargs):
+    res = load_va_data(kwargs['user'])
     valid_va_data = res["data"]["valid"].to_json()
     invalid_va_data = res["data"]["invalid"].to_json()
     locations = json.dumps(res.get("locations", []))
@@ -623,7 +632,7 @@ def init_va_data(timeframe="All"):
         Input(component_id="locations", component_property="children"),
     ],
 )
-def update_options(search_value, location_json):
+def update_options(search_value, location_json, **kwargs):
     if search_value and location_json:
         locations = json.loads(location_json).keys()
         options = [
@@ -641,6 +650,7 @@ def update_options(search_value, location_json):
     [
         Output(component_id="filter_dict", component_property="children"),
         Output(component_id="timeframe", component_property="disabled"),
+#        Output(component_id="bounds", component_property="children")
     ],
     [
         Input(component_id="va_data", component_property="children"),
@@ -662,6 +672,7 @@ def filter_data(
     search_terms=[],
     locations=None,
     location_types=None,
+    **kwargs
 ):
     if va_data is not None:
         valid_va_df = pd.read_json(va_data)
@@ -672,6 +683,15 @@ def filter_data(
             json.loads(location_types) if location_types is not None else location_types
         )
         disable_timeframe = False
+        
+        # check if user has geoscoping restrictions. If so, filter down to allowed locations
+        try:
+            location_restrictions = [l.name for l in kwargs["user"].location_restrictions.all()]
+        except:
+            location_restrictions = []
+            
+        # if no selected json, convert to empty dictionary for easier processing
+        selected_json = {} if not selected_json else selected_json
 
         # filter valid vas (VAs with COD)
         valid_filter = _get_filter_dict(
@@ -681,6 +701,7 @@ def filter_data(
             location_types=location_types,
             search_terms=search_terms,
             locations=locations,
+            restrictions=location_restrictions
         )
         # filter invalid vas (VAs without COD)
         invalid_filter = _get_filter_dict(
@@ -690,17 +711,14 @@ def filter_data(
             location_types=location_types,
             search_terms=search_terms,
             locations=locations,
-        )
-        # combine filters into one dictionary to share across callbacks
+            restrictions=location_restrictions
+        )      
+        
         combined_filter_dict = {
+            "plot_regions": valid_filter["plot_regions"],  # same across both dicts
             "granularity": valid_filter["granularity"],  # same across both dictionaries
-            "plot_regions": valid_filter[
-                "plot_regions"
-            ],  # same across both dictionaries
             "geo_filter": valid_filter["geo_filter"],  # same across both dictionaries
-            "chosen_region": valid_filter[
-                "chosen_region"
-            ],  # same across both dictionaries
+            "chosen_region": valid_filter["chosen_region"],  # same across both dictionaries
             "ids": {"valid": valid_filter["ids"], "invalid": invalid_filter["ids"]},
             "cod_type": cod_type,
             "plot_ids": {
@@ -712,6 +730,7 @@ def filter_data(
         # if no valid or invalid data, turn off timeframe
         if (len(valid_filter["ids"]) == 0) and (len(invalid_filter["ids"]) == 0):
             disable_timeframe = True
+        
 
         return json.dumps(combined_filter_dict), disable_timeframe
 
@@ -719,26 +738,50 @@ def filter_data(
 # helper method to get filter ids given adjacent plot regions
 def _get_filter_dict(
     va_df,
-    selected_json,
+    selected_json={},
     timeframe="all",
     search_terms=[],
     locations=None,
     location_types=None,
+    restrictions=[]
 ):
 
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
     plot_ids, plot_regions = list(), list()
-
+    
     filter_dict = {
-        "geo_filter": (selected_json is not None) or (len(search_terms) > 0),
+        "geo_filter": any(map(lambda x: len(x) > 0, [restrictions, selected_json, search_terms])),
         "plot_regions": [],
         "chosen_region": "all",
         "ids": [],
         "plot_ids": [],
     }
+    
     if filter_dict["geo_filter"]:
-        # first, check if user searched anything. If yes, use that as filter.
+        # first, check if geo filter is for location restrictions
+        if len(restrictions) > 0:
+            # TODO: make this work for more than one assigned region
+            granularity = locations.get(restrictions[0], granularity)
+            # no need to filter data, as that's already done in load_data
+            chosen_region = restrictions[0]
+            
+            location_obj = Location.objects.get(name=chosen_region)
+            # if assigned to a POI (i.e. lowest level of location hierarchy) move one level up
+            #TODO: make this more generic to handle other location types
+            if location_obj.location_type == 'facility':
+                # ancestors returned in descending order
+                location_obj = location_obj.get_ancestors().last()
+                chosen_region = location_obj.name
+            # otherwise, just plot chosen region and descendants
+            plot_regions = [r.name for r in location_obj.get_children()]
+            plot_regions.append(chosen_region)
+
+            plot_ids = filter_df.index.tolist()
+            filter_dict["chosen_region"] = chosen_region
+            
+            
+        # next, check if user searched anything. If yes, use that as filter.
         if search_terms is not None:
             if len(search_terms) > 0:
                 search_terms = (
@@ -748,30 +791,32 @@ def _get_filter_dict(
                 filter_df = filter_df[filter_df[granularity].isin(set(search_terms))]
                 filter_dict["chosen_region"] = search_terms[0]
 
-        # then, check for locations clicked on map.
-        if selected_json is not None:
+        # finally, check for locations clicked on map.
+        if len(selected_json) > 0:
             point_df = pd.DataFrame(selected_json["points"])
             chosen_regions = point_df["location"].tolist()
             granularity = locations.get(chosen_regions[0], granularity)
             filter_df = filter_df[filter_df[granularity].isin(set(chosen_regions))]
             filter_dict["chosen_region"] = chosen_regions[0]
+    
+        # get all adjacent regions (siblings) to chosen region(s) for plotting. Dont run when user has geo restrictions
+        if len(restrictions) == 0:
+            
+            # get parent location type from current granularity
+            parent_location_type = shift_granularity(
+                granularity, location_types, move_up=True
+            )
 
-        # get parent location type from current granularity
-        parent_location_type = shift_granularity(
-            granularity, location_types, move_up=True
-        )
-
-        # get all adjacent regions (siblings) to chosen region(s) for plotting
-        for parent_name in filter_df[parent_location_type].unique():
-            # get ids of vas in parent region
-            va_ids = va_df[va_df[parent_location_type] == parent_name].index.tolist()
-            plot_ids = plot_ids + va_ids
-            location_object = Location.objects.get(name=parent_name)
-            children = location_object.get_children()
-            children_names = [c.name for c in location_object.get_children()]
-            plot_regions = plot_regions + children_names + [parent_name]
-            # set final granularity to same level of children
-            granularity = children[0].location_type
+            for parent_name in filter_df[parent_location_type].unique():
+                # get ids of vas in parent region
+                va_ids = va_df[va_df[parent_location_type] == parent_name].index.tolist()
+                plot_ids = plot_ids + va_ids
+                location_object = Location.objects.get(name=parent_name)
+                children = location_object.get_children()
+                children_names = [c.name for c in location_object.get_children()]
+                plot_regions = plot_regions + children_names + [parent_name]
+                # set final granularity to same level of children
+                granularity = children[0].location_type
 
     # finally, apply time filter if necessary
     if timeframe != "all":
@@ -808,7 +853,7 @@ def shift_granularity(current_granularity, levels, move_up=False):
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def get_metrics(va_data, filter_dict=None, N=10):
+def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
     # by default, start with aggregate measures
     metrics = []
     metric_data = pd.read_json(va_data)
@@ -852,7 +897,7 @@ def get_metric_display_names(map_metrics):
         Input(component_id="location_types", component_property="children"),
     ],
 )
-def update_view_options(filter_dict, location_types):
+def update_view_options(filter_dict, location_types, **kwargs):
     if filter_dict is not None:
         filter_dict = json.loads(filter_dict)
 
@@ -868,24 +913,13 @@ def update_view_options(filter_dict, location_types):
         return options, disable, label_class
 
 
-# when view dropdown is disabled, reset selected value to null
-@app.callback(
-    Output(component_id="view_level", component_property="value"),
-    [Input(component_id="view_level", component_property="disabled"),],
-)
-def reset_view_value(is_disabled=False):
-    if is_disabled:
-        return ""
-
-    raise dash.exceptions.PreventUpdate
-
 
 # ====================Map Logic===================================#
 @app.callback(
-    #   [
-    Output(component_id="choropleth-container", component_property="children"),
-    #        Output(component_id="bounds", component_property="children")
-    #    ],
+#       [
+        Output(component_id="choropleth-container", component_property="children"),
+#        Output(component_id="bounds", component_property="children")
+#        ],
     [
         Input(component_id="va_data", component_property="children"),
         Input(component_id="timeframe", component_property="value"),
@@ -904,6 +938,7 @@ def update_choropleth(
     filter_dict=None,
     geojson=GEOJSON,
     zoom_in=False,
+    **kwargs
 ):
     # first, see which input triggered update. If granularity change, only run
     # if value is non-empty
@@ -1057,7 +1092,13 @@ def update_choropleth(
                     dragmode="pan",
                 )
                 # additional styling
-                config = graph_config
+                config = LOOKUP['graph_config']
+                
+                # if geo restrictions in place, disable clicking
+                if len(kwargs["user"].location_restrictions.all()) > 0:
+                    config["scrollZoom"] = False
+                    config["showAxisDragHandles"] = False
+                    
                 figure.update_geos(
                     fitbounds="locations",
                     visible=True,
@@ -1068,10 +1109,10 @@ def update_choropleth(
                     landcolor="rgb(250,250,248)",
                     framewidth=0,
                 )
-        ret_val = json.dumps(filter_dict)
-    return_value = dcc.Graph(id="choropleth", figure=figure, config=graph_config)
+        #ret_val = json.dumps(filter_dict)
+    return_value = dcc.Graph(id="choropleth", figure=figure, config=config)
 
-    return return_value  # , json.dumps(ret_val)
+    return return_value
 
 
 # ==========Helper method to plot adjacent regions on map =====#
@@ -1186,7 +1227,7 @@ def generate_map_data(
     ],
 )
 def update_callouts(
-    va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON
+    va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON, **kwargs
 ):
     coded_vas, uncoded_vas, active_facilities, num_field_workers, coverage = (
         0,
@@ -1287,7 +1328,7 @@ def make_card(
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def demographic_plot(va_data, timeframe, filter_dict=None):
+def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -1304,7 +1345,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
                 else:
                     plot_title = "All-Cause Demographics"
             figure = plotting.demographic_plot(plot_data, title=plot_title)
-    return dcc.Graph(id="demos_plot", figure=figure, config=chart_config)
+    return dcc.Graph(id="demos_plot", figure=figure, config=LOOKUP["chart_config"])
 
 
 # =========Cause of Death Plot Logic============================================#
@@ -1318,7 +1359,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None):
         Input(component_id="filter_dict", component_property="children"),
     ],
 )
-def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
+def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None, **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -1333,7 +1374,7 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
                 figure = plotting.cause_of_death_plot(
                     plot_data, factor=factor, N=N, chosen_cod=cod
                 )
-    return dcc.Graph(id="cod_plot", figure=figure, config=chart_config)
+    return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
 
 
 #
@@ -1349,7 +1390,7 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None):
         Input(component_id="ts_factor", component_property="value"),
     ],
 )
-def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All"):
+def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All", **kwargs):
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.read_json(va_data)
@@ -1367,7 +1408,7 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All")
                 figure = plotting.va_trend_plot(
                     plot_data, group_period, factor, title=plot_title
                 )
-    return dcc.Graph(id="trend_plot", figure=figure, config=chart_config)
+    return dcc.Graph(id="trend_plot", figure=figure, config=LOOKUP["chart_config"])
 
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)

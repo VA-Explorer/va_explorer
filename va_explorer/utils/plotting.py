@@ -21,7 +21,13 @@ PLOTLY = px.colors.qualitative.Plotly
 def load_lookup_dicts():
     lookup = dict()
     # dictionary mapping time labels to days (or all)
-    lookup["time_dict"] = {"1 week": 7, "1 month": 30, "1 year": 365, "all": "all"}
+    lookup["time_dict"] = {"today": 1,
+                        "last week": 7,
+                        "last month": 30,
+                        "last 6 months": 30.4 * 6, # last 182.5 days
+                        "last year": 365,
+                        "all": "all"}
+
     # dictionary mapping demographic variable names to corresponding VA survey columns
     lookup["demo_to_col"] = {
         "age group": "age_group",
@@ -91,6 +97,17 @@ def load_lookup_dicts():
         "month": "%m/%Y",
         "year": "%Y",
     }
+    
+    # Toolbar configurations for plots
+    # map config
+    lookup['graph_config'] = {"displayModeBar": True,
+          "scrollZoom": True, "displaylogo": False,
+          "modeBarButtonsToRemove":["zoomInGeo", "zoomOutGeo", "select2d", "lasso2d"]}
+    # chart config (for all charts)
+    lookup['chart_config'] = {"displayModeBar": True,
+          "displaylogo":False,
+          "modeBarButtonsToRemove":["pan2d", "zoom2d", "select2d", \
+                        "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"]}
 
     return lookup
 
