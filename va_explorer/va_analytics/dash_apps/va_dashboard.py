@@ -592,7 +592,7 @@ app.layout = html.Div(
     [Input(component_id="reset", component_property="n_clicks")],
 )
 
-def reset(n_clicks=0):
+def reset_dashboard(n_clicks=0, **kwargs):
     return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 
