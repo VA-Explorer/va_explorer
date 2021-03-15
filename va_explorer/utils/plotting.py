@@ -97,6 +97,17 @@ def load_lookup_dicts():
         "month": "%m/%Y",
         "year": "%Y",
     }
+    
+    # Toolbar configurations for plots
+    # map config
+    lookup['graph_config'] = {"displayModeBar": True,
+          "scrollZoom": True, "displaylogo": False,
+          "modeBarButtonsToRemove":["zoomInGeo", "zoomOutGeo", "select2d", "lasso2d"]}
+    # chart config (for all charts)
+    lookup['chart_config'] = {"displayModeBar": True,
+          "displaylogo":False,
+          "modeBarButtonsToRemove":["pan2d", "zoom2d", "select2d", \
+                        "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"]}
 
     return lookup
 
