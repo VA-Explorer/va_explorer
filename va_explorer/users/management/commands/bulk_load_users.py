@@ -21,7 +21,7 @@ class Command(BaseCommand):
             name, email = parseaddr(user.strip())
             if not re.match('[^@]+@[^@]+\.[^@]+', email):
                 print(f'Invalid email address found: {email}')
-                next
+                continue
             if len(name.strip()) == 0:
                 name = email
             if User.objects.filter(email=email).exists():
