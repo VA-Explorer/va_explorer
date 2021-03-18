@@ -378,6 +378,8 @@ app.layout = html.Div(
                                     id="location_types", style={"display": "none"}
                                 ),
                                 html.Div(id="filter_dict", style={"display": "none"}),
+                                # used to trigger data ingest when page first loads
+                                html.Div(id="hidden_trigger", style={"display": "none"})
                             ],
                             width=8,
                             style={"min-width": "480px", "margin-bottom": "15px"},
@@ -585,11 +587,13 @@ app.layout = html.Div(
     [
         Output(component_id="map_search", component_property="value"),
         Output(component_id="cod_type", component_property="value"),
+        Output(component_id="timeframe", component_property="value"),
     ],
     [Input(component_id="reset", component_property="n_clicks")],
 )
-def reset(n_clicks=0, **kwargs):
-    return "", INITIAL_COD_TYPE
+
+def reset_dashboard(n_clicks=0, **kwargs):
+    return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 
 # ============ VA data (loaded from database and shared across components) ========
@@ -613,9 +617,10 @@ designated as "expanded"
         Output(component_id="locations", component_property="children"),
         Output(component_id="location_types", component_property="children"),
     ],
-    [Input(component_id="timeframe", component_property="value"),],
+    [Input(component_id="hidden_trigger", component_property="children")],
 )
-def init_va_data(timeframe="All", **kwargs):
+
+def init_va_data(hidden_trigger=None, **kwargs):
     res = load_va_data(kwargs['user'])
     valid_va_data = res["data"]["valid"].to_json()
     invalid_va_data = res["data"]["invalid"].to_json()
@@ -684,11 +689,8 @@ def filter_data(
         )
         disable_timeframe = False
         
-        # check if user has geoscoping restrictions. If so, filter down to allowed locations
-        try:
-            location_restrictions = [l.name for l in kwargs["user"].location_restrictions.all()]
-        except:
-            location_restrictions = []
+        # get user location restrictions. If none, will return an empty queryset
+        location_restrictions = kwargs["user"].location_restrictions.values("name", "id")
             
         # if no selected json, convert to empty dictionary for easier processing
         selected_json = {} if not selected_json else selected_json
@@ -717,6 +719,7 @@ def filter_data(
         combined_filter_dict = {
             "plot_regions": valid_filter["plot_regions"],  # same across both dicts
             "granularity": valid_filter["granularity"],  # same across both dictionaries
+            "search_filter": valid_filter["search_filter"], # same across both dictionaries
             "geo_filter": valid_filter["geo_filter"],  # same across both dictionaries
             "chosen_region": valid_filter["chosen_region"],  # same across both dictionaries
             "ids": {"valid": valid_filter["ids"], "invalid": invalid_filter["ids"]},
@@ -751,7 +754,9 @@ def _get_filter_dict(
     plot_ids, plot_regions = list(), list()
     
     filter_dict = {
+
         "geo_filter": any(map(lambda x: len(x) > 0, [restrictions, selected_json, search_terms])),
+        "search_filter": (len(search_terms) > 0),
         "plot_regions": [],
         "chosen_region": "all",
         "ids": [],
@@ -762,11 +767,11 @@ def _get_filter_dict(
         # first, check if geo filter is for location restrictions
         if len(restrictions) > 0:
             # TODO: make this work for more than one assigned region
-            granularity = locations.get(restrictions[0], granularity)
+            granularity = locations.get(restrictions[0]['name'], granularity)
             # no need to filter data, as that's already done in load_data
             chosen_region = restrictions[0]
             
-            location_obj = Location.objects.get(name=chosen_region)
+            location_obj = Location.objects.get(pk=chosen_region['id'])
             # if assigned to a POI (i.e. lowest level of location hierarchy) move one level up
             #TODO: make this more generic to handle other location types
             if location_obj.location_type == 'facility':
@@ -778,12 +783,12 @@ def _get_filter_dict(
             plot_regions.append(chosen_region)
 
             plot_ids = filter_df.index.tolist()
-            filter_dict["chosen_region"] = chosen_region
+            filter_dict["chosen_region"] = chosen_region['name']
             
             
         # next, check if user searched anything. If yes, use that as filter.
         if search_terms is not None:
-            if len(search_terms) > 0:
+            if filter_dict["search_filter"]:
                 search_terms = (
                     [search_terms] if isinstance(search_terms, str) else search_terms
                 )
@@ -901,8 +906,8 @@ def update_view_options(filter_dict, location_types, **kwargs):
     if filter_dict is not None:
         filter_dict = json.loads(filter_dict)
 
-        # only activate this dropdown when user is zoomed out
-        disable = filter_dict["geo_filter"]
+        # only activate when user is zoomed out and hasn't searched for anything
+        disable = (filter_dict["geo_filter"] or filter_dict["search_filter"])
         if not disable:
             view_options = json.loads(location_types)
             label_class = "input-label"
@@ -911,7 +916,6 @@ def update_view_options(filter_dict, location_types, **kwargs):
             label_class = "input-label-disabled"
         options = [{"label": o.capitalize(), "value": o} for o in view_options]
         return options, disable, label_class
-
 
 
 # ====================Map Logic===================================#
@@ -942,10 +946,10 @@ def update_choropleth(
 ):
     # first, see which input triggered update. If granularity change, only run
     # if value is non-empty
-    context = dash.callback_context
-    trigger = context.triggered[0]
-    if trigger["prop_id"].split(".")[0] == "view_level" and trigger["value"] == "":
-        raise dash.exceptions.PreventUpdate
+#    context = dash.callback_context
+#    trigger = context.triggered[0]
+#    if trigger["prop_id"].split(".")[0] == "view_level" and trigger["value"] == "":
+#        raise dash.exceptions.PreventUpdate
     figure = go.Figure()
     config = None
     if va_data is not None:
@@ -972,6 +976,7 @@ def update_choropleth(
             if filter_dict is not None:
                 filter_dict = json.loads(filter_dict)
                 granularity = filter_dict.get("granularity", granularity)
+
                 # only proceed if filter is non-empty
 
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
@@ -1033,8 +1038,8 @@ def update_choropleth(
             # only proceed if there's data
             if plot_data.size > 0:
 
-                # if user has not chosen a view level or its disabled, default to using granularity
-                view_level = view_level if len(view_level) > 0 else granularity
+                # if user has not chosen a view level or user is zooming in, default to granularity
+                view_level = granularity if len(view_level) == 0 or zoom_in else view_level
 
                 # get map tooltips to match view level (disstrict or province)
                 map_df = generate_map_data(
@@ -1095,7 +1100,7 @@ def update_choropleth(
                 config = LOOKUP['graph_config']
                 
                 # if geo restrictions in place, disable clicking
-                if len(kwargs["user"].location_restrictions.all()) > 0:
+                if kwargs["user"].location_restrictions.exists():
                     config["scrollZoom"] = False
                     config["showAxisDragHandles"] = False
                     
