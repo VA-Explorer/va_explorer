@@ -689,11 +689,8 @@ def filter_data(
         )
         disable_timeframe = False
         
-        # check if user has geoscoping restrictions. If so, filter down to allowed locations
-        try:
-            location_restrictions = [l.name for l in kwargs["user"].location_restrictions.all()]
-        except:
-            location_restrictions = []
+        # get user location restrictions. If none, will return an empty queryset
+        location_restrictions = kwargs["user"].location_restrictions.values("name", "id")
             
         # if no selected json, convert to empty dictionary for easier processing
         selected_json = {} if not selected_json else selected_json
@@ -722,9 +719,6 @@ def filter_data(
         combined_filter_dict = {
             "plot_regions": valid_filter["plot_regions"],  # same across both dicts
             "granularity": valid_filter["granularity"],  # same across both dictionaries
-            "plot_regions": valid_filter[
-                "plot_regions"
-            ],  
             "search_filter": valid_filter["search_filter"], # same across both dictionaries
             "geo_filter": valid_filter["geo_filter"],  # same across both dictionaries
             "chosen_region": valid_filter["chosen_region"],  # same across both dictionaries
@@ -773,11 +767,11 @@ def _get_filter_dict(
         # first, check if geo filter is for location restrictions
         if len(restrictions) > 0:
             # TODO: make this work for more than one assigned region
-            granularity = locations.get(restrictions[0], granularity)
+            granularity = locations.get(restrictions[0]['name'], granularity)
             # no need to filter data, as that's already done in load_data
             chosen_region = restrictions[0]
             
-            location_obj = Location.objects.get(name=chosen_region)
+            location_obj = Location.objects.get(pk=chosen_region['id'])
             # if assigned to a POI (i.e. lowest level of location hierarchy) move one level up
             #TODO: make this more generic to handle other location types
             if location_obj.location_type == 'facility':
@@ -789,7 +783,7 @@ def _get_filter_dict(
             plot_regions.append(chosen_region)
 
             plot_ids = filter_df.index.tolist()
-            filter_dict["chosen_region"] = chosen_region
+            filter_dict["chosen_region"] = chosen_region['name']
             
             
         # next, check if user searched anything. If yes, use that as filter.
@@ -1106,7 +1100,7 @@ def update_choropleth(
                 config = LOOKUP['graph_config']
                 
                 # if geo restrictions in place, disable clicking
-                if len(kwargs["user"].location_restrictions.all()) > 0:
+                if kwargs["user"].location_restrictions.exists():
                     config["scrollZoom"] = False
                     config["showAxisDragHandles"] = False
                     
