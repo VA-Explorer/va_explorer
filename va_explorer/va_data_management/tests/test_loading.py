@@ -18,8 +18,8 @@ def test_loading_from_dataframe():
     loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
 
     data = [
-        {'instanceid': 'instance1', '---Id10007': 'name 1' },
-        {'instanceid': 'instance2', '---Id10007': 'name 2' },
+        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1' },
+        {'instanceid': 'instance2', 'testing-dashes-Id10007': 'name 2' },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -29,11 +29,11 @@ def test_loading_from_dataframe():
     assert len(result['verbal_autopsies']) == 2
 
     assert result['verbal_autopsies'][0].instanceid == data[0]['instanceid']
-    assert result['verbal_autopsies'][0].Id10007 == data[0]['---Id10007']
+    assert result['verbal_autopsies'][0].Id10007 == data[0]['testing-dashes-Id10007']
     assert result['verbal_autopsies'][0].location == loc
 
     assert result['verbal_autopsies'][1].instanceid == data[1]['instanceid']
-    assert result['verbal_autopsies'][1].Id10007 == data[1]['---Id10007']
+    assert result['verbal_autopsies'][1].Id10007 == data[1]['testing-dashes-Id10007']
     assert result['verbal_autopsies'][1].location == loc
 
 
@@ -44,8 +44,8 @@ def test_loading_from_dataframe_with_key():
     loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
 
     data = [
-        {'key': 'instance1', '---Id10007': 'name 1' },
-        {'key': 'instance2', '---Id10007': 'name 2' },
+        {'key': 'instance1', 'testing-dashes-Id10007': 'name 1' },
+        {'key': 'instance2', 'testing-dashes-Id10007': 'name 2' },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -55,11 +55,11 @@ def test_loading_from_dataframe_with_key():
     assert len(result['verbal_autopsies']) == 2
 
     assert result['verbal_autopsies'][0].instanceid == data[0]['key']
-    assert result['verbal_autopsies'][0].Id10007 == data[0]['---Id10007']
+    assert result['verbal_autopsies'][0].Id10007 == data[0]['testing-dashes-Id10007']
     assert result['verbal_autopsies'][0].location == loc
 
     assert result['verbal_autopsies'][1].instanceid == data[1]['key']
-    assert result['verbal_autopsies'][1].Id10007 == data[1]['---Id10007']
+    assert result['verbal_autopsies'][1].Id10007 == data[1]['testing-dashes-Id10007']
     assert result['verbal_autopsies'][1].location == loc
 
 
