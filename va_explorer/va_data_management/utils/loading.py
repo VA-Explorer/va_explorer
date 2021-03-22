@@ -18,10 +18,14 @@ def load_records_from_dataframe(record_df):
     fieldCaseMapper = {field.lower(): field for field in model_field_names} 
     record_df.rename(columns=lambda c: fieldCaseMapper.get(c.lower(), c), inplace=True)
 
+    # Lowercase the instanceID column that can come from ODK as "instanceID".
+    if 'intanceID' in record_df.columns:
+        record_df = record_df.rename(columns={'instanceID': 'instanceid'})
+
     # If there is not an instanceid column but there is a key column,
     # populate instanceid field with key value.
     if 'instanceid' not in record_df.columns and 'key' in record_df.columns:
-            record_df = record_df.rename(columns={'key': 'instanceid'})
+        record_df = record_df.rename(columns={'key': 'instanceid'})
             
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)

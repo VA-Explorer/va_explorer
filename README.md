@@ -219,6 +219,29 @@ From there, you can create a super user. Follow the prompts after running this c
 ./manage.py createsuperuser
 ```
 
+## Importing From ODK
+
+You can use the `import_from_odk` management command to import records from an ODK server like so. You must specify either project-name or project-id to import:
+
+```
+./manage.py import_from_odk --project-id=1234
+# or
+./manage.py import_from_odk --project-name=zambia-test
+```
+
+This depends on the following environment variables being set:
+
+```
+ODK_HOST=https://odk-server
+ODK_EMAIL=example@example.com
+ODK_PASSWORD=example
+```
+
+Alternatively, you can specify email and pasword as command line arguments:
+
+```
+./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
+```
 
 ## Version History
 
