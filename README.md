@@ -22,6 +22,10 @@ InterVA5 services)
   *  Death distributions by age, gender, and place of death for chosen regions
   *  Trends over time for chosen regions
 
+![Overview](docs/assets/overview.png "Overview")
+![Dashboard](docs/assets/dashboard.png "Dashboard")
+![Verbal Autopsies](docs/assets/vas.png "Verbal Autopsies")
+
 ## Background
 
 Verbal autopsies (VAs) are structured interviews for determining the most likely cause of death based on
