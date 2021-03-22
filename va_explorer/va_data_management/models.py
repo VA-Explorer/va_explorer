@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.db import models
 from simple_history.models import HistoricalRecords
 from django.db.models import JSONField
 #from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
+
 
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
@@ -630,3 +632,7 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
+
+class VaUsername(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    va_username = models.TextField("va_username", unique=True)
