@@ -21,13 +21,12 @@ PLOTLY = px.colors.qualitative.Plotly
 def load_lookup_dicts():
     lookup = dict()
     # dictionary mapping time labels to days (or all)
-    lookup["time_dict"] = {"today": 1,
-                        "last week": 7,
-                        "last month": 30,
-                        "last 6 months": 30.4 * 6, # last 182.5 days
-                        "last year": 365,
-                        "all": "all"}
-
+    lookup["time_dict"] = {"today": 1, 
+                          "last week": 7,
+                          "last month": 30,
+                          "last 6 months": 30.4 * 6, # last 182.5 days
+                          "last year": 365,
+                          "all": "all"}
     # dictionary mapping demographic variable names to corresponding VA survey columns
     lookup["demo_to_col"] = {
         "age group": "age_group",
@@ -97,6 +96,17 @@ def load_lookup_dicts():
         "month": "%m/%Y",
         "year": "%Y",
     }
+    
+    # Toolbar configurations for plots
+    # map config
+    lookup['graph_config'] = {"displayModeBar": True,
+          "scrollZoom": True, "displaylogo": False,
+          "modeBarButtonsToRemove":["zoomInGeo", "zoomOutGeo", "select2d", "lasso2d"]}
+    # chart config (for all charts)
+    lookup['chart_config'] = {"displayModeBar": True,
+          "displaylogo":False,
+          "modeBarButtonsToRemove":["pan2d", "zoom2d", "select2d", \
+                        "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d"]}
 
     return lookup
 
@@ -154,58 +164,109 @@ def demographic_plot(va_df, no_grids=True, column_widths=None, height=600, title
         vertical_spacing=0.15,
     )
 
-    # gender
-    sex_df = get_field_counts(va_df, "sex", display_name="gender")
-    comb_fig.add_trace(
-        go.Bar(
-            name="Gender",
-            x=sex_df["gender"],
-            y=sex_df["count"],
-            text=sex_df["label"],
-            textposition="auto",
-            showlegend=False,
-            marker_color=PLOTLY,
-        ),
-        row=1,
-        col=1,
-    )
+    if va_df.size > 0:
+        # gender
+        sex_df = get_field_counts(va_df, "sex", display_name="gender")
+        comb_fig.add_trace(
+            go.Bar(
+                name="Gender",
+                x=sex_df["gender"],
+                y=sex_df["count"],
+                text=sex_df["label"],
+                textposition="auto",
+                showlegend=False,
+                marker_color=PLOTLY,
+            ),
+            row=1,
+            col=1,
+        )
 
-    # age groups
-    age_df = get_field_counts(va_df, "age group", display_name="age_group")
-    comb_fig.add_trace(
-        go.Bar(
-            name="Age Group",
-            x=age_df["age_group"],
-            y=age_df["count"],
-            text=age_df["label"],
-            textposition="auto",
-            showlegend=False,
-            marker_color=D3,
-        ),
-        row=1,
-        col=2,
-    )
+        # age groups
+        age_df = get_field_counts(va_df, "age group", display_name="age_group")
+        comb_fig.add_trace(
+            go.Bar(
+               name="Age Group",
+                x=age_df["age_group"],
+                y=age_df["count"],
+                text=age_df["label"],
+                textposition="auto",
+                showlegend=False,
+                marker_color=D3,
+            ),
+            row=1,
+            col=2,
+        )
 
-    # place of death
-    loc_cts = get_field_counts(va_df, "place of death", display_name="location")
-    lookup = LOOKUP["death_location_names"]
-    loc_cts["location"] = loc_cts["location"].apply(
-        lambda x: lookup.get(x.lower(), x.capitalize())
-    )
-    comb_fig.add_trace(
-        go.Bar(
-            name="Place of Death",
-            x=loc_cts["count"],
-            y=loc_cts["location"],
-            orientation="h",
-            showlegend=False,
-            text=loc_cts["label"],
-            textposition="auto",
-            marker_color=D3[4],
-        ),
-        row=2,
-        col=1,
-    )
+        # place of death
+        loc_cts = get_field_counts(va_df, "place of death", display_name="location")
+        lookup = LOOKUP["death_location_names"]
+        loc_cts["location"] = loc_cts["location"].apply(
+            lambda x: lookup.get(x.lower(), x.capitalize())
+        )
+        comb_fig.add_trace(
+            go.Bar(
+                name="Place of Death",
+                x=loc_cts["count"],
+                y=loc_cts["location"],
+                orientation="h",
+                showlegend=False,
+                text=loc_cts["label"],
+                textposition="auto",
+                marker_color=D3[4],
+            ),
+            row=2,
+            col=1,
+        )
+    else:
+        gender_labels = ['']
+        gender_counts = [0]
+        comb_fig.add_trace(
+            go.Bar(
+                name="Gender",
+                x=gender_labels,
+                y=gender_counts,
+                text=gender_labels,
+                textposition="auto",
+                showlegend=False,
+                marker_color=PLOTLY,
+            ),
+        )
+
+        age_labels = ['']
+        age_counts = [0]
+        comb_fig.add_trace(
+            go.Bar(
+                name="Age Group",
+                x=age_labels,
+                y=age_counts,
+                text=age_labels,
+                textposition="auto",
+                showlegend=False,
+                marker_color=D3,
+            ),
+            row=1,
+            col=2,
+        )
+        place_labels = ['']
+        place_counts = [0]
+        comb_fig.add_trace(
+            go.Bar(
+                name="Place of Death",  
+                x=place_counts,
+                y=place_labels,
+                text=place_labels,
+                textposition="auto",
+                orientation="h",
+                showlegend=False,
+                marker_color=D3[4],
+            ),
+            row=2,
+            col=1,
+        )
+        comb_fig.update_xaxes(range=[0,1])
+        comb_fig.update_yaxes(range=[0,1])
+        title = "No Data for Selected Criteria"
+
     if no_grids:
         comb_fig.update_xaxes(showgrid=False)
         comb_fig.update_yaxes(showgrid=False)
@@ -239,109 +300,131 @@ def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all"):
         counts = pd.DataFrame({"All": va_df.cause.value_counts()})
         factor_title = "Overall"
 
-    # make index labels pretty
-    counts.index = [LOOKUP["metric_names"].get(x, x) for x in counts.index]
-    counts["cod"] = counts.index
-    counts = (
-        counts[counts["cod"] != "All"].sort_values(by="All", ascending=False).head(N)
-    )
-    groups = list(set(counts.columns).difference(set(["cod"])))
-
-    lines = [LOOKUP["line_colors"]["secondary"] for j in range(len(counts["cod"]))]
-    widths = np.repeat(1, len(counts["cod"]))
-    if chosen_cod != "all":
-        chosen_cod = LOOKUP["metric_names"].get(chosen_cod, chosen_cod.capitalize())
-        if chosen_cod in counts.index:
-            chosen_idx = counts.index.get_loc(chosen_cod)
-            lines[chosen_idx] = "#e0b816"
-            widths[chosen_idx] = 4
-            counts["cod"][chosen_idx] = "<b>" + counts["cod"][chosen_idx] + "</b>"
-
-    if factor != "all":
-        groups.remove("All")
-    for i, group in enumerate(groups):
-        if factor == "all":
-            # calculate percent as % of all cods (column-wise calculation)
-            counts[f"{group}_pct"] = np.round(
-                100 * counts[group] / counts[group].sum(), 1
-            )
-        else:
-            # calculate percent as % across groups for specific cod (row-wise calculation)
-            counts[f"{group}_pct"] = counts.apply(
-                lambda row: np.round(100 * row[group] / row[groups].sum(), 1), axis=1
-            )
-        counts["text"] = (
-            f"<i>{group.capitalize()}</i>: "
-            + counts[group].astype(str)
-            + " ("
-            + counts[f"{group}_pct"].astype(str)
-            + " %)"
+    if va_df.size > 0:
+        # make index labels pretty
+        counts.index = [LOOKUP["metric_names"].get(x, x) for x in counts.index]
+        counts["cod"] = counts.index
+        counts = (
+            counts[counts["cod"] != "All"].sort_values(by="All", ascending=False).head(N)
         )
+        groups = list(set(counts.columns).difference(set(["cod"])))
 
+        lines = [LOOKUP["line_colors"]["secondary"] for j in range(len(counts["cod"]))]
+        widths = np.repeat(1, len(counts["cod"]))
+        if chosen_cod != "all":
+            chosen_cod = LOOKUP["metric_names"].get(chosen_cod, chosen_cod.capitalize())
+            if chosen_cod in counts.index:
+                chosen_idx = counts.index.get_loc(chosen_cod)
+                lines[chosen_idx] = "#e0b816"
+                widths[chosen_idx] = 4
+                counts["cod"][chosen_idx] = "<b>" + counts["cod"][chosen_idx] + "</b>"
+
+        if factor != "all":
+            groups.remove("All")
+        for i, group in enumerate(groups):
+            if factor == "all":
+                # calculate percent as % of all cods (column-wise calculation)
+                counts[f"{group}_pct"] = np.round(
+                    100 * counts[group] / counts[group].sum(), 1
+                )
+            else:
+                # calculate percent as % across groups for specific cod (row-wise calculation)
+                counts[f"{group}_pct"] = counts.apply(
+                    lambda row: np.round(100 * row[group] / row[groups].sum(), 1), axis=1
+                )
+            counts["text"] = (
+                f"<i>{group.capitalize()}</i>: "
+                + counts[group].astype(str)
+                + " ("
+                + counts[f"{group}_pct"].astype(str)
+                + " %)"
+            )
+
+            # counts
+            figure.add_trace(
+                plot_fn(
+                    y=counts[group],
+                    x=counts["cod"],
+                    text=counts["text"],
+                    name=group.capitalize(),
+                    orientation="v",
+                    hovertemplate="<b>%{x}</b><br>%{text}<extra></extra>",
+                    marker=dict(
+                        color=LOOKUP["color_list"][i], line=dict(color=lines, width=widths),
+                    ),
+                )
+            )
+            # percents
+            figure.add_trace(
+                plot_fn(
+                    y=counts[f"{group}_pct"],
+                    x=counts["cod"],
+                    text=counts["text"],
+                    hovertemplate="<b>%{x}</b> <br> %{text}<extra></extra>",
+                    name=group.capitalize(),
+                    orientation="v",
+                    visible=False,
+                    marker=dict(
+                        color=LOOKUP["color_list"][i], line=dict(color=lines, width=widths),
+                    ),
+                )
+            )
+            figure.update_layout(
+                barmode="stack",
+                title_text="Top Causes of Death {}".format(factor_title),
+                xaxis_tickangle=-45,
+                yaxis_title="Count",
+                updatemenus=[
+                    dict(
+                        type="buttons",
+                        direction="right",
+                        x=1,
+                        y=1.2,
+                        active=0,
+                        buttons=list(
+                            [
+                                dict(
+                                    label="Counts",
+                                    method="update",
+                                    args=[
+                                        {"visible": [True, False] * len(groups)},
+                                        {"yaxis": {"title": "Count"}},
+                                    ],
+                                ),
+                                dict(
+                                    label="Percents",
+                                    method="update",
+                                    args=[
+                                        {"visible": [False, True] * len(groups)},
+                                        {"yaxis": {"title": "% of Total"}},
+                                    ],
+                                ),
+                            ]
+                        ),
+                    )
+                ],
+            )   
+    else:
+        cod_labels = ['']
+        cod_counts = [0]
         # counts
         figure.add_trace(
             plot_fn(
-                y=counts[group],
-                x=counts["cod"],
-                text=counts["text"],
-                name=group.capitalize(),
+                y=cod_counts,
+                x=cod_labels,
+                text=cod_labels,
+                name="no data",
                 orientation="v",
-                hovertemplate="<b>%{x}</b><br>%{text}<extra></extra>",
-                marker=dict(
-                    color=LOOKUP["color_list"][i], line=dict(color=lines, width=widths),
-                ),
             )
         )
-        # percents
-        figure.add_trace(
-            plot_fn(
-                y=counts[f"{group}_pct"],
-                x=counts["cod"],
-                text=counts["text"],
-                hovertemplate="<b>%{x}</b> <br> %{text}<extra></extra>",
-                name=group.capitalize(),
-                orientation="v",
-                visible=False,
-                marker=dict(
-                    color=LOOKUP["color_list"][i], line=dict(color=lines, width=widths),
-                ),
-            )
-        )
-    figure.update_layout(
-        barmode="stack",
-        title_text="Top Causes of Death {}".format(factor_title),
-        xaxis_tickangle=-45,
-        yaxis_title="Count",
-        updatemenus=[
-            dict(
-                type="buttons",
-                direction="right",
-                x=1,
-                y=1.2,
-                active=0,
-                buttons=list(
-                    [
-                        dict(
-                            label="Counts",
-                            method="update",
-                            args=[
-                                {"visible": [True, False] * len(groups)},
-                                {"yaxis": {"title": "Count"}},
-                            ],
-                        ),
-                        dict(
-                            label="Percents",
-                            method="update",
-                            args=[
-                                {"visible": [False, True] * len(groups)},
-                                {"yaxis": {"title": "% of Total"}},
-                            ],
-                        ),
-                    ]
-                ),
-            )
-        ],
-    )
+        figure.update_xaxes(range=[0,1])
+        figure.update_yaxes(range=[0,1])
+        figure.update_layout(
+            barmode="stack",
+            title_text="No Data for Selected Criteria",
+            xaxis_tickangle=-45,
+            yaxis_title="Count",
+        )  
 
     return figure
 
@@ -351,68 +434,90 @@ def va_trend_plot(va_df, group_period, factor="All", title=None):
     figure = go.Figure()
     group_period = group_period.lower()
     aggregate_title = group_period.capitalize()
-    va_df["date"] = pd.to_datetime(va_df["date"])
-    va_df["timegroup"] = pd.to_datetime(va_df["date"])
-    if group_period == "week":
-        va_df["timegroup"] = pd.to_datetime(
-            va_df["date"].dt.to_period("W").apply(lambda x: x.strftime("%Y-%m-%d"))
-        )
-    elif group_period == "month":
-        va_df["timegroup"] = pd.to_datetime(
-            va_df["date"].dt.to_period("M").apply(lambda x: x.strftime("%Y-%m"))
-        )
-    elif group_period == "year":
-        va_df["timegroup"] = va_df["date"].dt.to_period("Y").astype(str)
 
-    dtype = "category" if group_period == "year" else "date"
+    if va_df.size > 0:
+        va_df["date"] = pd.to_datetime(va_df["date"])
+        va_df["timegroup"] = pd.to_datetime(va_df["date"])
+        if group_period == "week":
+            va_df["timegroup"] = pd.to_datetime(
+                va_df["date"].dt.to_period("W").apply(lambda x: x.strftime("%Y-%m-%d"))
+            )
+        elif group_period == "month":
+            va_df["timegroup"] = pd.to_datetime(
+                va_df["date"].dt.to_period("M").apply(lambda x: x.strftime("%Y-%m"))
+            )
+        elif group_period == "year":
+            va_df["timegroup"] = va_df["date"].dt.to_period("Y").astype(str)
 
-    factor = factor.lower()
-    if factor != "all":
-        assert factor in LOOKUP["demo_to_col"]
-        factor_col = LOOKUP["demo_to_col"][factor]
-        trend_counts = va_df.pivot_table(
-            index="timegroup",
-            columns=factor_col,
-            values="id",
-            aggfunc=pd.Series.nunique,
-            fill_value=0,
-            margins=False,
+        dtype = "category" if group_period == "year" else "date"
+
+        factor = factor.lower()
+        if factor != "all":
+            assert factor in LOOKUP["demo_to_col"]
+            factor_col = LOOKUP["demo_to_col"][factor]
+            trend_counts = va_df.pivot_table(
+                index="timegroup",
+                columns=factor_col,
+                values="id",
+                aggfunc=pd.Series.nunique,
+                fill_value=0,
+                margins=False,
+            )
+            plot_fn = go.Scatter
+        else:
+            trend_counts = (
+                va_df[["timegroup", "id"]]
+                .groupby("timegroup")
+                .count()
+                .rename(columns={"id": "all"})
+            )
+            plot_fn = go.Bar
+
+
+        for i, group in enumerate(trend_counts.columns.tolist()):
+            figure.add_trace(
+                plot_fn(
+                    y=trend_counts[group],
+                    x=trend_counts.index,
+                    name=group.capitalize(),
+                    marker=dict(
+                        color=LOOKUP["color_list"][i],
+                        line=dict(color=LOOKUP["color_list"][i], width=1),
+                    ),
+                )
+            )
+        if not title:
+            title = "VA Counts by {}".format(aggregate_title)
+        figure.update_layout(
+            title_text=title,
+            xaxis_title=aggregate_title,
+            yaxis_title="Count",
+            xaxis_type=dtype,
+            xaxis_tickangle=-45,
+            xaxis_tickformatstops=[
+                dict(
+                    dtickrange=[None, None],
+                    value=LOOKUP["date_display_formats"].get(group_period, "%d/%m/%Y"),
+                )
+            ],
         )
-        plot_fn = go.Scatter
     else:
-        trend_counts = (
-            va_df[["timegroup", "id"]]
-            .groupby("timegroup")
-            .count()
-            .rename(columns={"id": "all"})
-        )
-        plot_fn = go.Bar
-
-    for i, group in enumerate(trend_counts.columns.tolist()):
+        trend_labels = ['']
+        trend_counts = [0]
+        # counts
         figure.add_trace(
-            plot_fn(
-                y=trend_counts[group],
-                x=trend_counts.index,
-                name=group.capitalize(),
-                marker=dict(
-                    color=LOOKUP["color_list"][i],
-                    line=dict(color=LOOKUP["color_list"][i], width=1),
-                ),
+            go.Bar(
+                y=trend_counts,
+                x=trend_labels,
+                name="no data",
+                orientation="v",
             )
         )
-    if not title:
-        title = "VA Counts by {}".format(aggregate_title)
-    figure.update_layout(
-        title_text=title,
-        xaxis_title=aggregate_title,
-        yaxis_title="Count",
-        xaxis_type=dtype,
-        xaxis_tickangle=-45,
-        xaxis_tickformatstops=[
-            dict(
-                dtickrange=[None, None],
-                value=LOOKUP["date_display_formats"].get(group_period, "%d/%m/%Y"),
-            )
-        ],
-    )
+        figure.update_xaxes(range=[0,1])
+        figure.update_yaxes(range=[0,1])
+        figure.update_layout(
+            title_text="No Data for Selected Criteria",
+            yaxis_title="Count",
+        )  
+
     return figure
