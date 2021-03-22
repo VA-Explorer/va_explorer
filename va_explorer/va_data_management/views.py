@@ -1,17 +1,17 @@
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
-
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import TemplateView, DetailView, UpdateView, ListView
+from django.views.generic import DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
-from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, Location
 
-from va_explorer.va_data_management.forms import VerbalAutopsyForm
-from va_explorer.va_data_management.filters import VAFilter
+from config.celery_app import app
 from va_explorer.utils.mixins import CustomAuthMixin
+from va_explorer.va_data_management.filters import VAFilter
+from va_explorer.va_data_management.forms import VerbalAutopsyForm
+from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.tasks import run_coding_algorithms
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -125,3 +125,12 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
                 previous.instance.save()
         messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
+
+
+class RunCodingAlgorithm(RedirectView):
+    pattern_name = 'home:index'
+
+    def post(self, request, *args, **kwargs):
+        run_coding_algorithms.apply_async()
+        messages.success(request, f"Coding algorithm process has started in the background.")
+        return super().post(request, *args, **kwargs)
