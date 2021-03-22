@@ -18,8 +18,8 @@ class Command(BaseCommand):
             exit()
 
         # Find the most recent date in the system as our baseline, looking at death date only
-        # TODO: The date fields should really be stored as dates in the database
-        # TODO: We need to get date fields sorted...
+        # TODO: The date fields should really be stored as dates in the database, this fails on different string formats for dates
+        # TODO: We need a clear pucture of all the date fields in the system
         # TODO: 10011 is labled as "start" and 10012 is labled as "today" in the questionnaire, are those collection dates?
         # TODO: submissiondate seems all the same in one of the sample files
         most_recent = max([datetime.strptime(date, '%m/%d/%y').date() for date in VerbalAutopsy.objects.values_list('Id10023', flat=True)])
