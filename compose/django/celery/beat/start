@@ -6,4 +6,4 @@ set -o nounset
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
-celery -A config.celery_app.app beat -l INFO
+celery beat --app=config.celery_app.app --scheduler=django --loglevel=INFO
