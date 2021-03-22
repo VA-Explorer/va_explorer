@@ -28,7 +28,7 @@ def _run_pycross_and_interva5(verbal_autopsies):
 
     # Transform to algorithm format using the pyCrossVA web service
     transform_url = f'{PYCROSS_HOST}/transform?input=2016WHOv151&output=InterVA5'
-    transform_response = requests.post(transform_url, data=va_data_csv)
+    transform_response = requests.post(transform_url, data=va_data_csv.encode('utf-8'))
 
     # Convert result to JSON
     transform_response_reader = csv.DictReader(StringIO(transform_response.text))

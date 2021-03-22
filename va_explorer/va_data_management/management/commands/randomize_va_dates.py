@@ -29,4 +29,5 @@ class Command(BaseCommand):
         for va, new_date in zip(VerbalAutopsy.objects.all(), dates_list):
             # Set Id10023 and created and updated all to same date
             va.Id10023 = va.created = va.updated = new_date
+            va.skip_history_when_saving = True
             va.save()
