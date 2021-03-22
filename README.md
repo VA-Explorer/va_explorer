@@ -22,9 +22,15 @@ InterVA5 services)
   *  Death distributions by age, gender, and place of death for chosen regions
   *  Trends over time for chosen regions
 
-![Overview](docs/assets/overview.png "Overview")
-![Dashboard](docs/assets/dashboard.png "Dashboard")
-![Verbal Autopsies](docs/assets/vas.png "Verbal Autopsies")
+<a href="https://github.com/VA-Explorer/va_explorer/blob/screenshots/docs/assets/overview.png">
+  <img src="docs/assets/overview.png" alt="Overview" title="VA Explorer Overview" width="275" />
+</a>Î
+<a href="https://github.com/VA-Explorer/va_explorer/blob/screenshots/docs/assets/dashboard.png">
+  <img src="docs/assets/dashboard.png" alt="Dashboard" title="VA Explorer Dashboard" width="275" />
+</a>
+<a href="https://github.com/VA-Explorer/va_explorer/blob/screenshots/docs/assets/vas.png">
+  <img src="docs/assets/vas.png" alt="Verbal Autopsies" title="VA Explorer VAs" width="275" />
+</a>Î
 
 ## Background
 
