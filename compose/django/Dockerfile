@@ -25,7 +25,7 @@ COPY ./compose/django/entrypoint /entrypoint
 COPY ./compose/django/start /start
 COPY ./compose/django/celery/worker/start /start-celeryworker
 COPY ./compose/django/celery/beat/start /start-celerybeat
-COPY ./compose/django/celery/flower/start /start-flower
+COPY ./compose/django/celery/flower/start /start-celeryflower
 
 RUN chmod +x /entrypoint /start /start-celeryworker /start-celerybeat /start-celeryflower
 RUN chown django /entrypoint /start /start-celeryworker /start-celerybeat /start-celeryflower
