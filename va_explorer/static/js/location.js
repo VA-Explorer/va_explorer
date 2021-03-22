@@ -58,6 +58,7 @@ $(document).ready(function() {
   const geographicAccessID = 'div_id_geographic_access';
   const locationRestrictionsID= 'div_id_location_restrictions';
   const facilityRestrictionsID = 'div_id_facility_restrictions';
+  const vaUsernameID = 'div_id_va_username';
 
   const locationRestrictionsClass = 'location-restrictions-select';
   const facilityRestrictionsClass = 'facility-restrictions-select';
@@ -147,26 +148,34 @@ $(document).ready(function() {
    *  1. the geographic access radio button
    *  2. the location restrictions select2 dropdown
    *  3. the facility restrictions select2 dropdown (visible for Field Worker role only)
+   *  4. the Field Worker username input field (tied to username on Verbal Autopsy)
    */
   function updateFormForRoleSelected() {
     let elemToHide = [];
     let elemToShow = [];
     let select2ToClear = [];
+    let fieldToClear = [];
 
     // No Role selected (dropdown is blank or undefined)
     if(!$('#id_group option:selected').val()) {
-      elemToHide.push(geographicAccessID, locationRestrictionsID, facilityRestrictionsID);
-      select2ToClear.push(locationRestrictionsClass, facilityRestrictionsClass)
+      elemToHide.push(
+          geographicAccessID,
+          locationRestrictionsID,
+          facilityRestrictionsID,
+          vaUsernameID
+      );
+      select2ToClear.push(locationRestrictionsClass, facilityRestrictionsClass);
+      fieldToClear.push('id_va_username');
     }
 
     // Role selected is Field Worker
     else if($('#id_group option:selected').text() === "Field Workers") {
       elemToHide.push(geographicAccessID, locationRestrictionsID);
-      elemToShow.push(facilityRestrictionsID);
+      elemToShow.push(facilityRestrictionsID, vaUsernameID);
       select2ToClear.push(locationRestrictionsClass);
 
       // Add asterisk to facility restrictions select2 indicating it is required
-      addRequiredAsterisk($("label[for='id_facility_restrictions']"));
+      addRequiredAsterisk();
 
       // Check the location-specific radio to true, which has been hidden
       $("input[name=geographic_access]").val(["location-specific"]);
@@ -174,17 +183,23 @@ $(document).ready(function() {
 
     // Role selected is not Field Worker (Admin, Data Manager, Data Viewer)
     else {
-      elemToHide.push(facilityRestrictionsID);
+      elemToHide.push(facilityRestrictionsID, vaUsernameID);
       elemToShow.push(geographicAccessID);
       select2ToClear.push(facilityRestrictionsClass);
+      fieldToClear.push('id_va_username');
 
       // This method will determine if the locationRestrictions select2 should be shown/hidden
       updateFormForGeographicAccess();
     }
 
+    // Show/hide the appropriate elements
     elemToHide.forEach(elem => $('#' + elem).hide());
     elemToShow.forEach(elem =>$('#' + elem).show());
+
+    // Clear the appropriate elements
     select2ToClear.forEach(select2 => $('.' + select2).val(null).trigger('change'));
+    fieldToClear.forEach(elem => $('#' + elem).val(''));
+
     addRequiredAsterisk();
   }
 
@@ -193,7 +208,10 @@ $(document).ready(function() {
    *          as a visual cue to the user that the field is required
    */
   function addRequiredAsterisk() {
-    [$("label[for='id_location_restrictions']"), $("label[for='id_facility_restrictions']")].forEach(function(elem){
+    [
+        $("label[for='id_location_restrictions']"),
+        $("label[for='id_facility_restrictions']")
+    ].forEach(function(elem){
       if(elem && elem.children().length==0) {
         elem.append('<span class="asteriskField">*</span>');
       }
