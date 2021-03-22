@@ -23,13 +23,13 @@ InterVA5 services)
   *  Trends over time for chosen regions
 
 <a href="https://github.com/VA-Explorer/va_explorer/blob/screenshots/docs/assets/overview.png">
-  <img src="docs/assets/overview.png" alt="Overview" title="VA Explorer Overview" width="275" />
+  <img src="docs/assets/overview.png" alt="Overview" title="VA Explorer Overview" width="270" />
 </a>Î
 <a href="https://github.com/VA-Explorer/va_explorer/blob/screenshots/docs/assets/dashboard.png">
-  <img src="docs/assets/dashboard.png" alt="Dashboard" title="VA Explorer Dashboard" width="275" />
+  <img src="docs/assets/dashboard.png" alt="Dashboard" title="VA Explorer Dashboard" width="270" />
 </a>
 <a href="https://github.com/VA-Explorer/va_explorer/blob/screenshots/docs/assets/vas.png">
-  <img src="docs/assets/vas.png" alt="Verbal Autopsies" title="VA Explorer VAs" width="275" />
+  <img src="docs/assets/vas.png" alt="Verbal Autopsies" title="VA Explorer VAs" width="270" />
 </a>Î
 
 ## Background
