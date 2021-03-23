@@ -118,8 +118,10 @@ def load_va_data(user, geographic_levels=None):
                 "id": va.id,
                 "Id10019": va.Id10019,
                 "Id10058": va.Id10058,
-                "Id10305": va.Id10305, # check for pregnancy
+                #"Id10305": va.Id10305, # check for pregnancy
+                "date" : va.Id10023, # date of death assignment
                 "ageInYears": va.ageInYears,
+                "age_group": va.age_group,
                 "location": va.location.name,
                 "cause": get_va_cause(va),
             }
@@ -128,7 +130,9 @@ def load_va_data(user, geographic_levels=None):
 
         # Build a location ancestors lookup and add location information at all levels to all vas
         # TODO: This is not efficient (though it's better than 2 DB queries per VA)
-        # TODO: This assumes that all VAs will occur in a facility, ok?
+        # TODO: This assumes that all VAs will occur in a facility, ok? 
+        # TODO: use field Id10058 where did the death occur this would be facility name if applicable, Id10057, specify country, province, district, village
+        # TODO: if there is no location data, we could use the location associated with the interviewer
         locations, location_types = dict(), dict()
         location_ancestors = {
             location.id: location.get_ancestors()
@@ -144,20 +148,32 @@ def load_va_data(user, geographic_levels=None):
 
         va_df = pd.DataFrame.from_records(va_data)
 
-        # clean up age fields and assign to age bin
+        # Mark any unknown age as NA
         va_df["age"] = va_df["ageInYears"].replace(
-            to_replace=["dk"], value=np.random.randint(1, 80)
+            to_replace=["DK"], value="NA"
         )
-        va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
-        va_df["age_group"] = va_df["age"].apply(assign_age_group)
-        cur_date = dt.datetime.today()
 
-        # TODO: This random date of death assignment needs to be correctly handled
-        # NOTE: date field called -Id10023 in VA form, but no dates in curent responses
-        va_df["date"] = [
-            cur_date - dt.timedelta(days=int(x))
-            for x in np.random.randint(3, 400, size=va_df.shape[0])
-        ]
+        # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
+        # TODO determine if this is a valid check for empty or unknown values
+        if va_df["age_group"].empty or va_df["age_group"].equals["DK"]: 
+            if va.isNeonatal1 == 1:
+                va_df["age_group"] = "neonate"
+            elif va.isChild1 == 1:
+                va_df["age_group"] = "child"
+            elif va.isAdult1 == 1:
+                va_df["age_group"] = "adult"
+            elif va_df["age"].equals(["NA"]):
+                va_df["age_group"] = "NA"       # TODO: Do we need to add NA to the filters in the charts so unknowns aren't ignored?
+            else:
+                va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
+                va_df["age_group"] = va_df["age"].apply(assign_age_group)
+            
+        
+        # check for valid date of death assignment
+        # Assuming date string is entered mm/dd/yyyy
+        va_df["date"] = va_df["date"].replace(
+            to_replace=["dk"], value="NA"
+        )
 
         # split data into valid data (records w COD) and invalid records (recoreds w/out COD)
         valid_va_df = va_df[~pd.isnull(va_df["cause"])].reset_index()
