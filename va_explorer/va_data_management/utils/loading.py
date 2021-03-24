@@ -43,18 +43,17 @@ def load_records_from_dataframe(record_df):
     ignored_vas = []
     created_vas = []
     for row in record_df.to_dict(orient='records'):
-        va = None
         if row['instanceid']:
-            va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
-            if va:
-                ignored_vas.append(va)
+            existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
+            if existing_va:
+                ignored_vas.append(existing_va)
                 continue
-        
-        if not va:
-            # TODO: For now treat this as synthetic data and randomly assign a facility as the location
-            va = VerbalAutopsy(**row)
-            va.location = Location.objects.filter(location_type='facility').order_by('?').first()
-            created_vas.append(va)
+
+        # If we got here, we need to create a new VA.
+        # TODO: For now treat location as synthetic data and randomly assign a facility as the location
+        va = VerbalAutopsy(**row)
+        va.location = Location.objects.filter(location_type='facility').order_by('?').first()
+        created_vas.append(va)
 
     bulk_create_with_history(created_vas, VerbalAutopsy)
 
