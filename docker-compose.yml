@@ -63,7 +63,7 @@ services:
     # Don't publish ports like django does.
     ports: []
     image: va_explorer/flower
-    command: /start-flower
+    command: /start-celeryflower
 
   postgres:
     image: va_explorer/postgres

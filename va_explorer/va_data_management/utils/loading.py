@@ -1,5 +1,3 @@
-import re
-
 import pandas
 from simple_history.utils import bulk_create_with_history
 
@@ -8,8 +6,12 @@ from va_explorer.va_data_management.models import VerbalAutopsy
 
 
 def load_records_from_dataframe(record_df):
-    # CSV can prefix column names with a dash or more, remove everything up to and including last dash
-    record_df = record_df.rename(columns=lambda c: re.sub('^-*', '', c))
+    # CSV can prefix column names with a strings and a dash or more. Examples:
+    #     presets-Id10004
+    #     respondent-backgr-Id10008
+    #     -Id10008
+    # Remove everything up to and including last dash.
+    record_df = record_df.rename(columns=lambda c: c.rsplit('-', 1)[-1])
 
     # Figure out the common field names across the CSV and our model
     model_field_names = pandas.Index([f.name for f in VerbalAutopsy._meta.get_fields()])

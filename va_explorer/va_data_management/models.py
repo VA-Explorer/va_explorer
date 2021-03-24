@@ -47,6 +47,7 @@ class VerbalAutopsy(models.Model):
     province = models.TextField("Province", blank=True)
     area = models.TextField("Area", blank=True)
     hospital = models.TextField("Hospital", blank=True)
+    submissiondate = models.TextField("Submission Date", blank=True)
     Id10002 = models.TextField("Is this a region of high HIV/AIDS mortality?", blank=True)
     Id10003 = models.TextField("Is this a region of high malaria mortality?", blank=True)
     Id10004 = models.TextField("During which season did (s)he die?", blank=True)

@@ -979,13 +979,18 @@ def update_choropleth(
 
                 # only proceed if filter is non-empty
 
+                # geo_filter is true if user clicked on map or searches for location
+                zoom_in = filter_dict["geo_filter"]
+                plot_regions = filter_dict["plot_regions"]
+                
+                # filter geojson to match plotting regions, stop update if regions are empty, No Data 
+                if len(plot_regions) == 0 and zoom_in:
+                    raise dash.exceptions.PreventUpdate
+                
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
                 # only proceed with filter if remaining data after filter
                 if plot_data.size > 0:
                     ret_val["filter_dict"] = filter_dict
-                    # geo_filter is true if user clicked on map or searches for location
-                    zoom_in = filter_dict["geo_filter"]
-
                     # if zoom in necessary, filter geojson to only chosen region(s)
                     if zoom_in:
 
@@ -994,8 +999,6 @@ def update_choropleth(
                             granularity, location_types, move_up=False
                         )
 
-                        # filter geojson to match plotting regions
-                        plot_regions = filter_dict["plot_regions"]
                         plot_geos = [
                             g
                             for g in geojson["features"]
@@ -1011,7 +1014,6 @@ def update_choropleth(
                             ]
 
                             if adjacent_data.size > 0:
-
                                 # background plotting - adjacent regions
                                 adjacent_map_df = generate_map_data(
                                     adjacent_data,
@@ -1035,88 +1037,92 @@ def update_choropleth(
             if cod_type != "all":
                 plot_data = plot_data[plot_data["cause"] == cod_type]
 
-            # only proceed if there's data
-            if plot_data.size > 0:
-
-                # if user has not chosen a view level or user is zooming in, default to granularity
-                view_level = granularity if len(view_level) == 0 or zoom_in else view_level
-
-                # get map tooltips to match view level (disstrict or province)
-                map_df = generate_map_data(
-                    plot_data,
-                    plot_geos,
-                    view_level,
-                    zoom_in,
-                    cod_type,
-                    include_no_datas,
-                )
+            # handle the case where there's no va records
+            if plot_data.size == 0:
+                # display no datas if the data is empty
+                include_no_datas = True
+            # if user has not chosen a view level or user is zooming in, default to granularity
+            view_level = granularity if len(view_level) == 0 or zoom_in else view_level
+            
+            # get map tooltips to match view level (disstrict or province)
+            map_df = generate_map_data(
+                plot_data,
+                plot_geos,
+                view_level,
+                zoom_in,
+                cod_type,
+                include_no_datas,
+            )
 
                 # Set plot title to Total VAs if cod_type=='all'
-                cod_title = "Total VAs" if cod_type == "all" else cod_type.capitalize()
+            cod_title = "Total VAs" if cod_type == "all" else cod_type.capitalize()
 
-                highlight_region = map_df.shape[0] == 1
-                if highlight_region:
-                    # increse border thickness to highlight selcted region
-                    border_thickness = 3 * border_thickness
-
-                figure.add_trace(
-                    go.Choropleth(
-                        locations=map_df[view_level],
-                        z=map_df[data_value].astype(float),
-                        locationmode="geojson-id",
-                        geojson=geojson,
-                        featureidkey=feature_id,
-                        colorscale=LOOKUP["colorscales"]["primary"],
-                        hovertext=map_df["tooltip"],
-                        hoverinfo="text",
-                        autocolorscale=False,
-                        marker_line_color=LOOKUP["line_colors"][
-                            "primary"
-                        ],  # line markers between states
-                        marker_line_width=border_thickness,
-                        colorbar=dict(
-                            title="{}<br>by {}".format(
-                                cod_title, view_level.capitalize()
-                            ),
-                            thicknessmode="fraction",
-                            thickness=0.03,
-                            lenmode="fraction",
-                            len=0.8,
-                            yanchor="middle",
-                            ticks="outside",
-                            nticks=10,
+            highlight_region = map_df.shape[0] == 1
+            if highlight_region:
+                # increse border thickness to highlight selcted region
+                border_thickness = 3 * border_thickness
+            figure.add_trace(
+                go.Choropleth(
+                    locations=map_df[view_level],
+                    z=map_df[data_value].astype(float),
+                    locationmode="geojson-id",
+                    geojson=geojson,
+                    featureidkey=feature_id,
+                    colorscale=LOOKUP["colorscales"]["primary"],
+                    hovertext=map_df["tooltip"],
+                    hoverinfo="text",
+                    autocolorscale=False,
+                    marker_line_color=LOOKUP["line_colors"][
+                        "primary"
+                    ],  # line markers between states
+                    marker_line_width=border_thickness,
+                    colorbar=dict(
+                        title="{}<br>by {}".format(
+                            cod_title, view_level.capitalize()
                         ),
-                    )
+                        thicknessmode="fraction",
+                        thickness=0.03,
+                        lenmode="fraction",
+                        len=0.8,
+                        yanchor="middle",
+                        ticks="outside",
+                        nticks=10,
+                    ),
                 )
+            )
 
-                # update figure layout
-                figure.update_layout(
-                    margin={"r": 0, "t": 0, "l": 0, "b": 0},
-                    # clickmode="event" if zoom_in else "event+select",
-                    clickmode="event+select",
-                    dragmode="pan",
+            # update figure layout
+            figure.update_layout(
+                margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                # clickmode="event" if zoom_in else "event+select",
+                clickmode="event+select",
+                dragmode="pan",
+            )
+            # set a fixed scale for zero data
+            if plot_data.size == 0:
+                figure.update_traces(
+                    zmin=0,
+                    zmax=8,
                 )
-                # additional styling
-                config = LOOKUP['graph_config']
-                
-                # if geo restrictions in place, disable clicking
-                if kwargs["user"].location_restrictions.exists():
-                    config["scrollZoom"] = False
-                    config["showAxisDragHandles"] = False
+            # additional styling
+            config = LOOKUP['graph_config']
+            # if geo restrictions in place, disable clicking
+            if kwargs["user"].location_restrictions.exists():
+                config["scrollZoom"] = False
+                config["showAxisDragHandles"] = False
                     
-                figure.update_geos(
-                    fitbounds="locations",
-                    visible=True,
-                    showcountries=True,
-                    showlakes=False,
-                    countrycolor="lightgray",
-                    showsubunits=True,
-                    landcolor="rgb(250,250,248)",
-                    framewidth=0,
-                )
-        #ret_val = json.dumps(filter_dict)
+            figure.update_geos(
+                fitbounds="locations",
+                visible=True,
+                showcountries=True,
+                showlakes=False,
+                countrycolor="lightgray",
+                showsubunits=True,
+                landcolor="rgb(250,250,248)",
+                framewidth=0,
+            )
+    
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config)
-
     return return_value
 
 
@@ -1138,7 +1144,6 @@ def add_trace_to_map(
     z_col = "z_value" if not z_col else z_col
     tooltip_col = "tooltip" if not tooltip_col else tooltip_col
     theme_name = "secondary" if not theme_name else theme_name
-
     trace = trace_type(
         locations=trace_data[location_col],
         z=trace_data[z_col].astype(float),
@@ -1166,7 +1171,9 @@ def generate_map_data(
     metric="All",
     include_no_datas=True,
 ):
-    if va_df.size > 0:
+
+    # doesn't matter if map data is empty if we join with empty data
+    if va_df.size > 0 or include_no_datas:
         map_df = (
             va_df[[view_level, "age", "location"]]
             .groupby(view_level)
@@ -1352,7 +1359,6 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
             figure = plotting.demographic_plot(plot_data, title=plot_title)
     return dcc.Graph(id="demos_plot", figure=figure, config=LOOKUP["chart_config"])
 
-
 # =========Cause of Death Plot Logic============================================#
 @app.callback(
     Output(component_id="cod-container", component_property="children"),
@@ -1374,11 +1380,9 @@ def cod_plot(va_data, timeframe, factor="All", N=10, filter_dict=None, **kwargs)
                 cod = filter_dict["cod_type"]
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
 
-            # only proceed if remaining data after filter
-            if plot_data.size > 0:
-                figure = plotting.cause_of_death_plot(
-                    plot_data, factor=factor, N=N, chosen_cod=cod
-                )
+            figure = plotting.cause_of_death_plot(
+                plot_data, factor=factor, N=N, chosen_cod=cod
+            )
     return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
 
 
@@ -1408,11 +1412,10 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                 if filter_dict["cod_type"].lower() != "all":
                     plot_data = plot_data[plot_data["cause"] == filter_dict["cod_type"]]
                 plot_title = f"{cod_title} Trend by {group_period}"
-            # only run if remaining data after filter
-            if plot_data.size > 0:
-                figure = plotting.va_trend_plot(
-                    plot_data, group_period, factor, title=plot_title
-                )
+
+            figure = plotting.va_trend_plot(
+                plot_data, group_period, factor, title=plot_title
+            )
     return dcc.Graph(id="trend_plot", figure=figure, config=LOOKUP["chart_config"])
 
 
