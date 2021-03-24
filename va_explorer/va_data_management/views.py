@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
+from datetime import datetime
 
 from config.celery_app import app
 from va_explorer.utils.mixins import CustomAuthMixin
@@ -12,6 +13,7 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
+from va_explorer.va_data_management.utils.validate import validate_va_records
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -39,7 +41,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context["filterset"] = self.filterset
-
+        
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
@@ -93,6 +95,8 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
     success_message = "Verbal Autopsy successfully updated!"
 
     def get_success_url(self):
+        # update the validation errors
+        validate_va_records([self.object])
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
 
     def get_context_data(self, **kwargs):
@@ -112,6 +116,8 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, De
         latest = self.object.history.latest()
         if earliest and len(latest.diff_against(earliest).changes) > 0:
             earliest.instance.save()
+            # update the validation errors
+            validate_va_records([earliest])
         messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
 
@@ -129,6 +135,8 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
             latest = self.object.history.latest()
             if len(latest.diff_against(previous).changes) > 0:
                 previous.instance.save()
+                # update the validation errors
+                validate_va_records([previous])
         messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
 

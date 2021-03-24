@@ -1,8 +1,11 @@
 import pandas
 from simple_history.utils import bulk_create_with_history
+from datetime import datetime
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import CauseCodingIssue
+from va_explorer.va_data_management.utils.validate import validate_va_records
 
 
 def load_records_from_dataframe(record_df):
@@ -63,3 +66,4 @@ def load_records_from_dataframe(record_df):
         'ignored': ignored_vas,
         'created': created_vas,
     }
+

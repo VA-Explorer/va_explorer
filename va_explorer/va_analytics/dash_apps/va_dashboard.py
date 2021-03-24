@@ -109,7 +109,8 @@ def load_va_data(user, geographic_levels=None):
     np.random.seed(23)
     return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
 
-    all_vas = user.verbal_autopsies().prefetch_related("location").prefetch_related("causes")
+    # the dashboard requires date of death, exclude if the date is unknown
+    all_vas = user.verbal_autopsies().exclude(Id10023="Unknown").prefetch_related("location").prefetch_related("causes")
 
     if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data
@@ -148,25 +149,34 @@ def load_va_data(user, geographic_levels=None):
 
         va_df = pd.DataFrame.from_records(va_data)
 
-        # Mark any unknown age as NA
-        va_df["age"] = va_df["ageInYears"].replace(
-            to_replace=["DK"], value="NA"
-        )
 
-        # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
-        # TODO determine if this is a valid check for empty or unknown values
-        if va_df["age_group"].empty or va_df["age_group"].equals["DK"]: 
-            if va.isNeonatal1 == 1:
-                va_df["age_group"] = "neonate"
-            elif va.isChild1 == 1:
-                va_df["age_group"] = "child"
-            elif va.isAdult1 == 1:
-                va_df["age_group"] = "adult"
-            elif va_df["age"].equals(["NA"]):
-                va_df["age_group"] = "NA"       # TODO: Do we need to add NA to the filters in the charts so unknowns aren't ignored?
-            else:
-                va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
-                va_df["age_group"] = va_df["age"].apply(assign_age_group)
+        # clean up age fields and assign to age bin
+        va_df["age"] = va_df["ageInYears"].replace(
+            to_replace=["dk"], value=np.random.randint(1, 80)
+        )
+        va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
+        va_df["age_group"] = va_df["age"].apply(assign_age_group)
+
+        #TODO uncomment this whole block for the age stuff
+        # # Mark any unknown age as NA
+        # va_df["age"] = va_df["ageInYears"].replace(
+        #     to_replace=["DK"], value="NA"
+        # )
+
+        # # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
+        # # TODO determine if this is a valid check for empty or unknown values
+        # if va_df["age_group"].empty or va_df["age_group"].equals["DK"]: 
+        #     if va.isNeonatal1 == 1:
+        #         va_df["age_group"] = "neonate"
+        #     elif va.isChild1 == 1:
+        #         va_df["age_group"] = "child"
+        #     elif va.isAdult1 == 1:
+        #         va_df["age_group"] = "adult"
+        #     elif va_df["age"].equals(["NA"]):
+        #         va_df["age_group"] = "NA"       # TODO: Do we need to add NA to the filters in the charts so unknowns aren't ignored?
+        #     else:
+        #         va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
+        #         va_df["age_group"] = va_df["age"].apply(assign_age_group)
             
         
         # check for valid date of death assignment
