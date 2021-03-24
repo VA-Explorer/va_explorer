@@ -36,13 +36,29 @@ def load_records_from_dataframe(record_df):
     extra_field_names = csv_field_names.difference(common_field_names)
     record_df = record_df[common_field_names]
 
-    # Populate the database!
-    verbal_autopsies = [VerbalAutopsy(**row) for row in record_df.to_dict(orient='records')]
-    # TODO: For now treat this as synthetic data and randomly assign a facility as the location
-    for va in verbal_autopsies:
-        va.location = Location.objects.filter(location_type='facility').order_by('?').first()
-    bulk_create_with_history(verbal_autopsies, VerbalAutopsy)
+    # For each row, check to see if there is an instanceid.
+    # If there is instanceid, try to find existing VA with that instanceid.
+    # If row does not have an instanceid, it will create a new VA.
+    # Build a list of VAs to create and a list of VAs to ignore (that already exist).
+    ignored_vas = []
+    created_vas = []
+    for row in record_df.to_dict(orient='records'):
+        va = None
+        if row['instanceid']:
+            va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
+            if va:
+                ignored_vas.append(va)
+                continue
+        
+        if not va:
+            # TODO: For now treat this as synthetic data and randomly assign a facility as the location
+            va = VerbalAutopsy(**row)
+            va.location = Location.objects.filter(location_type='facility').order_by('?').first()
+            created_vas.append(va)
+
+    bulk_create_with_history(created_vas, VerbalAutopsy)
 
     return {
-        'verbal_autopsies': verbal_autopsies,
+        'ignored': ignored_vas,
+        'created': created_vas,
     }

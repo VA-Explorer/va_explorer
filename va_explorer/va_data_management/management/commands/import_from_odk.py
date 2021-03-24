@@ -32,6 +32,7 @@ class Command(BaseCommand):
 
         results = load_records_from_dataframe(forms)
 
-        num_total = len(results['verbal_autopsies'])
+        num_created = len(results['created'])
+        num_ignored = len(results['ignored'])
 
-        self.stdout.write(f'Loaded {num_total} verbal autopsies from ODK')
+        self.stdout.write(f'Loaded {num_created} verbal autopsies from ODK ({num_ignored} ignored)')

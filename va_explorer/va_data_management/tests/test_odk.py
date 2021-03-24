@@ -173,7 +173,6 @@ def test_import_from_odk_command(requests_mock, project_arg):
     assert VerbalAutopsy.objects.count() == 0
 
     output = StringIO()
-
     call_command(
         "import_from_odk", 
         "--email=test",
@@ -183,5 +182,21 @@ def test_import_from_odk_command(requests_mock, project_arg):
         stderr=output,
     )
 
-    assert output.getvalue().startswith("Loaded 1 verbal autopsies from ODK")
+    assert output.getvalue().strip() == "Loaded 1 verbal autopsies from ODK (0 ignored)"
+    assert VerbalAutopsy.objects.count() == 1
     assert VerbalAutopsy.objects.get(instanceid='test-instance').Id10007 == 'test data'
+
+    # Run it again and it should ignore the same record.
+
+    output = StringIO()
+    call_command(
+        "import_from_odk", 
+        "--email=test",
+        "--password=test",
+        project_arg,
+        stdout=output,
+        stderr=output,
+    )
+
+    assert output.getvalue().strip() == "Loaded 0 verbal autopsies from ODK (1 ignored)"
+    assert VerbalAutopsy.objects.count() == 1
