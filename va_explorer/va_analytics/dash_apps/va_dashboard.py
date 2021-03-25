@@ -123,6 +123,9 @@ def load_va_data(user, geographic_levels=None):
                 "date" : va.Id10023, # date of death assignment
                 "ageInYears": va.ageInYears,
                 "age_group": va.age_group,
+                "isNeonatal1": va.isNeonatal1,
+                "isChild1": va.isChild1,
+                "isAdult1": va.isAdult1,
                 "location": va.location.name,
                 "cause": get_va_cause(va),
             }
@@ -148,42 +151,12 @@ def load_va_data(user, geographic_levels=None):
                 locations[ancestor.name] = ancestor.location_type
 
         va_df = pd.DataFrame.from_records(va_data)
+                
+        # Set the age field so we can calculate mean age of death
+        va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
 
-
-        # clean up age fields and assign to age bin
-        va_df["age"] = va_df["ageInYears"].replace(
-            to_replace=["dk"], value=np.random.randint(1, 80)
-        )
-        va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
-        va_df["age_group"] = va_df["age"].apply(assign_age_group)
-
-        #TODO uncomment this whole block for the age stuff
-        # # Mark any unknown age as NA
-        # va_df["age"] = va_df["ageInYears"].replace(
-        #     to_replace=["DK"], value="NA"
-        # )
-
-        # # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
-        # # TODO determine if this is a valid check for empty or unknown values
-        # if va_df["age_group"].empty or va_df["age_group"].equals["DK"]: 
-        #     if va.isNeonatal1 == 1:
-        #         va_df["age_group"] = "neonate"
-        #     elif va.isChild1 == 1:
-        #         va_df["age_group"] = "child"
-        #     elif va.isAdult1 == 1:
-        #         va_df["age_group"] = "adult"
-        #     elif va_df["age"].equals(["NA"]):
-        #         va_df["age_group"] = "NA"       # TODO: Do we need to add NA to the filters in the charts so unknowns aren't ignored?
-        #     else:
-        #         va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
-        #         va_df["age_group"] = va_df["age"].apply(assign_age_group)
-            
-        
-        # check for valid date of death assignment
-        # Assuming date string is entered mm/dd/yyyy
-        va_df["date"] = va_df["date"].replace(
-            to_replace=["dk"], value="NA"
-        )
+        # Assign to age group        
+        va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
 
         # split data into valid data (records w COD) and invalid records (recoreds w/out COD)
         valid_va_df = va_df[~pd.isnull(va_df["cause"])].reset_index()
@@ -210,13 +183,28 @@ def get_va_cause(va_obj):
     return None
 
 
-def assign_age_group(age):
-    if age <= 1:
-        return "neonate"
-    if age <= 16:
-        return "child"
-    # default
-    return "adult"
+def assign_age_group(va_df):
+    # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
+    # TODO determine if this is a valid check for empty or unknown values
+    if va_df["age_group"] != "adult" and va_df["age_group"] != "neonate" and va_df["age_group"] != "child": 
+        if va_df["isNeonatal1"] == 1:
+            return "neonate"
+        elif va_df["isChild1"] == 1:
+            return "child"
+        elif va_df["isAdult1"] == 1:
+            return "adult"
+        else:
+            # try determine group by the age in years
+            try:
+                age = int(va_df["age"])
+                if age <= 1:
+                    return "neonate"
+                if age <= 16:
+                    return "child"
+                return "adult"
+            except:
+                return "Unknown"
+
 
 
 # ===============APP LAYOUT====================#

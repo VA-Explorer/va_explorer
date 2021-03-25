@@ -18,4 +18,25 @@ def validate_va_records(verbal_autopsies):
             severity = "error"
             issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
             issues.append(issue)
+        
+        # validate age in years provided is a number, this is just a warning
+        try:
+            age = int(va.ageInYears)
+        except:
+            issue_text = "Missing required field: ageInYears was not provided or not a number."
+            severity = "warning"
+            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+            issues.append(issue)
+
+        # validate there is enough info to determine age group
+        if va.age_group != "adult" and va.age_group != "neonate" and va.age_group != "child":
+            if va.isNeonatal1 != 1 and va.isChild1 != 1 and va.isAdult1 != 1:
+                try:
+                    age = int(va.ageInYears)
+                except:
+                    issue_text = "Cannot determine age group. No data was found in any of the following fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
+                    severity = "warning"
+                    issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+                    issues.append(issue)
+
     CauseCodingIssue.objects.bulk_create(issues)
