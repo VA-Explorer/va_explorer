@@ -42,24 +42,20 @@
         {%  endfor %}
     </div>
 </div>
-{% comment "Note that Django does not support filtering of query sets in templates" %}
-{% endcomment %}
-{% for group in user.groups.all %}
-  {% if group.name == "Field Workers" %}
-    <div class="row mt-3">
-        <div class="col-sm-2"><strong>Username</strong></div>
-        <div class="col-sm-6">
-          {% if va_usernames.all %}
-            {% for name in va_usernames.all %}
-              <p>{{ name.va_username }}</p>
-            {% endfor %}
-          {% else %}
-            <p>No username assigned</p>
-          {% endif %}
-        </div>
-    </div>
-  {% endif %}
-{% endfor %}
+{% if user.is_fieldworker %}
+  <div class="row mt-3">
+      <div class="col-sm-2"><strong>Username</strong></div>
+      <div class="col-sm-6">
+        {% if user.vausername_set.all %}
+          {% for name in user.vausername_set.all %}
+            <p>{{ name.va_username }}</p>
+          {% endfor %}
+        {% else %}
+          <p>No username assigned</p>
+        {% endif %}
+      </div>
+  </div>
+{% endif %}
   <br/>
   {% if perms.users.view_user %}
     <a href="{% url 'users:index' %}" class="btn btn-primary">Back</a>
