@@ -1,3 +1,4 @@
+from django.contrib.auth import get_permission_codename
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.core.management import BaseCommand
@@ -54,9 +55,7 @@ class Command(BaseCommand):
 
             for model_class, model_permissions in group_permissions.items():
                 for model_permission_name in model_permissions:
-
-                    # Generate permission name as Django would, in terms of format
-                    codename = f"{model_permission_name}_{model_class._meta.model_name}"
+                    codename = get_permission_codename(model_permission_name, model_class._meta)
 
                     try:
                         permission = Permission.objects.get(codename=codename)
