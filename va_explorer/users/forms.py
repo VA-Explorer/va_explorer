@@ -10,7 +10,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect, SelectMultiple
 from django.utils.crypto import get_random_string
-from va_explorer.va_data_management.models import Location
+
+from va_explorer.va_data_management.models import Location, VaUsername
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 
@@ -35,19 +36,35 @@ def validate_location_access(form, geographic_access, location_restrictions, gro
     """
     Custom form validations related to geographic access and location restrictions
     """
-    if geographic_access == "location-specific" and len(location_restrictions) == 0:
-        if group.name == "Field Workers":
+    if group.name == "Field Workers":
+        if len(location_restrictions) == 0 or geographic_access == "national":
             form._errors["facility_restrictions"] = form.error_class(
                 ["You must add one or more facilities."]
             )
-        else:
+    else:
+        if geographic_access == "location-specific" and len(location_restrictions) == 0:
             form._errors["location_restrictions"] = form.error_class(
                 ["You must add one or more locations if access is location-specific."]
             )
-    elif geographic_access == "national" and len(location_restrictions) > 0:
-        form._errors["location_restrictions"] = form.error_class(
-            ["You cannot add specific locations if access is national."]
+        elif geographic_access == "national" and len(location_restrictions) > 0:
+            form._errors["location_restrictions"] = form.error_class(
+                ["You cannot add specific locations if access is national."]
+            )
+
+
+def validate_username(form, va_username, group, user):
+    """
+    Custom form validations related to the Field Worker va_username asssignment
+    """
+    if group.name != "Field Workers" and va_username:
+        form.errors["va_username"] = form.error_class(
+            ["Only Field Workers can be assigned a username."]
         )
+    else:
+        if va_username and VaUsername.objects.filter(va_username=va_username).exclude(user_id=user.id).exists():
+            form.errors["va_username"] = form.error_class(
+                ["This username is already assigned to another Field Worker."]
+            )
 
 
 class LocationRestrictionsSelectMultiple(SelectMultiple):
@@ -97,6 +114,11 @@ class ExtendedUserCreationForm(UserCreationForm):
         required=True,
     )
 
+    va_username = forms.CharField(
+        required=False,
+        help_text="Username is the interviewer username collected in the Verbal Autopsy."
+    )
+
     class Meta:
         model = User
         fields = [
@@ -105,7 +127,8 @@ class ExtendedUserCreationForm(UserCreationForm):
             "group",
             "geographic_access",
             "location_restrictions",
-            "facility_restrictions"
+            "facility_restrictions",
+            "va_username"
         ]
 
     def __init__(self, *args, **kwargs):
@@ -118,6 +141,7 @@ class ExtendedUserCreationForm(UserCreationForm):
         super(UserCreationForm, self).__init__(*args, **kwargs)
 
         self.fields["group"].label = "Role"
+        self.fields["va_username"].label = "Username"
 
     def clean(self, *args, **kwargs):
         """
@@ -130,6 +154,10 @@ class ExtendedUserCreationForm(UserCreationForm):
 
             validate_location_access(
                 self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
+            )
+
+            validate_username(
+                self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
 
         return cleaned_data
@@ -154,6 +182,11 @@ class ExtendedUserCreationForm(UserCreationForm):
             location_restrictions = get_location_restrictions(self.cleaned_data)
             group = self.cleaned_data["group"]
 
+            va_username = None
+
+            if self.cleaned_data["va_username"]:
+                va_username = VaUsername(va_username=self.cleaned_data["va_username"], user=user)
+
             if commit:
                 user.save()
 
@@ -161,6 +194,9 @@ class ExtendedUserCreationForm(UserCreationForm):
                 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
                 user.location_restrictions.add(*location_restrictions)
                 user.groups.add(*[group])
+
+                if va_username:
+                    va_username.save()
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
@@ -199,6 +235,11 @@ class UserUpdateForm(forms.ModelForm):
         required=True,
     )
 
+    va_username = forms.CharField(
+        required=False,
+        help_text="Username is the interviewer username collected in the Verbal Autopsy."
+    )
+
     class Meta:
         model = User
         fields = [
@@ -208,7 +249,8 @@ class UserUpdateForm(forms.ModelForm):
             "group",
             "geographic_access",
             "location_restrictions",
-            "facility_restrictions"
+            "facility_restrictions",
+            "va_username"
         ]
 
     def __init__(self, *args, **kwargs):
@@ -217,6 +259,7 @@ class UserUpdateForm(forms.ModelForm):
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
         self.fields["group"].label = "Role"
+        self.fields["va_username"].label = "Username"
 
     def clean(self, *args, **kwargs):
         """
@@ -229,6 +272,10 @@ class UserUpdateForm(forms.ModelForm):
 
             validate_location_access(
                 self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
+            )
+
+            validate_username(
+                self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
 
         return cleaned_data
@@ -246,6 +293,7 @@ class UserUpdateForm(forms.ModelForm):
             """
             user.location_restrictions.set(location_restrictions)
             user.groups.set([group])
+            user.set_va_username(self.cleaned_data["va_username"])
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address
