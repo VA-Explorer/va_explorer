@@ -57,12 +57,6 @@ class UserDetailView(CustomAuthMixin, UserDetailViewMixin, DetailView):
     login_url = reverse_lazy("account_login")
     model = User
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['va_usernames'] = VaUsername.objects.filter(user_id=self.object.id)
-
-        return context
-
 
 user_detail_view = UserDetailView.as_view()
 
@@ -116,8 +110,7 @@ class UserUpdateView(
 
         # TODO: Update this if we are supporting more than one username;
         #  For now, we only ever allow one, so we will display one
-        va_username_for_user = VaUsername.objects.filter(user_id=self.get_object()).first()
-        initial["va_username"] = va_username_for_user.va_username if va_username_for_user else ""
+        initial["va_username"] = self.get_object().get_va_username()
 
         return initial
 

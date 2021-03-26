@@ -10,7 +10,7 @@ from functools import reduce
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
-from va_explorer.va_data_management.models import VerbalAutopsy, Location
+from va_explorer.va_data_management.models import VerbalAutopsy, Location, VaUsername
 
 
 class CustomUserManager(BaseUserManager):
@@ -73,6 +73,38 @@ class User(AbstractUser):
       else:
         # No location restrictions, which implies access to all data
         return VerbalAutopsy.objects.all()
+
+    def is_fieldworker(self):
+        return self.groups.filter(name="Field Workers").exists()
+
+    # TODO: Update this if we are supporting more than one username; for now, allow only one
+    def set_va_username(self, *va_usernames):
+        # Find if the user has an existing va_username
+        try:
+            user_va_username = self.vausername_set.first()
+        except:
+            user_va_username = None
+
+        # If user has no existing va_username, create one
+        if not user_va_username and va_usernames:
+            self.vausername_set.create(va_username=va_usernames[0])
+
+        # If user has a new, non-blank va_username, replace the existing one
+        elif (user_va_username and va_usernames[0]) and \
+            (va_usernames[0] != user_va_username):
+            user_va_username.va_username = va_usernames[0]
+            user_va_username.save()
+
+        # If the user has an existing va_username, but there is none on the update form,
+        # delete the existing one
+        elif user_va_username and not va_usernames[0]:
+            user_va_username.delete()
+
+    # TODO: Update this if we are supporting more than one username; for now, allow only one
+    def get_va_username(self):
+        va_username_for_user = self.vausername_set.first()
+
+        return va_username_for_user.va_username if va_username_for_user else ""
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

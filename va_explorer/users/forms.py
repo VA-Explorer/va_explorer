@@ -293,28 +293,7 @@ class UserUpdateForm(forms.ModelForm):
             """
             user.location_restrictions.set(location_restrictions)
             user.groups.set([group])
-
-            # TODO: Update this if we are supporting more than one username; for now, allow only one
-            # Find if the user has an existing va_username
-            try:
-                user_va_username = VaUsername.objects.get(user=user)
-            except VaUsername.DoesNotExist:
-                user_va_username = None
-
-            # If user has no existing va_username, create one
-            if not user_va_username and self.cleaned_data["va_username"]:
-                VaUsername(user=user, va_username=self.cleaned_data["va_username"]).save()
-
-            # If user has a new, non-blank va_username, replace the existing one
-            elif (user_va_username and self.cleaned_data["va_username"]) and \
-                (self.cleaned_data["va_username"] != user_va_username):
-                user_va_username.va_username = self.cleaned_data["va_username"]
-                user_va_username.save()
-
-            # If the user has an existing va_username, but there is none on the update form,
-            # delete the existing one
-            elif user_va_username and not self.cleaned_data["va_username"]:
-                user_va_username.delete()
+            user.set_va_username(self.cleaned_data["va_username"])
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address
