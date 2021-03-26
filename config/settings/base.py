@@ -65,7 +65,10 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
+    "widget_tweaks",
+    "tempus_dominus",
 ]
+TEMPUS_DOMINUS_LOCALIZE = True
 
 LOCAL_APPS = [
     "va_explorer.home.apps.HomeConfig",

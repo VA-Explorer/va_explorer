@@ -23,6 +23,8 @@ django-simple-history==2.12.0
 django-treebeard==4.3.1
 django-bootstrap4==2.2.0
 django-filter==2.4.0
+django-widget-tweaks==1.4.8
+django-tempus-dominus==5.1.2.13
 whitenoise==5.2.0
 channels-redis==3.0.1
 channels==2.4.0

@@ -178,7 +178,7 @@ class UserUpdateForm(forms.ModelForm):
     to mark a user account as inactive
     """
 
-    name = forms.CharField(required=True, max_length=100)
+    name = forms.CharField(required=True, max_length=255)
     group = ModelChoiceField(queryset=Group.objects.all(), required=True)
     location_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
