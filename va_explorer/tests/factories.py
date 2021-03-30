@@ -2,7 +2,7 @@ import factory
 from django.contrib.auth import get_user_model, models
 from factory import DjangoModelFactory, Faker, Sequence
 from factory.fuzzy import FuzzyInteger
-from va_explorer.va_data_management.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy, VaUsername
 
 User = get_user_model()
 
@@ -103,5 +103,15 @@ class FieldWorkerGroupFactory(GroupFactory):
     name = "Field Workers"
 
 
+class AdminGroupFactory(GroupFactory):
+    name = "Admins"
+
+
 class FacilityFactory(LocationFactory):
     location_type = "facility"
+
+class VaUsernameFactory(DjangoModelFactory):
+    class Meta:
+        model = VaUsername
+
+    va_username = Faker("user_name")
