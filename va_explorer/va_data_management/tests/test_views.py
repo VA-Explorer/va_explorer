@@ -3,7 +3,8 @@ from django.test import Client
 from django.contrib.auth.models import Permission
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory, LocationFactory
+from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory, LocationFactory, \
+    FieldWorkerFactory, FieldWorkerGroupFactory, FacilityFactory, VaUsernameFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -217,4 +218,34 @@ def test_access_control(user: User):
     response = client.get(f"/va_data_management/reset/{va.id}")
     assert response.status_code == 404
     response = client.get(f"/va_data_management/revert_latest/{va.id}")
+    assert response.status_code == 404
+
+# A Field Worker can access only the Verbal Autopsies they create through the username on the Verbal Autopsy
+def test_field_worker_access_control():
+    can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
+    field_worker_group = FieldWorkerGroupFactory.create(permissions=[can_view_record])
+    field_worker = FieldWorkerFactory.create(groups=[field_worker_group])
+    field_worker_username = VaUsernameFactory.create(user=field_worker)
+
+    facility = FacilityFactory.create()
+    field_worker.location_restrictions.add(*[facility])
+
+    field_worker.save()
+    field_worker_username.save()
+
+    va = VerbalAutopsyFactory.create(location=facility, username=field_worker_username.va_username)
+    va2 = VerbalAutopsyFactory.create(location=facility, username='')
+
+    client = Client()
+    client.force_login(user=field_worker)
+
+    response = client.get("/va_data_management/")
+    assert response.status_code == 200
+    assert str(va.id).encode('utf_8') in response.content
+    assert str(va2.id).encode('utf_8') not in response.content
+
+    response = client.get(f"/va_data_management/show/{va.id}")
+    assert response.status_code == 200
+
+    response = client.get(f"/va_data_management/show/{va2.id}")
     assert response.status_code == 404
