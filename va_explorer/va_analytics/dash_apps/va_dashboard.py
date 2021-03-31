@@ -505,7 +505,7 @@ app.layout = html.Div(
                                                                         children=[
                                                                             dcc.Dropdown(
                                                                                  id='ts_search',
-                                                                                options = [],
+                                                                                options = [{"label": "All Causes", "value": "All causes.all"}],
                                                                                 placeholder = "Search COD Keywords",
                                                                                 style={
                                                                                     "margin-top": "5px",
@@ -515,6 +515,7 @@ app.layout = html.Div(
                                                                                 searchable=True,
                                                                                 clearable=True,
                                                                                 multi=True,
+                                                                                value="All causes.all"
                                                                                                 
                                                                             )]
                                                                 ),
@@ -1426,7 +1427,7 @@ def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, 
             cod_groups = COD_GROUPS
         
         # load cod groups
-        all_options = [(cod_group, "group") for cod_group in cod_groups.columns[1:].tolist()]
+        all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
         
         # load unique cods in selected data
         va_data = pd.read_json(va_data)
@@ -1435,6 +1436,9 @@ def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, 
             valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
             unique_cods = valid_va_data["cause"].unique().tolist()
             all_options += [(cod_name, "cod") for cod_name in unique_cods]
+            
+        # always load all-cause option
+        all_options.append(("All Causes", "All causes.all"))
             
         # filter options based on search criteria
         matching_options = [
@@ -1479,6 +1483,9 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                     #ret_val["groups"] = cod_groups.to_json()
                    
                     for search_value in search_terms:
+                        if search_value.lower().startswith("all"):
+                            search_value = "All Causes.all"
+                        # search term convention: {kewyword.type}
                         key, key_type = search_value.split(".")
                         # if keyword is a cod group, filter to only CODs in that group
                         if key_type == "group":
@@ -1486,6 +1493,8 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                             match_ids = plot_data[plot_data["cause"].isin(group_cods)].index.tolist()
                         elif key_type == "cod":
                             match_ids = plot_data[plot_data["cause"] == key].index.tolist()
+                        elif key_type == "all":
+                            match_ids = plot_data.index.tolist()
                         search_term_ids[search_value] = match_ids
                     
                     # TODO: make this more generic (only assumes one search term)

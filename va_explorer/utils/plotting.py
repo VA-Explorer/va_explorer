@@ -370,8 +370,9 @@ def cod_group_plot(va_df, cod_groups=[], demographic="overall", N=10, height=Non
             
             # only proceed if any group data
             if cod_data.size > 0:
-                cod_pivot = get_pivot_counts(cod_data, "cause", demographic)
-                # get top N and reverse order for plotting purposes
+                # get demographic pivot and remove row total (not a COD)
+                cod_pivot = get_pivot_counts(cod_data, "cause", demographic).query("cause != 'All'") 
+                # get top N by total count (last column of pivot table) and flip order for plotting
                 cod_pivot = cod_pivot.sort_values(by=cod_pivot.columns[-1], ascending=False).head(N).iloc[::-1]
                 cod_pivot.index = [LOOKUP["display_names"].get(x,x) for x in cod_pivot.index]
                 cod_pivot["cod"] = cod_pivot.index
