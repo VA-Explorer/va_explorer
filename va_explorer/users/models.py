@@ -65,7 +65,7 @@ class User(AbstractUser):
     def verbal_autopsies(self):
         if self.is_fieldworker():
             return VerbalAutopsy.objects.filter(username__in=self.vausername_set.all().values_list('va_username'))
-        elif self.location_restrictions.count() > 0:
+        if self.location_restrictions.count() > 0:
             # Get the query set of all locations at or below the parent nodes the user can access by joining
             # the query sets of all the location trees; using the | operator leads to an efficient query
             location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
