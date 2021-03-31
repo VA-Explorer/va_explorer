@@ -9,5 +9,8 @@ export DJANGO_SETTINGS_MODULE=config.settings.production
 echo "Running database migrations..."
 python /app/manage.py migrate
 
+echo "Initializing groups..."
+python /app/manage.py initialize_groups
+
 echo "Starting gunicorn..."
 /usr/local/bin/gunicorn config.wsgi --bind=0.0.0.0:5000 --workers=4 --chdir=/app

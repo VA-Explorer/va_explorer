@@ -71,16 +71,20 @@ class BrowserTests(StaticLiveServerTestCase):
         national_access_radio = self.selenium.find_element_by_xpath('//input[@value="national"]')
         location_specific_radio = self.selenium.find_element_by_xpath('//input[@value="location-specific"]')
 
+        va_username_input = self.selenium.find_element_by_name('va_username')
+
         # Before a role is chosen
         assert not facility_restrictions_dropdown.is_displayed()
         assert not location_restrictions_dropdown.is_displayed()
         assert not national_access_radio.is_displayed()
         assert not location_specific_radio.is_displayed()
+        assert not va_username_input.is_displayed()
 
         # When Field Workers role is chosen
         select.select_by_visible_text('Field Workers')
 
         assert facility_restrictions_dropdown.is_displayed()
+        assert va_username_input.is_displayed()
         assert not location_restrictions_dropdown.is_displayed()
         assert not national_access_radio.is_displayed()
         assert not location_specific_radio.is_displayed()
@@ -89,6 +93,27 @@ class BrowserTests(StaticLiveServerTestCase):
         select.select_by_visible_text('Admins')
 
         assert not facility_restrictions_dropdown.is_displayed()
+        assert not va_username_input.is_displayed()
+        assert location_restrictions_dropdown.is_displayed()
+        assert national_access_radio.is_displayed()
+        assert location_specific_radio.is_displayed()
+        assert location_specific_radio.is_selected()
+
+        # When Data Viewer role is chosen
+        select.select_by_visible_text('Data Viewers')
+
+        assert not facility_restrictions_dropdown.is_displayed()
+        assert not va_username_input.is_displayed()
+        assert location_restrictions_dropdown.is_displayed()
+        assert national_access_radio.is_displayed()
+        assert location_specific_radio.is_displayed()
+        assert location_specific_radio.is_selected()
+
+        # When Data Manager role is chosen
+        select.select_by_visible_text('Data Managers')
+
+        assert not facility_restrictions_dropdown.is_displayed()
+        assert not va_username_input.is_displayed()
         assert location_restrictions_dropdown.is_displayed()
         assert national_access_radio.is_displayed()
         assert location_specific_radio.is_displayed()

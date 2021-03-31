@@ -15,6 +15,7 @@ from django.views.generic import (
 
 from ..utils.mixins import CustomAuthMixin, UserDetailViewMixin
 from .forms import ExtendedUserCreationForm, UserChangePasswordForm, UserSetPasswordForm, UserUpdateForm
+from ..va_data_management.models import VaUsername
 
 User = get_user_model()
 
@@ -94,8 +95,11 @@ class UserUpdateView(
             restrictions associated with the user in the database, they have location-specific access;
             else national access.
             (2) Set the facilities restrictions associated with the user, if any
+
+        Initializes the user's VA username(s) on the form (see TODO)
         """
         initial = super(UserUpdateView, self).get_initial()
+
         initial["group"] = self.get_object().groups.first()
         initial["geographic_access"] = (
             "location-specific" if self.get_object().location_restrictions.exists() else "national"
@@ -103,6 +107,10 @@ class UserUpdateView(
         initial["facility_restrictions"] = (
                 self.get_object().location_restrictions.filter(location_type="facility")
         )
+
+        # TODO: Update this if we are supporting more than one username;
+        #  For now, we only ever allow one, so we will display one
+        initial["va_username"] = self.get_object().get_va_username()
 
         return initial
 

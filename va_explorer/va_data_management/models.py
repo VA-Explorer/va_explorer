@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from simple_history.models import HistoricalRecords
 from django.db.models import JSONField
 #from django.contrib.auth import get_user_model
@@ -632,3 +633,7 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
+
+class VaUsername(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    va_username = models.TextField("va_username", unique=True)
