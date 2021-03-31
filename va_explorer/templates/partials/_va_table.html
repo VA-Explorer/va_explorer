@@ -6,8 +6,10 @@
       <th>Name</th>
       <th>Facility</th>
       <th>Cause</th>
+      {% if not user.is_fieldworker %}
       <th>Warnings</th>
       <th>Errors</th>
+      {% endif %}
       <th>View</th>
     </tr>
   </thead>
@@ -19,8 +21,10 @@
       <td>{{ va.name }}</td>
       <td>{{ va.facility }}</td>
       <td>{{ va.cause }}</td>
+      {% if not user.is_fieldworker %}
       <td>{{ va.warnings }}</td>
       <td>{{ va.errors }}</td>
+      {% endif %}
       <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
     </tr>
     {% endfor %}
