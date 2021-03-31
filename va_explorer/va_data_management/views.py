@@ -23,11 +23,17 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # Restrict to VAs this user can access and prefetch related for performance
         queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
 
-        # do the filtering thing
-        self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
-        queryset = self.filterset.qs
+        # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
+        # since many do not apply to them. This prevents data passed through the params from being
+        # passed to the VAFilter
+        if self.request.user.is_fieldworker():
+            self.filterset = VAFilter(data=None, queryset=queryset)
 
-        return queryset
+        # do the filtering thing
+        else:
+            self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+
+        return self.filterset.qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -127,7 +133,8 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
         return redirect('va_data_management:show', id=self.object.id)
 
 
-class RunCodingAlgorithm(RedirectView):
+class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
+    permission_required = "va_data_management.change_verbalautopsy"
     pattern_name = 'home:index'
 
     def post(self, request, *args, **kwargs):
