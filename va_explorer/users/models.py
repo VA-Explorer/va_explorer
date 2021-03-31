@@ -63,16 +63,18 @@ class User(AbstractUser):
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
     def verbal_autopsies(self):
-      if self.location_restrictions.count() > 0:
-        # Get the query set of all locations at or below the parent nodes the user can access by joining
-        # the query sets of all the location trees; using the | operator leads to an efficient query
-        location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
-        locations = reduce((lambda set1, set2: set1 | set2), location_sets)
-        # Return the list of all verbal autopsies associated with that query set of locations
-        return VerbalAutopsy.objects.filter(location__in=locations)
-      else:
-        # No location restrictions, which implies access to all data
-        return VerbalAutopsy.objects.all()
+        if self.is_fieldworker():
+            return VerbalAutopsy.objects.filter(username__in=self.vausername_set.all().values_list('va_username'))
+        elif self.location_restrictions.count() > 0:
+            # Get the query set of all locations at or below the parent nodes the user can access by joining
+            # the query sets of all the location trees; using the | operator leads to an efficient query
+            location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
+            locations = reduce((lambda set1, set2: set1 | set2), location_sets)
+            # Return the list of all verbal autopsies associated with that query set of locations
+            return VerbalAutopsy.objects.filter(location__in=locations)
+        else:
+            # No location restrictions, which implies access to all data
+            return VerbalAutopsy.objects.all()
 
     def is_fieldworker(self):
         return self.groups.filter(name="Field Workers").exists()
