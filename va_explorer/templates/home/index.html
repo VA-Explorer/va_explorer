@@ -66,8 +66,10 @@
 
 <div class="row mt-4">
   <div class="col">
-
-    {% if not user.is_fieldworker %}
+    {% if user.is_fieldworker %}
+      <h2 class="mb-4">Your Conducted VAs</h2>
+      <p>For more detail on your conducted VAs, visit the <a href="/va_data_management">Data Management page</a></p>
+    {% else %}
       <h2 class="mb-4">VAs With Coding Issues</h2>
       {% if issue_list %}
         {% include 'partials/_va_table.html' with va_list=issue_list %}
@@ -76,14 +78,6 @@
         <p>Excellent, no coding issues found!</p>
       {% endif %}
     {% endif %}
-
-  </div>
-</div>
-
-<div class="row mt-4">
-  <div class="col">
-    <h2 class="mb-4">Your Conducted VAs</h2>
-    <p>For more detail on your conducted VAs, visit the <a href="/va_data_management">Data Management page</a></p>
   </div>
 </div>
 {% endblock %}
