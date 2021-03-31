@@ -4,8 +4,11 @@
 
 <div class="row mt-4">
   <div class="col">
-
-    <h2 class="mb-4">VA Explorer Overview for {{ locations }}</h2>
+    {% if not user.is_fieldworker %}
+        <h2 class="mb-4">VA Explorer Overview for {{ locations }}</h2>
+    {% else %}
+        <h2 class="mb-4">Your VA Trends</h2>
+    {% endif %}
 
     <table class="table home-page-statistics">
       <thead>
@@ -49,6 +52,7 @@
   </div>
 </div>
 
+{% if perms.va_data_management.change_verbalautopsy %}
 <div class="row mt-4">
   <div class="col">
     <h2 class="mb-4">Verbal Autopsy Actions</h2>
@@ -58,19 +62,28 @@
       </form>
   </div>
 </div>
+{% endif %}
 
 <div class="row mt-4">
   <div class="col">
 
-    <h2 class="mb-4">VAs With Coding Issues</h2>
-    {% if issue_list %}
-      {% include 'partials/_va_table.html' with va_list=issue_list %}
-      {% if additional_issues > 0 %}<p>There are <a href="/va_data_management/?only_errors=True">{{ additional_issues }} additional issues</a> not listed here</p>{% endif %}
-    {% else %}
-      <p>Excellent, no coding issues found!</p>
+    {% if not user.is_fieldworker %}
+      <h2 class="mb-4">VAs With Coding Issues</h2>
+      {% if issue_list %}
+        {% include 'partials/_va_table.html' with va_list=issue_list %}
+        {% if additional_issues > 0 %}<p>There are <a href="/va_data_management/?only_errors=True">{{ additional_issues }} additional issues</a> not listed here</p>{% endif %}
+      {% else %}
+        <p>Excellent, no coding issues found!</p>
+      {% endif %}
     {% endif %}
 
   </div>
 </div>
 
+<div class="row mt-4">
+  <div class="col">
+    <h2 class="mb-4">Your Conducted VAs</h2>
+    <p>For more detail on your conducted VAs, visit the <a href="/va_data_management">Data Management page</a></p>
+  </div>
+</div>
 {% endblock %}
