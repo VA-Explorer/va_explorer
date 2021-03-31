@@ -5,7 +5,8 @@ from datetime import datetime
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import CauseCodingIssue
-from va_explorer.va_data_management.utils.validate import validate_va_records
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from django.contrib.auth.models import User
 
 
 def load_records_from_dataframe(record_df):
@@ -60,7 +61,27 @@ def load_records_from_dataframe(record_df):
         va.location = Location.objects.filter(location_type='facility').order_by('?').first()
         created_vas.append(va)
 
-    bulk_create_with_history(created_vas, VerbalAutopsy)
+        try:
+            # create a date object, assuming the csv date is formatted mm/dd/yyyy
+            date_object = datetime.strptime(va.Id10023, '%m/%d/%Y').date()
+            va.Id10023 = date_object
+        except:
+            va.Id10023 = "dk" # TODO instead of replacing this, could we keep the date as is and capture the issue?
+
+        # the va.location is used to plot the record on the map
+        # check if the location of death is a known facility
+        location = va.Id10058
+        known_facility = Location.objects.filter(location_type='facility', name=location).first()
+        if known_facility is not None:
+            va.location = known_facility
+        else:
+            # TODO create an "Unknown" location, this field has a not null requirement so we'll use a random default for now 
+            va.location = Location.objects.filter(location_type='facility').order_by('?').first()
+
+    new_vas = bulk_create_with_history(verbal_autopsies, VerbalAutopsy)
+    
+    # Add any errors to the db
+    validate_vas_for_dashboard(new_vas)
 
     return {
         'ignored': ignored_vas,

@@ -13,7 +13,7 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.validate import validate_va_records
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -45,7 +45,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
-            "date": va.Id10023,
+            "date": datetime.strptime(va.Id10023, "%Y-%m-%d").strftime("%m/%d/%Y") if (va.Id10023 != "dk") else "Unknown", #django stores the date in yyyy-mm-dd
             "facility": va.location.name,
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
@@ -96,7 +96,7 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
 
     def get_success_url(self):
         # update the validation errors
-        validate_va_records([self.object])
+        validate_vas_for_dashboard([self.object])
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
 
     def get_context_data(self, **kwargs):
@@ -117,7 +117,7 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, De
         if earliest and len(latest.diff_against(earliest).changes) > 0:
             earliest.instance.save()
             # update the validation errors
-            validate_va_records([earliest])
+            validate_vas_for_dashboard([earliest])
         messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
 
@@ -136,7 +136,7 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
             if len(latest.diff_against(previous).changes) > 0:
                 previous.instance.save()
                 # update the validation errors
-                validate_va_records([previous])
+                validate_vas_for_dashboard([previous])
         messages.success(self.request, self.success_message)
         return redirect('va_data_management:show', id=self.object.id)
 
