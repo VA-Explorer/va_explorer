@@ -91,8 +91,8 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
 
 * Run the database migrations
-    * `python manage.py makemigrations`
-    * `python manage.py migrate`
+    * `./manage.py makemigrations`
+    * `./manage.py migrate`
 
 ### Tasks
 
@@ -100,45 +100,45 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
   * Create user roles
 
-    `python manage.py initialize_groups`
+    `./manage.py initialize_groups`
 
   * Create an administrator user for the local environment (note that for the production environment instead of providing the password on the command line a system-assigned, randomly-generated password will be printed to the console)
 
-    `python manage.py seed_admin_user <EMAIL_ADDRESS> --password <PASSWORD>`
+    `./manage.py seed_admin_user <EMAIL_ADDRESS> --password <PASSWORD>`
 
   * Create demonstration accounts for data manager, data viewer, and field worker. This task
   only works in the local environment and is for demonstration purposes, only.
 
-    `python manage.py seed_demo_users`
+    `./manage.py seed_demo_users`
 
 * Load location data
 
-  `python manage.py load_locations <NAME OF CSV>`
+  `./manage.py load_locations <NAME OF CSV>`
 
 * Load verbal autopsy questionnaire data
 
-  `python manage.py load_va_csv <NAME OF CSV>`
+  `./manage.py load_va_csv <NAME OF CSV>`
 
 * Start the cause of death coding microservices (pyCrossVA for format
   translation and InterVA5 for coding); note that these are services
   that should be left running during development activities, which can
-  be accomplished using a separate terminal or the -d flag
+  be accomplished using a separate terminal or the -d flag. (See [Building/Running in Docker](#buildingrunning-in-docker) for more details).
 
   `docker-compose up --build`
 
-* Run the InterVA5 cause of death coding algorithm
+* Run the InterVA5 cause of death coding algorithm (See [Running Coding Algorithm](#running-coding-algorithm) for more details).
 
-  `python manage.py run_coding_algorithms`
+  `./manage.py run_coding_algorithms`
 
 * Run the tests
 
     `pytest`
 
-### Running the application
+### Running the Application
 
 * Run the application server
 
-    `python manage.py runserver 0.0.0.0:8000`
+    `./manage.py runserver 0.0.0.0:8000`
 
 The server will be running at http://0.0.0.0:8000/
 
@@ -228,6 +228,37 @@ From there, you can create a super user. Follow the prompts after running this c
 ```
 ./manage.py createsuperuser
 ```
+
+## Running Coding Algorithm
+
+There are two ways to run the coding algorithm to add cause of death to uncoded verbal autopsies: from the command line or from the user interface.
+
+Both methods require the `PYCROSS_HOST` and `INTERVA_HOST` environment variables to be configured to point to the locations of pyCrossVA
+InterVA5 respectively. If you are in Docker, both of those will have been configured and started up automatically.
+
+### Command Line
+
+From the command line, you can run the following to run coding algorithms:
+
+```
+./manage.py run_coding_algorithms
+```
+
+This will list a brief report of results in the following format:
+
+```
+Coded 24 verbal autopsies (out of 30) [6 issues]
+```
+
+You will receive an error message if pyCrossVA or InterVA5 are unavailable.
+
+### User Interface
+
+Users with permissions to modify verbal autopsy records will see a "Run Coding Algorithms" button on the home page of the application.
+
+In addition to pyCrossVA and InterVA5, this functionality requires that Celery is running and the `CELERY_BROKER_URL` and `REDIS_URL` environment variables have been configured properly. If you are running in Docker, Celery will have been configured and started up automatically.
+
+Clicking the "Run Coding Algorithms" will execute the coding algorithms in the background using Celery. You will not receive an error on the user interface if the process is not successful. To check for errors, you will need to view the Celery logs.
 
 ## Importing From ODK
 
