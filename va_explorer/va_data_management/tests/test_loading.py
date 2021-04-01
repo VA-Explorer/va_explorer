@@ -26,15 +26,52 @@ def test_loading_from_dataframe():
 
     result = load_records_from_dataframe(df)
 
-    assert len(result['verbal_autopsies']) == 2
+    assert len(result['created']) == 2
+    assert len(result['ignored']) == 0
 
-    assert result['verbal_autopsies'][0].instanceid == data[0]['instanceid']
-    assert result['verbal_autopsies'][0].Id10007 == data[0]['testing-dashes-Id10007']
-    assert result['verbal_autopsies'][0].location == loc
+    assert result['created'][0].instanceid == data[0]['instanceid']
+    assert result['created'][0].Id10007 == data[0]['testing-dashes-Id10007']
+    assert result['created'][0].location == loc
 
-    assert result['verbal_autopsies'][1].instanceid == data[1]['instanceid']
-    assert result['verbal_autopsies'][1].Id10007 == data[1]['testing-dashes-Id10007']
-    assert result['verbal_autopsies'][1].location == loc
+    assert result['created'][1].instanceid == data[1]['instanceid']
+    assert result['created'][1].Id10007 == data[1]['testing-dashes-Id10007']
+    assert result['created'][1].location == loc
+
+
+def test_loading_from_dataframe_with_ignored():
+    # Location gets assigned automatically/randomly.
+    # If that changes in loading.py we'll need to change that here too.
+    loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+
+    data = [
+        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1' },
+        {'instanceid': 'instance2', 'testing-dashes-Id10007': 'name 2' },
+    ]
+
+    df = pandas.DataFrame.from_records(data)
+
+    result = load_records_from_dataframe(df)
+
+    assert len(result['created']) == 2
+    assert len(result['ignored']) == 0
+    assert result['created'][0].instanceid == data[0]['instanceid']
+    assert result['created'][1].instanceid == data[1]['instanceid']
+
+    # Run it again and it should ignore one of these records.
+
+    data = [
+        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1' },
+        {'instanceid': 'instance4', 'testing-dashes-Id10007': 'name 4' },
+    ]
+
+    df = pandas.DataFrame.from_records(data)
+
+    result = load_records_from_dataframe(df)
+
+    assert len(result['created']) == 1
+    assert len(result['ignored']) == 1
+    assert result['ignored'][0].instanceid == data[0]['instanceid']
+    assert result['created'][0].instanceid == data[1]['instanceid']
 
 
 
@@ -52,15 +89,16 @@ def test_loading_from_dataframe_with_key():
 
     result = load_records_from_dataframe(df)
 
-    assert len(result['verbal_autopsies']) == 2
+    assert len(result['created']) == 2
+    assert len(result['ignored']) == 0
 
-    assert result['verbal_autopsies'][0].instanceid == data[0]['key']
-    assert result['verbal_autopsies'][0].Id10007 == data[0]['testing-dashes-Id10007']
-    assert result['verbal_autopsies'][0].location == loc
+    assert result['created'][0].instanceid == data[0]['key']
+    assert result['created'][0].Id10007 == data[0]['testing-dashes-Id10007']
+    assert result['created'][0].location == loc
 
-    assert result['verbal_autopsies'][1].instanceid == data[1]['key']
-    assert result['verbal_autopsies'][1].Id10007 == data[1]['testing-dashes-Id10007']
-    assert result['verbal_autopsies'][1].location == loc
+    assert result['created'][1].instanceid == data[1]['key']
+    assert result['created'][1].Id10007 == data[1]['testing-dashes-Id10007']
+    assert result['created'][1].location == loc
 
 
 def test_load_va_csv_command():
@@ -74,7 +112,6 @@ def test_load_va_csv_command():
     assert VerbalAutopsy.objects.count() == 0
 
     output = StringIO()
-
     call_command(
         "load_va_csv", 
         str(test_data.absolute()), 
@@ -82,7 +119,7 @@ def test_load_va_csv_command():
         stderr=output,
     )
 
-    assert output.getvalue().startswith("Loaded 3 verbal autopsies")
+    assert output.getvalue().strip() == "Loaded 3 verbal autopsies (0 ignored)"
     assert VerbalAutopsy.objects.get(instanceid='instance1').Id10007 == 'name1'
     assert VerbalAutopsy.objects.get(instanceid='instance2').Id10007 == 'name2'
     assert VerbalAutopsy.objects.get(instanceid='instance3').Id10007 == 'name3'

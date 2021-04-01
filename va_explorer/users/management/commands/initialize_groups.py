@@ -27,7 +27,7 @@ GROUPS_PERMISSIONS = {
     "Field Workers": {
         Dashboard: [],
         User: [],
-        VerbalAutopsy: []
+        VerbalAutopsy: ["view"]
     },
 }
 

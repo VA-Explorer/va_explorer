@@ -19,6 +19,7 @@ class Command(BaseCommand):
 
         results = load_records_from_dataframe(csv_data)
 
-        num_total = len(results['verbal_autopsies'])
+        num_created = len(results['created'])
+        num_ignored = len(results['ignored'])
 
-        self.stdout.write(f'Loaded {num_total} verbal autopsies')
+        self.stdout.write(f'Loaded {num_created} verbal autopsies ({num_ignored} ignored)')

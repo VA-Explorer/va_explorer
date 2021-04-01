@@ -260,6 +260,30 @@ In addition to pyCrossVA and InterVA5, this functionality requires that Celery i
 
 Clicking the "Run Coding Algorithms" will execute the coding algorithms in the background using Celery. You will not receive an error on the user interface if the process is not successful. To check for errors, you will need to view the Celery logs.
 
+## Importing From ODK
+
+You can use the `import_from_odk` management command to import records from an ODK server like so. You must specify either project-name or project-id to import:
+
+```
+./manage.py import_from_odk --project-id=1234
+# or
+./manage.py import_from_odk --project-name=zambia-test
+```
+
+This depends on the following environment variables being set:
+
+```
+ODK_HOST=https://odk-server
+ODK_EMAIL=example@example.com
+ODK_PASSWORD=example
+```
+
+Alternatively, you can specify email and pasword as command line arguments:
+
+```
+./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
+```
+
 ## Version History
 
 This project adheres to [Semantic Versioning](http://semver.org/).
