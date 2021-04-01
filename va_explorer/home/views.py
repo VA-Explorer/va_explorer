@@ -41,7 +41,7 @@ class Index(CustomAuthMixin, TemplateView):
         vas_24_hours = user_vas.filter(created__gte=today)
         vas_1_week = user_vas.filter(created__gte=today - timedelta(days=7))
         vas_1_month = user_vas.filter(created__gte=today - relativedelta(months=1))
-        vas_overall = user_vas
+        vas_overall = user_vas.order_by('id')
 
         # VAs collected in the past 24 hours, 1 week, and 1 month
         context['vas_collected_24_hours'] = vas_24_hours.count()
