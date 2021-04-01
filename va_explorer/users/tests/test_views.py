@@ -32,7 +32,7 @@ class TestUserRedirectView:
 
         view.request = request
 
-        assert view.get_redirect_url() == f"/users/{user.id}/"
+        assert view.get_redirect_url() == "/"
 
 
 class TestUserDetailView:

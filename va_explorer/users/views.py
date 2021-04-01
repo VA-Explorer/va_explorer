@@ -130,7 +130,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self):
         if self.request.user.has_valid_password:
-            return reverse("users:detail", kwargs={"pk": self.request.user.id})
+            return reverse("home:index")
         return reverse_lazy("users:set_password")
 
 
