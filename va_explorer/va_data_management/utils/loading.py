@@ -20,10 +20,14 @@ def load_records_from_dataframe(record_df):
     fieldCaseMapper = {field.lower(): field for field in model_field_names} 
     record_df.rename(columns=lambda c: fieldCaseMapper.get(c.lower(), c), inplace=True)
 
+    # Lowercase the instanceID column that can come from ODK as "instanceID".
+    if 'intanceID' in record_df.columns:
+        record_df = record_df.rename(columns={'instanceID': 'instanceid'})
+
     # If there is not an instanceid column but there is a key column,
     # populate instanceid field with key value.
     if 'instanceid' not in record_df.columns and 'key' in record_df.columns:
-            record_df = record_df.rename(columns={'key': 'instanceid'})
+        record_df = record_df.rename(columns={'key': 'instanceid'})
             
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
@@ -34,13 +38,28 @@ def load_records_from_dataframe(record_df):
     extra_field_names = csv_field_names.difference(common_field_names)
     record_df = record_df[common_field_names]
 
-    # Populate the database!
-    verbal_autopsies = [VerbalAutopsy(**row) for row in record_df.to_dict(orient='records')]
-    # TODO: For now treat this as synthetic data and randomly assign a facility as the location
-    for va in verbal_autopsies:
+    # For each row, check to see if there is an instanceid.
+    # If there is instanceid, try to find existing VA with that instanceid.
+    # If row does not have an instanceid, it will create a new VA.
+    # Build a list of VAs to create and a list of VAs to ignore (that already exist).
+    ignored_vas = []
+    created_vas = []
+    for row in record_df.to_dict(orient='records'):
+        if row['instanceid']:
+            existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
+            if existing_va:
+                ignored_vas.append(existing_va)
+                continue
+
+        # If we got here, we need to create a new VA.
+        # TODO: For now treat location as synthetic data and randomly assign a facility as the location
+        va = VerbalAutopsy(**row)
         va.location = Location.objects.filter(location_type='facility').order_by('?').first()
-    bulk_create_with_history(verbal_autopsies, VerbalAutopsy)
+        created_vas.append(va)
+
+    bulk_create_with_history(created_vas, VerbalAutopsy)
 
     return {
-        'verbal_autopsies': verbal_autopsies,
+        'ignored': ignored_vas,
+        'created': created_vas,
     }
