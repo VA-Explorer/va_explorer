@@ -10,6 +10,9 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       <li class="nav-item">
+        <a class="{% active '^\/$' %} nav-link" href="{% url 'home:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
         <a class="{% active 'about' %} nav-link" href="{% url 'home:about' %}">About</a>
       </li>
       {% if perms.users.view_user %}
