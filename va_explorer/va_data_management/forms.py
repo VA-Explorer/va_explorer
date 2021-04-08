@@ -1,6 +1,10 @@
 from django import forms
 from datetime import datetime
 from .models import VerbalAutopsy
+from va_explorer.va_data_management.utils.validate import parse_date
+from config.settings.base import DATE_FORMATS
+
+
 
 class VerbalAutopsyForm(forms.ModelForm):
 
@@ -30,8 +34,8 @@ def validate_date_format(form, Id10023):
     # TODO add a date picker to the form so we don't have to check the string format
     if Id10023 != "dk":
         try: 
-            datetime.strptime(Id10023, "%Y-%m-%d")
+            parse_date(Id10023)
         except ValueError:
             form._errors["Id10023"] = form.error_class(
-                ["Field Id10023 must be in the format yyyy-mm-dd or \"dk\" if unknown"]
+                [f"Field Id10023 must be in \"dk\" if unknown or in one of following date formats: {list(DATE_FORMATS.values())}"]
             )

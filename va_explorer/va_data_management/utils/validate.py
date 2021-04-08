@@ -1,10 +1,12 @@
 import pandas
 from simple_history.utils import bulk_create_with_history
+from datetime import datetime
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import VaUsername
+from config.settings.base import DATE_FORMATS
 
 
 def validate_vas_for_dashboard(verbal_autopsies):
@@ -31,7 +33,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # Validate: ageInYears
         # ageInYears is required for calculating mean age of death
         try:
-            age = int(va.ageInYears)
+            age = int(float(va.ageInYears))
         except:
             issue_text = "Warning: field ageInYears, age was not provided or not a number."
             severity = "warning"
@@ -94,3 +96,12 @@ def validate_vas_for_dashboard(verbal_autopsies):
                     issues.append(issue)  
 
     CauseCodingIssue.objects.bulk_create(issues)
+
+# helper method to parse dates in a variety of formats
+def parse_date(date_str, formats=DATE_FORMATS.keys()):
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            pass
+    raise ValueError(f'no valid date format found for date string {date_str}')

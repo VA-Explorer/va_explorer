@@ -13,7 +13,7 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -45,7 +45,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
-            "date": datetime.strptime(va.Id10023, "%Y-%m-%d").strftime("%m/%d/%Y") if (va.Id10023 != "dk") else "Unknown", #django stores the date in yyyy-mm-dd
+            "date": parse_date(va.Id10023).strftime("%m/%d/%Y") if (va.Id10023 != "dk") else "Unknown", #django stores the date in yyyy-mm-dd
             "facility": va.location.name,
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
@@ -53,6 +53,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         } for va in context['object_list']]
 
         return context
+
 
 
 # Mixin just for the individual verbal autopsy data management views to restrict access based on user

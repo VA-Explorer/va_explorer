@@ -15,12 +15,19 @@ env.read_env(str(ROOT_DIR / ".env"))
 # General
 
 TIME_ZONE = "UTC"
+# accepted date formats for VA records
+DATE_FORMATS = {"%Y-%m-%d": "yyyy-mm-dd",
+                "%m/%d/%Y": "mm/dd/yyyy",
+                "%m/%d/%y": "mm/dd/yy",
+                "%d/%m/%Y": "dd/mm/yyyy",
+                "%d/%m/%y": "dd/mm/yy"}
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 LOCALE_PATHS = [str(ROOT_DIR / "locale")]
+
 
 # Databases
 
