@@ -294,6 +294,8 @@ Releases are documented in the [CHANGELOG]().
 
 Copyright 2020-2021 The MITRE Corporation
 
+The source of this information is the Data for Health Initiative, a joint project of the CDC Foundation and Bloomberg Philanthropies.
+
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
 ```
