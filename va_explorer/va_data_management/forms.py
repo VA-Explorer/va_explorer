@@ -34,7 +34,7 @@ def validate_date_format(form, Id10023):
     # TODO add a date picker to the form so we don't have to check the string format
     if Id10023 != "dk":
         try: 
-            parse_date(Id10023)
+            parse_date(Id10023, strict=True)
         except ValueError:
             form._errors["Id10023"] = form.error_class(
                 [f"Field Id10023 must be in \"dk\" if unknown or in one of following date formats: {list(DATE_FORMATS.values())}"]

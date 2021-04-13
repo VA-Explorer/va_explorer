@@ -42,7 +42,7 @@ def test_loading_from_dataframe():
 def test_loading_from_dataframe_with_ignored():
     # Location gets assigned automatically/randomly.
     # If that changes in loading.py we'll need to change that here too.
-    loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    loc = Location.add_root(name='test location', location_type='facility')
 
     data = [
         {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1' },
@@ -79,7 +79,7 @@ def test_loading_from_dataframe_with_ignored():
 def test_loading_from_dataframe_with_key():
     # Location gets assigned automatically/randomly if Id10058 is not a facility
     # If that changes in loading.py it needs to change here too
-    loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    loc = Location.add_root(name='test location', location_type='facility')
 
     data = [
         {'key': 'instance1', 'testing-dashes-Id10007': 'name 1', 'Id10058': 'test location'},
@@ -99,13 +99,13 @@ def test_loading_from_dataframe_with_key():
 
     assert result['created'][1].instanceid == data[1]['key']
     assert result['created'][1].Id10007 == data[1]['testing-dashes-Id10007']
-    assert result['created'][1].location == loc
+    assert result['created'][1].location.name == 'Unknown'
 
 
 def test_load_va_csv_command():
     # Location gets assigned automatically/randomly if Id10058 is not a facility
     # If that changes in loading.py it needs to change here too
-    Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    loc = Location.add_root(name='test location', location_type='facility')
 
     # Find path to data file
     test_data = Path(__file__).parent / 'test-input-data.csv'

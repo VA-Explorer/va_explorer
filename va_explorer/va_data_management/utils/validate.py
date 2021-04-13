@@ -1,4 +1,4 @@
-import pandas
+import pandas as pd
 from simple_history.utils import bulk_create_with_history
 from datetime import datetime
 
@@ -24,8 +24,10 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # Validate: date of death
         # Id10023 is required for the dashboard time frame filters
         # the VA form guarantees this field is either "dk" or a valid datetime.date value
-        if va.Id10023 == "dk":
-            issue_text = "Error: field Id10023, date of death is unknown."
+        try:
+            death_date = parse_date(va.Id10023, strict=True)
+        except:
+            issue_text = f"Error: field Id10023, couldn't parse date from {va.Id10023}"
             severity = "error"
             issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
             issues.append(issue)
@@ -98,10 +100,18 @@ def validate_vas_for_dashboard(verbal_autopsies):
     CauseCodingIssue.objects.bulk_create(issues)
 
 # helper method to parse dates in a variety of formats
-def parse_date(date_str, formats=DATE_FORMATS.keys()):
-    for fmt in formats:
-        try:
-            return datetime.strptime(date_str, fmt)
-        except ValueError:
-            pass
-    raise ValueError(f'no valid date format found for date string {date_str}')
+def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False):
+    if not date_str or len(date_str) == 0 or date_str.lower() == 'dk':
+        return 'dk'
+    else:
+        for fmt in formats:
+            try:
+                return datetime.strptime(date_str, fmt).date()
+            except ValueError:
+                pass
+        # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
+        if strict:
+            raise ValueError(f'no valid date format found for date string {date_str}')
+        else:
+            return str(date_str)
+        

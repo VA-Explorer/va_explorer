@@ -54,6 +54,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # Build a list of VAs to create and a list of VAs to ignore (that already exist).
     ignored_vas = []
     created_vas = []
+    date_issue_ids = []
     
     # if random locations, assign random locations via a random field worker.
     if random_locations:
@@ -64,7 +65,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
             make_field_workers_for_facilities()
             valid_usernames = VaUsername.objects.exclude(va_username__exact='')            
 
-    for row in record_df.to_dict(orient='records'):
+    for i, row in enumerate(record_df.to_dict(orient='records')):
         if row['instanceid']:
             existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
             if existing_va:
@@ -77,16 +78,14 @@ def load_records_from_dataframe(record_df, random_locations=False):
         created_vas.append(va)
 
 
-        # Try to parse date of death as as datetime. Otherwise, retrain string and record issue
+        # Try to parse date of death as as datetime. Otherwise, add to date issues if row has instance id
         try:
-            va.Id10023 = parse_date(va.Id10023)
+            va.Id10023 = parse_date(va.Id10023, strict=True)
         except:
-            va.Id10023 = str(va.Id10023)
-            issue_text = f"Error: could not parse date of death from {va.Id10023}"
-            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="error", algorithm='', settings='')
-            issue.save()
+            if row['instanceid']:
+                date_issue_ids.append(row['instanceid'])
 
-            
+
         # if random_locations, assign random field worker to VA which can be used to determine location
         if random_locations:
             username = valid_usernames.order_by('?').first()
@@ -99,9 +98,9 @@ def load_records_from_dataframe(record_df, random_locations=False):
             known_facility = Location.objects.filter(location_type='facility', name=location).first()
             if known_facility is not None:
                 va.location = known_facility
-            # otherwise, set location to 'Unknown'
+            # otherwise, set location to 'Unknown' (null)
             else:
-                va.location = Location.objects.filter(name='Unknown').first()
+                va.set_null_location()
 
         created_vas.append(va)
 
@@ -110,6 +109,20 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
 
+#=======
+#    bulk_create_with_history(created_vas, VerbalAutopsy)
+#    
+#    # if any date issues, try to report them now that VAs are tagged
+#    for issue_id in date_issue_ids:
+#        # only create an issue if we can find VA via instanceid
+#        bad_va = VerbalAutopsy.objects.filter(instanceid=issue_id).first()
+#        if bad_va:
+#            issue_text = f"Error: field Id10023, couldn't parse date from {bad_va.Id10023}"
+#            issue = CauseCodingIssue(verbalautopsy_id=bad_va.id, text=issue_text, severity='error', algorithm='', settings='')
+#            issue.save()
+#
+#        
+#>>>>>>> added more rubust date parsing and got all tests to work
 
     return {
         'ignored': ignored_vas,

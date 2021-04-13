@@ -29,6 +29,7 @@ class Location(MP_Node):
 
     def parent_id(self):
         return self.get_parent().id
+            
 
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
@@ -612,9 +613,25 @@ class VerbalAutopsy(models.Model):
                     # set the user's first location as the default
                     location = locations.first()
         if location is None:
-            # TODO create a default "Unknown" location for this case
-            location = Location.objects.filter(location_type='facility').order_by('?').first()
+            location = self.set_null_location()
         self.location = location
+        
+    def set_null_location(self, null_name="Unknown"):
+        # to handle passing null_name=None
+        if not null_name:
+            null_name = "Unknown"
+        # first, check if null location exists. If not, create one. 
+        null_location = Location.objects.filter(name=null_name).first()
+        if not null_location:
+            # if no locations, make null location root. Otherwise, add child to root
+            if not Location.objects.exists():
+                Location.add_root(name=null_name, location_type="facility")
+            else:
+                Location.objects.first().add_child(name=null_name, location_type="facility")
+            # find new location we just created
+            null_location = Location.objects.get(name=null_name)
+        self.location = null_location
+        
   
 
 class CauseOfDeath(models.Model):
