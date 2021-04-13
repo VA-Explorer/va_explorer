@@ -45,7 +45,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
         if va.age_group != "adult" and va.age_group != "neonate" and va.age_group != "child":
             if va.isNeonatal1 != 1 and va.isChild1 != 1 and va.isAdult1 != 1:
                 try:
-                    age = int(va.ageInYears)
+                    age = int(float(va.ageInYears))
                 except:
                     issue_text = "Warning: field age_group, no relevant data was found in fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
                     severity = "warning"

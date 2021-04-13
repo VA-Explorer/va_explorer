@@ -20,7 +20,8 @@ DATE_FORMATS = {"%Y-%m-%d": "yyyy-mm-dd",
                 "%m/%d/%Y": "mm/dd/yyyy",
                 "%m/%d/%y": "mm/dd/yy",
                 "%d/%m/%Y": "dd/mm/yyyy",
-                "%d/%m/%y": "dd/mm/yy"}
+                "%d/%m/%y": "dd/mm/yy", 
+                "%Y-%m-%d %H:%M:%S": "yyyy-mm-dd HH:MM:SS"}
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
 USE_I18N = True

@@ -1,0 +1,97 @@
+Attaching to va_explorer_interva5_1
+[36minterva5_1      |[0m ARGUMENT 'api.R' __ignored__
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R version 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
+[36minterva5_1      |[0m Copyright (C) 2020 The R Foundation for Statistical Computing
+[36minterva5_1      |[0m Platform: x86_64-pc-linux-gnu (64-bit)
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R is free software and comes with ABSOLUTELY NO WARRANTY.
+[36minterva5_1      |[0m You are welcome to redistribute it under certain conditions.
+[36minterva5_1      |[0m Type 'license()' or 'licence()' for distribution details.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R is a collaborative project with many contributors.
+[36minterva5_1      |[0m Type 'contributors()' for more information and
+[36minterva5_1      |[0m 'citation()' on how to cite R or R packages in publications.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m Type 'demo()' for some demos, 'help()' for on-line help, or
+[36minterva5_1      |[0m 'help.start()' for an HTML browser interface to help.
+[36minterva5_1      |[0m Type 'q()' to quit R.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m > pr <- plumber::plumb(rev(commandArgs())[1]); pr$run(host='0.0.0.0', port=8000, swagger=TRUE)
+[36minterva5_1      |[0m Starting server to listen on port 5002
+[36minterva5_1      |[0m Running the swagger UI at http://127.0.0.1:5002/__swagger__/
+[36minterva5_1      |[0m Using Probbase version:  probbase v18 20200403
+[36minterva5_1      |[0m ..........10% completed
+[36minterva5_1      |[0m ..........20% completed
+[36minterva5_1      |[0m ..........30% completed
+[36minterva5_1      |[0m ..........40% completed
+[36minterva5_1      |[0m ..........50% completed
+[36minterva5_1      |[0m ...........60% completed
+[36minterva5_1      |[0m ..........70% completed
+[36minterva5_1      |[0m ..........80% completed
+[36minterva5_1      |[0m ..........90% completed
+[36minterva5_1      |[0m ..........100% completed
+[36minterva5_1      |[0m ARGUMENT 'api.R' __ignored__
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R version 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
+[36minterva5_1      |[0m Copyright (C) 2020 The R Foundation for Statistical Computing
+[36minterva5_1      |[0m Platform: x86_64-pc-linux-gnu (64-bit)
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R is free software and comes with ABSOLUTELY NO WARRANTY.
+[36minterva5_1      |[0m You are welcome to redistribute it under certain conditions.
+[36minterva5_1      |[0m Type 'license()' or 'licence()' for distribution details.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R is a collaborative project with many contributors.
+[36minterva5_1      |[0m Type 'contributors()' for more information and
+[36minterva5_1      |[0m 'citation()' on how to cite R or R packages in publications.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m Type 'demo()' for some demos, 'help()' for on-line help, or
+[36minterva5_1      |[0m 'help.start()' for an HTML browser interface to help.
+[36minterva5_1      |[0m Type 'q()' to quit R.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m > pr <- plumber::plumb(rev(commandArgs())[1]); pr$run(host='0.0.0.0', port=8000, swagger=TRUE)
+[36minterva5_1      |[0m Starting server to listen on port 5002
+[36minterva5_1      |[0m Running the swagger UI at http://127.0.0.1:5002/__swagger__/
+[36minterva5_1      |[0m Using Probbase version:  probbase v18 20200403
+[36minterva5_1      |[0m ..........10% completed
+[36minterva5_1      |[0m ..........20% completed
+[36minterva5_1      |[0m ..........30% completed
+[36minterva5_1      |[0m ..........40% completed
+[36minterva5_1      |[0m ..........50% completed
+[36minterva5_1      |[0m ...........60% completed
+[36minterva5_1      |[0m ..........70% completed
+[36minterva5_1      |[0m ..........80% completed
+[36minterva5_1      |[0m ..........90% completed
+[36minterva5_1      |[0m ..........100% completed
+[36minterva5_1      |[0m ARGUMENT 'api.R' __ignored__
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R version 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
+[36minterva5_1      |[0m Copyright (C) 2020 The R Foundation for Statistical Computing
+[36minterva5_1      |[0m Platform: x86_64-pc-linux-gnu (64-bit)
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R is free software and comes with ABSOLUTELY NO WARRANTY.
+[36minterva5_1      |[0m You are welcome to redistribute it under certain conditions.
+[36minterva5_1      |[0m Type 'license()' or 'licence()' for distribution details.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m R is a collaborative project with many contributors.
+[36minterva5_1      |[0m Type 'contributors()' for more information and
+[36minterva5_1      |[0m 'citation()' on how to cite R or R packages in publications.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m Type 'demo()' for some demos, 'help()' for on-line help, or
+[36minterva5_1      |[0m 'help.start()' for an HTML browser interface to help.
+[36minterva5_1      |[0m Type 'q()' to quit R.
+[36minterva5_1      |[0m 
+[36minterva5_1      |[0m > pr <- plumber::plumb(rev(commandArgs())[1]); pr$run(host='0.0.0.0', port=8000, swagger=TRUE)
+[36minterva5_1      |[0m Starting server to listen on port 5002
+[36minterva5_1      |[0m Running the swagger UI at http://127.0.0.1:5002/__swagger__/
+[36minterva5_1      |[0m Using Probbase version:  probbase v18 20200403
+[36minterva5_1      |[0m ........10% completed
+[36minterva5_1      |[0m .........20% completed
+[36minterva5_1      |[0m ........29% completed
+[36minterva5_1      |[0m .........39% completed
+[36minterva5_1      |[0m ........49% completed
+[36minterva5_1      |[0m .........59% completed
+[36minterva5_1      |[0m ........68% completed
