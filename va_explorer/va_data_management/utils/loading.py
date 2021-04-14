@@ -79,11 +79,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
 
 
         # Try to parse date of death as as datetime. Otherwise, add to date issues if row has instance id
-        try:
-            va.Id10023 = parse_date(va.Id10023, strict=True)
-        except:
-            if row['instanceid']:
-                date_issue_ids.append(row['instanceid'])
+        va.Id10023 = parse_date(va.Id10023, strict=False)
 
 
         # if random_locations, assign random field worker to VA which can be used to determine location
@@ -101,8 +97,6 @@ def load_records_from_dataframe(record_df, random_locations=False):
             # otherwise, set location to 'Unknown' (null)
             else:
                 va.set_null_location()
-
-        created_vas.append(va)
 
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
     
