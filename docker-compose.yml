@@ -33,7 +33,7 @@ services:
       EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_HOST: ${POSTGRES_HOST:-vapostgres}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -66,7 +66,7 @@ services:
     image: va_explorer/flower
     command: /start-celeryflower
 
-  postgres:
+  vapostgres:
     image: va_explorer/postgres
     build:
       context: .
