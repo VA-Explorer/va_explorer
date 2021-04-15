@@ -103,21 +103,6 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
 
-#=======
-#    bulk_create_with_history(created_vas, VerbalAutopsy)
-#    
-#    # if any date issues, try to report them now that VAs are tagged
-#    for issue_id in date_issue_ids:
-#        # only create an issue if we can find VA via instanceid
-#        bad_va = VerbalAutopsy.objects.filter(instanceid=issue_id).first()
-#        if bad_va:
-#            issue_text = f"Error: field Id10023, couldn't parse date from {bad_va.Id10023}"
-#            issue = CauseCodingIssue(verbalautopsy_id=bad_va.id, text=issue_text, severity='error', algorithm='', settings='')
-#            issue.save()
-#
-#        
-#>>>>>>> added more rubust date parsing and got all tests to work
-
     return {
         'ignored': ignored_vas,
         'created': created_vas,

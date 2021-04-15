@@ -55,5 +55,5 @@ def create_demo_field_worker(worker_id, facility=None):
         # save/export final user
         user.save()
         
-        print(f"Successfully field worker with {username} for {facility.name}")
+        print(f"Successfully created field worker with username {username} for facility {facility.name}")
         
