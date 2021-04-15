@@ -203,7 +203,7 @@ EMAIL_PORT = email_config['EMAIL_PORT']
 EMAIL_FILE_PATH = email_config['EMAIL_FILE_PATH']
 EMAIL_TIMEOUT = 5
 
-DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="VA Explorer <noreply@va_explorer.org>")
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="VA Explorer <noreply@vaexplorer.org>")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
