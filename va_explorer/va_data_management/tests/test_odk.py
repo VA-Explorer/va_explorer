@@ -168,7 +168,7 @@ def test_import_from_odk_command(requests_mock, project_arg):
 
     # Location gets assigned automatically/randomly.
     # If that changes in loading.py we'll need to change that here too.
-    Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    Location.add_root(name='test location', location_type='facility')
 
     assert VerbalAutopsy.objects.count() == 0
 

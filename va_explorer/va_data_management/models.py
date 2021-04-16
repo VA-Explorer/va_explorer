@@ -29,6 +29,7 @@ class Location(MP_Node):
 
     def parent_id(self):
         return self.get_parent().id
+            
 
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
@@ -595,6 +596,43 @@ class VerbalAutopsy(models.Model):
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
+    def clean(self):
+        # Determine location from Id10058 or the user
+        # Id10058 may match a known facility, but if not we will user the interviewer's location as the default
+        location = None
+        if self.Id10058:
+            known_facility = Location.objects.filter(location_type='facility', name=self.Id10058).first()
+            if known_facility is not None:
+                location = known_facility
+        if location is None and self.username:
+            username = self.username
+            va_user = VaUsername.objects.filter(va_username=username).first()
+            if username != "" and va_user is not None:
+                locations = va_user.user.location_restrictions
+                if  locations.count() > 0:
+                    # set the user's first location as the default
+                    location = locations.first()
+        if location is None:
+            location = self.set_null_location()
+        self.location = location
+        
+    def set_null_location(self, null_name="Unknown"):
+        # to handle passing null_name=None
+        if not null_name:
+            null_name = "Unknown"
+        # first, check if null location exists. If not, create one. 
+        null_location = Location.objects.filter(name=null_name).first()
+        if not null_location:
+            # if no locations, make null location root. Otherwise, add child to root
+            if not Location.objects.exists():
+                Location.add_root(name=null_name, location_type="facility")
+            else:
+                Location.objects.first().add_child(name=null_name, location_type="facility")
+            # find new location we just created
+            null_location = Location.objects.get(name=null_name)
+        self.location = null_location
+        
+  
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)

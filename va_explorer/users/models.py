@@ -138,7 +138,8 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         # TODO: May need to be changed depending on how username comes in from ODK?
-        self.username = self.email
+        if not self.username:
+            self.username = self.email
         super(User, self).save(*args, **kwargs)
         if self.original_password != self.password:
             UserPasswordHistory.remember_password(self)

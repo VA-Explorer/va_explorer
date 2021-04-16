@@ -8,6 +8,15 @@
 <div class="row mt-4">
 <form method="POST" action="{% url 'data_management:edit' id=id %}">
   {% csrf_token %}
+  {% if form.errors %}
+      {% for field in form %}
+
+           {% for error in field.errors %}
+            <b class="text-danger">{{field.name}}: {{ error|escape }}</b>
+           {% endfor %}
+
+      {% endfor %}
+  {% endif %}
   {% for field in form %}
     <div class="form-group row">
       <div class="col-sm-2">

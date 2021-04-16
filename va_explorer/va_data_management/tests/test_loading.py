@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pandas
 import pytest
+import datetime
 from django.core.management import call_command
 
 from va_explorer.va_data_management.models import Location
@@ -13,13 +14,13 @@ pytestmark = pytest.mark.django_db
 
 
 def test_loading_from_dataframe():
-    # Location gets assigned automatically/randomly.
-    # If that changes in loading.py we'll need to change that here too.
+    # Location gets assigned with field Id10058 by name or by the user's default location
+    # TODO create a test that assigns location by the username
     loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
 
     data = [
-        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1' },
-        {'instanceid': 'instance2', 'testing-dashes-Id10007': 'name 2' },
+        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1', 'Id10023':'03/01/2021', 'Id10058': 'test location'},
+        {'instanceid': 'instance2', 'testing-dashes-Id10007': 'name 2', 'Id10023': 'dk', 'Id10058': 'test location' },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -41,7 +42,7 @@ def test_loading_from_dataframe():
 def test_loading_from_dataframe_with_ignored():
     # Location gets assigned automatically/randomly.
     # If that changes in loading.py we'll need to change that here too.
-    loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    loc = Location.add_root(name='test location', location_type='facility')
 
     data = [
         {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1' },
@@ -76,13 +77,13 @@ def test_loading_from_dataframe_with_ignored():
 
 
 def test_loading_from_dataframe_with_key():
-    # Location gets assigned automatically/randomly.
-    # If that changes in loading.py we'll need to change that here too.
-    loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    # Location gets assigned automatically/randomly if Id10058 is not a facility
+    # If that changes in loading.py it needs to change here too
+    loc = Location.add_root(name='test location', location_type='facility')
 
     data = [
-        {'key': 'instance1', 'testing-dashes-Id10007': 'name 1' },
-        {'key': 'instance2', 'testing-dashes-Id10007': 'name 2' },
+        {'key': 'instance1', 'testing-dashes-Id10007': 'name 1', 'Id10058': 'test location'},
+        {'key': 'instance2', 'testing-dashes-Id10007': 'name 2', 'Id10058': 'home' },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -98,13 +99,13 @@ def test_loading_from_dataframe_with_key():
 
     assert result['created'][1].instanceid == data[1]['key']
     assert result['created'][1].Id10007 == data[1]['testing-dashes-Id10007']
-    assert result['created'][1].location == loc
+    assert result['created'][1].location.name == 'Unknown'
 
 
 def test_load_va_csv_command():
-    # Location gets assigned automatically/randomly.
-    # If that changes in loading.py we'll need to change that here too.
-    Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    # Location gets assigned automatically/randomly if Id10058 is not a facility
+    # If that changes in loading.py it needs to change here too
+    loc = Location.add_root(name='test location', location_type='facility')
 
     # Find path to data file
     test_data = Path(__file__).parent / 'test-input-data.csv'
@@ -123,3 +124,5 @@ def test_load_va_csv_command():
     assert VerbalAutopsy.objects.get(instanceid='instance1').Id10007 == 'name1'
     assert VerbalAutopsy.objects.get(instanceid='instance2').Id10007 == 'name2'
     assert VerbalAutopsy.objects.get(instanceid='instance3').Id10007 == 'name3'
+
+# TODO add tests for date of death, location, and age_group

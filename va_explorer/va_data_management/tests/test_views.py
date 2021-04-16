@@ -92,11 +92,12 @@ def test_save_with_valid_permissions(user: User):
     va = VerbalAutopsyFactory.create()
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == new_name
+    assert va.Id10023 == "2021-03-01"
     assert va.history.count() == 2
     assert va.history.first().history_user == user
     response = client.get(f"/va_data_management/show/{va.id}")
@@ -104,6 +105,20 @@ def test_save_with_valid_permissions(user: User):
     assert bytes(va.history.first().history_date.strftime('%Y-%m-%d %H:%M'), "utf-8") in response.content
     assert bytes(va.history.first().history_user.name, "utf-8") in response.content
 
+# Update a VA and make sure there is no redirect, TODO check form.errors or create separate form test to make this more accurate
+def test_save_with_invalid_date_format(user: User):
+    can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
+    can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
+    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record])
+    user = UserFactory.create(groups=[can_edit_view_record_group])
+
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create()
+    assert va.history.count() == 1
+    new_name = "Updated Example Name"
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name, "Id10023":"21-03-01", "Id10058": va.location.name })
+    assert response.status_code == 200
 
 # Verify save access is restricted
 def test_save_without_valid_permissions(user: User):
@@ -112,6 +127,7 @@ def test_save_without_valid_permissions(user: User):
     va = VerbalAutopsyFactory.create()
     assert va.history.count() == 1
     new_name = "Updated Example Name"
+    location = va.location
     response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
     assert response.status_code == 403
 
@@ -126,8 +142,9 @@ def test_reset_with_valid_permissions(user: User):
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create()
     original_name = va.Id10007
+    original_dod = va.Id10023
     new_name = "Updated Name"
-    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == new_name
     assert va.history.count() == 2
@@ -137,6 +154,7 @@ def test_reset_with_valid_permissions(user: User):
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == original_name
+    assert va.Id10023 == original_dod
     assert va.history.count() == 3
     assert va.history.first().history_user == user
 
@@ -162,13 +180,15 @@ def test_revert_latest_with_valid_permissions(user: User):
     original_name = va.Id10007
     second_name = "Second Name"
     third_name = "Third Name"
-    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": second_name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": second_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == second_name
+    assert va.Id10023 == "2021-03-01"
     assert va.history.count() == 2
-    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": third_name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": third_name, "Id10023":"2021-03-02", "Id10058": va.location.name })
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == third_name
+    assert va.Id10023 == "2021-03-02"
     assert va.history.count() == 3
     # TODO: Switch the buttons to forms in show.html and make this a POST.
     response = client.get(f"/va_data_management/revert_latest/{va.id}")
@@ -176,6 +196,7 @@ def test_revert_latest_with_valid_permissions(user: User):
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
     assert va.Id10007 == second_name
+    assert va.Id10023 == "2021-03-01"
     assert va.history.count() == 4
     assert va.history.first().history_user == user
 

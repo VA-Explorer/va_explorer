@@ -1,11 +1,21 @@
 import pandas
 from simple_history.utils import bulk_create_with_history
+from datetime import datetime
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import VaUsername
+from va_explorer.va_data_management.models import CauseCodingIssue
 
+from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
 
-def load_records_from_dataframe(record_df):
+from django.contrib.auth import get_user_model
+
+from va_explorer.users.utils import make_field_workers_for_facilities
+
+User = get_user_model()
+
+def load_records_from_dataframe(record_df, random_locations=False):
     # CSV can prefix column names with a strings and a dash or more. Examples:
     #     presets-Id10004
     #     respondent-backgr-Id10008
@@ -44,7 +54,18 @@ def load_records_from_dataframe(record_df):
     # Build a list of VAs to create and a list of VAs to ignore (that already exist).
     ignored_vas = []
     created_vas = []
-    for row in record_df.to_dict(orient='records'):
+    date_issue_ids = []
+    
+    # if random locations, assign random locations via a random field worker.
+    if random_locations:
+        valid_usernames = VaUsername.objects.exclude(va_username__exact='')
+        # if no field workers with usernames, create some
+        if len(valid_usernames) <= 1:
+            print('WARNING: no field workers w/ usernames in system. Generating random ones now...')
+            make_field_workers_for_facilities()
+            valid_usernames = VaUsername.objects.exclude(va_username__exact='')            
+
+    for i, row in enumerate(record_df.to_dict(orient='records')):
         if row['instanceid']:
             existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
             if existing_va:
@@ -52,14 +73,38 @@ def load_records_from_dataframe(record_df):
                 continue
 
         # If we got here, we need to create a new VA.
-        # TODO: For now treat location as synthetic data and randomly assign a facility as the location
         va = VerbalAutopsy(**row)
         va.location = Location.objects.filter(location_type='facility').order_by('?').first()
         created_vas.append(va)
 
-    bulk_create_with_history(created_vas, VerbalAutopsy)
+
+        # Try to parse date of death as as datetime. Otherwise, add to date issues if row has instance id
+        va.Id10023 = parse_date(va.Id10023, strict=False)
+
+
+        # if random_locations, assign random field worker to VA which can be used to determine location
+        if random_locations:
+            username = valid_usernames.order_by('?').first()
+            user = User.objects.get(pk=username.user_id)
+            va.username = username.va_username
+            va.location = user.location_restrictions.first()
+        else:
+            # check if the place of of death is a known facility
+            location = va.Id10058
+            known_facility = Location.objects.filter(location_type='facility', name=location).first()
+            if known_facility is not None:
+                va.location = known_facility
+            # otherwise, set location to 'Unknown' (null)
+            else:
+                va.set_null_location()
+
+    new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
+    
+    # Add any errors to the db
+    validate_vas_for_dashboard(new_vas)
 
     return {
         'ignored': ignored_vas,
         'created': created_vas,
     }
+

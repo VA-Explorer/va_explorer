@@ -41,11 +41,25 @@ class LocationFactory(DjangoModelFactory):
     location_type = "province"
     path = "0001"
 
+class LocationFacilityFactory(DjangoModelFactory):
+    class Meta:
+        model = Location
+
+    # Create a root node by default
+    name = Faker("city")
+    depth = 1
+    numchild = 0
+    location_type = "facility"
+    path = "0001"
+
 class VerbalAutopsyFactory(DjangoModelFactory):
     class Meta:
         model = VerbalAutopsy
     Id10007 = "Example Name"
-    location = factory.SubFactory(LocationFactory)
+    Id10023 = "dk"
+    Id10058 = "hospital"
+    location = factory.SubFactory(LocationFacilityFactory)
+    username = ""
 
 class UserFactory(DjangoModelFactory):
     class Meta:
