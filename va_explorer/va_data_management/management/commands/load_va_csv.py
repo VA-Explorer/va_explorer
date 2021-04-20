@@ -14,7 +14,7 @@ class Command(BaseCommand):
         parser.add_argument('--random_locations', type=str, nargs='?', default=False)
 
     def handle(self, *args, **options):
-        csv_data = pd.read_csv(options['csv_file'])
+        csv_data = pd.read_csv(options['csv_file'], low_memory=True)
         random_locations = options.get("random_locations", False)
 
         results = load_records_from_dataframe(csv_data, random_locations)
