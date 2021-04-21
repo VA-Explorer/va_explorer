@@ -38,7 +38,6 @@ class TestDashboardView:
             dashboard_view(request)
 
 
-# Note: Downloading the dashboard requires view_dashboard permission at the moment.
 class TestDownloadDashboardCsvView:
     def test_donwload_with_permission(self, rf: RequestFactory):
         # Build locations
@@ -49,9 +48,9 @@ class TestDownloadDashboardCsvView:
         facility2 = district2.add_child(name='Facility2', location_type='facility')
 
         # Build user
-        can_view_dashboard = Permission.objects.filter(codename="view_dashboard").first()
-        can_view_dashboard_group = GroupFactory.create(permissions=[can_view_dashboard])
-        user = UserFactory.create(groups=[can_view_dashboard_group], location_restrictions=[district2])
+        can_download_data = Permission.objects.filter(codename="download_data").first()
+        can_download_data_group = GroupFactory.create(permissions=[can_download_data])
+        user = UserFactory.create(groups=[can_download_data_group], location_restrictions=[district2])
 
         # One VA outside user's locations
         va1 = VerbalAutopsyFactory.create(location=facility1)

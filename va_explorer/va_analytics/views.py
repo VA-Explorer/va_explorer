@@ -19,7 +19,7 @@ dashboard_view = DashboardView.as_view()
 # NOTE: At the moment, all roles who can view the Dashboard can also download
 # the dashboard data
 class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
-    permission_required = "va_analytics.view_dashboard"
+    permission_required = "va_analytics.download_data"
 
     def get(self, request, *args, **kwargs):
         valid_vas = self.request.user.verbal_autopsies() \

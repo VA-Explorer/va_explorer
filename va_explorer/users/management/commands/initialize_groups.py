@@ -10,17 +10,17 @@ User = get_user_model()
 
 GROUPS_PERMISSIONS = {
     "Admins": {
-        Dashboard: ["view"],
+        Dashboard: ["view", "download_data"],
         User: ["add", "change", "delete", "view"],
         VerbalAutopsy: ["change", "view"],
     },
     "Data Managers": {
-        Dashboard: ["view"],
+        Dashboard: ["view", "download_data"],
         User: ["view"],
         VerbalAutopsy: ["change", "view"],
     },
     "Data Viewers": {
-        Dashboard: ["view"],
+        Dashboard: ["view", "download_data"],
         User: [],
         VerbalAutopsy: ["view"],
     },
