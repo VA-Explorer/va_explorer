@@ -18,4 +18,10 @@ class AccountAdapter(DefaultAccountAdapter):
             "temporary_password": temporary_password,
         }
         email_template = "account/email/new_user"
-        self.send_mail(email_template, user.email, ctx)
+        message = self.render_mail(email_template, user.email, ctx)
+        
+        # ensure credentials get written to stdout, regardless of email backend
+        if 'console' not in settings.EMAIL_BACKEND:
+            print(message.message())
+        
+        message.send()
