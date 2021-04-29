@@ -4,7 +4,10 @@ from django.http import HttpResponse
 from django.forms.models import model_to_dict
 import pandas as pd
 
-from va_explorer.va_data_management.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import PII_FIELDS
+from va_explorer.va_data_management.models import REDACTED_STRING
 from va_explorer.utils.mixins import CustomAuthMixin
 
 
@@ -16,8 +19,6 @@ class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
 dashboard_view = DashboardView.as_view()
 
 
-# NOTE: At the moment, all roles who can view the Dashboard can also download
-# the dashboard data
 class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
     permission_required = "va_analytics.download_data"
 
@@ -43,6 +44,12 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
             va_data.append(va_dict)
 
         va_df = pd.DataFrame.from_records(va_data)
+
+        # If user cannot view PII, redact all PII fields:
+        if not request.user.can_view_pii:
+            for field in PII_FIELDS:
+                va_df[field] = REDACTED_STRING
+
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="va_download.csv"'

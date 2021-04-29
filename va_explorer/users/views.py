@@ -108,6 +108,8 @@ class UserUpdateView(
                 self.get_object().location_restrictions.filter(location_type="facility")
         )
 
+        initial["view_pii"] = self.get_object().can_view_pii
+
         # TODO: Update this if we are supporting more than one username;
         #  For now, we only ever allow one, so we will display one
         initial["va_username"] = self.get_object().get_va_username()

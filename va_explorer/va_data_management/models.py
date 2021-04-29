@@ -6,6 +6,31 @@ from django.db.models import JSONField
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
 
+REDACTED_STRING = '** redacted **'
+
+PII_FIELDS = [
+    'Id10007',
+    'Id10017',
+    'Id10018',
+    'Id10021',
+    'Id10023_a',
+    'Id10023_b',
+    'Id10023',
+    'Id10060',
+    'Id10061',
+    'Id10062',
+    'Id10070',
+    'Id10071',
+    'Id10072',
+    'Id10073',
+    'Id10476',
+    'Id10477',
+    'Id10478',
+    'Id10479',
+    'comment',
+    'narrat_image',
+]
+
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
     # ability to constrain access control by region; we use django-treabeard's materialized path
