@@ -1,6 +1,7 @@
 from django import forms
 from datetime import datetime
 from .models import VerbalAutopsy
+from .models import PII_FIELDS
 from va_explorer.va_data_management.utils.validate import parse_date
 from config.settings.base import DATE_FORMATS
 
@@ -11,6 +12,13 @@ class VerbalAutopsyForm(forms.ModelForm):
     class Meta:
         model = VerbalAutopsy
         exclude = ('id', 'location')
+
+    def __init__(self, *args, **kwargs):
+        include_pii = kwargs.pop('include_pii', True)
+        super().__init__(*args, **kwargs)
+        if not include_pii:
+            for field in PII_FIELDS:
+                del self.fields[field]
     
     # TODO: to display the error msgs properly, we need to use crispy forms in the template
     # for now we will just display the errors at the top of the page

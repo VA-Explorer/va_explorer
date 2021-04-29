@@ -101,6 +101,12 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
         validate_vas_for_dashboard([self.object])
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
 
+    def get_form_kwargs(self):
+        # Tell form to include PII fields if user is able.
+        kwargs = super().get_form_kwargs()
+        kwargs['include_pii'] = self.request.user.can_view_pii
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['id'] = self.object.id
