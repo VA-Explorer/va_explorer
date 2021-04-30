@@ -2,7 +2,9 @@ from allauth.account.adapter import DefaultAccountAdapter
 from django.conf import settings
 from django.http import HttpRequest
 from django.urls import reverse
+import os
 
+EMAIL_URL = os.environ.get('EMAIL_URL', 'consolemail://')
 
 class AccountAdapter(DefaultAccountAdapter):
     def is_open_for_signup(self, request: HttpRequest):
@@ -19,9 +21,13 @@ class AccountAdapter(DefaultAccountAdapter):
         }
         email_template = "account/email/new_user"
         message = self.render_mail(email_template, user.email, ctx)
-        
+                
         # ensure credentials get written to stdout, regardless of email backend
-        if 'console' not in settings.EMAIL_BACKEND:
+        if not ("console" in settings.EMAIL_BACKEND and EMAIL_URL.startswith("consolemail")):
             print(message.message())
         
-        message.send()
+        try:
+            message.send()
+        except ConnectionRefusedError:
+            print("WARNING: could not send email because connection was refused. Ensure that EMAIL_URL environment variable and all Django email settings are correct.")
+            print(f"\t(see base or production files in config.settings). Current EMAIL_URL: {EMAIL_URL}")
