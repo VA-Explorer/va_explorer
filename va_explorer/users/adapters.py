@@ -4,7 +4,6 @@ from django.http import HttpRequest
 from django.urls import reverse
 import os
 
-# Choolwe EMAIL_URL=smtp://mail:25
 EMAIL_URL = os.environ.get('EMAIL_URL', 'consolemail://')
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -30,5 +29,5 @@ class AccountAdapter(DefaultAccountAdapter):
         try:
             message.send()
         except ConnectionRefusedError:
-            print("WARNING: could not send email because connection was resfused. Ensure that EMAIL_URL environment variable and all django email settings are correct.")
+            print("WARNING: could not send email because connection was refused. Ensure that EMAIL_URL environment variable and all Django email settings are correct.")
             print(f"\t(see base or production files in config.settings). Current EMAIL_URL: {EMAIL_URL}")
