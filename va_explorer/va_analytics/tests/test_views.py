@@ -38,8 +38,7 @@ class TestDashboardView:
             dashboard_view(request)
 
 
-# Note: Downloading the dashboard requires view_dashboard permission at the moment.
-class TestDownloadDashboardCsvView:
+class TestDownloadCsvView:
     def test_donwload_with_permission(self, rf: RequestFactory):
         # Build locations
         province = LocationFactory.create()
@@ -49,9 +48,9 @@ class TestDownloadDashboardCsvView:
         facility2 = district2.add_child(name='Facility2', location_type='facility')
 
         # Build user
-        can_view_dashboard = Permission.objects.filter(codename="view_dashboard").first()
-        can_view_dashboard_group = GroupFactory.create(permissions=[can_view_dashboard])
-        user = UserFactory.create(groups=[can_view_dashboard_group], location_restrictions=[district2])
+        can_download_data = Permission.objects.filter(codename="download_data").first()
+        can_download_data_group = GroupFactory.create(permissions=[can_download_data])
+        user = UserFactory.create(groups=[can_download_data_group], location_restrictions=[district2])
 
         # One VA outside user's locations
         va1 = VerbalAutopsyFactory.create(location=facility1)
@@ -87,3 +86,37 @@ class TestDownloadDashboardCsvView:
 
         with pytest.raises(PermissionDenied):
             dashboard_view(request)
+
+    def test_download_redacted_pii(self, rf: RequestFactory):
+        # Build locations
+        province = LocationFactory.create()
+        district1 = province.add_child(name='District1', location_type='district')
+        facility1 = district1.add_child(name='Facility1', location_type='facility')
+        
+        # Build user
+        can_download_data = Permission.objects.filter(codename="download_data").first()
+        can_download_data_group = GroupFactory.create(permissions=[can_download_data])
+        user = UserFactory.create(groups=[can_download_data_group], location_restrictions=[district1])
+
+        # Build verbal autopsy
+        va1 = VerbalAutopsyFactory.create(location=facility1, Id10007='test', Id10023='2020-01-01')
+        cod = CauseOfDeath.objects.create(cause='cause1', settings={}, verbalautopsy=va1)
+
+        request = rf.get("/va_analytics/download")
+        request.user = user
+
+        response = download_csv(request)
+
+        assert response.status_code == 200
+
+        lines = response.content.decode('utf-8').split('\n')
+
+        assert len(lines) == 3
+
+        assert 'Id10007' in lines[0]
+        assert 'Id10023' in lines[0]
+
+        assert '** redacted **' in lines[1]
+
+        assert 'test' not in lines[1]
+        assert '2020-01-01' not in lines[1]

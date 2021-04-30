@@ -144,6 +144,24 @@ $(document).ready(function() {
   }
 
   /**
+   * Update status of Can View PII checkbox depending on whether selected group can view PII.
+   */
+  function updatePIICheckbox() {
+    const groupCanViewPII = Boolean($('#id_group option:selected').data('view-pii'));
+    $('#id_view_pii').attr('disabled', groupCanViewPII);
+    $('#id_view_pii').attr('checked', groupCanViewPII);
+  }
+
+  // On load, if group can view PII, disable checkbox.
+  // Don't DISABLE it if the group CAN'T view PII because the user might have it checked explicitly.
+  const groupCanViewPII = Boolean($('#id_group option:selected').data('view-pii'));
+  if (groupCanViewPII) {
+    $('#id_view_pii').attr('disabled', true);
+    $('#id_view_pii').attr('checked', true);
+  }
+
+
+  /**
    * Summary. Hides/shows the form locations controls based on the role selected. The controls include:
    *  1. the geographic access radio button
    *  2. the location restrictions select2 dropdown
@@ -237,6 +255,7 @@ $(document).ready(function() {
    */
   $('#id_group').change(function() {
     updateFormForRoleSelected();
+    updatePIICheckbox();
   });
 
   /**

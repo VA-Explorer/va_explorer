@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import Permission
 from django.db import models
 from django.db.models import ManyToManyField
 from django.urls import reverse
@@ -78,6 +79,18 @@ class User(AbstractUser):
 
     def is_fieldworker(self):
         return self.groups.filter(name="Field Workers").exists()
+
+    @property
+    def can_view_pii(self):
+        return self.has_perm('va_analytics.view_pii')
+
+    @can_view_pii.setter
+    def can_view_pii(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='view_pii')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
 
     # TODO: Update this if we are supporting more than one username; for now, allow only one
     def set_va_username(self, *va_usernames):

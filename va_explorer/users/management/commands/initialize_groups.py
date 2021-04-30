@@ -1,6 +1,7 @@
-from django.contrib.auth import get_permission_codename
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
 from django.core.management import BaseCommand
 
 from va_explorer.va_analytics.models import Dashboard
@@ -10,24 +11,24 @@ User = get_user_model()
 
 GROUPS_PERMISSIONS = {
     "Admins": {
-        Dashboard: ["view"],
-        User: ["add", "change", "delete", "view"],
-        VerbalAutopsy: ["change", "view"],
+        Dashboard: ["view_dashboard", "download_data", "view_pii"],
+        User: ["add_user", "change_user", "delete_user", "view_user"],
+        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
     "Data Managers": {
-        Dashboard: ["view"],
-        User: ["view"],
-        VerbalAutopsy: ["change", "view"],
+        Dashboard: ["view_dashboard", "download_data", "view_pii"],
+        User: ["view_user"],
+        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
     "Data Viewers": {
-        Dashboard: ["view"],
+        Dashboard: ["view_dashboard", "download_data"],
         User: [],
-        VerbalAutopsy: ["view"],
+        VerbalAutopsy: ["view_verbalautopsy"],
     },
     "Field Workers": {
         Dashboard: [],
         User: [],
-        VerbalAutopsy: ["view"]
+        VerbalAutopsy: ["view_verbalautopsy"]
     },
 }
 
@@ -54,12 +55,15 @@ class Command(BaseCommand):
                 group.permissions.clear()
 
             for model_class, model_permissions in group_permissions.items():
-                for model_permission_name in model_permissions:
-                    codename = get_permission_codename(model_permission_name, model_class._meta)
+                for codename in model_permissions:
 
+                    # Get the content type for the given model class.
+                    content_type = ContentType.objects.get_for_model(model_class)
+
+                    # Lookup permission based on content type and codename.
                     try:
-                        permission = Permission.objects.get(codename=codename)
+                        permission = Permission.objects.get(content_type=content_type, codename=codename)
                         group.permissions.add(permission)
                         self.stdout.write(f"Adding {codename} to group {group}")
                     except Permission.DoesNotExist:
-                        self.stdout.write(f"{codename} not found")
+                        self.stderr.write(f"{codename} not found")

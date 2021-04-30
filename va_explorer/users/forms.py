@@ -78,7 +78,52 @@ class LocationRestrictionsSelectMultiple(SelectMultiple):
         return option
 
 
-class ExtendedUserCreationForm(UserCreationForm):
+class GroupSelect(forms.Select):
+    """
+    Custom widget for group select that will have a 'data-view-pii' attribute.
+    We can use this attribute in the HTML to determine whether or not to enable the 'Can View PII' checkbox.
+    """
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        if value:
+            if value.instance.permissions.filter(codename='view_pii').first():
+                option['attrs']['data-view-pii'] = 1
+        return option
+
+
+class UserCommonFields(forms.ModelForm):
+    name = forms.CharField(required=True, max_length=100)
+    group = ModelChoiceField(queryset=Group.objects.all(), required=True, widget=GroupSelect)
+    location_restrictions = ModelMultipleChoiceField(
+        queryset=Location.objects.all().order_by("path"),
+        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
+        required=False,
+    )
+    facility_restrictions = ModelMultipleChoiceField(
+        queryset=Location.objects.filter(location_type="facility").order_by("name"),
+        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
+        required=False,
+        help_text="Field Workers must be assigned to at least one facility."
+    )
+    geographic_access = forms.ChoiceField(
+        choices=(("national", "National"), ("location-specific", "Location-specific")),
+        initial="location-specific",
+        widget=RadioSelect(),
+        required=True,
+    )
+    va_username = forms.CharField(
+        required=False,
+        help_text="Username is the interviewer username collected in the Verbal Autopsy."
+    )
+    view_pii = forms.BooleanField(
+        label="Can View PII",
+        help_text="Determines whether user can view PII. Only applies if group does not already grant access to view PII.",
+        required=False,
+    )
+
+
+class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
     """
     Extends the built in UserCreationForm in several ways:
 
@@ -89,41 +134,15 @@ class ExtendedUserCreationForm(UserCreationForm):
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
 
-    name = forms.CharField(required=True)
     password1 = None
     password2 = None
-    # Allows us to save one group for the user, even though groups are m2m with user by default
-    group = ModelChoiceField(queryset=Group.objects.all(), required=True)
-    location_restrictions = ModelMultipleChoiceField(
-        queryset=Location.objects.all().order_by("path"),
-        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
-        required=False,
-    )
-
-    facility_restrictions = ModelMultipleChoiceField(
-        queryset=Location.objects.filter(location_type="facility").order_by("name"),
-        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
-        required=False,
-        help_text="Field Workers must be assigned to at least one facility."
-    )
-
-    geographic_access = forms.ChoiceField(
-        choices=(("national", "National"), ("location-specific", "Location-specific")),
-        initial="location-specific",
-        widget=RadioSelect(),
-        required=True,
-    )
-
-    va_username = forms.CharField(
-        required=False,
-        help_text="Username is the interviewer username collected in the Verbal Autopsy."
-    )
 
     class Meta:
         model = User
         fields = [
             "name",
             "email",
+            "view_pii",
             "group",
             "geographic_access",
             "location_restrictions",
@@ -198,6 +217,10 @@ class ExtendedUserCreationForm(UserCreationForm):
                 if va_username:
                     va_username.save()
 
+                # If selected group cannot view PII, modify the user's permissions according to the checkbox.
+                if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
+                    user.can_view_pii = self.cleaned_data['view_pii']
+
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
@@ -208,37 +231,11 @@ class ExtendedUserCreationForm(UserCreationForm):
         return user
 
 
-class UserUpdateForm(forms.ModelForm):
+class UserUpdateForm(UserCommonFields, forms.ModelForm):
     """
     Similar to UserCreationForm but adds is_active field to allow an administrator
     to mark a user account as inactive
     """
-
-    name = forms.CharField(required=True, max_length=100)
-    group = ModelChoiceField(queryset=Group.objects.all(), required=True)
-    location_restrictions = ModelMultipleChoiceField(
-        queryset=Location.objects.all().order_by("path"),
-        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
-        required=False,
-    )
-
-    facility_restrictions = ModelMultipleChoiceField(
-        queryset=Location.objects.filter(location_type="facility").order_by("name"),
-        widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
-        required=False,
-        help_text="Field Workers must be assigned to at least one facility."
-    )
-
-    geographic_access = forms.ChoiceField(
-        choices=(("national", "National"), ("location-specific", "Location-specific")),
-        widget=RadioSelect(),
-        required=True,
-    )
-
-    va_username = forms.CharField(
-        required=False,
-        help_text="Username is the interviewer username collected in the Verbal Autopsy."
-    )
 
     class Meta:
         model = User
@@ -246,6 +243,7 @@ class UserUpdateForm(forms.ModelForm):
             "name",
             "email",
             "is_active",
+            "view_pii",
             "group",
             "geographic_access",
             "location_restrictions",
@@ -294,6 +292,10 @@ class UserUpdateForm(forms.ModelForm):
             user.location_restrictions.set(location_restrictions)
             user.groups.set([group])
             user.set_va_username(self.cleaned_data["va_username"])
+
+            # If selected group cannot view PII, modify the user's permissions according to the checkbox.
+            if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
+                user.can_view_pii = self.cleaned_data['view_pii']
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address

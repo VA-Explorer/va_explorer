@@ -8,7 +8,7 @@
 
 {% block content %}
 
-{% if not user.is_fieldworker %}
+{% if not user.is_fieldworker and user.can_view_pii %}
 <form method="get">
   <div class="form-row align-items-end">
     {% crispy filterset.form %}

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load va_explorer_tags %}
+
 {% block title %}Verbal Autopsy #{{ object.id }}{% endblock %}
 
 {% block heading %}Verbal Autopsy #{{ object.id }}{% endblock %}
@@ -43,7 +45,7 @@
             <tr>
               <td><b>{{ field.name }}</b></td>
               <td>{{ field.label }}</td>
-              <td>{{ field.value }}</td>
+              <td>{% pii_filter field.name field.value %}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -105,11 +107,11 @@
                 <td>
                   {% for change in diff.changes %}
                     {% if change.old and change.new %}
-                      <b>{{ change.field }}</b> changed from <b>{{ change.old }}</b> to <b>{{ change.new }}</b><br/>
+                      <b>{{ change.field }}</b> changed from <b>{% pii_filter change.field change.old %}</b> to <b>{% pii_filter change.field change.new %}</b><br/>
                     {% elif change.new %}
-                      <b>{{ change.field }}</b> was set to <b>{{ change.new }}</b><br/>
+                      <b>{{ change.field }}</b> was set to <b>{% pii_filter change.field change.new %}</b><br/>
                     {% elif change.old %}
-                      <b>{{ change.field }}</b> had value <b>{{ change.old }}</b> deleted<br/>
+                      <b>{{ change.field }}</b> had value <b>{% pii_filter change.field change.old %}</b> deleted<br/>
                     {% endif %}
                   {% endfor %}
                 </td>

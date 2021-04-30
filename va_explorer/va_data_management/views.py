@@ -28,7 +28,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
         # since many do not apply to them. This prevents data passed through the params from being
         # passed to the VAFilter
-        if self.request.user.is_fieldworker():
+        # Also hide filter if the user cannot view PII since the filterable fields contain PII.
+        if self.request.user.is_fieldworker() or not self.request.user.can_view_pii:
             self.filterset = VAFilter(data=None, queryset=queryset)
 
         # do the filtering thing
@@ -99,6 +100,12 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
         # update the validation errors
         validate_vas_for_dashboard([self.object])
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
+
+    def get_form_kwargs(self):
+        # Tell form to include PII fields if user is able.
+        kwargs = super().get_form_kwargs()
+        kwargs['include_pii'] = self.request.user.can_view_pii
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,3 +1,5 @@
+{% load va_explorer_tags %}
+
 <table class="table table-sm">
   <thead>
     <tr>
@@ -7,8 +9,8 @@
       <th>Facility</th>
       <th>Cause</th>
       {% if not user.is_fieldworker %}
-      <th>Warnings</th>
-      <th>Errors</th>
+        <th>Warnings</th>
+        <th>Errors</th>
       {% endif %}
       <th>View</th>
     </tr>
@@ -17,13 +19,13 @@
     {% for va in va_list %}
     <tr>
       <td>{{ va.id }}</td>
-      <td>{{ va.date }}</td>
-      <td>{{ va.name }}</td>
+      <td>{% pii_filter "Id10023" va.date %}</td>
+      <td>{% pii_filter "Id10007" va.name %}</td>
       <td>{{ va.facility }}</td>
       <td>{{ va.cause }}</td>
       {% if not user.is_fieldworker %}
-      <td>{{ va.warnings }}</td>
-      <td>{{ va.errors }}</td>
+        <td>{{ va.warnings }}</td>
+        <td>{{ va.errors }}</td>
       {% endif %}
       <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
     </tr>

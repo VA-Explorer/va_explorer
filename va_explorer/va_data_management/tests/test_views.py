@@ -12,7 +12,8 @@ pytestmark = pytest.mark.django_db
 # Get the index and make sure the VA in the system is listed
 def test_index_with_valid_permission(user: User):
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    can_view_record_group = GroupFactory.create(permissions=[can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_view_record_group = GroupFactory.create(permissions=[can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_view_record_group])
 
     client = Client()
@@ -21,6 +22,21 @@ def test_index_with_valid_permission(user: User):
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert bytes(va.Id10007, "utf-8") in response.content
+
+
+# Get the index and make sure the VA in the system is listed
+def test_index_redacted(user: User):
+    can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
+    can_view_record_group = GroupFactory.create(permissions=[can_view_record])
+    user = UserFactory.create(groups=[can_view_record_group])
+
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create()
+    response = client.get("/va_data_management/")
+    assert response.status_code == 200
+    assert bytes(va.Id10007, "utf-8") not in response.content
+    assert bytes('** redacted **', "utf-8") in response.content
 
 
 # Request the index without permissions and make sure its forbidden
@@ -35,7 +51,8 @@ def test_index_without_valid_permission(user: User):
 # Show a VA and make sure the data is as expected
 def test_show(user: User):
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    can_view_record_group = GroupFactory.create(permissions=[can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_view_record_group = GroupFactory.create(permissions=[can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_view_record_group])
 
     client = Client()
@@ -44,6 +61,21 @@ def test_show(user: User):
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
     assert bytes(va.Id10007, "utf-8") in response.content
+
+
+# Show a VA and make sure the data is as expected (with redacted)
+def test_show_redacted(user: User):
+    can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
+    can_view_record_group = GroupFactory.create(permissions=[can_view_record])
+    user = UserFactory.create(groups=[can_view_record_group])
+
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create()
+    response = client.get(f"/va_data_management/show/{va.id}")
+    assert response.status_code == 200
+    assert bytes(va.Id10007, "utf-8") not in response.content
+    assert bytes('** redacted **', "utf-8") in response.content
 
 
 # Request the show page for VA without permissions and make sure it's forbidden
@@ -58,7 +90,8 @@ def test_show_without_valid_permissions(user: User):
 # Request the edit form of a VA and make sure the data is as expected
 def test_edit_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
-    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_record_group])
 
     client = Client()
@@ -84,7 +117,8 @@ def test_edit_without_valid_permissions(user: User):
 def test_save_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_view_record_group])
 
     client = Client()
@@ -109,7 +143,8 @@ def test_save_with_valid_permissions(user: User):
 def test_save_with_invalid_date_format(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_view_record_group])
 
     client = Client()
@@ -135,7 +170,8 @@ def test_save_without_valid_permissions(user: User):
 # Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
 def test_reset_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
-    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_record_group])
 
     client = Client()
@@ -171,7 +207,8 @@ def test_reset_without_valid_permissions(user: User):
 # Revert an updated VA and make sure 1) the data is reset to previous version and 2) the history is tracked
 def test_revert_latest_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
-    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_record_group])
 
     client = Client()
@@ -244,7 +281,8 @@ def test_access_control(user: User):
 # A Field Worker can access only the Verbal Autopsies they create through the username on the Verbal Autopsy
 def test_field_worker_access_control():
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    field_worker_group = FieldWorkerGroupFactory.create(permissions=[can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    field_worker_group = FieldWorkerGroupFactory.create(permissions=[can_view_record, can_view_pii])
     field_worker = FieldWorkerFactory.create(groups=[field_worker_group])
     field_worker_username = VaUsernameFactory.create(user=field_worker)
 
@@ -254,16 +292,16 @@ def test_field_worker_access_control():
     field_worker.save()
     field_worker_username.save()
 
-    va = VerbalAutopsyFactory.create(location=facility, username=field_worker_username.va_username)
-    va2 = VerbalAutopsyFactory.create(location=facility, username='')
+    va = VerbalAutopsyFactory.create(Id10007='Unique Value VA1', location=facility, username=field_worker_username.va_username)
+    va2 = VerbalAutopsyFactory.create(Id10007='Another Value VA2', location=facility, username='')
 
     client = Client()
     client.force_login(user=field_worker)
 
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert str(va.id).encode('utf_8') in response.content
-    assert str(va2.id).encode('utf_8') not in response.content
+    assert str(va.Id10007).encode('utf_8') in response.content
+    assert str(va2.Id10007).encode('utf_8') not in response.content
 
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
