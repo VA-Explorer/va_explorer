@@ -90,7 +90,8 @@ def test_show_without_valid_permissions(user: User):
 # Request the edit form of a VA and make sure the data is as expected
 def test_edit_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
-    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_record_group])
 
     client = Client()
@@ -116,7 +117,8 @@ def test_edit_without_valid_permissions(user: User):
 def test_save_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_view_record_group])
 
     client = Client()
@@ -141,7 +143,8 @@ def test_save_with_valid_permissions(user: User):
 def test_save_with_invalid_date_format(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
-    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_view_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_view_record_group])
 
     client = Client()
@@ -167,7 +170,8 @@ def test_save_without_valid_permissions(user: User):
 # Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
 def test_reset_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
-    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_record_group])
 
     client = Client()
@@ -203,7 +207,8 @@ def test_reset_without_valid_permissions(user: User):
 # Revert an updated VA and make sure 1) the data is reset to previous version and 2) the history is tracked
 def test_revert_latest_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
-    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record])
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_edit_record_group = GroupFactory.create(permissions=[can_edit_record, can_view_pii])
     user = UserFactory.create(groups=[can_edit_record_group])
 
     client = Client()
