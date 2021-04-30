@@ -1,16 +1,14 @@
 import pandas as pd
 from simple_history.utils import bulk_create_with_history
-from datetime import datetime
-import re
 
-from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import VaUsername
-from va_explorer.va_data_management.models import CauseCodingIssue
-from fuzzywuzzy import fuzz
+
 
 
 from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
+
 
 from django.contrib.auth import get_user_model
 
@@ -57,12 +55,11 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # Build a list of VAs to create and a list of VAs to ignore (that already exist).
     ignored_vas = []
     created_vas = []
-    date_issue_ids = []
     location_map = {}
     
     # build location mapper to map csv locations to known db locations
     if "hospital" in record_df.columns:
-        location_map = build_location_mapper(record_df["hospital"])
+        location_map = build_location_mapper(record_df["hospital"].unique().tolist())
         
     # if random locations, assign random locations via a random field worker.
     if random_locations:
@@ -113,88 +110,8 @@ def load_records_from_dataframe(record_df, random_locations=False):
         'created': created_vas,
     }
   
-def build_location_mapper(va_locations, db_locations=None, loc_type="facility", drop_terms=None, similarity_thresh=75):
-   
-    # store database locations of type location_type in a df 
-    if not db_locations:
-        db_locations = list(Location.objects.filter(location_type=loc_type).values_list('name', flat=True))
-    location_df = pd.DataFrame({'name': db_locations}).assign(key = lambda df: df['name'].str.lower())
-    
-    # store unique va_locations in mapper dataframe
-    va_locations = list(set(va_locations).difference(set(['other'])))
-    mapper = pd.DataFrame({"va_name": va_locations})
-    mapper['va_key'] = mapper['va_name'].str.lower().replace("\_", " ", regex=True)
 
-    # preprocess dataframes
-    if not drop_terms:
-        drop_terms = ['general', 'central', 'teaching']
-        
-    for term in drop_terms:
-        location_df['key'] = location_df['key'].replace(f" {term}", "", regex=True)
-        mapper['va_key'] = mapper['va_key'].replace(f" {term}", "", regex=True)
-    
-    # matching
-    mapper["db_name"] = mapper["va_key"].apply(lambda x: fuzzy_match(x, option_df=location_df, threshold=similarity_thresh))
-    
-    return mapper.set_index("va_name")["db_name"].to_dict()
-    
-    
-def assign_va_location(va, location_mapper, location_fields=None):
-    # check if the hospital or place of death fields are known locations
-    location_fields = ['hospital', 'hospital_other'] if not location_fields else location_fields
-    
-    db_location = None
-    for location_field in location_fields:
-        location = va.__dict__.get(location_field, None)
-        if location:
-            db_location_name = location_mapper.get(location, None)
-            if db_location_name:
-                # TODO: make this more generic to other location hierarchies
-                db_location = Location.objects.filter(location_type='facility', name=db_location_name).first()
-                break
-        
-    if db_location:
-        va.location = db_location
-    # otherwise, set location to 'Unknown' (null)
-    else:
-        va.set_null_location()
-    return va
-        
-        
-def fuzzy_match(search, options=None, option_df=pd.DataFrame(), threshold=75, preprocess=False, drop_terms=None, prnt=False):
-    match = None
-    if not pd.isnull(search):
-        if not options and option_df.size == 0:
-            raise ValueError("Please provide an option list or option_df (dataframe with options in 'name' column)")
-        # if options not in dataframe format, create one to store them
-        if option_df.size == 0:
-            option_df = (pd.DataFrame({'name': options}).assign(key = lambda df: df['name'].str.lower()))
-    
-        # if preprocess=True, clean search term and options before comparing
-        search_term = search
-        if preprocess:
-            if not drop_terms:
-                drop_terms = ['general', 'central', 'teaching']
-                
-            search_term = re.sub('\_', ' ', search.lower())    
-            for term in drop_terms:
-                search_term = search_term.replace(f" {term}", "")
-                option_df['key'] = option_df['key'].replace(f" {term}", "", regex=True)
-        
-        # matching
-        option_df['score'] = option_df['key'].apply(lambda x: fuzz.ratio(search_term, x))
-        option_df = option_df.sort_values(by='score', ascending=False)
-        
-        if prnt: print(option_df.head())
-        
-        # filter to only matches exceeding threshold
-        option_df = option_df.query("score >= @threshold")
-        
-        if prnt: print(option_df)
-        
-        if option_df.size > 0:     
-            match = option_df.iloc[0]['name']
-    
-    return match
+      
+
         
 

@@ -7,6 +7,7 @@ from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import VaUsername
+from va_explorer.va_data_management.utils.location_assignment import assign_va_location
 from config.settings.base import DATE_FORMATS
 
 
@@ -74,36 +75,31 @@ def validate_vas_for_dashboard(verbal_autopsies):
 
         # Validate: location
         # location is used to display the record on the map
-        # Id10058 may match a known facility, but if not we will user the interviewer's location as the default
-        location = va.Id10058
-        known_facility = Location.objects.filter(location_type='facility', name=location).first()
-        if known_facility is None:
-            issue_text = "Warning: field Id10058, the location provided was not a known facility. Using the username's facility as the default."
-            severity = "warning"
-            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
-            issues.append(issue) 
-            va_user = VaUsername.objects.filter(va_username=username).first()
-            if username == "" or va_user is None:
-                # TODO move this check to the VA clean function? and make username a drop down
-                issue_text = "Error: fields Id10058, username, cannot determine map location without field Id10058 or username."
-                severity = "error"
-                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
-                issues.append(issue)
-            else:
-                # TODO get the user's default location
-                locations = va_user.user.location_restrictions
-                if  locations.count() == 0:
-                    issue_text = "Error: fields username, cannot determine map location, username has no assigned facilities."
-                    severity = "error"
+        known_location = Location.objects.filter(name=va.location).first()
+        if not known_location:
+            # try re-assigning location using location logic described in loading.py
+            va = assign_va_location(va)
+            if va.location:
+                if va.location == "Unknown":
+                    issue_text = "Warning: location field (parsed from hospital):, the location provided was not a known facility. Defaulted to Null Location (Uknown)"
+                    severity = "warning"
                     issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
-                    issues.append(issue)  
+                    issues.append(issue) 
+                else:
+                    known_location = Location.objects.filter(name=va.location).first()
+                    if not known_location:
+                        issue_text = f"VA's location {va.location} doesn't match any known locations in the database"
+                        severity = "error"
+                        issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+                        issues.append(issue) 
+            
 
     CauseCodingIssue.objects.bulk_create(issues)
 
 # helper method to parse dates in a variety of formats
 def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False, return_format='%Y-%m-%d'):
     if type(date_str) is str:
-        if len(date_str) == 0 or date_str.lower() == 'dk':
+        if len(date_str) == 0 or date_str.lower() in ['dk',"nan"]:
             return 'dk'
         else:                
             # try parsing using a variety of date formats
