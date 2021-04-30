@@ -21,8 +21,8 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
 
-import va_explorer.utils.plotting as plotting
-from va_explorer.va_data_management.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.models import Location
+from va_explorer.va_analytics.utils import plotting, loading
 
 # ================APP DEFINITION===============#
 # NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
@@ -48,150 +48,8 @@ INITIAL_COD_TYPE = "all"
 LOOKUP = plotting.load_lookup_dicts()
 COD_GROUPS = plotting.load_cod_groupings(data_dir=DATA_DIR)
 
-# =============Geo dictionaries and global variables ========#
-# load geojson data from flat file (will likely migrate to a database later)
-def load_geojson_data(json_file):
-    geojson = None
-    if os.path.isfile(json_file):
-
-        raw_json = open(json_file, "r")
-        geojson = json.loads(raw_json.read())
-        raw_json.close()
-        # add min and max coordinates for mapping
-        for i, g in enumerate(geojson["features"]):
-            coordinate_list = g["geometry"]["coordinates"]
-            coordinate_stat_tables = []
-            for coords in coordinate_list:
-                if len(coords) == 1:
-                    coords = coords[0]
-                coordinate_stat_tables.append(
-                    pd.DataFrame(coords, columns=["lon", "lat"]).describe()
-                )
-            g["properties"]["area_name"] += " {}".format(
-                g["properties"]["area_level_label"]
-            )
-            g["properties"]["min_x"] = min(
-                [stat_df["lon"]["min"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["max_x"] = max(
-                [stat_df["lon"]["max"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["min_y"] = min(
-                [stat_df["lat"]["min"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["max_y"] = max(
-                [stat_df["lat"]["max"] for stat_df in coordinate_stat_tables]
-            )
-            geojson["features"][i] = g
-        # save total districts and provinces for future use
-        geojson["district_count"] = len(
-            [
-                f
-                for f in geojson["features"]
-                if f["properties"]["area_level_label"] == "District"
-            ]
-        )
-        geojson["province_count"] = len(
-            [
-                f
-                for f in geojson["features"]
-                if f["properties"]["area_level_label"] == "Province"
-            ]
-        )
-    return geojson
-
-
-GEOJSON = load_geojson_data(json_file=f"{DATA_DIR}/{JSON_FILE}")
-
-
-# ============ VA Data =================
-def load_va_data(user, geographic_levels=None):
-    np.random.seed(23)
-    return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
-
-    all_vas = user.verbal_autopsies().prefetch_related("location").prefetch_related("causes")
-
-    if len(all_vas) > 0:
-        # Grab exactly the fields we need, including location and cause data
-        va_data = [
-            {
-                "id": va.id,
-                "Id10019": va.Id10019,
-                "Id10058": va.Id10058,
-                "Id10305": va.Id10305, # check for pregnancy
-                "ageInYears": va.ageInYears,
-                "location": va.location.name,
-                "cause": get_va_cause(va),
-            }
-            for va in all_vas
-        ]
-
-        # Build a location ancestors lookup and add location information at all levels to all vas
-        # TODO: This is not efficient (though it's better than 2 DB queries per VA)
-        # TODO: This assumes that all VAs will occur in a facility, ok?
-        locations, location_types = dict(), dict()
-        location_ancestors = {
-            location.id: location.get_ancestors()
-            for location in Location.objects.filter(location_type="facility")
-        }
-        for i, va in enumerate(all_vas):
-            #            location_types[va.location.depth] = va.location.location_type
-            #            locations.add(va.location.name)
-            for ancestor in location_ancestors[va.location.id]:
-                va_data[i][ancestor.location_type] = ancestor.name
-                location_types[ancestor.depth] = ancestor.location_type
-                locations[ancestor.name] = ancestor.location_type
-
-        va_df = pd.DataFrame.from_records(va_data)
-
-        # clean up age fields and assign to age bin
-        va_df["age"] = va_df["ageInYears"].replace(
-            to_replace=["dk"], value=np.random.randint(1, 80)
-        )
-        va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
-        va_df["age_group"] = va_df["age"].apply(assign_age_group)
-        cur_date = dt.datetime.today()
-
-        # TODO: This random date of death assignment needs to be correctly handled
-        # NOTE: date field called -Id10023 in VA form, but no dates in curent responses
-        va_df["date"] = [
-            cur_date - dt.timedelta(days=int(x))
-            for x in np.random.randint(3, 400, size=va_df.shape[0])
-        ]
-
-        # split data into valid data (records w COD) and invalid records (recoreds w/out COD)
-        valid_va_df = va_df[~pd.isnull(va_df["cause"])].reset_index()
-        invalid_va_df = va_df[pd.isnull(va_df["cause"])].reset_index()
-        # convert location_types to an ordered list
-        location_types = [
-            l for _, l in sorted(location_types.items(), key=lambda x: x[0])
-        ]
-        return_dict = {
-            "data": {"valid": valid_va_df, "invalid": invalid_va_df},
-            "location_types": location_types,
-            "max_depth": len(location_types) - 1,
-            "locations": locations,
-        }
-
-    return return_dict
-
-
-def get_va_cause(va_obj):
-    causes = va_obj.causes.all()
-    if len(causes) > 0:
-        return causes[0].cause
-
-    return None
-
-
-def assign_age_group(age):
-    if age <= 1:
-        return "neonate"
-    if age <= 16:
-        return "child"
-    # default
-    return "adult"
-
+# =============Geo dictionaries ========#
+GEOJSON = loading.load_geojson_data(json_file=f"{DATA_DIR}/{JSON_FILE}")
 
 # ===============APP LAYOUT====================#
 app.layout = html.Div(
@@ -640,9 +498,9 @@ designated as "expanded"
 )
 
 def init_va_data(hidden_trigger=None, **kwargs):
-    res = load_va_data(kwargs['user'])
-    valid_va_data = res["data"]["valid"].to_json()
-    invalid_va_data = res["data"]["invalid"].to_json()
+    res = loading.load_va_data(kwargs['user'])
+    valid_va_data = res["data"]["valid"].to_json(default_handler=str)
+    invalid_va_data = res["data"]["invalid"].to_json(default_handler=str)
     locations = json.dumps(res.get("locations", []))
     location_types = json.dumps(res.get("location_types", []))
     return valid_va_data, invalid_va_data, locations, location_types
@@ -1488,10 +1346,16 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                             search_value = "All Causes.all"
                         # search term convention: {kewyword.type}
                         key, key_type = search_value.split(".")
-                        # if keyword is a cod group, filter to only CODs in that group
+                        # if keyword is a cod group, filter to only CODs in that group and only vas meeting that group's criteria
                         if key_type == "group":
+                            # get ids of VAs meeting group criteria (e.g. if Neonate, subset to VAs with age < 1)
+                            criteria_ids = plotting.cod_group_data(plot_data, key, cod_groups=cod_groups).index
+                            # get ids of VAs meeting cod criteria (i.e. VAs with Neonatal CODs)
                             group_cods = cod_groups[cod_groups[key]==1]["cod"].tolist()
-                            match_ids = plot_data[plot_data["cause"].isin(group_cods)].index.tolist()
+                            cod_ids = plot_data[plot_data["cause"].isin(group_cods)].index
+                            # take intersection of criteria and cod ids to get final matching list
+                            match_ids = criteria_ids.intersection(cod_ids).tolist()
+                            
                         elif key_type == "cod":
                             match_ids = plot_data[plot_data["cause"] == key].index.tolist()
                         elif key_type == "all":

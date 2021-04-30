@@ -16,10 +16,12 @@ class Command(BaseCommand):
 
         # Load the CSV file
         csv_data = pd.read_csv(options['csv_file'], keep_default_na=False)
+        
 
         # Clear out any existing locations (this is for initialization only)
         Location.objects.all().delete()
-
+        
+        
         # Store it into the database in a tree structure
         for row in csv_data.itertuples():
             if row.Parent:
@@ -29,3 +31,9 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'Adding root node for {row.Name}')
                 Location.add_root(name=row.Name, location_type=row.Type)
+               
+                
+        # if non existent, add 'Null' location to databse to account for VAs with unknown locations
+        if not Location.objects.filter(name='Unkown').exists():
+            self.stdout.write(f'Adding NULL location to handle unknowns')
+            Location.add_root(name='Unknown', location_type='facility')

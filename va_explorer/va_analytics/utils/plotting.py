@@ -302,9 +302,9 @@ def load_cod_groupings(data_dir=None, grouping_file="cod_groupings.csv"):
     return group_data
 
 # get all vas with cods in a certain cod group
-def cod_group_data(va_df, group, cod_groups=None, N=10):
+def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), N=10):
     va_filtered = pd.DataFrame()
-    if not cod_groups:
+    if cod_groups.size == 0:
         data_dir = "va_explorer/va_analytics/dash_apps/dashboard_data" 
         cod_groups = pd.read_csv(f"{data_dir}/cod_groupings.csv")
     group = group.lower()
