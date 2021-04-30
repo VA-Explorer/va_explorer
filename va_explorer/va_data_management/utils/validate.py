@@ -1,6 +1,7 @@
 import pandas as pd
 from simple_history.utils import bulk_create_with_history
 from datetime import datetime
+import re
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
@@ -104,16 +105,22 @@ def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False, return_forma
     if type(date_str) is str:
         if len(date_str) == 0 or date_str.lower() == 'dk':
             return 'dk'
-        else:
+        else:                
+            # try parsing using a variety of date formats
             for fmt in formats:
                 try:
                     return datetime.strptime(date_str, fmt).date().strftime(return_format)
                 except ValueError:
                     pass
-            # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
-            if strict:
-                raise ValueError(f'no valid date format found for date string {date_str}')
+            # if we get here, all hardcoded patterns failed - try timestamp regex as last resort
+            # if time time separator T present, strip out time and pull solely date
+            if len(re.findall("\dT\d", date_str)) > 0:
+                return re.split("T\d", date_str)[0]
             else:
-                return str(date_str)
+                # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
+                if strict:
+                    raise ValueError(f'no valid date format found for date string {date_str}')
+                else:
+                    return str(date_str)
     return 'dk'
         

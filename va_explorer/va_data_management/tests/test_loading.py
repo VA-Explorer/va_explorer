@@ -14,13 +14,13 @@ pytestmark = pytest.mark.django_db
 
 
 def test_loading_from_dataframe():
-    # Location gets assigned with field Id10058 by name or by the user's default location
+    # Location gets assigned with field hospital by name or by the user's default location
     # TODO create a test that assigns location by the username
-    loc = Location.objects.create(name='test location', location_type='facility', depth=0, numchild=0, path='0001')
+    loc = Location.add_root(name='test location', location_type='facility')
 
     data = [
-        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1', 'Id10023':'03/01/2021', 'Id10058': 'test location'},
-        {'instanceid': 'instance2', 'testing-dashes-Id10007': 'name 2', 'Id10023': 'dk', 'Id10058': 'test location' },
+        {'instanceid': 'instance1', 'testing-dashes-Id10007': 'name 1', 'Id10023':'03/01/2021', 'hospital': 'test location'},
+        {'instanceid': 'instance2', 'testing-dashes-Id10007': 'name 2', 'Id10023': 'dk', 'hospital': 'test location' },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -77,13 +77,13 @@ def test_loading_from_dataframe_with_ignored():
 
 
 def test_loading_from_dataframe_with_key():
-    # Location gets assigned automatically/randomly if Id10058 is not a facility
+    # Location gets assigned automatically/randomly if hospital is not a facility
     # If that changes in loading.py it needs to change here too
     loc = Location.add_root(name='test location', location_type='facility')
 
     data = [
-        {'key': 'instance1', 'testing-dashes-Id10007': 'name 1', 'Id10058': 'test location'},
-        {'key': 'instance2', 'testing-dashes-Id10007': 'name 2', 'Id10058': 'home' },
+        {'key': 'instance1', 'testing-dashes-Id10007': 'name 1', 'hospital': 'test location'},
+        {'key': 'instance2', 'testing-dashes-Id10007': 'name 2', 'hospital': 'home' },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -103,7 +103,7 @@ def test_loading_from_dataframe_with_key():
 
 
 def test_load_va_csv_command():
-    # Location gets assigned automatically/randomly if Id10058 is not a facility
+    # Location gets assigned automatically/randomly if hospital is not a facility
     # If that changes in loading.py it needs to change here too
     loc = Location.add_root(name='test location', location_type='facility')
 
