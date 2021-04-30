@@ -22,7 +22,7 @@ services:
       DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
       EMAIL_URL: consolemail://
       
-  postgres:
+  vapostgres:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups

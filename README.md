@@ -165,7 +165,7 @@ This will build the following docker images:
 ```
 va_explorer/pycrossva
 va_explorer/interva5
-va_explorer/postgres
+va_explorer/vapostgres
 va_explorer/celeryworker
 va_explorer/celerybeat
 va_explorer/flower
@@ -180,7 +180,7 @@ Set the following environment variables:
 export EMAIL_URL=smtp://localhost:25 <or> consolemail://
 export CELERY_BROKER_URL=redis://redis:6379/0
 export REDIS_URL=redis://redis:6379/0
-export POSTGRES_HOST=postgres
+export POSTGRES_HOST=vapostgres
 export POSTGRES_PORT=5432
 export POSTGRES_DB=va_explorer
 export POSTGRES_USER=postgres
