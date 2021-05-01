@@ -72,7 +72,7 @@ def load_va_data(user, geographic_levels=None):
     return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
     
     # the dashboard requires date of death, exclude if the date is unknown
-    all_vas = user.verbal_autopsies().exclude(Id10023="dk").prefetch_related("location").prefetch_related("causes")
+    all_vas = user.verbal_autopsies().exclude(Id10023="dk").exclude(location__isnull=True).prefetch_related("location").prefetch_related("causes")
 
     if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data

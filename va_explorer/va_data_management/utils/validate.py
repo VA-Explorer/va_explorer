@@ -30,8 +30,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
             va.Id10023 = parse_date(va.Id10023, strict=True)
         except:
             issue_text = f"Error: field Id10023, couldn't parse date from {va.Id10023}"
-            severity = "error"
-            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="error", algorithm='', settings='')
             issues.append(issue)
         
         # Validate: ageInYears
@@ -40,8 +39,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
             age = int(float(va.ageInYears))
         except:
             issue_text = "Warning: field ageInYears, age was not provided or not a number."
-            severity = "warning"
-            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
             issues.append(issue)
 
         # Validate: age
@@ -52,8 +50,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
                     age = int(float(va.ageInYears))
                 except:
                     issue_text = "Warning: field age_group, no relevant data was found in fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
-                    severity = "warning"
-                    issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+                    issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
                     issues.append(issue)
 
         # Validate: username
@@ -61,38 +58,33 @@ def validate_vas_for_dashboard(verbal_autopsies):
         username = va.username
         if username == "":
             issue_text = "Warning: field username, the va record does not have an assigned username."
-            severity = "warning"
-            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
             issues.append(issue)
         else:
             va_user = VaUsername.objects.filter(va_username=username).first()
             if va_user is None:
                 # TODO move this check to the VA clean function? and make username a drop down
                 issue_text = "Warning: field username, the username provided is not a known Field Worker."
-                severity = "warning"
-                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
+                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
                 issues.append(issue)
 
         # Validate: location
         # location is used to display the record on the map
-        known_location = Location.objects.filter(name=va.location).first()
-        if not known_location:
+        if va.location:                        
+            if va.location.name == "Unknown":
+                issue_text = "Warning: location field (parsed from hospital):, provided location was not a known facility. Set location to 'Unknown'"
+                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
+                issues.append(issue) 
+ 
+        else:
             # try re-assigning location using location logic described in loading.py
             va = assign_va_location(va)
-            if va.location:
-                if va.location == "Unknown":
-                    issue_text = "Warning: location field (parsed from hospital):, the location provided was not a known facility. Defaulted to Null Location (Uknown)"
-                    severity = "warning"
-                    issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
-                    issues.append(issue) 
-                else:
-                    known_location = Location.objects.filter(name=va.location).first()
-                    if not known_location:
-                        issue_text = f"VA's location {va.location} doesn't match any known locations in the database"
-                        severity = "error"
-                        issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity=severity, algorithm='', settings='')
-                        issues.append(issue) 
-            
+            # if still no location, record an error
+            if not va.location:
+                issue_text = "ERROR: no location provided (or none detected)"
+                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="error", algorithm='', settings='')
+                issues.append(issue) 
+                
 
     CauseCodingIssue.objects.bulk_create(issues)
 

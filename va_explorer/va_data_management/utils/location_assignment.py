@@ -13,7 +13,7 @@ from fuzzywuzzy import fuzz
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VaUsername
 
-def build_location_mapper(va_locations, db_locations=None, loc_type="facility", drop_terms=None, similarity_thresh=75):
+def build_location_mapper(va_locations, db_locations=None, loc_type="facility", drop_terms=None, similarity_thresh=75, prnt=False):
     if va_locations and len(va_locations) > 0:
         # store database locations of type location_type in a df 
         if not db_locations:
@@ -22,23 +22,24 @@ def build_location_mapper(va_locations, db_locations=None, loc_type="facility", 
         
         # store unique va_locations in mapper dataframe
         va_locations = list(set(va_locations).difference(set(['other'])))
-        mapper = pd.DataFrame({"va_name": va_locations})
-        mapper['va_key'] = mapper['va_name'].str.lower().replace("\_", " ", regex=True)
-    
-        # preprocess dataframes
-        if not drop_terms:
-            drop_terms = ['general', 'central', 'teaching']
-            
-        for term in drop_terms:
-            location_df['key'] = location_df['key'].replace(f" {term}", "", regex=True)
-            mapper['va_key'] = mapper['va_key'].replace(f" {term}", "", regex=True)
+        mapper = pd.DataFrame({"va_name": va_locations}).dropna()
+        if not mapper.empty:
+            mapper['va_key'] = mapper['va_name'].str.lower().replace("\_", " ", regex=True)
         
-        # matching
-        mapper["db_name"] = mapper["va_key"].apply(lambda x: fuzzy_match(x, option_df=location_df, threshold=similarity_thresh))
-    
-        return mapper.set_index("va_name")["db_name"].to_dict()
-    
-    print("WARNING: no va locations provided, returning empty dict")
+            # preprocess dataframes
+            if not drop_terms:
+                drop_terms = ['general', 'central', 'teaching']
+                
+            for term in drop_terms:
+                location_df['key'] = location_df['key'].replace(f" {term}", "", regex=True)
+                mapper['va_key'] = mapper['va_key'].replace(f" {term}", "", regex=True)
+            
+            # matching
+            mapper["db_name"] = mapper["va_key"].apply(lambda x: fuzzy_match(x, option_df=location_df, threshold=similarity_thresh))
+        
+            return mapper.set_index("va_name")["db_name"].to_dict()
+    if prnt:
+        print("WARNING: no va locations provided, returning empty dict")
     return {}
     
     
@@ -54,6 +55,7 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
         if not location_mapper:
             location_mapper = build_location_mapper([raw_location])              
         db_location_name = location_mapper.get(raw_location, None)
+        # if matching db location, retrive it. Otherwise, record location as unknown
         if db_location_name:
             # TODO: make this more generic to other location hierarchies
             db_location = Location.objects.filter(location_type='facility', name=db_location_name).first()
@@ -71,9 +73,11 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
     # if any db location found, update VA with found location 
     if db_location:
         va.location = db_location
-    # otherwise, set location to 'Unknown' (null)
-    else:
-        va.set_null_location()
+    elif not pd.isnull(raw_location):
+        if len(raw_location) > 0 and raw_location.lower() not in ['dk', 'nan']:
+            # if raw location detected but no db match, set to "Unknown"
+            va.set_null_location()
+    # otherwise, va.location will just be blank
     return va
         
         
