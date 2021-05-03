@@ -81,10 +81,11 @@ def validate_vas_for_dashboard(verbal_autopsies):
                 issues.append(issue)
         
         # if location is "Unknown" (couldn't find match for provided location) record a warning
-        if va.location.name == "Unknown":
-            issue_text = "Warning: location field (parsed from hospital):, provided location was not a known facility. Set location to 'Unknown'"
-            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
-            issues.append(issue) 
+        if va.location:
+            if va.location.name == "Unknown":
+                issue_text = "Warning: location field (parsed from hospital): provided location was not a known facility. Set location to 'Unknown'"
+                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
+                issues.append(issue) 
             
 
                 
