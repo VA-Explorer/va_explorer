@@ -201,21 +201,12 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             location_restrictions = get_location_restrictions(self.cleaned_data)
             group = self.cleaned_data["group"]
 
-            va_username = None
-
-            if self.cleaned_data["va_username"]:
-                va_username = VaUsername(va_username=self.cleaned_data["va_username"], user=user)
-
             if commit:
-                user.save()
-
                 # You cannot associate the user with a m2m field until it’s been saved
                 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
                 user.location_restrictions.add(*location_restrictions)
                 user.groups.add(*[group])
-
-                if va_username:
-                    va_username.save()
+                user.set_va_username(self.cleaned_data["va_username"])
 
                 # If selected group cannot view PII, modify the user's permissions according to the checkbox.
                 if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():

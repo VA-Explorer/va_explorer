@@ -358,6 +358,46 @@ class TestUserUpdateForm:
         assert len(form.errors) == 1
         assert "group" in form.errors
 
+    def test_blank_usernames(self):
+        # At the time of writing, this is testing a bug.
+        # The UserUpdateForm will create a VaUsername with a blank username.
+        # This means that the below would fail since it's a unique field and 2 users
+        # cannot have the same "blank" username.
+        # So I added this test and then fixed the code to verify.
+   
+        field_worker_group = FieldWorkerGroupFactory.create()
+        location = LocationFactory.create()
+
+        user1 = NewUserFactory.build()
+        user2 = NewUserFactory.build()
+   
+        form = UserUpdateForm(
+            {
+                "name": user1.name,
+                "email": user1.email,
+                "group": field_worker_group,
+                "geographic_access": "location-specific",
+                "location_restrictions": [location],
+                "va_username": "",
+            }
+        )
+
+        assert form.save()
+
+        form = UserUpdateForm(
+            {
+                "name": user2.name,
+                "email": user2.email,
+                "group": field_worker_group,
+                "geographic_access": "location-specific",
+                "location_restrictions": [location],
+                "va_username": "",
+            }
+        )
+
+        assert form.save()
+
+
 
 class TestUserSetPasswordForm:
     def test_valid_form(self, rf: RequestFactory):

@@ -93,27 +93,14 @@ class User(AbstractUser):
             self.user_permissions.remove(permission)
 
     # TODO: Update this if we are supporting more than one username; for now, allow only one
-    def set_va_username(self, *va_usernames):
-        # Find if the user has an existing va_username
-        try:
-            user_va_username = self.vausername_set.first()
-        except:
-            user_va_username = None
+    def set_va_username(self, new_va_username):
+        # If None or blank string, delete existing username.
+        if not new_va_username:
+            self.vausername_set.all().delete()
+            return
 
-        # If user has no existing va_username, create one
-        if not user_va_username and va_usernames:
-            self.vausername_set.create(va_username=va_usernames[0])
-
-        # If user has a new, non-blank va_username, replace the existing one
-        elif (user_va_username and va_usernames[0]) and \
-            (va_usernames[0] != user_va_username):
-            user_va_username.va_username = va_usernames[0]
-            user_va_username.save()
-
-        # If the user has an existing va_username, but there is none on the update form,
-        # delete the existing one
-        elif user_va_username and not va_usernames[0]:
-            user_va_username.delete()
+        # Update or create the VaUsername for this user. There should only be one.
+        self.vausername_set.update_or_create(defaults={'va_username': new_va_username})
 
     # TODO: Update this if we are supporting more than one username; for now, allow only one
     def get_va_username(self):
