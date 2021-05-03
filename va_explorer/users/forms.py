@@ -202,6 +202,9 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             group = self.cleaned_data["group"]
 
             if commit:
+                # Need to save again after setting password.
+                user.save()
+
                 # You cannot associate the user with a m2m field until it’s been saved
                 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
                 user.location_restrictions.add(*location_restrictions)
