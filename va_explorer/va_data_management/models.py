@@ -58,7 +58,7 @@ class Location(MP_Node):
 
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
-    location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE, null=True)
 
     # The VA fields collected as part of the WHO VA form or local versions
     # TODO: Need an approach that supports different variants in different countries
@@ -621,25 +621,9 @@ class VerbalAutopsy(models.Model):
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
-    def clean(self):
-        # Determine location from Id10058 or the user
-        # Id10058 may match a known facility, but if not we will user the interviewer's location as the default
-        location = None
-        if self.Id10058:
-            known_facility = Location.objects.filter(location_type='facility', name=self.Id10058).first()
-            if known_facility is not None:
-                location = known_facility
-        if location is None and self.username:
-            username = self.username
-            va_user = VaUsername.objects.filter(va_username=username).first()
-            if username != "" and va_user is not None:
-                locations = va_user.user.location_restrictions
-                if  locations.count() > 0:
-                    # set the user's first location as the default
-                    location = locations.first()
-        if location is None:
-            location = self.set_null_location()
-        self.location = location
+#    def clean(self):
+        # TODO: fill this out with cleaning operations we actually want to do
+#       return
         
     def set_null_location(self, null_name="Unknown"):
         # to handle passing null_name=None

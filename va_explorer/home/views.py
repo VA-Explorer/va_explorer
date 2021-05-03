@@ -86,7 +86,7 @@ class Index(CustomAuthMixin, TemplateView):
             "id": va.id,
             "name": va.Id10007,
             "date":  va.Id10023 if (va.Id10023 != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
-            "facility": va.location.name,
+            "facility": va.location.name if va.location else "",
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
             "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
