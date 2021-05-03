@@ -206,7 +206,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
                 user.location_restrictions.add(*location_restrictions)
                 user.groups.add(*[group])
-                user.set_va_username(self.cleaned_data["va_username"])
+                user.set_va_username(self.cleaned_data.get("va_username"))
 
                 # If selected group cannot view PII, modify the user's permissions according to the checkbox.
                 if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
@@ -282,7 +282,7 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             """
             user.location_restrictions.set(location_restrictions)
             user.groups.set([group])
-            user.set_va_username(self.cleaned_data["va_username"])
+            user.set_va_username(self.cleaned_data.get("va_username"))
 
             # If selected group cannot view PII, modify the user's permissions according to the checkbox.
             if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
