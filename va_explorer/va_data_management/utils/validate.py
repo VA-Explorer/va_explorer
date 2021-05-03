@@ -70,20 +70,23 @@ def validate_vas_for_dashboard(verbal_autopsies):
 
         # Validate: location
         # location is used to display the record on the map
-        if va.location:                        
-            if va.location.name == "Unknown":
-                issue_text = "Warning: location field (parsed from hospital):, provided location was not a known facility. Set location to 'Unknown'"
-                issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
-                issues.append(issue) 
- 
-        else:
+        if not va.location:
             # try re-assigning location using location logic described in loading.py
             va = assign_va_location(va)
+            
             # if still no location, record an error
             if not va.location:
                 issue_text = "ERROR: no location provided (or none detected)"
                 issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="error", algorithm='', settings='')
-                issues.append(issue) 
+                issues.append(issue)
+        
+        # if location is "Unknown" (couldn't find match for provided location) record a warning
+        if va.location.name == "Unknown":
+            issue_text = "Warning: location field (parsed from hospital):, provided location was not a known facility. Set location to 'Unknown'"
+            issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
+            issues.append(issue) 
+            
+
                 
 
     CauseCodingIssue.objects.bulk_create(issues)
