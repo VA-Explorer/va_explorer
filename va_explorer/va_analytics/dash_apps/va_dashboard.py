@@ -74,9 +74,10 @@ app.layout = html.Div(
                                             "Last Week",
                                             "Last Month",
                                             "Last 3 Months",
-                                            "Last 6 Months",
-                                            "Last Year",
-                                            "All",
+# TODO: uncomment these once ingest issues have been fixed
+#                                            "Last 6 Months",
+#                                            "Last Year",
+#                                            "All",
                                         ]
                                     ],
                                     value=INITIAL_TIMEFRAME,
