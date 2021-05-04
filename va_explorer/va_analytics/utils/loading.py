@@ -112,6 +112,10 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
                 locations[ancestor.name] = ancestor.location_type
         va_df = pd.DataFrame.from_records(va_data)
                 
+        
+        # Assign to age group
+        va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
+        
         # Set the age field so we can calculate mean age of death
         va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
 
@@ -132,6 +136,29 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
 
     return return_dict
 
+
+def assign_age_group(va_row):
+    # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
+    # TODO determine if this is a valid check for empty or unknown values
+    if va_row["age_group"] not in ["adult", "neonate", "child"]: 
+        if va_row["isNeonatal1"] == 1:
+            return "neonate"
+        elif va_row["isChild1"] == 1:
+            return "child"
+        elif va_row["isAdult1"] == 1:
+            return "adult"
+        else:
+            # try determine group by the age in years
+            try:
+                age = int(va_row["age"])
+                if age <= 1:
+                    return "neonate"
+                if age <= 16:
+                    return "child"
+                return "adult"
+            except:
+                return "Unknown"
+    return va_row["age_group"]
 
 
 
