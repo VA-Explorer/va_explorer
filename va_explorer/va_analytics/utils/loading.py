@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import json
 import os
+import time
 
 from va_explorer.va_data_management.models import Location
 
@@ -67,13 +68,13 @@ def load_geojson_data(json_file):
     return geojson
 
 # ============ VA Data =================
-def load_va_data(user, geographic_levels=None):
+def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     np.random.seed(23)
     return_dict = {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
     
     # the dashboard requires date of death, exclude if the date is unknown
-    all_vas = user.verbal_autopsies().exclude(Id10023="dk").exclude(location__isnull=True).prefetch_related("location").prefetch_related("causes")
-
+    all_vas = user.verbal_autopsies(date_cutoff=date_cutoff).exclude(Id10023="dk").exclude(location__isnull=True).prefetch_related("location").prefetch_related("causes")
+    
     if len(all_vas) > 0:
         # Grab exactly the fields we need, including location and cause data
         va_data = [
@@ -82,7 +83,6 @@ def load_va_data(user, geographic_levels=None):
                 "Id10019": va.Id10019,
                 "Id10058": va.Id10058,
                 "date" : va.Id10023, # date of death assignment
-                "Id10305": va.Id10305, # check for pregnancy
                 "ageInYears": va.ageInYears,
                 "age_group": va.age_group,
                 "isNeonatal1": va.isNeonatal1,
@@ -97,7 +97,6 @@ def load_va_data(user, geographic_levels=None):
         # Build a location ancestors lookup and add location information at all levels to all vas
         # TODO: This is not efficient (though it's better than 2 DB queries per VA)
         # TODO: This assumes that all VAs will occur in a facility, ok? 
-        # TODO: use field Id10058 where did the death occur this would be facility name if applicable, Id10057, specify country, province, district, village
         # TODO: if there is no location data, we could use the location associated with the interviewer
         locations, location_types = dict(), dict()
         location_ancestors = {
@@ -111,13 +110,12 @@ def load_va_data(user, geographic_levels=None):
                 va_data[i][ancestor.location_type] = ancestor.name
                 location_types[ancestor.depth] = ancestor.location_type
                 locations[ancestor.name] = ancestor.location_type
-
         va_df = pd.DataFrame.from_records(va_data)
-                
+
         # Set the age field so we can calculate mean age of death
         va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
 
-        # Assign to age group        
+        # Assign to age group
         va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
 
         # split data into valid data (records w COD) and invalid records (recoreds w/out COD)
@@ -159,5 +157,6 @@ def assign_age_group(va_row):
             except:
                 return "Unknown"
     return va_row["age_group"]
+
 
 

@@ -34,7 +34,7 @@ app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=Tr
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timeframe for map data to display
-INITIAL_TIMEFRAME = "all"
+INITIAL_TIMEFRAME = "last 3 months"
 # folder where all data and settings local to app are kept
 DATA_DIR = "va_explorer/va_analytics/dash_apps/dashboard_data"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
@@ -73,9 +73,11 @@ app.layout = html.Div(
                                             "Today",
                                             "Last Week",
                                             "Last Month",
-                                            "Last 6 Months",
-                                            "Last Year",
-                                            "All",
+                                            "Last 3 Months",
+# TODO: uncomment these once ingest issues have been fixed
+#                                            "Last 6 Months",
+#                                            "Last Year",
+#                                            "All",
                                         ]
                                     ],
                                     value=INITIAL_TIMEFRAME,
@@ -498,7 +500,9 @@ designated as "expanded"
 )
 
 def init_va_data(hidden_trigger=None, **kwargs):
-    res = loading.load_va_data(kwargs['user'])
+    timeframe =  dt.timedelta(days=LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "1901-01-01"))
+    date_cutoff = dt.datetime.today() - timeframe
+    res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
     valid_va_data = res["data"]["valid"].to_json(default_handler=str)
     invalid_va_data = res["data"]["invalid"].to_json(default_handler=str)
     locations = json.dumps(res.get("locations", []))

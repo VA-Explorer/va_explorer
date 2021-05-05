@@ -25,6 +25,7 @@ def load_lookup_dicts():
     lookup["time_dict"] = {"today": 1, 
                           "last week": 7,
                           "last month": 30,
+                          "last 3 months": 30.4 * 3,
                           "last 6 months": 30.4 * 6, # last 182.5 days
                           "last year": 365,
                           "all": "all"}
