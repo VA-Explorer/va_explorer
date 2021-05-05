@@ -111,14 +111,12 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
                 location_types[ancestor.depth] = ancestor.location_type
                 locations[ancestor.name] = ancestor.location_type
         va_df = pd.DataFrame.from_records(va_data)
-                
-        
-        # Assign to age group
-        va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
-        
+
         # Set the age field so we can calculate mean age of death
         va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
 
+        # Assign to age group
+        va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
 
         # split data into valid data (records w COD) and invalid records (recoreds w/out COD)
         valid_va_df = va_df[~pd.isnull(va_df["cause"])].reset_index()
