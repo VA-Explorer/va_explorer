@@ -34,7 +34,7 @@ app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=Tr
 # TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timeframe for map data to display
-INITIAL_TIMEFRAME = "last 3 months"
+INITIAL_TIMEFRAME = "all"
 # folder where all data and settings local to app are kept
 DATA_DIR = "va_explorer/va_analytics/dash_apps/dashboard_data"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
@@ -74,10 +74,9 @@ app.layout = html.Div(
                                             "Last Week",
                                             "Last Month",
                                             "Last 3 Months",
-# TODO: uncomment these once ingest issues have been fixed
-#                                            "Last 6 Months",
-#                                            "Last Year",
-#                                            "All",
+                                            "Last 6 Months",
+                                            "Last Year",
+                                            "All",
                                         ]
                                     ],
                                     value=INITIAL_TIMEFRAME,
@@ -500,8 +499,10 @@ designated as "expanded"
 )
 
 def init_va_data(hidden_trigger=None, **kwargs):
-    timeframe =  dt.timedelta(days=LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "1901-01-01"))
-    date_cutoff = dt.datetime.today() - timeframe
+    date_cutoff=None
+    timeframe = LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "all")
+    if timeframe != "all":
+        date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
     res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
     valid_va_data = res["data"]["valid"].to_json(default_handler=str)
     invalid_va_data = res["data"]["invalid"].to_json(default_handler=str)
@@ -610,13 +611,9 @@ def filter_data(
                 "invalid": invalid_filter["plot_ids"],
             },
         }
-
-        # if no valid or invalid data, turn off timeframe
-#        if (len(valid_filter["ids"]) == 0) and (len(invalid_filter["ids"]) == 0):
-#            disable_timeframe = True
         
 
-        return json.dumps(combined_filter_dict)#, disable_timeframe
+        return json.dumps(combined_filter_dict)#, json.dumps(combined_filter_dict)#, disable_timeframe
 
 
 # helper method to get filter ids given adjacent plot regions
@@ -681,7 +678,7 @@ def _get_filter_dict(
         if len(selected_json) > 0:
             point_df = pd.DataFrame(selected_json["points"])
             chosen_regions = point_df["location"].tolist()
-            granularity = locations.get(chosen_regions[0], granularity)
+            granularity = locations.get(chosen_regions[-1], granularity)
             filter_df = filter_df[filter_df[granularity].isin(set(chosen_regions))]
             filter_dict["chosen_region"] = chosen_regions[0]
     
@@ -801,7 +798,7 @@ def update_view_options(filter_dict, location_types, **kwargs):
 
 # ====================Map Logic===================================#
 @app.callback(
-#       [
+#      [
         Output(component_id="choropleth-container", component_property="children"),
 #        Output(component_id="bounds", component_property="children")
 #        ],
@@ -825,12 +822,7 @@ def update_choropleth(
     zoom_in=False,
     **kwargs
 ):
-    # first, see which input triggered update. If granularity change, only run
-    # if value is non-empty
-#    context = dash.callback_context
-#    trigger = context.triggered[0]
-#    if trigger["prop_id"].split(".")[0] == "view_level" and trigger["value"] == "":
-#        raise dash.exceptions.PreventUpdate
+
     figure = go.Figure()
     config = None
     if va_data is not None:
@@ -841,7 +833,7 @@ def update_choropleth(
         granularity = INITIAL_GRANULARITY
         location_types = json.loads(location_types)
         include_no_datas = True
-        ret_val = dict()
+#        ret_val = dict()
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
         data_value = (
@@ -871,24 +863,21 @@ def update_choropleth(
                 plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
                 # only proceed with filter if remaining data after filter
                 if plot_data.size > 0:
-                    ret_val["filter_dict"] = filter_dict
                     # if zoom in necessary, filter geojson to only chosen region(s)
                     if zoom_in:
-
                         # if user has clicked on map, try to zoom into a finer granularity
                         granularity = shift_granularity(
                             granularity, location_types, move_up=False
                         )
 
                         plot_geos = [
-                            g
-                            for g in geojson["features"]
+                            g for g in geojson["features"]
                             if g["properties"]["area_name"] in plot_regions
                         ]
                         chosen_region = plot_data[granularity].unique()[0]
                         # if adjacent_ids specified, and data exists for these regions, plot them on map first
                         plot_ids = filter_dict["plot_ids"]["valid"]
-                        #                    ret_val["plot_ids"] = plot_ids
+
                         if len(plot_ids) > 0:
                             adjacent_data = all_data.iloc[plot_ids, :].loc[
                                 all_data[granularity] != chosen_region
@@ -934,7 +923,7 @@ def update_choropleth(
                 cod_type,
                 include_no_datas,
             )
-
+            
                 # Set plot title to Total VAs if cod_type=='all'
             cod_title = "Total VAs" if cod_type == "all" else cod_type.capitalize()
 
@@ -1004,7 +993,7 @@ def update_choropleth(
             )
     
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config)
-    return return_value
+    return return_value#, json.dumps(ret_val)
 
 
 # ==========Helper method to plot adjacent regions on map =====#

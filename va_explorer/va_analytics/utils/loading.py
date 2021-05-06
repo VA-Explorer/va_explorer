@@ -113,7 +113,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
     # TODO: This assumes that all VAs will occur in a facility, ok? 
     # TODO: if there is no location data, we could use the location associated with the interviewer
-    location_types = set()
+    location_types = dict()
     locations = {}
     location_ancestors = {
         location.id: location.get_ancestors()
@@ -124,7 +124,8 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         # Find parents (likely district and province).
         for ancestor in location_ancestors[va['location__id']]:
             va[ancestor.location_type] = ancestor.name
-            location_types.add(ancestor.location_type)
+            #location_types.add(ancestor.location_type)
+            location_types[ancestor.depth] = ancestor.location_type
             locations[ancestor.name] = ancestor.location_type
 
         # Clean up location fields.
@@ -137,12 +138,17 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
     va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
     
+    # need this becasue location types need to be sorted by depth
+    location_types = [
+        l for _, l in sorted(location_types.items(), key=lambda x: x[0])
+    ]
+    
     return {
         "data": {
             "valid": va_df[~pd.isnull(va_df["cause"])].reset_index(),
             "invalid": va_df[pd.isnull(va_df["cause"])].reset_index(),
         },
-        "location_types": sorted(location_types),
+        "location_types": location_types,
         "max_depth": len(location_types) - 1,
         "locations": locations,
     }

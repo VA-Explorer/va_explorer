@@ -28,7 +28,8 @@ def load_lookup_dicts():
                           "last 3 months": 30.4 * 3,
                           "last 6 months": 30.4 * 6, # last 182.5 days
                           "last year": 365,
-                          "all": "all"}
+                          # assuming all VAs occured in last 30 years
+                          "all": "all"} 
     # dictionary mapping demographic variable names to corresponding VA survey columns
     lookup["demo_to_col"] = {
         "age group": "age_group",
