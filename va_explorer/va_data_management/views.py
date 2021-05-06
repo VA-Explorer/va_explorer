@@ -5,7 +5,6 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
-from datetime import datetime
 import logging
 
 from config.celery_app import app
@@ -14,8 +13,7 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
-
+from va_explorer.va_data_management.utils.logs import write_va_log
 LOGGER = logging.getLogger("event_logger")
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -26,7 +24,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
         # Restrict to VAs this user can access and prefetch related for performance
         queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
-
+        
         # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
         # since many do not apply to them. This prevents data passed through the params from being
         # passed to the VAFilter
@@ -34,7 +32,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         if self.request.user.is_fieldworker() or not self.request.user.can_view_pii:
             self.filterset = VAFilter(data=None, queryset=queryset)
             query = ', '.join([f"{k}: {v if v else []}" for k,v in self.request.GET.dict().items() if k != 'csrfmiddlewaretoken'])
-            LOGGER.info(f"user {self.request.user.username} made VA query {query}")
+            write_va_log(LOGGER, f"user {self.request.user.username} made VA query {query}", self.request)
 
         # do the filtering thing
         else:
@@ -47,7 +45,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         context["filterset"] = self.filterset
         #parse_date(va.Id10023)
-        #breakpoint()
+        breakpoint()
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
@@ -91,7 +89,7 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
         
         # log click event
-        LOGGER.info(f"clicked view record for va {self.object.id}")
+        write_va_log(LOGGER, f"clicked view record for va {self.object.id}", self.request)
 
         return context
 
@@ -107,7 +105,7 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
     def get_success_url(self):
         # update the validation errors
         validate_vas_for_dashboard([self.object])
-        LOGGER.info(f"successfully saved changes to VA {self.object.id}")
+        write_va_log(LOGGER, f"successfully saved changes to VA {self.object.id}", self.request)
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
 
     def get_form_kwargs(self):
@@ -119,7 +117,7 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['id'] = self.object.id
-        LOGGER.info(f"clicked edit record for va {context['id']}")
+        write_va_log(LOGGER, f"clicked edit record for va {context['id']}", self.request)
         return context
 
 
@@ -137,7 +135,7 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, De
             # update the validation errors
             validate_vas_for_dashboard([earliest])
         messages.success(self.request, self.success_message)
-        LOGGER.info(f"reset data for va {context['id']}")
+        write_va_log(LOGGER, f"reset data for va {context['id']}", self.request)
         return redirect('va_data_management:show', id=self.object.id)
 
 
@@ -157,7 +155,7 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
                 # update the validation errors
                 validate_vas_for_dashboard([previous])
         messages.success(self.request, self.success_message)
-        LOGGER.info(f"Reverted Changes for va {context['id']}")
+        write_va_log(LOGGER, f"Reverted Changes for va {context['id']}", self.request)
         return redirect('va_data_management:show', id=self.object.id)
 
 
@@ -168,5 +166,5 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
     def post(self, request, *args, **kwargs):
         run_coding_algorithms.apply_async()
         messages.success(request, f"Coding algorithm process has started in the background.")
-        LOGGER.info(f"ran coding algorithm")
+        write_va_log(LOGGER, "ran coding algorithm", self.request)
         return super().post(request, *args, **kwargs)
