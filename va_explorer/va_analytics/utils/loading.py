@@ -102,7 +102,6 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
             'location__id',
             'location__name',
             'ageInYears',
-            age=F("ageInYears"),
             date=F("Id10023"),
             cause=F("causes__cause"),
         )
@@ -138,7 +137,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
 
     # Convert list to dataframe.
     va_df = pd.DataFrame.from_records(all_vas)
-    va_df["age"] = pd.to_numeric(va_df["age"], errors="coerce")
+    va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
     
     return {
         "data": {
