@@ -132,12 +132,10 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         del va["location__name"]
         del va["location__id"]
 
-        # Check age group
-        va["age_group"] = get_age_group(va)
-
     # Convert list to dataframe.
     va_df = pd.DataFrame.from_records(all_vas)
     va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
+    va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
     
     return {
         "data": {
@@ -150,20 +148,20 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     }
 
 
-def get_age_group(va):
+def assign_age_group(va):
     # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
     # TODO determine if this is a valid check for empty or unknown values
 
     if va["age_group"] in ["adult", "neonate", "child"]: 
         return va["age_group"]
 
-    if va["isNeonatal1"] == 1:
+    if va["isNeonatal1"] == "1.0":
         return "neonate"
 
-    if va["isChild1"] == 1:
+    if va["isChild1"] == "1.0":
         return "child"
     
-    if va["isAdult1"] == 1:
+    if va["isAdult1"] == "1.0":
         return "adult"
     
     # try determine group by the age in years
