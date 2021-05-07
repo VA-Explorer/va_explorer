@@ -224,15 +224,19 @@ app.layout = html.Div(
                                     ],
                                 ),
                                 html.Div(id="bounds"),
-                                html.Div(id="va_data", style={"display": "none"}),
-                                html.Div(
-                                    id="invalid_va_data", style={"display": "none"}
-                                ),
-                                html.Div(id="locations", style={"display": "none"}),
-                                html.Div(
-                                    id="location_types", style={"display": "none"}
-                                ),
-                                html.Div(id="filter_dict", style={"display": "none"}),
+                                dcc.Store(id="va_data"),
+                                dcc.Store(id="invalid_va_data"),
+#                                html.Div(
+#                                    id="invalid_va_data", style={"display": "none"}
+#                                ),
+                                dcc.Store(id="locations"),
+                                dcc.Store(id="location_types"),
+#                                html.Div(id="locations", style={"display": "none"}),
+#                                html.Div(
+#                                    id="location_types", style={"display": "none"}
+#                                ),
+                                dcc.Store(id="filter_dict"),
+                                #html.Div(id="filter_dict", style={"display": "none"}),
                                 # used to trigger data ingest when page first loads
                                 html.Div(id="hidden_trigger", style={"display": "none"})
                             ],
@@ -490,10 +494,10 @@ designated as "expanded"
 '''
 @app.expanded_callback(
     [
-        Output(component_id="va_data", component_property="children"),
-        Output(component_id="invalid_va_data", component_property="children"),
-        Output(component_id="locations", component_property="children"),
-        Output(component_id="location_types", component_property="children"),
+        Output(component_id="va_data", component_property="data"),
+        Output(component_id="invalid_va_data", component_property="data"),
+        Output(component_id="locations", component_property="data"),
+        Output(component_id="location_types", component_property="data"),
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
@@ -504,10 +508,10 @@ def init_va_data(hidden_trigger=None, **kwargs):
     if timeframe != "all":
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
     res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
-    valid_va_data = res["data"]["valid"].to_json(default_handler=str)
-    invalid_va_data = res["data"]["invalid"].to_json(default_handler=str)
-    locations = json.dumps(res.get("locations", []))
-    location_types = json.dumps(res.get("location_types", []))
+    valid_va_data = res["data"]["valid"].to_dict()#.to_json(default_handler=str)
+    invalid_va_data = res["data"]["invalid"].to_dict()#.to_json(default_handler=str)
+    locations = res.get("locations", [])
+    location_types = res.get("location_types", [])
     return valid_va_data, invalid_va_data, locations, location_types
 
 
@@ -516,15 +520,14 @@ def init_va_data(hidden_trigger=None, **kwargs):
     Output(component_id="map_search", component_property="options"),
     [
         Input(component_id="map_search", component_property="search_value"),
-        Input(component_id="locations", component_property="children"),
+        Input(component_id="locations", component_property="data"),
     ],
 )
-def update_map_options(search_value, location_json, **kwargs):
-    if search_value and location_json:
-        locations = json.loads(location_json).keys()
+def update_map_options(search_value, locations, **kwargs):
+    if search_value and locations:
         options = [
             {"label": location, "value": location}
-            for location in locations
+            for location in locations.keys()
             if search_value.lower() in location.lower()
         ]
         return options
@@ -535,19 +538,19 @@ def update_map_options(search_value, location_json, **kwargs):
 # ============ Filter logic (update filter table used by other componenets)========#
 @app.callback(
 #    [
-        Output(component_id="filter_dict", component_property="children"),
+        Output(component_id="filter_dict", component_property="data"),
 #        Output(component_id="timeframe", component_property="disabled"),
 #        Output(component_id="bounds", component_property="children")
 #    ],
     [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="invalid_va_data", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
+        Input(component_id="invalid_va_data", component_property="data"),
         Input(component_id="choropleth", component_property="selectedData"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_type", component_property="value"),
         Input(component_id="map_search", component_property="value"),
-        Input(component_id="locations", component_property="children"),
-        Input(component_id="location_types", component_property="children"),
+        Input(component_id="locations", component_property="data"),
+        Input(component_id="location_types", component_property="data"),
     ],
 )
 def filter_data(
@@ -562,13 +565,12 @@ def filter_data(
     **kwargs
 ):
     if va_data is not None:
-        valid_va_df = pd.read_json(va_data)
-        invalid_va_df = pd.read_json(invalid_va_data)
-        locations = json.loads(locations) if isinstance(locations, str) else locations
+        valid_va_df = pd.DataFrame(va_data)
+        invalid_va_df = pd.DataFrame(invalid_va_data)
         search_terms = [] if search_terms is None else search_terms
-        location_types = (
-            json.loads(location_types) if location_types is not None else location_types
-        )
+#        location_types = (
+#            json.loads(location_types) if location_types is not None else location_types
+#        )
         #disable_timeframe = False
         
         # get user location restrictions. If none, will return an empty queryset
@@ -613,7 +615,7 @@ def filter_data(
         }
         
 
-        return json.dumps(combined_filter_dict)#, json.dumps(combined_filter_dict)#, disable_timeframe
+        return combined_filter_dict#, json.dumps(combined_filter_dict)#, disable_timeframe
 
 
 # helper method to get filter ids given adjacent plot regions
@@ -732,18 +734,17 @@ def shift_granularity(current_granularity, levels, move_up=False):
 @app.callback(
     Output(component_id="cod_type", component_property="options"),
     [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
+        Input(component_id="filter_dict", component_property="data"),
     ],
 )
 def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
     # by default, start with aggregate measures
     metrics = []
-    metric_data = pd.read_json(va_data)
+    metric_data = pd.DataFrame(va_data)
     if metric_data.size > 0:
         if filter_dict is not None:
-            filter_dict = json.loads(filter_dict)
-            metric_data = metric_data.iloc[filter_dict["ids"]["valid"], :]
+            metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
             # only load options if remaining data after filter
             if metric_data.size > 0:
                 # add top N CODs by incidence to metric list
@@ -776,18 +777,17 @@ def get_metric_display_names(map_metrics):
         #Output(component_id="view_label", component_property="className"),
     ],
     [
-        Input(component_id="filter_dict", component_property="children"),
-        Input(component_id="location_types", component_property="children"),
+        Input(component_id="filter_dict", component_property="data"),
+        Input(component_id="location_types", component_property="data"),
     ],
 )
 def update_view_options(filter_dict, location_types, **kwargs):
     if filter_dict is not None:
-        filter_dict = json.loads(filter_dict)
 
         # only activate when user is zoomed out and hasn't searched for anything
         disable = (filter_dict["geo_filter"] or filter_dict["search_filter"])
         if not disable:
-            view_options = json.loads(location_types)
+            view_options = location_types
            # label_class = "input-label"
         else:
             view_options = []
@@ -803,12 +803,12 @@ def update_view_options(filter_dict, location_types, **kwargs):
 #        Output(component_id="bounds", component_property="children")
 #        ],
     [
-        Input(component_id="va_data", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_type", component_property="value"),
         Input(component_id="view_level", component_property="value"),
-        Input(component_id="location_types", component_property="children"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="location_types", component_property="data"),
+        Input(component_id="filter_dict", component_property="data"),
     ],
 )
 def update_choropleth(
@@ -827,11 +827,11 @@ def update_choropleth(
     config = None
     if va_data is not None:
         # initialize variables
-        all_data = pd.read_json(va_data)
+        all_data = pd.DataFrame(va_data)
         plot_data = all_data.copy()
         return_value = html.Div(id="choropleth")
         granularity = INITIAL_GRANULARITY
-        location_types = json.loads(location_types)
+        location_types = location_types
         include_no_datas = True
 #        ret_val = dict()
         border_thickness = 0.25  # thickness of borders on map
@@ -847,7 +847,6 @@ def update_choropleth(
 
             # if dashboard filter applied, carry over to data
             if filter_dict is not None:
-                filter_dict = json.loads(filter_dict)
                 granularity = filter_dict.get("granularity", granularity)
 
                 # only proceed if filter is non-empty
@@ -860,7 +859,7 @@ def update_choropleth(
                 if len(plot_regions) == 0 and zoom_in:
                     raise dash.exceptions.PreventUpdate
                 
-                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                 # only proceed with filter if remaining data after filter
                 if plot_data.size > 0:
                     # if zoom in necessary, filter geojson to only chosen region(s)
@@ -879,7 +878,7 @@ def update_choropleth(
                         plot_ids = filter_dict["plot_ids"]["valid"]
 
                         if len(plot_ids) > 0:
-                            adjacent_data = all_data.iloc[plot_ids, :].loc[
+                            adjacent_data = all_data.loc[plot_ids, :].loc[
                                 all_data[granularity] != chosen_region
                             ]
 
@@ -1102,10 +1101,10 @@ def generate_map_data(
 @app.callback(
     Output(component_id="callout-container", component_property="children"),
     [
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="invalid_va_data", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
+        Input(component_id="invalid_va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="filter_dict", component_property="data"),
     ],
 )
 def update_callouts(
@@ -1119,15 +1118,13 @@ def update_callouts(
         0,
     )
     if va_data is not None:
-        plot_data = pd.read_json(va_data)
-
-        invalid_va_data = pd.read_json(invalid_va_data)
+        plot_data = pd.DataFrame(va_data)
+        invalid_va_data = pd.DataFrame(invalid_va_data)
         granularity = INITIAL_GRANULARITY
         if plot_data.size > 0:
             if filter_dict is not None:
-                filter_dict = json.loads(filter_dict)
-                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
-                invalid_va_data = invalid_va_data.iloc[filter_dict["ids"]["invalid"], :]
+                plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
+                invalid_va_data = invalid_va_data.loc[filter_dict["ids"]["invalid"], :]
                 granularity = filter_dict.get("granularity", granularity)
 
             # total valid (coded) VAs
@@ -1206,19 +1203,18 @@ def make_card(
 @app.callback(
     Output(component_id="demos-container", component_property="children"),
     [
-        Input(component_id="va_data", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="filter_dict", component_property="data"),
     ],
 )
 def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
     figure = go.Figure()
     if va_data is not None:
-        plot_data = pd.read_json(va_data)
+        plot_data = pd.DataFrame(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
-                filter_dict = json.loads(filter_dict)
-                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                 # if cod chosen, filter down to only vas with chosen cod
                 if filter_dict["cod_type"].lower() != "all":
                     cod = filter_dict["cod_type"]
@@ -1234,12 +1230,12 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
 @app.callback(
     Output(component_id="cod-container", component_property="children"),
     [
-        Input(component_id="va_data", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_factor", component_property="value"),
         Input(component_id="cod_group", component_property="value"),
         Input(component_id="cod_n", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="filter_dict", component_property="data"),
     ],
 )
 
@@ -1247,11 +1243,10 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
     figure = go.Figure()
     if len(cod_groups) > 0:
         if va_data is not None:
-            plot_data = pd.read_json(va_data)
+            plot_data = pd.DataFrame(va_data)
             if filter_dict is not None:
-                filter_dict = json.loads(filter_dict)
                 cod = filter_dict["cod_type"]
-                plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
             
                 # if no cod group filter (default), call standard cod plotting function
             cod_groups = [cod_groups] if type(cod_groups) is str else cod_groups
@@ -1268,8 +1263,8 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
     Output(component_id="ts_search", component_property="options"),
     [
         Input(component_id="ts_search", component_property="search_value"),
-        Input(component_id="va_data", component_property="children"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
+        Input(component_id="filter_dict", component_property="data"),
     ],
 )
 
@@ -1282,9 +1277,8 @@ def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, 
         all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
         
         # load unique cods in selected data
-        va_data = pd.read_json(va_data)
+        va_data = pd.DataFrame(va_data)
         if va_data.size > 0 and filter_dict:
-            filter_dict = json.loads(filter_dict)
             valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
             unique_cods = valid_va_data["cause"].unique().tolist()
             all_options += [(cod_name, "cod") for cod_name in unique_cods]
@@ -1310,10 +1304,10 @@ def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, 
 #     ],
     
     [
-        Input(component_id="va_data", component_property="children"),
+        Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="group_period", component_property="value"),
-        Input(component_id="filter_dict", component_property="children"),
+        Input(component_id="filter_dict", component_property="data"),
         Input(component_id="ts_factor", component_property="value"),
         Input(component_id="ts_search", component_property="value")
     ],
@@ -1322,11 +1316,11 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
     figure, plot_title = go.Figure(), None
     search_term_ids = {}
     if va_data is not None:
-        plot_data = pd.read_json(va_data)
+        plot_data = pd.DataFrame(va_data)
         if plot_data.size > 0:
             if filter_dict is not None:
-                filter_dict = json.loads(filter_dict)
                 cod = filter_dict["cod_type"]
+                plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                 # first, check for search terms. If any, use as filter
                 if search_terms and len(search_terms) > 0:
                     if type(search_terms) is str:
@@ -1363,7 +1357,7 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                 # otherwise, check if global cod has been chosen   
                 elif cod.lower() != "all":
                     cod_title = LOOKUP["display_names"].get(cod, cod)
-                    plot_data = plot_data.iloc[filter_dict["ids"]["valid"], :]
+                    plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                     search_term_ids[cod] = plot_data[plot_data["cause"] == cod].index.tolist()
                     plot_title = f"{cod_title} Trend by {group_period}"
 
