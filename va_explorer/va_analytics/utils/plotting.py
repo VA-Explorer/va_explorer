@@ -36,15 +36,18 @@ def load_lookup_dicts():
         "sex": "Id10019",
         "place of death": "Id10058",
     }
-    # colors used for plotting
+    # colors used for plotting - override with whatever color scheme you'd like
     lookup["color_list"] = [
-        "rgb(24,162,185)",
-        "rgb(201,0,1)",
-        "rgb(8,201,0)",
-        "rgb(240,205,21)",
-        "rgb(187,21,240)",
-        "rgb(250,250,248)",
-        "rgb(162,162,162)",
+        "rgb(24,162,185)", # turquoise
+        "rgb(201,0,1)", # burgandy
+        "rgb(8,201,0)", #  green
+        "rgb(240,205,21)", # gold
+        "rgb(187,21,240)", # purple
+        "rgb(162,162,162)", # gray
+        "rgb(239,86,59)", # dark orange
+        "rgb(20,72,123)", # midnight blue, 
+        "rgb(9,112,13)", # dark green
+        "rgb(239,49,255)" # fuschia
     ]
     # colorscale used for map
     lookup["colorscales"] = {

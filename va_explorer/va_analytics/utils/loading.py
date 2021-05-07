@@ -161,13 +161,13 @@ def assign_age_group(va):
     if va["age_group"] in ["adult", "neonate", "child"]: 
         return va["age_group"]
 
-    if va["isNeonatal1"] == "1.0":
+    if va["isNeonatal1"] == 1:
         return "neonate"
 
-    if va["isChild1"] == "1.0":
+    if va["isChild1"] == 1:
         return "child"
     
-    if va["isAdult1"] == "1.0":
+    if va["isAdult1"] == 1:
         return "adult"
     
     # try determine group by the age in years
