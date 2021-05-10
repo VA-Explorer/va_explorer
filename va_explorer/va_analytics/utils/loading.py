@@ -135,6 +135,8 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
 
     # Convert list to dataframe.
     va_df = pd.DataFrame.from_records(all_vas)
+    # convert dates to datetimes
+    va_df["date"] = pd.to_datetime(va_df["date"])
     va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
     va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
     
