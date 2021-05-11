@@ -25,6 +25,11 @@ GROUPS_PERMISSIONS = {
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"],
     },
+    "Dashboard Viewers": {
+        Dashboard: ["view_dashboard", "download_data"],
+        User: [],
+        VerbalAutopsy: [],
+    },
     "Field Workers": {
         Dashboard: [],
         User: [],
