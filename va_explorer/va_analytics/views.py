@@ -36,11 +36,14 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
         for va in valid_vas:
             # convert model object to dictionary
             va_dict = model_to_dict(va)
-            # get location and cod
-            va_dict["location"] = va.location.name
+            # get location
+            va_dict["location"] = ""
+            if va.location:
+                va_dict["location"] = va.location.name
+                for ancestor in location_ancestors[va.location.id]:
+                    va_dict[ancestor.location_type] = ancestor.name
+            # get cause of death
             va_dict["cause"] = va.causes.all()[0].cause
-            for ancestor in location_ancestors[va.location.id]:
-                va_dict[ancestor.location_type] = ancestor.name
             va_data.append(va_dict)
 
         va_df = pd.DataFrame.from_records(va_data)
