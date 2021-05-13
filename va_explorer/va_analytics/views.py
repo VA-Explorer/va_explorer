@@ -1,15 +1,19 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView, View
 from django.http import HttpResponse
-from django.forms.models import model_to_dict
+from django.db.models import F
+import logging
 import pandas as pd
 
+
 from va_explorer.va_data_management.models import Location
-from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import PII_FIELDS
 from va_explorer.va_data_management.models import REDACTED_STRING
+from va_explorer.va_data_management.utils.logs import write_va_log
+
 from va_explorer.utils.mixins import CustomAuthMixin
 
+LOGGER = logging.getLogger("event_logger")
 
 class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "va_analytics/dashboard.html"
@@ -18,34 +22,46 @@ class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
 
 dashboard_view = DashboardView.as_view()
 
-
 class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
     permission_required = "va_analytics.download_data"
 
-    def get(self, request, *args, **kwargs):
-        valid_vas = self.request.user.verbal_autopsies() \
-            .exclude(causes=None).prefetch_related("location").prefetch_related("causes")
-
+    def get(self, request, date_cutoff="1901-01-01", *args, **kwargs,):
+        # NOTE: using same filters as dashboard - exclude vas w/ null locations, unknown death dates, or unknown CODs 
+        valid_vas = self.request.user \
+        .verbal_autopsies(date_cutoff=date_cutoff) \
+        .exclude(Id10023="dk") \
+        .exclude(location__isnull=True) \
+        .select_related("location") \
+        .select_related("causes") \
+        .annotate(date=F("Id10023"),\
+                 cause=F("causes__cause"), \
+                 loc_id=F('location__id'), \
+                 loc_name=F('location__name')) \
+        .values()
+    
         # Build a location ancestors lookup and add location information at all levels to all vas
         location_ancestors = { 
             location.id:location.get_ancestors() for location in Location.objects.filter(location_type="facility") 
         }
 
-        va_data = []
         # extract COD and location-based fields for each va object and convert to dicts
         for va in valid_vas:
-            # convert model object to dictionary
-            va_dict = model_to_dict(va)
-            # get location and cod
-            va_dict["location"] = va.location.name
-            va_dict["cause"] = va.causes.all()[0].cause
-            for ancestor in location_ancestors[va.location.id]:
-                va_dict[ancestor.location_type] = ancestor.name
-            va_data.append(va_dict)
+            
+            for ancestor in location_ancestors[va['loc_id']]:
+                va[ancestor.location_type] = ancestor.name
+                #locations[ancestor.name] = ancestor.location_type
 
-        va_df = pd.DataFrame.from_records(va_data)
+            # Clean up location fields.
+            va["location"] = va["loc_name"]
+            del (va["loc_name"], va["loc_id"])
 
+        va_df = pd.DataFrame.from_records(valid_vas)
+        
         # If user cannot view PII, redact all PII fields:
+        if "index" in va_df.columns:
+            va_df.drop(columns=["index"], inplace=True)
+            
+        #del(data_dict)
         if not request.user.can_view_pii:
             for field in PII_FIELDS:
                 va_df[field] = REDACTED_STRING
@@ -54,6 +70,8 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="va_download.csv"'
         va_df.to_csv(response, index=False)
+        
+        write_va_log(LOGGER, f"[dashboard] clicked download data", self.request)
 
         return response
 

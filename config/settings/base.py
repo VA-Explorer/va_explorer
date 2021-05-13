@@ -73,10 +73,12 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
+    "dpd_static_support"
 ]
 
 LOCAL_APPS = [
     "va_explorer.home.apps.HomeConfig",
+    "va_explorer.logs.apps.LogsConfig",
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
@@ -301,7 +303,7 @@ PLOTLY_COMPONENTS = [
     'dash_html_components',
     'dash_renderer',
     'dpd_components',
-    'dash_bootstrap_components'
+    'dash_bootstrap_components',
 ]
 
 PLOTLY_DASH = {

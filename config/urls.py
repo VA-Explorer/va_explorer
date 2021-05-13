@@ -15,7 +15,8 @@ urlpatterns = [
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     # Your stuff: custom urls includes go here
     path("va_analytics/", include("va_explorer.va_analytics.urls", namespace="va_analytics")),
-    path("va_data_management/", include("va_explorer.va_data_management.urls", namespace="va_data_management"))
+    path("va_data_management/", include("va_explorer.va_data_management.urls", namespace="va_data_management")),
+    path("logs/", include("va_explorer.logs.urls", namespace="logs"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

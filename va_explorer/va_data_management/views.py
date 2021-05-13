@@ -14,6 +14,8 @@ from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.logs import write_va_log
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+
 LOGGER = logging.getLogger("event_logger")
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -24,19 +26,21 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
         # Restrict to VAs this user can access and prefetch related for performance
         queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
-        
         # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
         # since many do not apply to them. This prevents data passed through the params from being
         # passed to the VAFilter
         # Also hide filter if the user cannot view PII since the filterable fields contain PII.
         if self.request.user.is_fieldworker() or not self.request.user.can_view_pii:
             self.filterset = VAFilter(data=None, queryset=queryset)
-            query = ', '.join([f"{k}: {v if v else []}" for k,v in self.request.GET.dict().items() if k != 'csrfmiddlewaretoken'])
-            write_va_log(LOGGER, f"user {self.request.user.username} made VA query {query}", self.request)
 
         # do the filtering thing
         else:
             self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+        query_dict = self.request.GET.dict()
+        query_keys = [k for k in query_dict if k != 'csrfmiddlewaretoken']
+        if len(query_keys) > 0:
+            query = ', '.join([f"{k}: {query_dict.get(k, [])}" for k in query_keys])
+            write_va_log(LOGGER, f"[data_mgnt] User {self.request.user.username} made VA query {query}", self.request)
 
         return self.filterset.qs
 
@@ -45,7 +49,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         context["filterset"] = self.filterset
         #parse_date(va.Id10023)
-        breakpoint()
         context['object_list'] = [{
             "id": va.id,
             "name": va.Id10007,
@@ -88,8 +91,8 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
         
-        # log click event
-        write_va_log(LOGGER, f"clicked view record for va {self.object.id}", self.request)
+        # log view record event
+        write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
 
         return context
 
@@ -117,7 +120,8 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['id'] = self.object.id
-        write_va_log(LOGGER, f"clicked edit record for va {context['id']}", self.request)
+        # log edit event
+        write_va_log(LOGGER, f"[data_mgnt] Clicked edit record for va {context['id']}", self.request)
         return context
 
 
@@ -134,8 +138,9 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, De
             earliest.instance.save()
             # update the validation errors
             validate_vas_for_dashboard([earliest])
+        # log reset action
         messages.success(self.request, self.success_message)
-        write_va_log(LOGGER, f"reset data for va {context['id']}", self.request)
+        write_va_log(LOGGER, f"[data_mgnt] Reset data for va {self.object.id}", self.request)
         return redirect('va_data_management:show', id=self.object.id)
 
 
@@ -155,7 +160,8 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
                 # update the validation errors
                 validate_vas_for_dashboard([previous])
         messages.success(self.request, self.success_message)
-        write_va_log(LOGGER, f"Reverted Changes for va {context['id']}", self.request)
+        # log revert changes action
+        write_va_log(LOGGER, f"[data_mgnt] Reverted changes for va {self.object.id}", self.request)
         return redirect('va_data_management:show', id=self.object.id)
 
 

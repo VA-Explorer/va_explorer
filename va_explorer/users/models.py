@@ -64,6 +64,8 @@ class User(AbstractUser):
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
     def verbal_autopsies(self, date_cutoff= None):
+        
+        date_cutoff = "1901-01-01" if not date_cutoff else date_cutoff
        
         # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
         date_cutoff = "1901-01-01" if not date_cutoff else date_cutoff
