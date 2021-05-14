@@ -16,7 +16,7 @@ urlpatterns = [
     # Your stuff: custom urls includes go here
     path("va_analytics/", include("va_explorer.va_analytics.urls", namespace="va_analytics")),
     path("va_data_management/", include("va_explorer.va_data_management.urls", namespace="va_data_management")),
-    path("logs/", include("va_explorer.logs.urls", namespace="logs"))
+    path("va_logs/", include("va_explorer.va_logs.urls", namespace="va_logs"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

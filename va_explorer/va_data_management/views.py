@@ -108,7 +108,7 @@ class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, Suc
     def get_success_url(self):
         # update the validation errors
         validate_vas_for_dashboard([self.object])
-        write_va_log(LOGGER, f"successfully saved changes to VA {self.object.id}", self.request)
+        write_va_log(LOGGER, f"[data_mgnt] successfully saved changes to VA {self.object.id}", self.request)
         return reverse('va_data_management:show', kwargs={'id': self.object.id})
 
     def get_form_kwargs(self):

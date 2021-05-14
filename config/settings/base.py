@@ -78,7 +78,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "va_explorer.home.apps.HomeConfig",
-    "va_explorer.logs.apps.LogsConfig",
+    "va_explorer.va_logs.apps.VaLogsConfig",
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
@@ -219,7 +219,7 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
 # Logging
-LOG_DIR = "va_explorer/logs"
+LOG_DIR = "va_explorer/va_logs"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
