@@ -46,7 +46,10 @@ def get_odk_project_id(token, project_name):
     raise ValueError(f"No projects with name '{project_name}' were returned from ODK.")
 
     
-def get_odk_form(token, project_id):
+def get_odk_form(token, project_id, form_name=None, form_id=None):
+    if not form_name and not form_id:
+        raise AttributeError("Must specify either form_name or form_id argument.")
+
     url = f"{ODK_HOST}/v1/projects/{project_id}/forms"
     response = requests.get(url, headers=token, verify=SSL_VERIFY)
     response.raise_for_status()
@@ -55,12 +58,21 @@ def get_odk_form(token, project_id):
     if not forms:
         raise ValueError(f"No forms for project with ID '{project_id}' were returned from ODK.")
 
-    return forms[-1]
+    for form in forms:
+        if form_id and form_id == form['xmlFormId']:
+            return form
+        if form_name and form_name == form['name']:
+            return form
+
+    raise ValueError(f"No forms found with name '{form_name}' or ID '{form_id}' were found in ODK.")
 
 
-def download_responses(email, password, project_name=None, project_id=None, fmt='csv'):
+def download_responses(email, password, project_name=None, project_id=None, form_name=None, form_id=None, fmt='csv'):
     if not project_name and not project_id:
         raise AttributeError("Must specify either project_name or project_id argument.")
+
+    if not form_name and not form_id:
+        raise AttributeError("Must specify either form_name or form_id argument.")
     
     if fmt not in ['csv', 'json']:
         raise AttributeError("The fmt argument must either be json or csv.")
@@ -70,7 +82,7 @@ def download_responses(email, password, project_name=None, project_id=None, fmt=
     if not project_id:
         project_id = get_odk_project_id(token, project_name)
 
-    form = get_odk_form(token, project_id)
+    form = get_odk_form(token, project_id, form_name, form_id)
 
     if fmt == 'json':
         url = f'{ODK_HOST}/v1/projects/{project_id}/forms/{form["xmlFormId"]}.svc/Submissions'

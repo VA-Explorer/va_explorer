@@ -262,12 +262,15 @@ Clicking the "Run Coding Algorithms" will execute the coding algorithms in the b
 
 ## Importing From ODK
 
-You can use the `import_from_odk` management command to import records from an ODK server like so. You must specify either project-name or project-id to import:
+You can use the `import_from_odk` management command to import records from an ODK server like so. 
+You must specify either project-name or project-id and form-name or form-id to import:
 
 ```
-./manage.py import_from_odk --project-id=1234
+./manage.py import_from_odk --project-id=1234 --form-id=va_form_id
 # or
-./manage.py import_from_odk --project-name=zambia-test
+./manage.py import_from_odk --project-name=zambia-test --form_id=va_form_id
+# or
+./manage.py import_from_odk --project-name=zambia-test --form_name='Form Name'
 ```
 
 This depends on the following environment variables being set:
