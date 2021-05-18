@@ -508,8 +508,8 @@ def init_va_data(hidden_trigger=None, **kwargs):
     if timeframe != "all":
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
     res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
-    valid_va_data = res["data"]["valid"].to_dict()#.to_json(default_handler=str)
-    invalid_va_data = res["data"]["invalid"].to_dict()#.to_json(default_handler=str)
+    valid_va_data = res["data"]["valid"].to_dict()
+    invalid_va_data = res["data"]["invalid"].to_dict()
     locations = res.get("locations", [])
     location_types = res.get("location_types", [])
     return valid_va_data, invalid_va_data, locations, location_types
@@ -566,12 +566,10 @@ def filter_data(
 ):
     if va_data is not None:
         valid_va_df = pd.DataFrame(va_data)
+        valid_va_df["date"] = pd.to_datetime(valid_va_df["date"])
         invalid_va_df = pd.DataFrame(invalid_va_data)
+        invalid_va_df["date"] = pd.to_datetime(invalid_va_df["date"])
         search_terms = [] if search_terms is None else search_terms
-#        location_types = (
-#            json.loads(location_types) if location_types is not None else location_types
-#        )
-        #disable_timeframe = False
         
         # get user location restrictions. If none, will return an empty queryset
         location_restrictions = kwargs["user"].location_restrictions.values("name", "id")
@@ -706,6 +704,7 @@ def _get_filter_dict(
     # finally, apply time filter if necessary
     if timeframe != "all":
         cutoff = dt.datetime.today() - dt.timedelta(days=LOOKUP["time_dict"][timeframe])
+        filter_df["date"] = pd.to_datetime(filter_df["date"])
         filter_df = filter_df[filter_df["date"] >= cutoff]
 
     filter_dict["plot_regions"] = plot_regions
