@@ -22,7 +22,7 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
 
-from va_explorer.va_data_management.utils.logs import write_va_log
+from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_analytics.utils import plotting, loading
 
@@ -638,7 +638,7 @@ def filter_data(
             
         log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
 
-        return json.dumps(combined_filter_dict) #, disable_timeframe
+        return combined_filter_dict #, disable_timeframe
 
 def log_callback_trigger(logger, context, request):
     if context:

@@ -12,7 +12,12 @@ def write_va_log(logger, msg, request=None, logtype="info", session_key=None):
     if not request and not session_key:
         raise ValueError("Must provide either session_key or request object to pull session_key from")
     if not session_key:
-        session_key = request.session.session_key
+        try:
+            session_key = request.session.session_key
+        except:
+            print("WARNING: couldn't find session key in request object.")
+            session_key = None
+            
     msg = f"SID: {session_key} - " + msg
     log_fn = log_fns.get(logtype.lower(), logger.info)
     log_fn(msg)

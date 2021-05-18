@@ -9,7 +9,7 @@ import pandas as pd
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import PII_FIELDS
 from va_explorer.va_data_management.models import REDACTED_STRING
-from va_explorer.va_data_management.utils.logs import write_va_log
+from va_explorer.va_logs.logging_utils import write_va_log
 
 from va_explorer.utils.mixins import CustomAuthMixin
 
@@ -49,7 +49,6 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
             
             for ancestor in location_ancestors[va['loc_id']]:
                 va[ancestor.location_type] = ancestor.name
-                #locations[ancestor.name] = ancestor.location_type
 
             # Clean up location fields.
             va["location"] = va["loc_name"]
@@ -57,21 +56,22 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
 
         va_df = pd.DataFrame.from_records(valid_vas)
         
-        # If user cannot view PII, redact all PII fields:
+        
         if "index" in va_df.columns:
             va_df.drop(columns=["index"], inplace=True)
-            
-        #del(data_dict)
+
+        # If user cannot view PII, redact all PII fields:
         if not request.user.can_view_pii:
             for field in PII_FIELDS:
-                va_df[field] = REDACTED_STRING
+                if field in va_df.columns:
+                    va_df[field] = REDACTED_STRING
 
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="va_download.csv"'
         va_df.to_csv(response, index=False)
         
-        write_va_log(LOGGER, f"[dashboard] clicked download data", self.request)
+        write_va_log(LOGGER, f"[download] clicked download data", self.request)
 
         return response
 

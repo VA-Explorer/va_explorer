@@ -13,7 +13,7 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.logs import write_va_log
+from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 LOGGER = logging.getLogger("event_logger")
@@ -39,8 +39,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         query_dict = self.request.GET.dict()
         query_keys = [k for k in query_dict if k != 'csrfmiddlewaretoken']
         if len(query_keys) > 0:
-            query = ', '.join([f"{k}: {query_dict.get(k, [])}" for k in query_keys])
-            write_va_log(LOGGER, f"[data_mgnt] User {self.request.user.username} made VA query {query}", self.request)
+            query = ', '.join([f"{k}: {query_dict[k]}" for k in query_keys if query_dict[k] != ""])
+            write_va_log(LOGGER, f"[data_mgnt] Queried VAs for: {query}", self.request)
 
         return self.filterset.qs
 

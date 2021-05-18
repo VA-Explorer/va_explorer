@@ -232,7 +232,7 @@ LOGGING = {
             "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
         }, 
         "event": {
-            "format": "%(asctime)s - %(filename)s %(message)s"
+            "format": "%(asctime)s - %(message)s"
         }
     },
     "handlers": {

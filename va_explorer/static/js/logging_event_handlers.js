@@ -1,16 +1,11 @@
 $(document).ready(function(){
-    //var csrf_token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
-    //console.log(csrf_token);
 
-    // $("body").bind("ajaxSend", function(elm, xhr, s){
-    //    if (s.type == "POST") {
-    //       xhr.setRequestHeader('X-CSRFToken', csrf_token);
-    //    }
-    // });
+    var log_url = "/va_logs/submit_log"
+
     //===========HOME==================//
     $('#additional_issues').click(function() { 
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "home", message: "Clicked additional issues link"}
         });
@@ -29,7 +24,7 @@ $(document).ready(function(){
     $('#record-tab').click(function() { 
         getRecordId()
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "data_mgnt", message: "Clicked view tab for VA " + getRecordId() }
         });
@@ -37,7 +32,7 @@ $(document).ready(function(){
 
     $('#issues-tab').click(function() { 
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "data_mgnt", message: "Clicked issues tab for VA " + getRecordId()}
         });
@@ -45,7 +40,7 @@ $(document).ready(function(){
 
     $('#history-tab').click(function() { 
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "data_mgnt", message: "Clicked history tab for VA " + getRecordId()}
         });
@@ -54,7 +49,7 @@ $(document).ready(function(){
 //===========DASHBOARD==================//
     $('#download-data-button').click(function() { 
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Downloaded data from dashboard"}
         });
@@ -62,14 +57,14 @@ $(document).ready(function(){
 
     $('#cod_tab').click(function() { 
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to COD Tab"}
         });
     });
     $('#trend_tab').click(function() { 
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to VA Trends Tab"}
         });
@@ -77,7 +72,7 @@ $(document).ready(function(){
     $('#demographic_tab').click(function() { 
         console.log('clicked demo tab')
         $.ajax({
-            url: '/logs/submit_log',
+            url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to Demographics Tab"}
         });
