@@ -1,18 +1,14 @@
 import pandas as pd
+from django.contrib.auth import get_user_model
 from simple_history.utils import bulk_create_with_history
 
-from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.va_data_management.models import VaUsername
-
-
-
-from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
-from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
-
-
-from django.contrib.auth import get_user_model
-
 from va_explorer.users.utils import make_field_workers_for_facilities
+from va_explorer.va_data_management.models import VaUsername
+from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.utils.location_assignment import assign_va_location
+from va_explorer.va_data_management.utils.location_assignment import build_location_mapper
+from va_explorer.va_data_management.utils.validate import parse_date
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 User = get_user_model()
 
