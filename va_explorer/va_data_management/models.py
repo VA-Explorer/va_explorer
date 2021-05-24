@@ -1,9 +1,9 @@
-from django.db import models
 from django.conf import settings
-from simple_history.models import HistoricalRecords
-from django.db.models import JSONField
-#from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models import JSONField
+from django.utils.timezone import now
+from simple_history.models import HistoricalRecords
 from treebeard.mp_tree import MP_Node
 
 REDACTED_STRING = '** redacted **'
@@ -684,3 +684,34 @@ class CauseCodingIssue(models.Model):
 class VaUsername(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     va_username = models.TextField("va_username", unique=True)
+
+
+class BatchOperation(models.Model):
+
+    class BatchType(models.IntegerChoices):
+        IMPORT = 1, 'Import'
+        CODING = 2, 'Coding'
+
+    batch_type = models.PositiveSmallIntegerField(choices=BatchType.choices)
+
+    date_started = models.DateTimeField(auto_now_add=True)
+    date_finished = models.DateTimeField(null=True, blank=True)
+
+    verbal_autopsies = models.ManyToManyField(VerbalAutopsy)
+
+    class Meta:
+        ordering = ['-date_started']
+
+    def __str__(self):
+        return f"{self.get_batch_type_display()} started {self.date_started}"
+
+    def finish(self, verbal_autopsies):
+        """
+        Helper method to set verbal_autopsies and date_finished.
+        If this instance has already been finished, it will throw a ValueError.
+        """
+        if self.date_finished:
+            raise ValueError("Cannot finish a batch operation that is already finished.")
+        self.verbal_autopsies.set(verbal_autopsies)
+        self.date_finished = now()
+        self.save()

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}View Batch Operations{% endblock %}
+
+{% block heading %}View Batch Operations{% endblock %}
+
+{% block content %}
+
+{% load va_explorer_tags %}
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Type</th>
+      <th>Date Started</th>
+      <th>Date Finished</th>
+      <th>Verbal Autopsies</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for batch in object_list %}
+    <tr>
+      <td>{{ batch.id }}</td>
+      <td>{{ batch.get_batch_type_display }}</td>
+      <td>{{ batch.date_started|date:"Y-m-d H:i:s" }}</td>
+      <td>{{ batch.date_finished|date:"Y-m-d H:i:s" }}</td>
+      <td>{{ batch.verbal_autopsies.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -5,12 +5,11 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
-from datetime import datetime
 
-from config.celery_app import app
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
+from va_explorer.va_data_management.models import BatchOperation
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
@@ -158,3 +157,10 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         run_coding_algorithms.apply_async()
         messages.success(request, f"Coding algorithm process has started in the background.")
         return super().post(request, *args, **kwargs)
+
+
+class BatchOperations(ListView):
+    permission_required = "va_data_management.view_batchoperation"
+    template_name = 'va_data_management/batch_operations.html'
+    paginate_by = 15
+    model = BatchOperation

@@ -5,6 +5,7 @@ from simple_history.utils import bulk_create_with_history
 from va_explorer.users.utils import make_field_workers_for_facilities
 from va_explorer.va_data_management.models import VaUsername
 from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import BatchOperation
 from va_explorer.va_data_management.utils.location_assignment import assign_va_location
 from va_explorer.va_data_management.utils.location_assignment import build_location_mapper
 from va_explorer.va_data_management.utils.validate import parse_date
@@ -13,6 +14,9 @@ from va_explorer.va_data_management.utils.validate import validate_vas_for_dashb
 User = get_user_model()
 
 def load_records_from_dataframe(record_df, random_locations=False):
+    # Start a new import batch
+    batch = BatchOperation.objects.create(batch_type=BatchOperation.BatchType.IMPORT)
+
     # CSV can prefix column names with a strings and a dash or more. Examples:
     #     presets-Id10004
     #     respondent-backgr-Id10008
@@ -67,7 +71,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
             valid_usernames = VaUsername.objects.exclude(va_username__exact='')
             
     # build location matching index for location assignment
-    for i, row in enumerate(record_df.to_dict(orient='records')):
+    for row in record_df.to_dict(orient='records'):
         if row['instanceid']:
             existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
             if existing_va:
@@ -101,13 +105,9 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
 
+    batch.finish(new_vas)
+
     return {
         'ignored': ignored_vas,
         'created': created_vas,
     }
-  
-
-      
-
-        
-
