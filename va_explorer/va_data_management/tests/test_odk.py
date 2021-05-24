@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 from django.core.management import call_command
+from requests.exceptions import HTTPError
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
@@ -66,7 +67,7 @@ MOCK_GET_ODK_FORM = [
         "enketoOnceId": "2c62027c43a8fa97371e362c4bedafdb",
         "hash": "2c62027c43a8fa97371e362c4bedafdb",
         "keyId": None,
-        "name": "2016 WHO Verbal Autopsy Form 1.5.2",
+        "name": "Test Verbal Autopsy Form",
         "projectId": 34,
         "publishedAt": "2021-03-22T18:43:48.128Z",
         "sha": "2c62027c43a8fa97371e362c4bedafdb",
@@ -82,121 +83,250 @@ MOCK_TEST_DOWNLOAD_CSV = (Path(__file__).parent / 'odk-data.csv').read_text()
 MOCK_TEST_DOWNLOAD_JSON = (Path(__file__).parent / 'odk-data.json').read_text()
 
 
-def test_get_odk_login_token(requests_mock):
-    requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
+class TestLogin:
 
-    token = get_odk_login_token('email', 'password')
+    def test_token(self, requests_mock):
+        requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
 
-    assert token == {'Authorization': 'Bearer 9fee992650cf1f72273b7f3ef7d77f41'}
+        token = get_odk_login_token('email', 'password')
 
+        assert token == {'Authorization': 'Bearer 9fee992650cf1f72273b7f3ef7d77f41'}
 
-def test_get_odk_project_id(requests_mock):
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
+    def test_response_error(self, requests_mock):
+        requests_mock.post('http://127.0.0.1:5002/v1/sessions', status_code=400)
 
-    token = {'Authorization': 'Bearer test'}
-    project_id = get_odk_project_id(token, 'zambia-test')
-
-    assert project_id == 34
-
-
-def get_odk_project_id_missing(requests_mock):
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
-
-    with pytest.raises(ValueError):
-        token = {'Authorization': 'Bearer test'}        
-        get_odk_project_id(token, 'nothing-here')
+        with pytest.raises(HTTPError):
+            get_odk_login_token('bad-email', 'bad-password')
 
 
-def test_get_odk_form(requests_mock):
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+class TestGetProjectID:
 
-    token = {'Authorization': 'Bearer test'}
-    form = get_odk_form(token, 34)
+    def test_with_project_name(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
 
-    assert form['xmlFormId'] == 'va_who_v1_5_2'
-
-
-def test_get_odk_form_missing(requests_mock):
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/1234/forms', json=[])
-
-    with pytest.raises(ValueError):
         token = {'Authorization': 'Bearer test'}
-        form = get_odk_form(token, 1234)
+        project_id = get_odk_project_id(token, 'zambia-test')
+
+        assert project_id == 34
+
+    def test_missing_project_name(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
+
+        with pytest.raises(ValueError):
+            token = {'Authorization': 'Bearer test'}        
+            get_odk_project_id(token, 'nothing-here')
 
 
-@pytest.mark.parametrize("kwargs", [
-    {'project_name': 'zambia-test', 'fmt': 'json'},
-    {'project_name': 'zambia-test', 'fmt': 'csv'},
-    {'project_id': '34', 'fmt': 'json'},
-    {'project_id': '34', 'fmt': 'csv'},
-])
-def test_download_response(requests_mock, kwargs):
-    requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2/submissions.csv', text=MOCK_TEST_DOWNLOAD_CSV)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions', text=MOCK_TEST_DOWNLOAD_JSON)
+class TestGetForm:
 
-    result = download_responses('email', 'password', **kwargs)
-    assert len(result) == 1
-    assert result['Id10007'][0] == 'test data'
+    def test_blank_response(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/1234/forms', json=[])
+
+        with pytest.raises(ValueError) as e:
+            token = {'Authorization': 'Bearer test'}
+            get_odk_form(token, 1234, form_id='va_who_v1_5_2')
+        assert str(e.value) == "No forms for project with ID '1234' were returned from ODK."
+
+    def test_missing_name_and_id(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+
+        with pytest.raises(AttributeError) as e:
+            token = {'Authorization': 'Bearer test'}
+            get_odk_form(token, 34)
+        assert str(e.value) == "Must specify either form_name or form_id argument."
+
+    def test_get_by_id(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+
+        token = {'Authorization': 'Bearer test'}
+        form = get_odk_form(token, 34, form_id='va_who_v1_5_2')
+
+        assert form['xmlFormId'] == 'va_who_v1_5_2'
+
+    def test_get_by_name(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+
+        token = {'Authorization': 'Bearer test'}
+        form = get_odk_form(token, 34, form_name='Test Verbal Autopsy Form')
+
+        assert form['xmlFormId'] == 'va_who_v1_5_2'
+
+    def test_id_has_precedence(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+
+        token = {'Authorization': 'Bearer test'}
+        form = get_odk_form(token, 34, form_id='va_who_v1_5_2', form_name='bad name but it does not matter')
+
+        assert form['xmlFormId'] == 'va_who_v1_5_2'
+
+    def test_bad_name_and_id(self, requests_mock):
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+
+        token = {'Authorization': 'Bearer test'}
+        with pytest.raises(ValueError) as e:
+            get_odk_form(token, 34, form_id='bad-id', form_name='bad name')
+        assert str(e.value) == "No forms found with name 'bad name' or ID 'bad-id' were found in ODK."
 
 
-def test_download_response_error(requests_mock):
-    requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
-  
-    # No project_id or project_name causes an error.
-    with pytest.raises(AttributeError):
-        download_responses('email', 'password')
+class TestDownloadResponse:
 
-    # Bad format causes an error.
-    with pytest.raises(AttributeError):
-        download_responses('email', 'password', project_id='1234', fmt='xlsx')
+    def test_invalid_attributes(self, requests_mock):
+        requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
+
+        # No project or form causes an error.
+        with pytest.raises(AttributeError) as e:
+            download_responses('email', 'password')
+            assert str(e.value) == 'Must specify either project_name or project_id argument.'
+
+        # No form_id or form_name causes an error.
+        with pytest.raises(AttributeError) as e:
+            download_responses('email', 'password', project_id='123')
+            assert str(e.value) == 'Must specify either form_name or form_id argument.'
+    
+        # No project_id or project_name causes an error.
+        with pytest.raises(AttributeError) as e:
+            download_responses('email', 'password', form_id='123')
+            assert str(e.value) == 'Must specify either project_name or project_id argument.'
+
+        # Good project and form, but bad format causes an error.
+        with pytest.raises(AttributeError):
+            download_responses('email', 'password', project_id='1234', form_id='123', fmt='xlsx')
+            assert str(e.value) == 'The fmt argument must either be json or csv.'
 
 
-@pytest.mark.parametrize("project_arg", [
-    '--project-name=zambia-test',
-    '--project-id=34',
-])
-def test_import_from_odk_command(requests_mock, project_arg):
-    requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2/submissions.csv', text=MOCK_TEST_DOWNLOAD_CSV)
-    requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions', text=MOCK_TEST_DOWNLOAD_JSON)
 
-    # Location gets assigned automatically/randomly.
-    # If that changes in loading.py we'll need to change that here too.
-    Location.add_root(name='test location', location_type='facility')
+    @pytest.mark.parametrize("kwargs", [
+        # project_name, form_name
+        {'project_name': 'zambia-test', 'form_name': 'Test Verbal Autopsy Form', 'fmt': 'json'},
+        {'project_name': 'zambia-test', 'form_name': 'Test Verbal Autopsy Form', 'fmt': 'csv'},
+        # project_name, form_id
+        {'project_name': 'zambia-test', 'form_id': 'va_who_v1_5_2', 'fmt': 'json'},
+        {'project_name': 'zambia-test', 'form_id': 'va_who_v1_5_2', 'fmt': 'csv'},
+        # project_id, form_name
+        {'project_id': '34', 'form_name': 'Test Verbal Autopsy Form', 'fmt': 'json'},
+        {'project_id': '34', 'form_name': 'Test Verbal Autopsy Form', 'fmt': 'csv'},
+        # project_id, form_id
+        {'project_id': '34', 'form_id': 'va_who_v1_5_2', 'fmt': 'json'},
+        {'project_id': '34', 'form_id': 'va_who_v1_5_2', 'fmt': 'csv'},
+    ])
+    def test_download_response(self, requests_mock, kwargs):
+        requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2/submissions.csv', text=MOCK_TEST_DOWNLOAD_CSV)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions', text=MOCK_TEST_DOWNLOAD_JSON)
 
-    assert VerbalAutopsy.objects.count() == 0
+        result = download_responses('email', 'password', **kwargs)
+        assert len(result) == 1
+        assert result['Id10007'][0] == 'test data'
 
-    output = StringIO()
-    call_command(
-        "import_from_odk", 
-        "--email=test",
-        "--password=test",
-        project_arg,
-        stdout=output,
-        stderr=output,
-    )
 
-    assert output.getvalue().strip() == "Loaded 1 verbal autopsies from ODK (0 ignored)"
-    assert VerbalAutopsy.objects.count() == 1
-    assert VerbalAutopsy.objects.get(instanceid='test-instance').Id10007 == 'test data'
+class TestImportCommand:
 
-    # Run it again and it should ignore the same record.
+    def test_missing_email_password(self):
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            stdout=output,
+            stderr=output,
+        )
+        assert output.getvalue().strip() == "Must specify either --email and --password arguments or ODK_EMAIL and ODK_PASSWORD environment variables."
 
-    output = StringIO()
-    call_command(
-        "import_from_odk", 
-        "--email=test",
-        "--password=test",
-        project_arg,
-        stdout=output,
-        stderr=output,
-    )
+    def test_missing_project(self):
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            "--email=test",
+            "--password=test",
+            stdout=output,
+            stderr=output,
+        )
+        assert output.getvalue().strip() == "Must specify either --project-id or --project-name arguments (not both)."
+    
+    def test_both_project_id_and_project_name(self):
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            "--email=test",
+            "--password=test",
+            "--project-id=1234",
+            "--project-name=test",
+            stdout=output,
+            stderr=output,
+        )
+        assert output.getvalue().strip() == "Must specify either --project-id or --project-name arguments (not both)."
 
-    assert output.getvalue().strip() == "Loaded 0 verbal autopsies from ODK (1 ignored)"
-    assert VerbalAutopsy.objects.count() == 1
+    def test_missing_form(self):
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            "--email=test",
+            "--password=test",
+            "--project-id=1234",
+            stdout=output,
+            stderr=output,
+        )
+        assert output.getvalue().strip() == "Must specify either --form-id or --form-name arguments (not both)."
+    
+    def test_both_form_id_and_form_name(self):
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            "--email=test",
+            "--password=test",
+            "--project-id=1234",
+            "--form-id=1234",
+            "--form-name=test",
+            stdout=output,
+            stderr=output,
+        )
+        assert output.getvalue().strip() == "Must specify either --form-id or --form-name arguments (not both)."
+
+    @pytest.mark.parametrize("command_args", [
+        ['--project-name=zambia-test', '--form-id=va_who_v1_5_2'],
+        ['--project-name=zambia-test', '--form-name=Test Verbal Autopsy Form'],
+        ['--project-id=34', '--form-id=va_who_v1_5_2'],
+        ['--project-id=34', '--form-name=Test Verbal Autopsy Form'],
+    ])
+    def test_successful_runs(self, requests_mock, command_args):
+        requests_mock.post('http://127.0.0.1:5002/v1/sessions', json=MOCK_GET_ODK_LOGIN_TOKEN)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/', json=MOCK_GET_ODK_PROJECT_ID)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms', json=MOCK_GET_ODK_FORM)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2/submissions.csv', text=MOCK_TEST_DOWNLOAD_CSV)
+        requests_mock.get('http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions', text=MOCK_TEST_DOWNLOAD_JSON)
+
+        # Location gets assigned automatically/randomly.
+        # If that changes in loading.py we'll need to change that here too.
+        Location.add_root(name='test location', location_type='facility')
+
+        assert VerbalAutopsy.objects.count() == 0
+
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            "--email=test",
+            "--password=test",
+            *command_args,
+            stdout=output,
+            stderr=output,
+        )
+
+        assert output.getvalue().strip() == "Loaded 1 verbal autopsies from ODK (0 ignored)"
+        assert VerbalAutopsy.objects.count() == 1
+        assert VerbalAutopsy.objects.get(instanceid='test-instance').Id10007 == 'test data'
+
+        # Run it again and it should ignore the same record.
+
+        output = StringIO()
+        call_command(
+            "import_from_odk", 
+            "--email=test",
+            "--password=test",
+            *command_args,
+            stdout=output,
+            stderr=output,
+        )
+
+        assert output.getvalue().strip() == "Loaded 0 verbal autopsies from ODK (1 ignored)"
+        assert VerbalAutopsy.objects.count() == 1
