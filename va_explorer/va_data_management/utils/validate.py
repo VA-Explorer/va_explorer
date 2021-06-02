@@ -101,6 +101,8 @@ def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False, return_forma
             # try parsing using a variety of date formats
             for fmt in formats:
                 try:
+                    # remove any excessive decimals at end of string
+                    date_str = date_str.split(".")[0]
                     return datetime.strptime(date_str, fmt).date().strftime(return_format)
                 except ValueError:
                     pass

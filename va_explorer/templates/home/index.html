@@ -1,7 +1,8 @@
+
 {% extends "base.html" %}
+{% load static i18n %}
 
 {% block content %}
-
 <div class="row mt-4">
   <div class="col">
     {% if not user.is_fieldworker %}
@@ -73,11 +74,14 @@
       <h2 class="mb-4">VAs With Coding Issues</h2>
       {% if issue_list %}
         {% include 'partials/_va_table.html' with va_list=issue_list %}
-        {% if additional_issues > 0 %}<p>There are <a href="/va_data_management/?only_errors=True">{{ additional_issues }} additional issues</a> not listed here</p>{% endif %}
+        {% if additional_issues > 0 %}<p>There are <a href="/va_data_management/?only_errors=True" id="additional_issues">{{ additional_issues }} additional issues</a> not listed here</p>{% endif %}
       {% else %}
         <p>Excellent, no coding issues found!</p>
       {% endif %}
     {% endif %}
   </div>
 </div>
+
+
+
 {% endblock %}

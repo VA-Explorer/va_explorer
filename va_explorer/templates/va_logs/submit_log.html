@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1> VA Logging API </h1>
+
+<p> This page is the primary endpoint for recording va logging events and is not meant for public consumption. Specifically, the <code>View</code> for this page records certain javascript events on the front end of VA explorer by processing <code>POST</code> requests to this URL (<code>va_logs/submit_log.html</code>).</p>
+
+<p>See <code>/va_explorer/static/logging_event_handlers.js</code> for examples of how to reach this API.</p>
+
+{% endblock %}
+

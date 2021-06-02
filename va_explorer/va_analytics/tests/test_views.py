@@ -53,16 +53,17 @@ class TestDownloadCsvView:
         user = UserFactory.create(groups=[can_download_data_group], location_restrictions=[district2])
 
         # One VA outside user's locations
-        va1 = VerbalAutopsyFactory.create(location=facility1)
+        va1 = VerbalAutopsyFactory.create(location=facility1, Id10023="2019-01-01")
+
         cod = CauseOfDeath.objects.create(cause='va1 desc', settings={}, verbalautopsy=va1)
 
         # One VA in user's locations but with no cause
         VerbalAutopsyFactory.create(location=facility2)
 
         # One VA in user's locations with a cause (only one in the downloaded csv)
-        va2 = VerbalAutopsyFactory.create(location=facility2)
+        va2 = VerbalAutopsyFactory.create(location=facility2, Id10023="2020-01-01")
         cod = CauseOfDeath.objects.create(cause='va2 desc', settings={}, verbalautopsy=va2)
-
+        
         request = rf.get("/va_analytics/download")
         request.user = user
 
@@ -73,7 +74,7 @@ class TestDownloadCsvView:
         # 3 lines - header, va2, and blank line
         lines = response.content.decode('utf-8').split('\n')
         assert len(lines) == 3
-        assert 'id,location,deviceid' in lines[0]
+        assert 'id,location' in lines[0]
         assert 'va2 desc' in lines[1]
         assert not lines[2]
 
@@ -106,7 +107,6 @@ class TestDownloadCsvView:
         request.user = user
 
         response = download_csv(request)
-
         assert response.status_code == 200
 
         lines = response.content.decode('utf-8').split('\n')
