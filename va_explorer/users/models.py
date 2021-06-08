@@ -98,6 +98,18 @@ class User(AbstractUser):
         else:
             self.user_permissions.remove(permission)
 
+    @property
+    def can_download_data(self):
+        return self.has_perm('va_analytics.download_data')
+
+    @can_download_data.setter
+    def can_download_data(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='download_data')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
+
     # TODO: Update this if we are supporting more than one username; for now, allow only one
     def set_va_username(self, new_va_username):
         # If None or blank string, delete existing username.

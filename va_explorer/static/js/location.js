@@ -146,7 +146,7 @@ $(document).ready(function() {
   /**
    * Update status of Can View PII checkbox depending on whether selected group can view PII.
    */
-  function updatePIICheckbox() {
+   function updatePIICheckbox() {
     const groupCanViewPII = Boolean($('#id_group option:selected').data('view-pii'));
     $('#id_view_pii').attr('disabled', groupCanViewPII);
     $('#id_view_pii').attr('checked', groupCanViewPII);
@@ -158,6 +158,23 @@ $(document).ready(function() {
   if (groupCanViewPII) {
     $('#id_view_pii').attr('disabled', true);
     $('#id_view_pii').attr('checked', true);
+  }
+
+  /**
+   * Update status of Can Download Data checkbox depending on whether selected group can download data.
+   */
+   function updateDownloadDataCheckbox() {
+    const groupCanDownloadData = Boolean($('#id_group option:selected').data('download-data'));
+    $('#id_download_data').attr('disabled', groupCanDownloadData);
+    $('#id_download_data').attr('checked', groupCanDownloadData);
+  }
+
+  // On load, if group can view PII, disable checkbox.
+  // Don't DISABLE it if the group CAN'T view PII because the user might have it checked explicitly.
+  const groupCanDownloadData = Boolean($('#id_group option:selected').data('download-data'));
+  if (groupCanDownloadData) {
+    $('#id_download_data').attr('disabled', true);
+    $('#id_download_data').attr('checked', true);
   }
 
 
@@ -256,6 +273,7 @@ $(document).ready(function() {
   $('#id_group').change(function() {
     updateFormForRoleSelected();
     updatePIICheckbox();
+    updateDownloadDataCheckbox();
   });
 
   /**

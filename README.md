@@ -9,7 +9,7 @@ VA Explorer currently supports the following functionality at various degrees of
   *  Creation/disabling of user accounts by administrators
   *  Password management for individual users
 * User access controls, including:
-  *  Role-based access with the following roles: administrators, data managers, data viewers,
+  *  Role-based access with the following roles: administrators, data managers, data viewers, dashboard viewers,
   and field workers
   *  Assignment to one or more geographic areas for geographical-level scoping of data
 * Loading of verbal autopsy questionnaire data
