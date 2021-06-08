@@ -134,16 +134,8 @@ app.layout = html.Div(
                                     ],
                                 ),
                                 html.Div(
+                                    id="download_data_div",
                                     className="dashboard-comp-container",
-                                    children=[
-                                        html.A(
-                                            dbc.Button(
-                                                "Download Data", color="primary"
-                                            ),
-                                            id="download-data-button",
-                                            href="/va_analytics/download",
-                                        )
-                                    ],
                                 ),
                             ],
                             style={
@@ -506,6 +498,7 @@ designated as "expanded"
         Output(component_id="invalid_va_data", component_property="data"),
         Output(component_id="locations", component_property="data"),
         Output(component_id="location_types", component_property="data"),
+        Output(component_id="download_data_div", component_property="children") #download button
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
@@ -521,7 +514,16 @@ def init_va_data(hidden_trigger=None, **kwargs):
     invalid_va_data = res["data"]["invalid"].to_dict()
     locations = res.get("locations", [])
     location_types = res.get("location_types", [])
-    return valid_va_data, invalid_va_data, locations, location_types
+
+    # Download button logic.
+    # Only show the Download Data button if user has access to it.
+    download_div = html.Div(id="download_data_button")
+    if kwargs["user"].can_download_data:
+        download_div.children = [
+            dbc.Button("Download Data", href="/va_analytics/download", color="primary", external_link=True),
+        ]
+
+    return valid_va_data, invalid_va_data, locations, location_types, download_div
 
 # ============ Location search options (loaded after load_va_data())==================
 @app.callback(

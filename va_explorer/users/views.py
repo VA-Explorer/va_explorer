@@ -123,6 +123,7 @@ class UserUpdateView(
         )
 
         initial["view_pii"] = self.get_object().can_view_pii
+        initial["download_data"] = self.get_object().can_download_data
 
         # TODO: Update this if we are supporting more than one username;
         #  For now, we only ever allow one, so we will display one

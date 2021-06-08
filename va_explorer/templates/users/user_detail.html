@@ -31,6 +31,12 @@
     </div>
 </div>
 <div class="row mt-3">
+    <div class="col-sm-2"><strong>Can Download Data</strong></div>
+    <div class="col-sm-6">
+        {{ user.can_download_data }}
+    </div>
+</div>
+<div class="row mt-3">
     <div class="col-sm-2"><strong>Role</strong></div>
     <div class="col-sm-6">
         {%  for group in user.groups.all %}

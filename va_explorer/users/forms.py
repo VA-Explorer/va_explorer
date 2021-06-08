@@ -80,7 +80,7 @@ class LocationRestrictionsSelectMultiple(SelectMultiple):
 
 class GroupSelect(forms.Select):
     """
-    Custom widget for group select that will have a 'data-view-pii' attribute.
+    Custom widget for group select that will have a 'data-view-pii' and 'data-download-data' attributes.
     We can use this attribute in the HTML to determine whether or not to enable the 'Can View PII' checkbox.
     """
 
@@ -89,6 +89,8 @@ class GroupSelect(forms.Select):
         if value:
             if value.instance.permissions.filter(codename='view_pii').first():
                 option['attrs']['data-view-pii'] = 1
+            if value.instance.permissions.filter(codename='download_data').first():
+                option['attrs']['data-download-data'] = 1
         return option
 
 
@@ -121,6 +123,11 @@ class UserCommonFields(forms.ModelForm):
         help_text="Determines whether user can view PII. Only applies if group does not already grant access to view PII.",
         required=False,
     )
+    download_data = forms.BooleanField(
+        label="Can Download Data",
+        help_text="Determines whether user can download data. Only applies if group does not already grant access to download data.",
+        required=False,
+    )
 
 
 class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
@@ -142,8 +149,9 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         fields = [
             "name",
             "email",
-            "view_pii",
             "group",
+            "view_pii",
+            "download_data",
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
@@ -215,6 +223,10 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                 if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
                     user.can_view_pii = self.cleaned_data['view_pii']
 
+                # If selected group cannot download data, modify the user's permissions according to the checkbox.
+                if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
+                    user.can_download_data = self.cleaned_data['download_data']
+
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
@@ -237,8 +249,9 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             "name",
             "email",
             "is_active",
-            "view_pii",
             "group",
+            "view_pii",
+            "download_data",
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
@@ -290,6 +303,10 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             # If selected group cannot view PII, modify the user's permissions according to the checkbox.
             if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
                 user.can_view_pii = self.cleaned_data['view_pii']
+            
+            # If selected group cannot download data, modify the user's permissions according to the checkbox.
+            if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
+                user.can_download_data = self.cleaned_data['download_data']
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address
