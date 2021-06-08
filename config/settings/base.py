@@ -73,10 +73,12 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
+    "dpd_static_support"
 ]
 
 LOCAL_APPS = [
     "va_explorer.home.apps.HomeConfig",
+    "va_explorer.va_logs.apps.VaLogsConfig",
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
@@ -217,7 +219,7 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
 # Logging
-
+LOG_DIR = "va_explorer/va_logs"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -225,6 +227,12 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
+        },
+        "debug": {
+            "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
+        }, 
+        "event": {
+            "format": "%(asctime)s - %(message)s"
         }
     },
     "handlers": {
@@ -232,9 +240,26 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+        },
+        "ingest_file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/data_ingest.log",
+            "formatter": "debug"
+        }, 
+        "event_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/events.log",
+            "formatter": "event"
+
         }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
+    "loggers": {
+        "ingest_logger": {"level": "DEBUG", "handlers": ["ingest_file"], "propagate": False},
+        "event_logger": {"level": "INFO", "handlers": ["event_file"], "propagate": False}
+    }
 }
 
 # Caches
@@ -278,7 +303,7 @@ PLOTLY_COMPONENTS = [
     'dash_html_components',
     'dash_renderer',
     'dpd_components',
-    'dash_bootstrap_components'
+    'dash_bootstrap_components',
 ]
 
 PLOTLY_DASH = {

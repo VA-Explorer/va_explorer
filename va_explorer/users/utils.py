@@ -6,12 +6,28 @@ Created on Mon Apr 12 14:33:57 2021
 @author: babraham
 """
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.db.models import F
+
+from va_explorer.users.models import User
 from va_explorer.va_data_management.models import Location
 
-User = get_user_model()
+import pandas as pd
 
+# get table with basic info for all users in system. No PII included in result
+def get_anonymized_user_info():      
+    user_data = User.objects\
+    .select_related('location_restrictions')\
+    .select_related('groups')\
+    .values(
+            'uuid',
+            'is_active',
+            'is_staff',
+            account_type = F('groups__name'),
+            locations = F('location_restrictions__name')           
+    )
+    
+    return pd.DataFrame.from_records(user_data).rename(columns={'locations': 'location_restrictions'})
 
 def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
     if not facilities:
