@@ -38,7 +38,8 @@
       <th style="width: 20em;">Date Started</th>
       <th style="width: 20em;">Date Finished</th>
       <th>Coded</th>
-      <th>Issues</th>
+      <th>Errors</th>
+      <th>Warnings</th>
     </tr>
   </thead>
   <tbody>
@@ -48,7 +49,8 @@
       <td>{{ batch.date_started|date:"Y-m-d H:i:s" }}</td>
       <td>{{ batch.date_finished|date:"Y-m-d H:i:s" }}</td>
       <td>{{ batch.cause_of_deaths.count }}</td>
-      <td>{{ batch.cause_coding_issues.count }}</td>
+      <td>{{ batch.cause_coding_issues.with_error.count }}</td>
+      <td>{{ batch.cause_coding_issues.with_warning.count }}</td>
     </tr>
     {% endfor %}
   </tbody>

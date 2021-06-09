@@ -662,6 +662,14 @@ class CauseOfDeath(models.Model):
     def __str__(self):
         return self.cause
 
+
+class CauseCodingIssueManager(models.Manager):
+    def with_error(self):
+        return self.filter(severity='error')
+    def with_warning(self):
+        return self.filter(severity='warning')
+
+
 class CauseCodingIssue(models.Model):
     # One VerbalAutopsy can have multiple coding issues
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='coding_issues', on_delete=models.CASCADE)
@@ -676,6 +684,8 @@ class CauseCodingIssue(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    objects = CauseCodingIssueManager()
 
     def __str__(self):
         return self.text
