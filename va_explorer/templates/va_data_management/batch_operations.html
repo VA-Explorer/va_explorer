@@ -1,31 +1,54 @@
 {% extends "base.html" %}
 
-{% block title %}View Batch Operations{% endblock %}
-
-{% block heading %}View Batch Operations{% endblock %}
+{% block title %}Batch Operations{% endblock %}
 
 {% block content %}
 
 {% load va_explorer_tags %}
 
+<h2 class="mb-4">Import Batch Operations</h2>
+
 <table class="table table-sm">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Type</th>
-      <th>Date Started</th>
-      <th>Date Finished</th>
+      <th style="width: 6em;">ID</th>
+      <th style="width: 20em;">Date Started</th>
+      <th style="width: 20em;">Date Finished</th>
       <th>Verbal Autopsies</th>
     </tr>
   </thead>
   <tbody>
-    {% for batch in object_list %}
+    {% for batch in import_batches %}
     <tr>
       <td>{{ batch.id }}</td>
-      <td>{{ batch.get_batch_type_display }}</td>
       <td>{{ batch.date_started|date:"Y-m-d H:i:s" }}</td>
       <td>{{ batch.date_finished|date:"Y-m-d H:i:s" }}</td>
       <td>{{ batch.verbal_autopsies.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="mb-4">Coding Batch Operations</h2>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th style="width: 6em;">ID</th>
+      <th style="width: 20em;">Date Started</th>
+      <th style="width: 20em;">Date Finished</th>
+      <th>Coded</th>
+      <th>Issues</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for batch in coding_batches %}
+    <tr>
+      <td>{{ batch.id }}</td>
+      <td>{{ batch.date_started|date:"Y-m-d H:i:s" }}</td>
+      <td>{{ batch.date_finished|date:"Y-m-d H:i:s" }}</td>
+      <td>{{ batch.cause_of_deaths.count }}</td>
+      <td>{{ batch.cause_coding_issues.count }}</td>
     </tr>
     {% endfor %}
   </tbody>

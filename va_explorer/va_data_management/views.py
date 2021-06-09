@@ -4,15 +4,17 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView, ListView, RedirectView
+from django.views.generic.base import TemplateView
 from django.views.generic.detail import SingleObjectMixin
 
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
-from va_explorer.va_data_management.models import BatchOperation
+from va_explorer.va_data_management.models import CodingBatch
+from va_explorer.va_data_management.models import ImportBatch
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -159,8 +161,15 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         return super().post(request, *args, **kwargs)
 
 
-class BatchOperations(ListView):
-    permission_required = "va_data_management.view_batchoperation"
+class BatchOperations(TemplateView, PermissionRequiredMixin):
+    permission_required = [
+        "va_data_management.view_importbatch",
+        "va_data_management.view_codingbatch",
+    ]
     template_name = 'va_data_management/batch_operations.html'
-    paginate_by = 15
-    model = BatchOperation
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['import_batches'] = ImportBatch.objects.all()
+        context['coding_batches'] = CodingBatch.objects.all()
+        return context

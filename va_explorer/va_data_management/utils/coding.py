@@ -8,7 +8,7 @@ import pandas as pd
 import requests
 from django.forms import model_to_dict
 
-from va_explorer.va_data_management.models import BatchOperation
+from va_explorer.va_data_management.models import CodingBatch
 from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import CauseOfDeath
 from va_explorer.va_data_management.models import VerbalAutopsy
@@ -50,7 +50,7 @@ def _run_pycross_and_interva5(verbal_autopsies):
 
 def run_coding_algorithms():
     # Start a new import batch
-    batch = BatchOperation.objects.create(batch_type=BatchOperation.BatchType.CODING)
+    batch = CodingBatch.objects.create()
 
     # Load all verbal autopsies that don't have a cause coding
     # TODO: This should eventually check to see that there's a cause coding for every supported algorithm
@@ -78,14 +78,10 @@ def run_coding_algorithms():
                 issue = issue[0]
             va_offset, issue_text = re.split('  +', issue,  maxsplit=1)
             va_id = verbal_autopsies_without_causes[int(va_offset)].id
-            # TODO: For now, clear old issues for records that are newly coded; if we associate errors with runs we may perhaps prefer not to do this
-            # use exclude to keep errors related to the raw data
-            # TODO: build out the issue model to capture non coding errors
-            CauseCodingIssue.objects.filter(verbalautopsy_id=va_id).exclude(algorithm='').delete()
             issues.append(CauseCodingIssue(verbalautopsy_id=va_id, text=issue_text, severity=severity, algorithm='InterVA5', settings=ALGORITHM_SETTINGS))
     CauseCodingIssue.objects.bulk_create(issues)
 
-    batch.finish(verbal_autopsies_without_causes)
+    batch.finish_coding(causes, issues)
 
     return {
         'verbal_autopsies': verbal_autopsies_without_causes,

@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import JSONField
 from django.utils.timezone import now
@@ -687,31 +686,48 @@ class VaUsername(models.Model):
 
 
 class BatchOperation(models.Model):
-
-    class BatchType(models.IntegerChoices):
-        IMPORT = 1, 'Import'
-        CODING = 2, 'Coding'
-
-    batch_type = models.PositiveSmallIntegerField(choices=BatchType.choices)
-
     date_started = models.DateTimeField(auto_now_add=True)
     date_finished = models.DateTimeField(null=True, blank=True)
 
-    verbal_autopsies = models.ManyToManyField(VerbalAutopsy)
-
     class Meta:
         ordering = ['-date_started']
+        abstract = True
 
     def __str__(self):
-        return f"{self.get_batch_type_display()} started {self.date_started}"
+        return f"Started {self.date_started}"
 
-    def finish(self, verbal_autopsies):
+    def finish(self):
         """
-        Helper method to set verbal_autopsies and date_finished.
+        Helper method to set date_finished.
         If this instance has already been finished, it will throw a ValueError.
         """
         if self.date_finished:
             raise ValueError("Cannot finish a batch operation that is already finished.")
-        self.verbal_autopsies.set(verbal_autopsies)
         self.date_finished = now()
         self.save()
+
+
+class ImportBatch(BatchOperation):
+    verbal_autopsies = models.ManyToManyField(VerbalAutopsy)
+
+    def finish_import(self, verbal_autopsies):
+        """
+        Helper method to set date_finished and verbal_autopsies.
+        If this instance has already been finished, it will throw a ValueError.
+        """
+        super().finish()
+        self.verbal_autopsies.set(verbal_autopsies)
+
+
+class CodingBatch(BatchOperation):
+    cause_of_deaths = models.ManyToManyField(CauseOfDeath)
+    cause_coding_issues = models.ManyToManyField(CauseCodingIssue)
+
+    def finish_coding(self, cause_of_deaths, cause_coding_issues):
+        """
+        Helper method to set date_finished, cause_of_deaths, and cause_coding_issues.
+        If this instance has already been finished, it will throw a ValueError.
+        """
+        super().finish()
+        self.cause_of_deaths.set(cause_of_deaths)
+        self.cause_coding_issues.set(cause_coding_issues)
