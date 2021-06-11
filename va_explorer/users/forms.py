@@ -24,9 +24,9 @@ def get_location_restrictions(cleaned_data):
     Utility method to determine if the user locations are from the location_restrictions
     dropdown or facility restrictions dropdown (Field Worker role only)
     """
-    if "location_restrictions" in cleaned_data and len(cleaned_data["facility_restrictions"]) == 0:
+    if "location_restrictions" in cleaned_data  and len(cleaned_data.get("facility_restrictions", [])) == 0:
         return cleaned_data["location_restrictions"]
-    elif "facility_restrictions" in cleaned_data and len(cleaned_data["location_restrictions"]) == 0:
+    elif "facility_restrictions" in cleaned_data and len(cleaned_data.get("location_restrictions", [])) == 0:
         return cleaned_data["facility_restrictions"]
     else:
         return []
@@ -175,21 +175,24 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         Normal cleanup
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
-
+        
         if "geographic_access" and "group" in cleaned_data:
             location_restrictions = get_location_restrictions(cleaned_data)
 
             validate_location_access(
                 self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
             )
+            
+            
 
             validate_username(
                 self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
+            
 
         return cleaned_data
 
-    def save(self, commit=True):
+    def save(self, commit=True, email_confirmation=True):
         """
         Saves the email and name properties after the normal
         save behavior is complete. Sets a random password, which the user must
@@ -198,12 +201,11 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         Saves the location and group after the user object is saved.
         """
         user = super(UserCreationForm, self).save(commit)
-
         if user:
             user.email = self.cleaned_data["email"]
             user.name = self.cleaned_data["name"]
 
-            password = get_random_string(length=32)
+            password = get_random_string(length=16)
             user.set_password(password)
 
             location_restrictions = get_location_restrictions(self.cleaned_data)
@@ -231,8 +233,12 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
             # setup_user_email(self.request, user, [])
-
-            get_adapter().send_new_user_mail(self.request, user, password)
+            if email_confirmation:
+                get_adapter().send_new_user_mail(self.request, user, password)
+                
+            else:
+                print(f"="*20)
+                print(f"Created user with email {user.email} and temp. password {password}")
 
         return user
 
