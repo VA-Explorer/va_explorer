@@ -3,6 +3,7 @@ import pytest
 from va_explorer.users.models import User, UserPasswordHistory
 from va_explorer.tests.factories import UserFactory, LocationFactory, VerbalAutopsyFactory
 
+
 pytestmark = pytest.mark.django_db
 
 

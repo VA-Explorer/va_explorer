@@ -27,15 +27,17 @@ import re
 def create_users_from_file(user_list_file, print_passwords=False, debug=False):
     user_df = pd.read_csv(user_list_file).fillna("")
     user_ct = error_ct = 0
+    new_users = []
 
     # fill out user forms one-by-one
     for i, user_data in user_df.iterrows():
         if debug:
-            print(i, user_data['name'])
+            print(i, user_data["name"])
         user_form = fill_user_form_data(user_data, debug=debug)
 
         if user_form.is_valid():
             user = user_form.save(email_confirmation=False)
+            new_users.append(User.objects.get(email=user_data["email"]))
             user_ct +=1
         else:
             error_ct +=1
@@ -45,6 +47,8 @@ def create_users_from_file(user_list_file, print_passwords=False, debug=False):
         print(f"Successfully created {user_ct} users ({error_ct} issues)")
     else:
         print("WARNING: Failed to create any users.")
+
+    return {'user_ct': user_ct, 'error_ct': error_ct, 'users': new_users}
 
 
 def fill_user_form_data(user_data, debug=False):
@@ -123,7 +127,6 @@ def fill_user_form_data(user_data, debug=False):
 
         # add parsed value to form's data
         form_data[field_name] = form_value
-    
     # final preprocessing for form
     final_data = prep_form_data(form_data)
 
@@ -134,10 +137,10 @@ def fill_user_form_data(user_data, debug=False):
 # to update this logic.
 def prep_form_data(user_data):
     # if geographic_access missing, assign it based on group and/or location_restrictions
-    if "group" not in user_data or ("location_restrictions" not in user_data):
-        raise(ValueError("Must provide group and location_restrictions data to determine geographic access."))
+    if "group" not in user_data:
+        raise(ValueError("Must provide group to determine geographic access."))
     # if location_restriction key exists but value is None, convert to empty string
-    elif not user_data["location_restrictions"]:
+    elif not user_data.get("location_restrictions", None):
         user_data["location_restrictions"] = ""
 
     # Parse and clean group name. If group object provided, parse name field.
@@ -159,10 +162,15 @@ def prep_form_data(user_data):
         rm = user_data.pop("location_restrictions")
     # catch-all logic for groups in ["data viewer", "data manager", "dashboard viewer"]
     else:
-        geo_access = "national" if len(user_data["location_restrictions"]) == 0 else "location-specific"
+        geo_access = "national"
+        if len(user_data["location_restrictions"]) > 0:
+            if user_data["location_restrictions"][0] is not None:
+                geo_access = "location-specific"
+        if geo_access == "national":
+            _ = user_data.pop("location_restrictions")
         # remove facility restriction data if it exists (only field workers should have this key)
         if "facility_restrictions" in user_data:
-            rm = user_data.pop("facility_restrictions")
+            _ = user_data.pop("facility_restrictions")
 
     user_data["geographic_access"] = geo_access
 
