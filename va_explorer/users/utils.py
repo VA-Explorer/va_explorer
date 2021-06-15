@@ -195,19 +195,33 @@ def get_form_fields(form_type=ExtendedUserCreationForm, orient="v"):
 
 
 # get table with basic info for all users in system. No PII included in result
-def get_anonymized_user_info():      
+def get_anonymized_user_info(): 
+    # export user data in way that is consistent with user form 
+    # get user form fields
+    form_fields = get_form_fields(orient="h")
+    # figure out which fields are permissions. Assumes that all boolean fields are permissions
+    permissions = form_fields.query("type=='BooleanField'").index.tolist()
     user_data = User.objects\
     .select_related('location_restrictions')\
     .select_related('groups')\
+    .select_related('user_permissions')\
     .values(
             'uuid',
             'is_active',
             'is_staff',
             role = F('groups__name'),
-            locations = F('location_restrictions__name')           
+            locations = F('location_restrictions__name'), 
+            permissions = F('user_permissions__codename')         
     )
+    user_df = pd.DataFrame.from_records(user_data).rename(columns={'locations': 'location_restrictions'})
+    user_perms = (user_df[['uuid', 'permissions']]
+        .pivot_table(index='uuid', columns='permissions', values='uuid', aggfunc=lambda x: len(x) > 0)
+        .fillna(False)
+        .reset_index()
+        )
+    user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
     
-    return pd.DataFrame.from_records(user_data).rename(columns={'locations': 'location_restrictions'})
+    return user_df
 
 def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
     if not facilities:
