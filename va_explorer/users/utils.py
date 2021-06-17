@@ -166,7 +166,8 @@ def prep_form_data(user_data):
     try:
         group = re.sub("s$", "", group.lower())
     except:
-        group = "Unknown"
+        # defaulting to data viewer when group is unknown***
+        group = "Data Viewer"
 
     # field worker logic
     if group == "field worker":

@@ -237,12 +237,16 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             # setup_user_email(self.request, user, [])
             # A workaround to run this script without a mail server. If True, it will send email like nomal. 
             # If False, user credentials will just be printed to console.
+            console_msg = ""*20 + f"\nCreated user with email {user.email} and temp. password {password}"
             if email_confirmation:
-                get_adapter().send_new_user_mail(self.request, user, password)
-                
+                try:
+                    get_adapter().send_new_user_mail(self.request, user, password)
+                except:
+                    print("WARNING: failed to send email. Printing credentials instead")
+                    print(console_msg)
+                    
             else:
-                print(f"="*20)
-                print(f"Created user with email {user.email} and temp. password {password}")
+                print(console_msg)
 
         return user
 
