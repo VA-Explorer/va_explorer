@@ -111,6 +111,18 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `./manage.py seed_demo_users`
 
+  * Bulk-create users from a csv file.
+
+    `./manage.py bulk_load_users <CSV_FILE> --email-confirmation <True/False>`
+
+    You can specify user emails, roles, location restrictions, and any other restrictions that are currently exposed in the User Creation Form. If `--email-confirmation` is set to `True`, a confirmation email will be sent out to each new user. Otherwise, their credentials (with temporary password) will be printed to the console. To get a starting template for user csv file, you can run the following command:
+
+    `./manage.py get_user_form_template --output_file <FILENAME>`
+
+  * Export anynymous info for all users in system 
+    `./manage.py export_user_info --output_file <FILENAME>`
+      This will export an anymymous user ID, user roles, geographic restrictions and privileges to a csv file. Can be used to track user activity in logs withou compromising thier PII.
+
 * Load location data
 
   `./manage.py load_locations <NAME OF CSV>`

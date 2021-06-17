@@ -221,18 +221,22 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                 user.groups.add(*[group])
                 user.set_va_username(self.cleaned_data.get("va_username"))
 
-                # If selected group cannot view PII, modify the user's permissions according to the checkbox.
-                if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
+                # if View PII permission specified in form, override user group's default permission
+                #if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
+                if self.cleaned_data.get('view_pii', None) and self.cleaned_data['view_pii'] != '':
                     user.can_view_pii = self.cleaned_data['view_pii']
 
-                # If selected group cannot download data, modify the user's permissions according to the checkbox.
-                if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
+                # if download data permission specified in form, override user group's default permission
+                # if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
+                if self.cleaned_data.get('download_data', None) and self.cleaned_data['download_data'] != '':
                     user.can_download_data = self.cleaned_data['download_data']
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
             # setup_user_email(self.request, user, [])
+            # A workaround to run this script without a mail server. If True, it will send email like nomal. 
+            # If False, user credentials will just be printed to console.
             if email_confirmation:
                 get_adapter().send_new_user_mail(self.request, user, password)
                 

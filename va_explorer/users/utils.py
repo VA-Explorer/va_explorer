@@ -41,7 +41,7 @@ def create_users_from_file(user_list_file, print_passwords=False, debug=False):
             user_ct +=1
         else:
             error_ct +=1
-            print(f"WARNING: user form had following errors: {user_form.errors}")
+            print(f"WARNING: user fm for {user_data.get('email', 'Unknown email')} had following errors: {user_form.errors}")
 
     if user_ct > 0:
         print(f"Successfully created {user_ct} users ({error_ct} issues)")
@@ -119,7 +119,7 @@ def fill_user_form_data(user_data, debug=False):
             if type(value) in [int, bool, float]:
                 form_value = bool(value)
             else:
-                form_value = (str(value).lower() in ['true', '1', '1.0'])
+                form_value = (str(value).lower() in {'true', '1', '1.0', 'yes', 'y'})
 
         # catch-all for other field types - likely freeform/text entry
         else:
