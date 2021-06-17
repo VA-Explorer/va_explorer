@@ -1,22 +1,22 @@
 import pandas as pd
 from simple_history.utils import bulk_create_with_history
-
-from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.va_data_management.models import VaUsername
-
-
-
-from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
-from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
-
-
+import logging
 from django.contrib.auth import get_user_model
 
+
+from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
+from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
 from va_explorer.users.utils import make_field_workers_for_facilities
+
 
 User = get_user_model()
 
-def load_records_from_dataframe(record_df, random_locations=False):
+def load_records_from_dataframe(record_df, random_locations=False, debug=True):
+    logger = None if not debug else logging.getLogger("event_logger")
+    if logger:
+        logger.info("="*10 + "DATA INGEST" + "="*10)
+
     # CSV can prefix column names with a strings and a dash or more. Examples:
     #     presets-Id10004
     #     respondent-backgr-Id10008
@@ -77,13 +77,18 @@ def load_records_from_dataframe(record_df, random_locations=False):
             if existing_va:
                 ignored_vas.append(existing_va)
                 continue
-
+            
+        va_id = row.get('instanceid', f"{i} of {record_df.shape[0]}")
+        
         # If we got here, we need to create a new VA.
         va = VerbalAutopsy(**row)
         
 
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
-        va.Id10023 = parse_date(va.Id10023, strict=False)
+        parsed_date = parse_date(va.Id10023, strict=False)
+        if logger:
+            logger.info(f"va_id: {va_id} - Parsed {parsed_date} for Date of Death from {va.Id10023}") 
+        va.Id10023 = parsed_date
 
         # Try mapping va location to known db location. If not possible, set to null location
         
@@ -96,6 +101,8 @@ def load_records_from_dataframe(record_df, random_locations=False):
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
+            if "hospital" in row and logger:
+                logger.info(f"va_id: {va_id} - Matched hospital {row['hospital']} to {va.location} location in DB")
             
         created_vas.append(va)
 

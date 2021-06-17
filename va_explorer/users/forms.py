@@ -24,9 +24,9 @@ def get_location_restrictions(cleaned_data):
     Utility method to determine if the user locations are from the location_restrictions
     dropdown or facility restrictions dropdown (Field Worker role only)
     """
-    if "location_restrictions" in cleaned_data and len(cleaned_data["facility_restrictions"]) == 0:
+    if "location_restrictions" in cleaned_data  and len(cleaned_data.get("facility_restrictions", [])) == 0:
         return cleaned_data["location_restrictions"]
-    elif "facility_restrictions" in cleaned_data and len(cleaned_data["location_restrictions"]) == 0:
+    elif "facility_restrictions" in cleaned_data and len(cleaned_data.get("location_restrictions", [])) == 0:
         return cleaned_data["facility_restrictions"]
     else:
         return []
@@ -80,7 +80,7 @@ class LocationRestrictionsSelectMultiple(SelectMultiple):
 
 class GroupSelect(forms.Select):
     """
-    Custom widget for group select that will have a 'data-view-pii' attribute.
+    Custom widget for group select that will have a 'data-view-pii' and 'data-download-data' attributes.
     We can use this attribute in the HTML to determine whether or not to enable the 'Can View PII' checkbox.
     """
 
@@ -89,6 +89,8 @@ class GroupSelect(forms.Select):
         if value:
             if value.instance.permissions.filter(codename='view_pii').first():
                 option['attrs']['data-view-pii'] = 1
+            if value.instance.permissions.filter(codename='download_data').first():
+                option['attrs']['data-download-data'] = 1
         return option
 
 
@@ -121,6 +123,11 @@ class UserCommonFields(forms.ModelForm):
         help_text="Determines whether user can view PII. Only applies if group does not already grant access to view PII.",
         required=False,
     )
+    download_data = forms.BooleanField(
+        label="Can Download Data",
+        help_text="Determines whether user can download data. Only applies if group does not already grant access to download data.",
+        required=False,
+    )
 
 
 class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
@@ -142,8 +149,9 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         fields = [
             "name",
             "email",
-            "view_pii",
             "group",
+            "view_pii",
+            "download_data",
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
@@ -167,21 +175,24 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         Normal cleanup
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
-
+        
         if "geographic_access" and "group" in cleaned_data:
             location_restrictions = get_location_restrictions(cleaned_data)
 
             validate_location_access(
                 self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
             )
+            
+            
 
             validate_username(
                 self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
+            
 
         return cleaned_data
 
-    def save(self, commit=True):
+    def save(self, commit=True, email_confirmation=True):
         """
         Saves the email and name properties after the normal
         save behavior is complete. Sets a random password, which the user must
@@ -190,12 +201,11 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         Saves the location and group after the user object is saved.
         """
         user = super(UserCreationForm, self).save(commit)
-
         if user:
             user.email = self.cleaned_data["email"]
             user.name = self.cleaned_data["name"]
 
-            password = get_random_string(length=32)
+            password = get_random_string(length=16)
             user.set_password(password)
 
             location_restrictions = get_location_restrictions(self.cleaned_data)
@@ -211,16 +221,28 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                 user.groups.add(*[group])
                 user.set_va_username(self.cleaned_data.get("va_username"))
 
-                # If selected group cannot view PII, modify the user's permissions according to the checkbox.
-                if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
+                # if View PII permission specified in form, override user group's default permission
+                #if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
+                if self.cleaned_data.get('view_pii', None) and self.cleaned_data['view_pii'] != '':
                     user.can_view_pii = self.cleaned_data['view_pii']
+
+                # if download data permission specified in form, override user group's default permission
+                # if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
+                if self.cleaned_data.get('download_data', None) and self.cleaned_data['download_data'] != '':
+                    user.can_download_data = self.cleaned_data['download_data']
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
             # setup_user_email(self.request, user, [])
-
-            get_adapter().send_new_user_mail(self.request, user, password)
+            # A workaround to run this script without a mail server. If True, it will send email like nomal. 
+            # If False, user credentials will just be printed to console.
+            if email_confirmation:
+                get_adapter().send_new_user_mail(self.request, user, password)
+                
+            else:
+                print(f"="*20)
+                print(f"Created user with email {user.email} and temp. password {password}")
 
         return user
 
@@ -237,8 +259,9 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             "name",
             "email",
             "is_active",
-            "view_pii",
             "group",
+            "view_pii",
+            "download_data",
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
@@ -290,6 +313,10 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             # If selected group cannot view PII, modify the user's permissions according to the checkbox.
             if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
                 user.can_view_pii = self.cleaned_data['view_pii']
+            
+            # If selected group cannot download data, modify the user's permissions according to the checkbox.
+            if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
+                user.can_download_data = self.cleaned_data['download_data']
 
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
         # If the email address was changed, we add the new email address

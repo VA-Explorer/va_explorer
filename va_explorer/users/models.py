@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 from functools import reduce
+import uuid
 
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
@@ -57,14 +58,14 @@ class User(AbstractUser):
     has_valid_password = models.BooleanField(
         _("The user has a user-defined password"), default=False
     )
-
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     location_restrictions = ManyToManyField(Location, related_name="users", db_table="users_user_location_restrictions")
 
     # The query set of verbal autopsies that this user has access to, based on location restrictions
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
     def verbal_autopsies(self, date_cutoff= None):
-       
+               
         # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
         date_cutoff = "1901-01-01" if not date_cutoff else date_cutoff
         va_objects = VerbalAutopsy.objects.filter(Id10023__gte=date_cutoff)
@@ -92,6 +93,18 @@ class User(AbstractUser):
     @can_view_pii.setter
     def can_view_pii(self, value):
         permission = Permission.objects.get(content_type__app_label='va_analytics', codename='view_pii')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
+
+    @property
+    def can_download_data(self):
+        return self.has_perm('va_analytics.download_data')
+
+    @can_download_data.setter
+    def can_download_data(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='download_data')
         if value:
             self.user_permissions.add(permission)
         else:

@@ -28,6 +28,7 @@ PII_FIELDS = [
     'Id10478',
     'Id10479',
     'comment',
+    'date',
     'narrat_image',
 ]
 

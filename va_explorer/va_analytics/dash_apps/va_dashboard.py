@@ -10,6 +10,7 @@ import datetime as dt
 import json
 import os
 import re
+import logging
 
 import dash
 import dash_bootstrap_components as dbc
@@ -21,17 +22,22 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
 
+from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_analytics.utils import plotting, loading
 
 # ================APP DEFINITION===============#
 # NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
 # app = dash.Dash(__name__)  # Dash constructor
-app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=True)
+app = DjangoDash(
+        name="va_dashboard",
+        serve_locally=True,
+        add_bootstrap_links=True,
+  )
+
 
 # NOTE: moved Toolbar configurations to plotting.py
 
-# TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timeframe for map data to display
 INITIAL_TIMEFRAME = "all"
@@ -43,6 +49,8 @@ JSON_FILE = "zambia_geojson.json"
 INITIAL_GRANULARITY = "district"
 # initial metric to plot on map
 INITIAL_COD_TYPE = "all"
+# event logger to track key dashboard events
+LOGGER = logging.getLogger("event_logger")
 
 # ============Lookup dictionaries =================#
 LOOKUP = plotting.load_lookup_dicts()
@@ -126,16 +134,8 @@ app.layout = html.Div(
                                     ],
                                 ),
                                 html.Div(
-                                    id="download_container",
+                                    id="download_data_div",
                                     className="dashboard-comp-container",
-                                    children=[
-                                        html.A(
-                                            dbc.Button(
-                                                "Download Data", color="primary"
-                                            ),
-                                            href="/va_analytics/download",
-                                        )
-                                    ],
                                 ),
                             ],
                             style={
@@ -224,19 +224,14 @@ app.layout = html.Div(
                                     ],
                                 ),
                                 html.Div(id="bounds"),
+                                
+                                # data stores
                                 dcc.Store(id="va_data"),
                                 dcc.Store(id="invalid_va_data"),
-#                                html.Div(
-#                                    id="invalid_va_data", style={"display": "none"}
-#                                ),
                                 dcc.Store(id="locations"),
                                 dcc.Store(id="location_types"),
-#                                html.Div(id="locations", style={"display": "none"}),
-#                                html.Div(
-#                                    id="location_types", style={"display": "none"}
-#                                ),
                                 dcc.Store(id="filter_dict"),
-                                #html.Div(id="filter_dict", style={"display": "none"}),
+
                                 # used to trigger data ingest when page first loads
                                 html.Div(id="hidden_trigger", style={"display": "none"})
                             ],
@@ -246,8 +241,10 @@ app.layout = html.Div(
                         dbc.Col(
                             [
                                 dcc.Tabs(
-                                    [  # graph tabs
+                                    id="plot_tabs",
+                                    children=[  # graph tabs
                                         dcc.Tab(
+                                            id="cod_tab",
                                             label="COD Analysis",
                                             children=[  # tab 1: COD Analysis
                                                 html.Div(
@@ -348,6 +345,7 @@ app.layout = html.Div(
                                         ),
                                         dcc.Tab(
                                             label="Demographics",
+                                            id="demographic_tab",
                                             children=[
                                                 dcc.Loading(
                                                     html.Div(id="demos-container"),
@@ -357,6 +355,7 @@ app.layout = html.Div(
                                         ),
                                         dcc.Tab(
                                             label="VA Trends",
+                                            id="trend_tab",
                                             children=[
                                                 html.Div(
                                                     id="ts_buttons",
@@ -475,6 +474,7 @@ app.layout = html.Div(
 )
 
 def reset_dashboard(n_clicks=0, **kwargs):
+    write_va_log(LOGGER, f"[dashboard] Clicked Reset Button", kwargs["request"])
     return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 
@@ -498,6 +498,7 @@ designated as "expanded"
         Output(component_id="invalid_va_data", component_property="data"),
         Output(component_id="locations", component_property="data"),
         Output(component_id="location_types", component_property="data"),
+        Output(component_id="download_data_div", component_property="children") #download button
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
@@ -507,12 +508,37 @@ def init_va_data(hidden_trigger=None, **kwargs):
     timeframe = LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "all")
     if timeframe != "all":
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
+
     res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
     valid_va_data = res["data"]["valid"].to_dict()
     invalid_va_data = res["data"]["invalid"].to_dict()
     locations = res.get("locations", [])
     location_types = res.get("location_types", [])
-    return valid_va_data, invalid_va_data, locations, location_types
+
+    # Download button logic.
+    # Only show the Download Data button if user has access to it.
+    download_div = html.Div(id="download_data_button")
+    if kwargs["user"].can_download_data:
+        download_div.children = [
+            dbc.Button("Download Data", href="/va_analytics/download", color="primary", external_link=True),
+        ]
+
+    return valid_va_data, invalid_va_data, locations, location_types, download_div
+
+# ============ Location search options (loaded after load_va_data())==================
+@app.callback(
+    Output(component_id="log_data", component_property="children"),
+    [Input(component_id="plot_tabs", component_property="value")]
+
+)
+def log_tab_value(tab_value, **kwargs):
+    tab_names = {"tab-1": "COD", "tab-2": "Demographics", "tab-3": "VA Trends"}
+    tab_name = tab_names.get(tab_value, None)
+    if tab_name:
+        write_va_log(LOGGER, f"[dashboard] Clicked on {tab_name} Tab ", kwargs["request"])
+    return tab_name
+    
+
 
 
 # ============ Location search options (loaded after load_va_data())==================
@@ -611,10 +637,35 @@ def filter_data(
                 "invalid": invalid_filter["plot_ids"],
             },
         }
+            
+        log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
+
+        return combined_filter_dict #, disable_timeframe
+
+def log_callback_trigger(logger, context, request):
+    if context:
+        trigger = context.triggered[0]
+        if trigger:
+            component_id = trigger["prop_id"].split(".")[0]
+            # don't log entire filter dictionary
+            if component_id != "filter_dict":
+                # by default, set action and value to raw trigger values
+                action = f"changed {component_id} to value "
+                value = trigger["value"]
+                # make message more specific for certain component callbacks
+                if component_id == "choropleth":
+                    action = "Zoomed in on region"
+                    value = trigger["value"]["points"][0]["location"]
+                elif component_id == "map_search":
+                    action = "Searched for region"
+                elif component_id == "cod_type":
+                    action = "Changed COD Type to"
+                elif component_id == "timeframe":
+                    action = "Changed Timeframe to"
+                
+                write_va_log(logger, f"[dashboard] {action} {value}", request)
+            
         
-
-        return combined_filter_dict#, json.dumps(combined_filter_dict)#, disable_timeframe
-
 
 # helper method to get filter ids given adjacent plot regions
 def _get_filter_dict(
@@ -822,6 +873,12 @@ def update_choropleth(
     **kwargs
 ):
 
+    # first, see which input triggered update. If granularity change, log the new value
+    context = dash.callback_context
+    trigger = context.triggered[0]
+    if trigger["prop_id"].split(".")[0] == "view_level":
+        log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
+        
     figure = go.Figure()
     config = None
     if va_data is not None:
@@ -1223,6 +1280,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
                 else:
                     plot_title = "All-Cause Demographics"
             figure = plotting.demographic_plot(plot_data, title=plot_title)
+            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
     return dcc.Graph(id="demos_plot", figure=figure, config=LOOKUP["chart_config"])
 
 # =========Cause of Death Plot Logic============================================#
@@ -1252,7 +1310,7 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
             figure = plotting.cod_group_plot(
                 plot_data, cod_groups, demographic=factor, N=N, chosen_cod=cod, height=560
             )
-        
+            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
         return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
     else:
         raise dash.exceptions.PreventUpdate
@@ -1359,6 +1417,8 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                     plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                     search_term_ids[cod] = plot_data[plot_data["cause"] == cod].index.tolist()
                     plot_title = f"{cod_title} Trend by {group_period}"
+                    
+            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
 
             figure = plotting.va_trend_plot(
                 plot_data, group_period, factor, title=plot_title, search_term_ids=search_term_ids, height=560
