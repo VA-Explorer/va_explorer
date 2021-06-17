@@ -87,12 +87,13 @@ def fill_user_form_data(user_data, debug=False):
                 # NOTE: this assumes queryset objects have 'name' field and are indexed as such.
                 # If not the case, need to use new field in query below
                 qs = form_field.choices.queryset
-                # if group field and group names end in s, try adding s and re-running query
+                # first, try (case insensive) exact matching. If no match, then try consevative fuzzy matching
                 try:
-                    #match = qs.filter(name__iexact=value)
-                    match_name = fuzzy_match(value, qs.values_list('name', flat=True), threshold=.95)
-                    if match_name:
-                        match = qs.filter(name__iexact=match_name)
+                    match = qs.filter(name__iexact=value)
+                    if not match.exists():
+                        match_name = fuzzy_match(value, qs.values_list('name', flat=True), threshold=.95)
+                        if match_name:
+                            match = qs.filter(name__iexact=match_name)
                 except:
                     match = qs.none()
                 
