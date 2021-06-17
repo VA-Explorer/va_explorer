@@ -1,0 +1,98 @@
+uuid,is_active,is_staff,account_type,location_restrictions
+71f11d7b-5b1c-490f-8600-b86f52182971,True,False,Data Managers,
+5dd6b6b5-514d-429b-bd72-427c5848a977,True,False,Data Viewers,
+777ea1d7-a89c-4019-9b59-f7d3b644fbeb,True,False,Field Workers,
+ab6871a4-bb98-44e9-8c79-2f63bb03db1b,True,False,Field Workers,Kabwe General Hospital
+687c119d-4b48-4adf-90f3-cacc8e888629,True,False,Field Workers,Kabwe General Hospital
+801e6057-1851-4dfb-a11f-b592e7a88a8f,True,False,Field Workers,Kapiri General Hospital
+8180031d-8c30-4a82-b313-35ba4c5ad789,True,False,Field Workers,Kapiri General Hospital
+22a8e300-44ff-4c15-b4e9-21915deb30b9,True,False,Field Workers,Kapiri Urban Clinic
+cff81b5b-939f-4cf2-aec1-243fd52ac452,True,False,Field Workers,Kapiri Urban Clinic
+d2d05d0c-a678-42ca-a19f-5e3f58db71dc,True,False,Field Workers,Chililabombwe District TBA
+6495ec3f-d1d7-4a4b-8baf-bd4d1a9a79b2,True,False,Field Workers,Chililabombwe District TBA
+2eb9fb13-06b0-46e0-a838-f3a802488bf9,True,False,Field Workers,Chingola District TBA
+aeb0ec3a-581b-49be-b495-a3e9cc262e85,True,False,Field Workers,Chingola District TBA
+18e6e007-89ec-4a5e-ac53-c602ab0c26d6,True,False,Field Workers,Kitwe Teaching Hospital
+43e6e929-1be8-403a-8124-6caefc783ef8,True,False,Field Workers,Kitwe Teaching Hospital
+a0eabef5-1ec4-43a6-a21b-89f80292b05a,True,False,Field Workers,Roan Antelope General Hospital
+6ed25134-691a-4d08-a85d-a6927eb3dd3d,True,False,Field Workers,Roan Antelope General Hospital
+3cb4f44a-ffed-4a25-b915-284ab3976d0d,True,False,Field Workers,Thompson Distict Hospital
+6b270b0c-6661-48ea-b297-e005fe2f637c,True,False,Field Workers,Thompson Distict Hospital
+2380a4e7-2a3a-4b3d-8cb0-bf10f12da1f7,True,False,Field Workers,Kamuchanga District Hospital
+ebf90760-630c-46e1-80a3-41a464a94e19,True,False,Field Workers,Kamuchanga District Hospital
+dab16c0c-90e1-4e4a-8f5e-465e15a8dc54,True,False,Field Workers,Ronald Ross Hospital
+f08778b1-c976-4204-a883-f87572831fd0,True,False,Field Workers,Ronald Ross Hospital
+986ad5ca-8174-4d1d-a4d8-204db1140cb9,True,False,Field Workers,Arthur Davison Childrens Hospital
+b4c80aa4-5267-4d07-a241-b2f37bec55e0,True,False,Field Workers,Arthur Davison Childrens Hospital
+57073950-4997-4f7b-a6e6-aa1af7dc4b13,True,False,Field Workers,Ndola Teaching Hospital
+538f2447-634e-4ccc-b351-0d0ebc9a6c60,True,False,Field Workers,Ndola Teaching Hospital
+4356eb6c-e977-4a92-ba2b-96f1eafff3c5,True,False,Field Workers,Chipata Central Hospital
+590e0082-541c-48b4-a4fa-6e1691147097,True,False,Field Workers,Chipata Central Hospital
+d5462c2e-27cf-447f-a5d8-389c2af6bc60,True,False,Field Workers,Mwami Mission Hospital
+74ba2a4a-9e0e-4b67-b855-d7ca12af71b7,True,False,Field Workers,Mwami Mission Hospital
+4cb3c375-5f3a-4313-a166-a159f1f9ff46,True,False,Field Workers,Katete District TBA
+500a8ec6-18d8-4e20-8e43-e084f1b4ba36,True,False,Field Workers,Katete District TBA
+242b8a50-6f9c-424c-a2b3-9f42d98b8155,True,False,Field Workers,Petauke District TBA
+1d557d36-55de-43f0-acd8-8c9c8faffc8c,True,False,Field Workers,Petauke District TBA
+bcca9c77-6da6-4a95-b19e-ffb96868e5dc,True,False,Field Workers,Mansa District TBA
+ee5c3156-3414-42d5-9cd9-2e7be98d9060,True,False,Field Workers,Mansa District TBA
+5923fc09-e595-4d91-be97-6fdfc3a92192,True,False,Field Workers,Chongwe District Hospital
+b3119a63-6161-4bff-8af1-4171c81a2ae1,True,False,Field Workers,Chongwe District Hospital
+9ca88317-66ad-4b3f-8200-cdef4b0f14c7,True,False,Field Workers,Kafue General Hospital
+93526ba4-ce5b-4933-bbd0-478d5aebc4ae,True,False,Field Workers,Kafue General Hospital
+60b4859e-6e5e-4ff9-b77f-f50406118a3c,True,False,Field Workers,Nangongwe Clinic
+ef85e626-e059-4730-ba00-1fe5d5b51d3d,True,False,Field Workers,Nangongwe Clinic
+5a15886b-4d86-471b-b80e-e29663972ac0,True,False,Field Workers,Chawama Level One Hospital
+cc39d55c-bf85-429b-b366-4df408177683,True,False,Field Workers,Chawama Level One Hospital
+f6c67460-7f15-4407-8654-f40f4de14856,True,False,Field Workers,Chelstone Zonal Clinic
+8bf1b62b-c7a1-4ef4-9a7b-3e1d8776317c,True,False,Field Workers,Chelstone Zonal Clinic
+b576a736-bc66-4bd7-912f-dee5717fa796,True,False,Field Workers,Chilenje Z6
+72b9f6e4-6f30-4473-a8d8-ca45894ea540,True,False,Field Workers,Chilenje Z6
+c05025b8-1e29-451d-8598-c2b81bdfe92c,True,False,Field Workers,Chipata Level One Hospital
+0575caa8-13a6-48a2-91a1-ba7949031f1f,True,False,Field Workers,Chipata Level One Hospital
+444e3aed-d18b-4fc7-8b20-1754a7d34652,True,False,Field Workers,Kanyama Level One Hospital
+e60aa276-682e-4b32-9898-b5ca6aafc5a8,True,False,Field Workers,Kanyama Level One Hospital
+55a4f81e-af9d-4e6c-8bb7-13d17fa0d107,True,False,Field Workers,Levy Mwanawasa Teaching Hospital
+e622fc69-d2e6-4451-bff4-13092ed8f14b,True,False,Field Workers,Levy Mwanawasa Teaching Hospital
+6dcb65d1-179c-4d5c-8deb-b93808adfa77,True,False,Field Workers,Matero Level One Hospital
+67141ff7-cff2-4978-a711-2553fa125fda,True,False,Field Workers,Matero Level One Hospital
+e68956b0-e091-4a3d-9ed8-3053a94baa3a,True,False,Field Workers,University Teaching Hospital
+996fe889-3d54-426b-adeb-d4ff0b55d4d8,True,False,Field Workers,University Teaching Hospital
+4ad78655-9d0a-4181-abf8-e8c3c9712964,True,False,Field Workers,Chinsali District TBA
+d8726291-a4a0-4bee-9ef5-d344339308be,True,False,Field Workers,Chinsali District TBA
+3a633039-cafc-425b-b7a8-45dce2097452,True,False,Field Workers,Solwezi District TBA
+a74d7f82-ef96-4195-a3e3-b16d1b89f4a2,True,False,Field Workers,Solwezi District TBA
+e090fa75-42e8-461e-89a0-be504c61b4b3,True,False,Field Workers,Chikankata District TBA
+a3edee17-74a4-4ce3-93c4-a529dfce026e,True,False,Field Workers,Chikankata District TBA
+287af02b-f66c-42f0-9bfe-17107bbed1e7,True,False,Field Workers,Choma District TBA
+929f0b01-61ef-439d-b3f9-dd45ae4cfd17,True,False,Field Workers,Choma District TBA
+c4041336-3f89-4a77-a20a-cab969dcd720,True,False,Field Workers,Choma General Hospital
+3988a973-0929-4f4c-aac5-b7c90256b8c7,True,False,Field Workers,Choma General Hospital
+06cd6eba-074f-4bef-b009-8eb58ff3f9c5,True,False,Field Workers,Kalomo Urban Clinic
+19c05fc6-96de-43a9-bb56-398b7d2629fe,True,False,Field Workers,Kalomo Urban Clinic
+d8619fa5-3bd6-4493-b4b4-26d9d04e5dfc,True,False,Field Workers,Request Muntanga District Hospital
+0accced4-a071-4fe1-8e96-434ba688d4a9,True,False,Field Workers,Request Muntanga District Hospital
+d2ed9d00-2651-431c-a915-9743f3cb099d,True,False,Field Workers,Livingstone Central Hospital
+22da7b32-3aa6-44c3-b382-9cf92a5dc77f,True,False,Field Workers,Livingstone Central Hospital
+3e32b460-11cb-4b3b-bb08-d2f4cb68bfa0,True,False,Field Workers,Mazabuka General Hospital
+d9f9cbd8-1c98-4fd2-bf7d-5839cd4e1998,True,False,Field Workers,Mazabuka General Hospital
+c2d1fe2f-bafe-492d-94ee-3410a4707361,True,False,Field Workers,Chikuni District TBA
+ab215e8d-eea2-4213-b71b-6e90e65f5094,True,False,Field Workers,Chikuni District TBA
+c1a9a45a-55af-4e99-98f9-2ba13a6dcbb5,True,False,Field Workers,Monze Mission Hospital
+7db575a4-0080-4de6-9366-27831da7cb19,True,False,Field Workers,Monze Mission Hospital
+c79fbd53-9316-4368-a791-037a5a60460b,True,False,Field Workers,Namwala District Hospital
+4ea3b78d-b394-4f8f-9d73-b3db626a63ef,True,False,Field Workers,Namwala District Hospital
+a9ea057d-4f82-4770-aa9f-90670b3bcb3c,True,False,Field Workers,Siavonga District TBA
+aeba7258-4fe6-4c84-a24e-8514dc8dac9d,True,False,Field Workers,Siavonga District TBA
+388b0905-5ab9-4368-894a-22a918c7ec35,True,False,Field Workers,Maamba Hospital
+ca4e0818-3cba-4f51-90a9-d4f94cc15a3c,True,False,Field Workers,Maamba Hospital
+8a1c12d6-47aa-404f-bbb0-c4c69f39babc,True,False,Field Workers,Kaoma District Hospital
+7aa98c10-86fb-40d7-bb86-da06979d341d,True,False,Field Workers,Kaoma District Hospital
+aa40c270-6647-4502-ba10-b00074b7dafc,True,False,Field Workers,Lewanika General Hospital
+4f57804b-3fe7-4dd7-ae60-8f0a747c3dd4,True,False,Field Workers,Lewanika General Hospital
+967c897d-672a-4483-be97-168448a3c4c5,True,False,Field Workers,Senanga General Hospital
+74a67d2b-279f-480a-812f-5b3cf57aa15d,True,False,Field Workers,Senanga General Hospital
+548414fb-137c-4582-bf13-332142caa786,True,False,Field Workers,Mwandi Mission Hospital
+656ef15f-4df9-43df-9f2f-c34e88d7fd63,True,False,Field Workers,Mwandi Mission Hospital
+5451b5c5-e910-48cb-ad67-660c7bd7fbad,True,False,Data Viewers,
+f239287c-eb0e-4d03-b337-8ed5009bdd07,True,False,,

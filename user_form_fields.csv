@@ -1,0 +1,5 @@
+,name,email,view_pii,group,geographic_access,location_restrictions,facility_restrictions,va_username
+type,CharField,EmailField,BooleanField,ModelChoiceField,ChoiceField,ModelMultipleChoiceField,ModelMultipleChoiceField,CharField
+description,,,Determines whether user can view PII. Only applies if group does not already grant access to view PII.,,,,Field Workers must be assigned to at least one facility.,Username is the interviewer username collected in the Verbal Autopsy.
+required,True,True,False,True,True,False,False,False
+default_value,,,,,location-specific,,,
