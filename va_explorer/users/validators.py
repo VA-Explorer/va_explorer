@@ -126,5 +126,4 @@ def validate_user_form(user_data, user_form):
     assert form_data['name'] == user_data['name']
 
     if len(user_data.get("location_restrictions", [])) > 0:
-        breakpoint()
         assert form_data["location_restrictions"].first().name == user_data["location_restrictions"]
