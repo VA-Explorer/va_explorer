@@ -1,14 +1,9 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
-from django.utils.crypto import get_random_string
-from email.utils import parseaddr
 import argparse
 
 from va_explorer.users.utils import create_users_from_file
 
 
-User = get_user_model()
 
 class Command(BaseCommand):
 
@@ -17,10 +12,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('user_list_file', type=argparse.FileType('r'))
+        parser.add_argument('--email_confirmation', type=bool, nargs='?', default=False)
 
     def handle(self, *args, **options):
         user_file = options['user_list_file']
-        create_users_from_file(user_file)
+        email_confirmation = options.get("email_confirmation", False)
+        create_users_from_file(user_file, email_confirmation=email_confirmation)
         self.stdout.write(self.style.SUCCESS('Done!'))
 
 
