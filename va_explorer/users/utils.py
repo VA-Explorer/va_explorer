@@ -24,7 +24,9 @@ from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 
 import pandas as pd
 from pandas.core.frame import DataFrame
+from email.utils import parseaddr
 import re
+import os
 
 
 def create_users_from_file(user_list_file, email_confirmation=False, debug=False):
@@ -210,14 +212,41 @@ def get_form_fields(form_type=ExtendedUserCreationForm, orient="v"):
 
 
 
-# get table with basic info for all users in system. No PII included in result
-def get_anonymized_user_info(): 
-    # export user data in way that is consistent with user form 
+# get an anonymized table with basic info for all users in system (by defeault) or for a subset of users. 
+# users can either be specified as a list of emails, or a txt with one email per line.  No PII included in result
+def get_anonymized_user_info(user_list=None, user_list_file=None, debug=False):
+    user_objects = User.objects
+    # if user list provided, filter User objects to just those with emails in list
+    if user_list or user_list_file:
+        if not user_list and os.path.exists(user_list_file):
+            try:
+                user_list = [l.strip() for l in open(user_list_file, 'r').read().splitlines()]
+            except:
+                print(f"Failed to parse users from {user_list_file}.")
+                return
+
+        # filter out entries that aren't proper emails
+        bad_emails = list(filter(lambda email: not re.match('[^@]+@[^@]+\.[^@]+', email), user_list))
+        if len(bad_emails) > 0:
+            print(f'Invalid email address(es) found for: {bad_emails}')
+            user_list = list(set(user_list).difference(set(bad_emails)))
+
+        # filter user objects to match known emails
+        user_objects = user_objects.filter(email__in=user_list)
+        
+        # print emails that didn't match to console
+        found_emails = set(user_objects.values_list('email', flat=True))
+        missing_emails = set(user_list).difference(found_emails)
+        if len(missing_emails) > 0:
+            print(f"WARNING: failed to find users with following emails: {missing_emails}")
+
     # get user form fields
     form_fields = get_form_fields(orient="h")
     # figure out which fields are permissions. Assumes that all boolean fields are permissions
     permissions = form_fields.query("type=='BooleanField'").index.tolist()
-    user_data = User.objects\
+    if debug:
+        print(f"permissions: {permissions}")
+    user_data = user_objects\
     .select_related('location_restrictions')\
     .select_related('groups')\
     .select_related('user_permissions')\
@@ -230,13 +259,22 @@ def get_anonymized_user_info():
             permissions = F('user_permissions__codename')         
     )
     user_df = pd.DataFrame.from_records(user_data).rename(columns={'locations': 'location_restrictions'})
-    user_perms = (user_df[['uuid', 'permissions']]
-        .pivot_table(index='uuid', columns='permissions', values='uuid', aggfunc=lambda x: len(x) > 0)
-        .fillna(False)
-        .reset_index()
-        )
-    user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
-    
+
+    if not user_df.empty:
+        # try creating user permissions pivot based on all observed user permissions. If none, make a blank table
+        user_perms = (user_df[['uuid', 'permissions']]
+            .pivot_table(index='uuid', columns='permissions', values='uuid', aggfunc=lambda x: len(x) > 0)
+            .fillna(False)
+            .reset_index()
+            )
+        if user_perms.empty:
+            user_perms = pd.DataFrame({p: ["NA/Unassigned"]*user_df.shape[0] for p in permissions})
+            user_perms["uuid"] = user_df["uuid"]
+        
+        user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
+    else:
+        print("WARNING: failed to find any users matching provided emails")
+
     return user_df
 
 def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
