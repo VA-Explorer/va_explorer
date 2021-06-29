@@ -31,3 +31,4 @@ class AccountAdapter(DefaultAccountAdapter):
         except ConnectionRefusedError:
             print("WARNING: could not send email because connection was refused. Ensure that EMAIL_URL environment variable and all Django email settings are correct.")
             print(f"\t(see base or production files in config.settings). Current EMAIL_URL: {EMAIL_URL}")
+            print(message.message())

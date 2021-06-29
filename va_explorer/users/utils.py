@@ -18,13 +18,16 @@ from django.db.models.query import QuerySet
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import Location
 from va_explorer.users.forms import ExtendedUserCreationForm
+from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
+
 
 
 import pandas as pd
+from pandas.core.frame import DataFrame
 import re
 
 
-def create_users_from_file(user_list_file, print_passwords=False, debug=False):
+def create_users_from_file(user_list_file, email_confirmation=False, debug=False):
     user_df = pd.read_csv(user_list_file).fillna("")
     user_ct = error_ct = 0
     new_users = []
@@ -36,7 +39,7 @@ def create_users_from_file(user_list_file, print_passwords=False, debug=False):
         user_form = fill_user_form_data(user_data, debug=debug)
 
         if user_form.is_valid():
-            user = user_form.save(email_confirmation=False)
+            user_form.save(email_confirmation=email_confirmation)
             new_users.append(User.objects.get(email=user_data["email"]))
             user_ct +=1
         else:
@@ -54,6 +57,14 @@ def create_users_from_file(user_list_file, print_passwords=False, debug=False):
 def fill_user_form_data(user_data, debug=False):
     
     form = ExtendedUserCreationForm()
+    
+    # if dataframe provided, convert to dict
+    if type(user_data) is DataFrame:
+        user_data_tmp = user_data.T.to_dict()
+        user_data = list(user_data_tmp.values())[0]
+        
+    # preprocess raw data before parsing for form
+    user_data = prep_form_data(user_data)
     
     # initialize all form data values to their defaults
     form_data = {name: [field.initial] if type(field) is mmc_field else field.initial for name, field in form.fields.items()}
@@ -76,9 +87,13 @@ def fill_user_form_data(user_data, debug=False):
                 # NOTE: this assumes queryset objects have 'name' field and are indexed as such.
                 # If not the case, need to use new field in query below
                 qs = form_field.choices.queryset
-                # if group field and group names end in s, try adding s and re-running query
+                # first, try (case insensive) exact matching. If no match, then try consevative fuzzy matching
                 try:
                     match = qs.filter(name__iexact=value)
+                    if not match.exists():
+                        match_name = fuzzy_match(value, qs.values_list('name', flat=True), threshold=.95)
+                        if match_name:
+                            match = qs.filter(name__iexact=match_name)
                 except:
                     match = qs.none()
                 
@@ -151,7 +166,8 @@ def prep_form_data(user_data):
     try:
         group = re.sub("s$", "", group.lower())
     except:
-        group = "Unknown"
+        # defaulting to data viewer when group is unknown***
+        group = "Data Viewer"
 
     # field worker logic
     if group == "field worker":
@@ -159,7 +175,7 @@ def prep_form_data(user_data):
         # if no facility restriction, check for group restriction. Otherwise, drop location restriction
         if user_data.get("facility_restrictions", None) in [None, [], "", [""]]:
             user_data["facility_restrictions"] = user_data["location_restrictions"]
-        rm = user_data.pop("location_restrictions")
+        _ = user_data.pop("location_restrictions")
     # catch-all logic for groups in ["data viewer", "data manager", "dashboard viewer"]
     else:
         geo_access = "national"

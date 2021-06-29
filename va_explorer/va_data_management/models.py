@@ -64,7 +64,7 @@ class VerbalAutopsy(models.Model):
     # The VA fields collected as part of the WHO VA form or local versions
     # TODO: Need an approach that supports different variants in different countries
     deviceid = models.TextField("Device ID", blank=True)
-    instanceid = models.TextField("Instance ID", blank=True)
+    instanceid = models.TextField("Instance ID", blank=True, editable=False)
     phonenumber = models.TextField("Phone Number", blank=True)
     simserial = models.TextField("SIM Serial", blank=True)
     username = models.TextField("Username", blank=True)
