@@ -16,7 +16,7 @@ from django.db.models.query import QuerySet
 
 
 from va_explorer.users.models import User
-from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.models import Location, VerbalAutopsy, VaUsername
 from va_explorer.users.forms import ExtendedUserCreationForm
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 
@@ -25,6 +25,7 @@ from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 import pandas as pd
 from pandas.core.frame import DataFrame
 import re
+from numpy import nan
 
 
 def create_users_from_file(user_list_file, email_confirmation=False, debug=False):
@@ -40,7 +41,7 @@ def create_users_from_file(user_list_file, email_confirmation=False, debug=False
 
         if user_form.is_valid():
             user_form.save(email_confirmation=email_confirmation)
-            new_users.append(User.objects.get(email=user_data["email"]))
+            new_users.append(User.objects.filter(email=user_data["email"]).first())
             user_ct +=1
         else:
             error_ct +=1
@@ -236,8 +237,93 @@ def get_anonymized_user_info():
         .reset_index()
         )
     user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
-    
-    return user_df
+
+# update field worker usernames by matching names against all known interviewer names from VAs
+def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
+    user_objects = User.objects
+    if emails:
+        user_objects = user_objects.filter(email__in=emails)
+    # get list of field worker user names (from Users)
+    field_workers = filter(lambda x: x.is_fieldworker() and not x.name.startswith('Demo'), user_objects.all())
+    name_to_user = {user.name.lower().replace(' ', '_'): user for user in list(field_workers)}
+
+    # get list of unique VA field worker names from VA records
+    va_worker_set = set(VerbalAutopsy.objects.filter(Id10010__isnull=False).values_list('Id10010', flat=True))
+    # remove 'nan' and 'other' from the list
+    va_worker_keys = {n.lower(): n for n in va_worker_set if n not in {'nan', 'other'}}
+
+    # keep a list of va worker name keys for matching below
+    va_worker_names = list(va_worker_keys.keys())
+    # convert va names to lowercase and replace underscores with spaces
+    # fuzzy-match unique user_worker_names against unique va_worker_names
+    user_names = list(name_to_user.keys())
+    matches = [(user_name, fuzzy_match(user_name.lower(), va_worker_names, threshold=match_threshold)) for user_name in user_names]
+    # filter out tags that don't match any user names
+    matches = list(filter(lambda x: x[1], matches))
+    updated_va_ct = 0
+    if len(matches) > 0:
+        # update usernames of matching users
+        name_dict = {user_name: va_user_name for user_name, va_user_name in matches}
+        for name, new_username in name_dict.items():
+            # update Username
+            user = name_to_user[name]
+            user.username = new_username
+            user.set_va_username(new_username)
+            user.save()
+
+            if debug:
+                print(f"updating user {name}'s username to {new_username}")
+
+            # assign Username to matching VAs if not already done
+            # get original field worker tag for query (before it was lower-cased)
+            va_worker_key = va_worker_keys[new_username]
+            worker_vas = VerbalAutopsy.objects.filter(Id10010=va_worker_key)
+            for va in worker_vas:
+                if debug:
+                    print(f"updating VA {va.id}'s username to {new_username}")
+                va.username = new_username
+                va.save()
+                updated_va_ct +=1
+
+        print(f"DONE. Updated {len(matches)} Field Worker Usernames and tagged {updated_va_ct} VAs")
+        return matches
+    else:
+        print(f"failed to find any field worker tags that matched User names.")
+        return None
+
+
+# try to assign FieldWorker Usernames to a list of VAs if their field worker can be foudn in system
+def assign_va_usernames(vas, username_map=None, match_threshold=80, debug=False):
+    success_count = 0
+    if not username_map:
+        username_map = {name: name_id for name, name_id in list(VaUsername.objects.values_list('va_username', 'id'))}
+    usernames = list(username_map.keys())
+    if len(usernames) > 0:
+        for va in vas:
+            if not pd.isnull(va.Id10010):
+                field_worker = va.Id10010
+                match = fuzzy_match(field_worker.lower(), usernames, threshold=match_threshold)
+                if match:
+                    if debug:
+                        print(f"Tagging va {va.id} with field worker {match}")
+                    va.username = match
+                    va.save()
+                    success_count +=1
+        print(f"Successfully tagged {success_count} VAs")
+    else:
+        print(f"WARNING: no known field workers in system - failed to tag any VAs")
+
+# utility method to standardize a full name to lower-case first and last name separated by _
+def normalize_name(name):
+    final_name = None
+    if name not in [None, "", nan]:
+        names = name.strip().lower().replace(' ', '_').split('_')
+        if len(names) > 1:
+            final_name = '_'.join([names[0], names[-1]])
+        else:
+            final_name = names[0]
+    return final_name
+
 
 def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
     if not facilities:
