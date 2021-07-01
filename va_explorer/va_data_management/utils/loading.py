@@ -8,7 +8,8 @@ from django.contrib.auth import get_user_model
 from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
 from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
-from va_explorer.users.utils import make_field_workers_for_facilities, assign_va_usernames, normalize_name
+from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
+from va_explorer.users.utils.field_worker_linking import assign_va_usernames, normalize_name
 
 
 User = get_user_model()
@@ -94,22 +95,22 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     print("creating new VAs...")
     for i, row in enumerate(record_df.to_dict(orient='records')):
+        va = VerbalAutopsy(**row)
         # only import VA if its instanceId doesn't already exist
         if row['instanceid']:
             #existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
-            existing_va = (row['instanceid'] in va_instance_ids)
-            if existing_va:
-                ignored_vas.append(existing_va)
+            va_exists = (row['instanceid'] in va_instance_ids)
+            if va_exists:
+                ignored_vas.append(va)
                 continue
-            # else:
-            #     va_instance_ids.add(row['instanceid'])
+            else:
+                va_instance_ids.add(row['instanceid'])
             
+        
+        # If we got here, we have a new, legit VA on our hands.
         va_id = row.get('instanceid', f"{i} of {record_df.shape[0]}")
         
-        # If we got here, we need to create a new VA.
-        va = VerbalAutopsy(**row)
         
-
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
         parsed_date = parse_date(va.Id10023, strict=False)
         if logger:
@@ -143,6 +144,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     print("assigning VA usernames to known field workers...")
     assign_va_usernames(new_vas)
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
+    
     print("Validating VAs...")
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)

@@ -71,6 +71,7 @@ def test_loading_from_dataframe_with_ignored():
 
     assert len(result['created']) == 1
     assert len(result['ignored']) == 1
+    breakpoint()
     assert result['ignored'][0].instanceid == data[0]['instanceid']
     assert result['created'][0].instanceid == data[1]['instanceid']
 
