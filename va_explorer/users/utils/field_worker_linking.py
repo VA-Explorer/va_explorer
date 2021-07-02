@@ -19,6 +19,10 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
     if emails:
         emails = [emails] if type(emails) is str else emails
         user_objects = user_objects.filter(email__in=emails)
+        
+    # if threshold is decimal, convert to percent
+    if match_threshold > 0 and match_threshold < 1:
+        match_threshold = int(100 * match_threshold)
     # get list of field worker user names (from Users)
     field_workers = filter(lambda x: x.is_fieldworker() and not x.name.startswith('Demo'), user_objects.all())
     name_to_user = {user.name.lower().replace(' ', '_'): user for user in list(field_workers)}
@@ -33,6 +37,10 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
     matches = [(user_name, fuzzy_match(user_name.lower(), va_worker_names, threshold=match_threshold)) for user_name in user_names]
     # filter out tags that don't match any user names
     matches = list(filter(lambda x: x[1], matches))
+    if debug:
+        print(f"name to user: {name_to_user}")
+        print(f"va worker names: {va_worker_names}")
+        print(f"matches: {matches}")
     updated_va_ct = 0
     if len(matches) > 0:
         # update usernames of matching users
@@ -41,8 +49,10 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
             # update Username
             user = name_to_user[name]
             user.username = new_username
-            user.set_va_username(new_username)
-            user.save()
+            # only set va username if current username doesnt match
+            if new_username != user.get_va_username():
+                user.set_va_username(new_username)
+                #user.save()
 
             if debug:
                 print(f"updating user {name}'s username to {new_username}")
@@ -51,7 +61,7 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
             # get original field worker tag for query (before it was lower-cased)
             va_worker_key = va_worker_keys[new_username]
             worker_vas = VerbalAutopsy.objects.filter(Id10010=va_worker_key)
-            assign_va_usernames(worker_vas, [new_username], override=True)
+            updated_va_ct += assign_va_usernames(worker_vas, [new_username], override=True)
 
         print(f"DONE. Updated {len(matches)} Field Worker Usernames and tagged {updated_va_ct} VAs")
         return matches
@@ -76,8 +86,7 @@ def assign_va_usernames(vas=None, usernames=None, match_threshold=80, debug=Fals
     if not vas:
         vas = VerbalAutopsy.objects.all()
 
-    #username_map = {name: name_id for name, name_id in list(VaUsername.objects.values_list('va_username', 'id'))}
-    #usernames = list(username_map.keys())
+    tagged_users = set()
     if len(usernames) > 0:
         for va in vas:
             # if one username provided and override is true, skip matching and override VA's username. Otherwise,
@@ -93,10 +102,11 @@ def assign_va_usernames(vas=None, usernames=None, match_threshold=80, debug=Fals
                 va.username = match
                 va.save()
                 success_count +=1
+                tagged_users.add(match)
 
-        print(f"Successfully tagged {success_count} VAs")
+        print(f"Successfully linked {success_count} VAs to {len(tagged_users)} users ({tagged_users})")
     else:
-        print(f"WARNING: no known field workers in system - failed to tag any VAs")
+        print(f"WARNING: no field worker Usernames in system - failed to tag any VAs")
     return success_count
 
 # get list of unique VA field worker names from VA records.

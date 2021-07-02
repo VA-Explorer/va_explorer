@@ -44,13 +44,14 @@ def test_link_fieldworkers_to_vas():
     va4 = VerbalAutopsyFactory.create(Id10010='SEED', location=loc2).save()
     
     res = link_fieldworkers_to_vas(emails=worker_emails)
+    #breakpoint()
     res = set(res)
     assert len(res) == 3
     assert ('johnny', 'johnny') in res
     assert ('apple', 'apple') in res
     assert ('seed', 'seed') in res
 
-    usernames = User.objects.values_list('username', flat=True)
+    usernames = [u.get_va_username() for u in User.objects.all()]
     assert len(set(usernames).intersection({'johnny', 'apple', 'seed'})) == 3
 
     va_usernames = VerbalAutopsy.objects.values_list('username', flat=True)
@@ -74,7 +75,7 @@ def test_assign_va_usernames():
     va4 = VerbalAutopsyFactory.create(instanceid="instance4",Id10010='SEED', location=loc2).save()
     va4 = VerbalAutopsyFactory.create(instanceid="instance5", Id10010='JOHNNY', location=loc2).save()
 
-    # then, create 2 fieldworkers, one of whicih has a username johnny 
+    # then, create a field worker johnny 
     group, created = Group.objects.get_or_create(name="Field Workers")
     u1 = UserFactory(name="Johnny", email="field_worker_1@example.com", groups=[group])
     u1.set_va_username("johnny")
