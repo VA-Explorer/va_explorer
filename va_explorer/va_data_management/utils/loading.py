@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from simple_history.utils import bulk_create_with_history
 import logging
 from django.contrib.auth import get_user_model
@@ -8,11 +9,15 @@ from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
 from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
 from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
+from va_explorer.users.utils.field_worker_linking import assign_va_usernames, normalize_name
 
 
 User = get_user_model()
+import time
+
 
 def load_records_from_dataframe(record_df, random_locations=False, debug=True):
+    ti = t0 = time.time()
     logger = None if not debug else logging.getLogger("event_logger")
     if logger:
         logger.info("="*10 + "DATA INGEST" + "="*10)
@@ -39,6 +44,16 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # populate instanceid field with key value.
     if 'instanceid' not in record_df.columns and 'key' in record_df.columns:
         record_df = record_df.rename(columns={'key': 'instanceid'})
+
+    print('deduplicating fields...')
+    # collapse fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010)
+    record_df = deduplicate_columns(record_df)
+    
+    # if field worker column available (Id10010), standardize names
+    if "Id10010" in record_df.columns:
+        record_df["Id10010"] = record_df["Id10010"].apply(normalize_name).replace(np.nan, "UNKNOWN")
+
+    tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
             
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
@@ -69,21 +84,33 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             print('WARNING: no field workers w/ usernames in system. Generating random ones now...')
             make_field_workers_for_facilities()
             valid_usernames = VaUsername.objects.exclude(va_username__exact='')
-            
-    # build location matching index for location assignment
+
+    # pull in all existing VA instanceIDs from db for deduping purposes
+    print('pulling in instance ids...')
+    va_instance_ids = set(VerbalAutopsy.objects.values_list('instanceid', flat=True))
+    tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
+
+    if debug:
+        print(f"# of VAs: {record_df.shape[0]}, # of instanceIDs: {record_df.instanceid.nunique()}")
+
+    print("creating new VAs...")
     for i, row in enumerate(record_df.to_dict(orient='records')):
+        va = VerbalAutopsy(**row)
+        # only import VA if its instanceId doesn't already exist
         if row['instanceid']:
-            existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
-            if existing_va:
-                ignored_vas.append(existing_va)
+            #existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
+            va_exists = (row['instanceid'] in va_instance_ids)
+            if va_exists:
+                ignored_vas.append(va)
                 continue
+            else:
+                va_instance_ids.add(row['instanceid'])
             
+        
+        # If we got here, we have a new, legit VA on our hands.
         va_id = row.get('instanceid', f"{i} of {record_df.shape[0]}")
         
-        # If we got here, we need to create a new VA.
-        va = VerbalAutopsy(**row)
         
-
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
         parsed_date = parse_date(va.Id10023, strict=False)
         if logger:
@@ -106,19 +133,51 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             
         created_vas.append(va)
 
+    tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
 
+    print('populating DB...')
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
+
+    tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
+
+    # link VAs to known field workers in the system
+    print("assigning VA usernames to known field workers...")
+    assign_va_usernames(new_vas)
+    tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
     
+    print("Validating VAs...")
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
+    tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
+
+    print(f"total time: {time.time() - t0}")
 
     return {
         'ignored': ignored_vas,
         'created': created_vas,
     }
   
+# combine fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010). 
+# in Zambia data, often either the normal or _other field has a value but not both.
+# NOTE: currently using 'cleaned' version of other field (called filtered_<field>_other) and discarding <field>-other values
+# verify that this is kosher. 
+def deduplicate_columns(record_df, drop_duplicates=True):
+    other_cols = record_df.filter(regex='\_other$', axis=1).columns
+    # get original columns that other columns are derived from
+    original_cols = list(set(other_cols.str.replace('^filtered\_', '').str.replace('_other$', '').tolist()))
+    for original_col in original_cols:
 
-      
-
+        # If original column exists, combine values from original and _other columns into a single column
+        if original_col in record_df.columns:
+            record_df[original_col] = (record_df
+                                        .filter(regex=original_col, axis=1)
+                                        .replace('other', np.nan)
+                                        .bfill(axis=1).iloc[:,0])
+            #record_df[original_col] = record_df.apply(lambda row: row[other_col] if pd.isnull(row[original_col]) else row[original_col], axis=1)
+        else:
+            print(f"WARNING: couldn't find {original_col} but {original_col}_other in columns")
+    if drop_duplicates:
+        record_df = record_df.drop(columns=other_cols)
+    return record_df
         
 

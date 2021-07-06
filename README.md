@@ -124,6 +124,10 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
       This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
       
 
+  * Link Field Workers to VAs
+  `./manage.py link_fieldworkeres_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
+    This command links a group of field workers to their corresponding VAs in the system. Linking is done by searching a VA's interviewer name (field `Id10010`) against names of field workers in the system. If there's a match, a link is created by setting the VA's username to the matching field worker's username. By default, all field workers in the system are considered for matching, but you can specify a subset with the `--emails` argument (comma-separated, no spaces). To account for typos and slight variations in name spelling, a fuzzy-matching algorithm is used. You can specify how stringent the algorithm is with `--matching_threshold` (higher is stricter, with 100 being a perfect match). 
+  
 * Load location data
 
   `./manage.py load_locations <NAME OF CSV>`
