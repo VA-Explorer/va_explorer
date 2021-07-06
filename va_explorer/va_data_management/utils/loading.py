@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
 from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
-from va_explorer.users.utils import make_field_workers_for_facilities
+from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
 
 
 User = get_user_model()

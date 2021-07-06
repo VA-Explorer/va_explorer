@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from va_explorer.tests.factories import UserFactory, LocationFactory, VerbalAutopsyFactory
 from va_explorer.va_data_management.models import Location
 from va_explorer.users.models import User, UserPasswordHistory
-from va_explorer.users.utils import fill_user_form_data, create_users_from_file
+from va_explorer.users.utils.user_form_backend import fill_user_form_data, create_users_from_file
 from va_explorer.users.validators import validate_user_form, validate_user_object
 from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
 
