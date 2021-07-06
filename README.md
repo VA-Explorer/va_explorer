@@ -121,7 +121,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
   * Export anynymous info for all users in system 
     `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
-      This will export anymymous user IDs, user roles, geographic restrictions and privileges to a csv file. Ultimately file can be used to track user activity in logs withou compromising thier PII. By default, itexports info on all users in the system, but you can choose to filter down to a select list of users by setting the --user_file argument to a .txt file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
+      This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
       
 
 * Load location data
