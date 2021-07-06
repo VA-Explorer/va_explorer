@@ -1,16 +1,9 @@
 import pytest
 import pandas as pd
-import re
-
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-from va_explorer.tests.factories import UserFactory, LocationFactory, VerbalAutopsyFactory
-from va_explorer.va_data_management.models import Location
-from va_explorer.users.models import User, UserPasswordHistory
-from va_explorer.users.utils import fill_user_form_data, create_users_from_file
+from va_explorer.users.models import User
+from va_explorer.users.utils.user_form_backend import fill_user_form_data, create_users_from_file
 from va_explorer.users.validators import validate_user_form, validate_user_object
-from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
+from va_explorer.users.tests.user_test_utils import setup_test_db, get_fake_user_data
 
 pytestmark = pytest.mark.django_db
 
@@ -51,51 +44,4 @@ def test_create_users_from_file():
 	for i, user_data in user_df.iterrows():
 		user_object = list(filter(lambda x: x.email==user_data["email"], res["users"]))[0]
 		validate_user_object(user_data, user_object)
-
-def setup_test_db():
-	province = LocationFactory.create(name="Province1")
-	districtX = province.add_child(name='DistrictX', location_type='district')
-	facility1 = districtX.add_child(name='Facility1', location_type='facility')
-	districtY = province.add_child(name='DistrictY', location_type='district')
-	facility2 = districtY.add_child(name='Facility2', location_type='facility')
-	facility3 = districtY.add_child(name='Facility3', location_type='facility')
-
-	# Each facility with one VA
-	va1 = VerbalAutopsyFactory.create(location=facility1)
-	va2 = VerbalAutopsyFactory.create(location=facility2)
-	va3 = VerbalAutopsyFactory.create(location=facility3)
-
-	# create user groups defined in initialize_groups.py
-	for group_name, group_permissions in GROUPS_PERMISSIONS.items():
-		group, created = Group.objects.get_or_create(name=group_name)
-		if group.permissions.exists():
-			group.permissions.clear()
-		for model_class, model_permissions in group_permissions.items():
-			for codename in model_permissions:
-				# Get the content type for the given model class.
-				content_type = ContentType.objects.get_for_model(model_class)
-
-				# Lookup permission based on content type and codename.
-				try:
-					permission = Permission.objects.get(content_type=content_type, codename=codename)
-					group.permissions.add(permission)
-				except:
-					pass
-
-# create three dummy users for testing, each with different roles, location restirctions, and privacy privileges
-def get_fake_user_data():
-	users = {}
-	# user 1: restricted to location X, data viewer, cant view PII but can download data
-	users["u1"] = {'name': 'user1', 'email': 'user1@example.com', 'location_restrictions': 'DistrictX',
-	'group': 'Data Viewer', 'view_pii': False, 'download_data': True}
-
-	# user 2: data manager restricted to districtY, can view PII and can download data
-	users["u2"] = {'name': 'user2', 'email': 'user2@example.com', 'location_restrictions': 'DistrictY',
-	'group': 'Data Manager', 'view_pii': True, 'download_data': True}
-
-	# user 3: dashboard viewer - no location restrictions, cannot view PII but can download data
-	users["u3"] = {'name': 'user3', 'email': 'user3@example.com',
-	'group': 'Dashboard Viewer', 'view_pii': False, 'download_data': True}
-
-	return users
 	

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 import argparse
 
-from va_explorer.users.utils import get_form_fields
+from va_explorer.users.utils.user_form_backend import get_form_fields
 from va_explorer.users.forms import ExtendedUserCreationForm
 import pandas as pd
 
