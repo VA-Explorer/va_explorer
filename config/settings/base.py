@@ -244,13 +244,13 @@ LOGGING = {
         "ingest_file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": f"{LOG_DIR}/logs/data_ingest.log",
+            "filename": f"{LOG_DIR}/logfiles/data_ingest.log",
             "formatter": "debug"
-        }, 
+        },
         "event_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": f"{LOG_DIR}/logs/events.log",
+            "filename": f"{LOG_DIR}/logfiles/events.log",
             "formatter": "event"
 
         }
