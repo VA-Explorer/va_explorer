@@ -1,32 +1,45 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 12 14:33:57 2021
-
-@author: babraham
-"""
-
-from django.contrib.auth.models import Group
 from django.db.models import F
-from django.contrib.auth.models import Permission
-from django.utils.crypto import get_random_string
+
 from django.forms import BooleanField
 from django.forms.models import ModelMultipleChoiceField as mmc_field
 from django.db.models.query import QuerySet
 
-
 from va_explorer.users.models import User
-from va_explorer.va_data_management.models import Location
 from va_explorer.users.forms import ExtendedUserCreationForm
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
-
-
 
 import pandas as pd
 from pandas.core.frame import DataFrame
 import re
 
+# get table with basic info for all users in system. No PII included in result
+def get_anonymized_user_info(): 
+    # export user data in way that is consistent with user form 
+    # get user form fields
+    form_fields = get_form_fields(orient="h")
+    # figure out which fields are permissions. Assumes that all boolean fields are permissions
+    permissions = form_fields.query("type=='BooleanField'").index.tolist()
+    user_data = User.objects\
+    .select_related('location_restrictions')\
+    .select_related('groups')\
+    .select_related('user_permissions')\
+    .values(
+            'uuid',
+            'is_active',
+            'is_staff',
+            role = F('groups__name'),
+            locations = F('location_restrictions__name'), 
+            permissions = F('user_permissions__codename')         
+    )
+    user_df = pd.DataFrame.from_records(user_data).rename(columns={'locations': 'location_restrictions'})
+    user_perms = (user_df[['uuid', 'permissions']]
+        .pivot_table(index='uuid', columns='permissions', values='uuid', aggfunc=lambda x: len(x) > 0)
+        .fillna(False)
+        .reset_index()
+        )
+    user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
 
+# function to create a list of users from a csv file. Hooks up to front-end user form to validate fields upon creation. 
 def create_users_from_file(user_list_file, email_confirmation=False, debug=False):
     user_df = pd.read_csv(user_list_file).fillna("")
     user_ct = error_ct = 0
@@ -40,7 +53,7 @@ def create_users_from_file(user_list_file, email_confirmation=False, debug=False
 
         if user_form.is_valid():
             user_form.save(email_confirmation=email_confirmation)
-            new_users.append(User.objects.get(email=user_data["email"]))
+            new_users.append(User.objects.filter(email=user_data["email"]).first())
             user_ct +=1
         else:
             error_ct +=1
@@ -197,7 +210,6 @@ def prep_form_data(user_data):
 
     return user_data
 
-
 # get schema information of a django form including field types, descriptions, whether they're required, and deafult values
 def get_form_fields(form_type=ExtendedUserCreationForm, orient="v"):
     form = form_type()
@@ -207,79 +219,3 @@ def get_form_fields(form_type=ExtendedUserCreationForm, orient="v"):
                         "default_value": field.initial} for name, field in form.fields.items()}
     field_df = pd.DataFrame(field_dict)
     return field_df if orient.startswith("v") else field_df.T
-
-
-
-# get table with basic info for all users in system. No PII included in result
-def get_anonymized_user_info(): 
-    # export user data in way that is consistent with user form 
-    # get user form fields
-    form_fields = get_form_fields(orient="h")
-    # figure out which fields are permissions. Assumes that all boolean fields are permissions
-    permissions = form_fields.query("type=='BooleanField'").index.tolist()
-    user_data = User.objects\
-    .select_related('location_restrictions')\
-    .select_related('groups')\
-    .select_related('user_permissions')\
-    .values(
-            'uuid',
-            'is_active',
-            'is_staff',
-            role = F('groups__name'),
-            locations = F('location_restrictions__name'), 
-            permissions = F('user_permissions__codename')         
-    )
-    user_df = pd.DataFrame.from_records(user_data).rename(columns={'locations': 'location_restrictions'})
-    user_perms = (user_df[['uuid', 'permissions']]
-        .pivot_table(index='uuid', columns='permissions', values='uuid', aggfunc=lambda x: len(x) > 0)
-        .fillna(False)
-        .reset_index()
-        )
-    user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
-    
-    return user_df
-
-def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
-    if not facilities:
-        facilities = Location.objects.filter(location_type='facility').exclude(name='Unknown')
-    
-    for i, facility in enumerate(facilities):
-        for j in range(num_per_facility):
-            worker_id = (i * num_per_facility) + j + 1
-            create_demo_field_worker(worker_id, facility)
-        
-
-def create_demo_field_worker(worker_id, facility=None):
-
-    username = f"field_worker_{worker_id}"
-
-    user, created = User.objects.get_or_create(
-        email=f"{username}@example.com",
-        defaults={"name": f"Demo Field Worker {worker_id}", "is_active": True, "has_valid_password": True},
-    )
-
-    if created:
-        # assign password and save user
-        user.set_password("Password1")
-        user.save()
-        
-        # set their username
-        user.set_va_username(*[username])
-        
-        # assign new user to field worker group
-        user_group = Group.objects.get(name="Field Workers")
-        user_group.user_set.add(user)
-        # save user group changes
-        user_group.save()
-        
-        # if facility name provided, assign field worker. Otherwise, randomly assign one
-        if not facility:
-            facility = Location.objects.filter(location_type='facility').order_by('?').first()
-        
-        user.location_restrictions.add(*[facility])
-        
-        # save/export final user
-        user.save()
-        
-        print(f"Successfully created field worker with username {username} for facility {facility.name}")
-        

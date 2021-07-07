@@ -11,7 +11,11 @@ from django.contrib.auth.models import Group
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect, SelectMultiple
 from django.utils.crypto import get_random_string
 
-from va_explorer.va_data_management.models import Location, VaUsername
+from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
+from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
+from va_explorer.users.utils.field_worker_linking import get_va_worker_names 
+from va_explorer.users.utils.field_worker_linking import assign_va_usernames
+from va_explorer.users.utils.field_worker_linking import link_fieldworkers_to_vas
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 
@@ -65,6 +69,54 @@ def validate_username(form, va_username, group, user):
             form.errors["va_username"] = form.error_class(
                 ["This username is already assigned to another Field Worker."]
             )
+# core logic/steps to set user fields based on form data. Used in both UserCreation and ExtendedUserCreation forms
+def process_user_data(user, cleaned_data, run_matching_logic=True):
+
+    # set user location restrictions 
+    location_restrictions = get_location_restrictions(cleaned_data)
+    user.location_restrictions.set(location_restrictions)
+
+    # set user group
+    group = cleaned_data["group"]
+    user.groups.set([group])
+
+    # set username
+    user.set_va_username(cleaned_data.get("va_username"))
+
+    #=======Fieldworker-VA linking logic===================#
+    # if run_linking_logic and field worker, go through series of steps to ensure they're properly linked to the right VAs
+    if run_matching_logic and group.name.lower().startswith("field worker"):
+        
+        # first, match provided username against VAs. # If matching va field worker name, link all 
+        # VAs referencing this fieldworker to current username.
+        va_worker_keys = get_va_worker_names()
+
+        # only run if field workers in the system!
+        if len(va_worker_keys) > 0:
+            va_worker_names = list(va_worker_keys.keys())
+        
+            # match current username against va worker names
+            match = fuzzy_match(user.get_va_username(), va_worker_names)
+            if match:
+                worker_name = va_worker_keys[match]
+                # VAs with matching fieldworker names
+                worker_vas = VerbalAutopsy.objects.filter(Id10010=worker_name)
+                assign_va_usernames(worker_vas, usernames=[worker_name], override=True)
+            else:
+                # if no match, try setting username if User's name fuzzy matches with a va field worker name
+                link_fieldworkers_to_vas(emails=user.email)
+
+
+    # if View PII permission specified in form, override user group's default permission
+    if cleaned_data.get('view_pii', None) and cleaned_data['view_pii'] != '':
+        user.can_view_pii = cleaned_data['view_pii']
+
+    # if download data permission specified in form, override user group's default permission
+    if cleaned_data.get('download_data', None) and cleaned_data['download_data'] != '':
+        user.can_download_data = cleaned_data['download_data']
+
+    user.save()
+    return user
 
 
 class LocationRestrictionsSelectMultiple(SelectMultiple):
@@ -208,28 +260,14 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             password = get_random_string(length=16)
             user.set_password(password)
 
-            location_restrictions = get_location_restrictions(self.cleaned_data)
-            group = self.cleaned_data["group"]
+            # location_restrictions = get_location_restrictions(self.cleaned_data)
+            # group = self.cleaned_data["group"]
 
             if commit:
                 # Need to save again after setting password.
                 user.save()
+                user = process_user_data(user, self.cleaned_data, run_matching_logic=True)
 
-                # You cannot associate the user with a m2m field until it’s been saved
-                # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-                user.location_restrictions.add(*location_restrictions)
-                user.groups.add(*[group])
-                user.set_va_username(self.cleaned_data.get("va_username"))
-
-                # if View PII permission specified in form, override user group's default permission
-                #if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
-                if self.cleaned_data.get('view_pii', None) and self.cleaned_data['view_pii'] != '':
-                    user.can_view_pii = self.cleaned_data['view_pii']
-
-                # if download data permission specified in form, override user group's default permission
-                # if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
-                if self.cleaned_data.get('download_data', None) and self.cleaned_data['download_data'] != '':
-                    user.can_download_data = self.cleaned_data['download_data']
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
@@ -274,7 +312,6 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
-        # self.request = kwargs.pop("request", None)
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
         self.fields["group"].label = "Role"
@@ -301,37 +338,10 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
 
     def save(self, commit=True):
         user = super(UserUpdateForm, self).save(commit)
-        location_restrictions = get_location_restrictions(self.cleaned_data)
-        group = self.cleaned_data["group"]
 
         if commit:
-            """
-            You cannot associate the user with a m2m field until it’s been saved
-            https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
-            Set combines clear() and add(*location_restrictions)
-            """
-            user.location_restrictions.set(location_restrictions)
-            user.groups.set([group])
-            user.set_va_username(self.cleaned_data.get("va_username"))
-
-            # If selected group cannot view PII, modify the user's permissions according to the checkbox.
-            if not self.cleaned_data['group'].permissions.filter(codename='view_pii').first():
-                user.can_view_pii = self.cleaned_data['view_pii']
-            
-            # If selected group cannot download data, modify the user's permissions according to the checkbox.
-            if not self.cleaned_data['group'].permissions.filter(codename='download_data').first():
-                user.can_download_data = self.cleaned_data['download_data']
-
-        # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
-        # If the email address was changed, we add the new email address
-        # if user.email != self.cleaned_data["email"]:
-        #     user.add_email_address(self.request, self.cleaned_data["email"])
-
-        """
-        See allauth:
-        https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
-        send_email_confirmation(self.request, user, signup=False)
-        """
+            # only run va matching logic when user is first created
+            user = process_user_data(user, self.cleaned_data, run_matching_logic=False)
 
         return user
 
