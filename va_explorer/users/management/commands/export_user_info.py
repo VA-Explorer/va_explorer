@@ -16,10 +16,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--output_file', type=str, nargs='?', default="user_list.csv")
+        parser.add_argument('--user_file', type=str, nargs='?', default=None)
 
     def handle(self, *args, **options):
         fname = options["output_file"]
-        user_df = get_anonymized_user_info()
+        user_file = options["user_file"]
+        user_df = get_anonymized_user_info(user_list_file=user_file)
         try:
             user_df.to_csv(fname, index=False)
             print(f"Exported info for {user_df.shape[0]} users to {fname}")
