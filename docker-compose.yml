@@ -44,7 +44,7 @@ services:
       PYCROSS_HOST: ${PYCROSS_HOST:-http://pycrossva:80}
       INTERVA_HOST: ${INTERVA_HOST:-http://interva5:5002}
     volumes:
-      - ./va_explorer_logs:/app/va_explorer/va_logs/logs
+      - ./va_explorer_logs:/app/va_explorer/va_logs/logfiles
     command: /start
 
   celeryworker:
