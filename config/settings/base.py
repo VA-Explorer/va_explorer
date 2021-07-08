@@ -219,7 +219,7 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
 # Logging
-LOG_DIR = "va_explorer/va_logs"
+LOG_DIR = env("LOG_DIR", default="va_explorer/va_logs")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
