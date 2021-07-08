@@ -120,8 +120,9 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
     `./manage.py get_user_form_template --output_file <FILENAME>`
 
   * Export anynymous info for all users in system 
-    `./manage.py export_user_info --output_file <FILENAME>`
-      This will export an anymymous user ID, user roles, geographic restrictions and privileges to a csv file. Can be used to track user activity in logs withou compromising thier PII.
+    `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
+      This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
+      
 
   * Link Field Workers to VAs
   `./manage.py link_fieldworkeres_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
