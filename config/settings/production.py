@@ -44,7 +44,7 @@ TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
 ]
 
 # Logging
-
+LOG_DIR = env("LOG_DIR", default="/app/va_explorer/va_logs")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -53,6 +53,12 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
+        },
+        "debug": {
+            "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
+        }, 
+        "event": {
+            "format": "%(asctime)s - %(message)s"
         }
     },
     "handlers": {
@@ -66,6 +72,19 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "ingest_file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/logfiles/data_ingest.log",
+            "formatter": "debug"
+        },
+        "event_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/logfiles/events.log",
+            "formatter": "event"
+
+        }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
@@ -79,5 +98,15 @@ LOGGING = {
             "handlers": ["console", "mail_admins"],
             "propagate": True,
         },
+        "ingest_logger": {
+            "level": "DEBUG",
+            "handlers": ["ingest_file"],
+            "propagate": False
+        },
+        "event_logger": {
+            "level": "INFO",
+            "handlers": ["event_file"],
+            "propagate": False
+        }
     },
 }
