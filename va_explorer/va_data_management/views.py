@@ -51,7 +51,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         #parse_date(va.Id10023)
         context['object_list'] = [{
             "id": va.id,
-            "name": va.Id10007,
+            "interviewer": va.Id10010,
             "date":  va.Id10023 if (va.Id10023 != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
             "facility": va.location.name if va.location else "",
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
