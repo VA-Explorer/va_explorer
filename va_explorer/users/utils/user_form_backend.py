@@ -10,16 +10,39 @@ from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 
 import pandas as pd
 from pandas.core.frame import DataFrame
+import os
 import re
 
-# get table with basic info for all users in system. No PII included in result
-def get_anonymized_user_info(): 
+# get table with basic info for a list of users. By default, exports results for all users but admin. 
+# No PII included in result
+def get_anonymized_user_info(user_list_file=None): 
+    # By default, include all users but admins. 
+    user_objects = User.objects.exclude(groups__name="Admins").exclude(email="admin@example.com")
+    # If user_list provided, filter list down to users w matching emails
+    if user_list_file:
+        if not os.path.isfile(user_list_file):
+            raise FileNotFoundError(f"Couldnt find user file {user_list_file}")
+        with open(user_list_file, 'r') as f:
+            emails = list(map(lambda x: x.strip().replace(',',''), filter(lambda x: '@' in x, f.readlines())))
+        if len(emails) > 0:
+            filtered_users = user_objects.filter(email__in=emails)
+            if len(filtered_users) == 0:
+                print(f"WARNING: couldn't find any user emails matching {emails}")
+            else:
+                found_emails = set(filtered_users.values_list('email', flat=True))
+                missing_emails = set(emails).difference(found_emails)
+                if len(missing_emails) > 0:
+                    print(f"WARNING: couldn't find users for following emails: {missing_emails}")
+                user_objects = filtered_users
+        else:
+            print(f"WARNING no valid emails found in file. Exporting info for all users")
+
     # export user data in way that is consistent with user form 
     # get user form fields
     form_fields = get_form_fields(orient="h")
     # figure out which fields are permissions. Assumes that all boolean fields are permissions
     permissions = form_fields.query("type=='BooleanField'").index.tolist()
-    user_data = User.objects\
+    user_data = user_objects\
     .select_related('location_restrictions')\
     .select_related('groups')\
     .select_related('user_permissions')\
@@ -38,6 +61,7 @@ def get_anonymized_user_info():
         .reset_index()
         )
     user_df = user_df.drop(columns="permissions").drop_duplicates().merge(user_perms, how="left")
+    return user_df
 
 # function to create a list of users from a csv file. Hooks up to front-end user form to validate fields upon creation. 
 def create_users_from_file(user_list_file, email_confirmation=False, debug=False):
