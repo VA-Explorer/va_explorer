@@ -7,6 +7,7 @@ from django.db.models.query import QuerySet
 from va_explorer.users.models import User
 from va_explorer.users.forms import ExtendedUserCreationForm
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
+from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
 
 import pandas as pd
 from pandas.core.frame import DataFrame
@@ -109,6 +110,7 @@ def fill_user_form_data(user_data, debug=False):
     # figure out common fields between form and csv
     common_fields = set(form.fields.keys()).intersection(set(user_data.keys()))
 
+
     # iterate over these fields and add to form data
     for field_name in common_fields:
         # raw value to be parsed
@@ -128,7 +130,7 @@ def fill_user_form_data(user_data, debug=False):
                 try:
                     match = qs.filter(name__iexact=value)
                     if not match.exists():
-                        match_name = fuzzy_match(value, qs.values_list('name', flat=True), threshold=.95)
+                        match_name = fuzzy_match(value, qs.values_list('name', flat=True), threshold=95)
                         if match_name:
                             match = qs.filter(name__iexact=match_name)
                 except:
@@ -179,7 +181,7 @@ def fill_user_form_data(user_data, debug=False):
 
         # add parsed value to form's data
         form_data[field_name] = form_value
-    # final preprocessing for form
+    # final preprocessing for form (have to call function again to convert values to objects)
     final_data = prep_form_data(form_data)
 
     return ExtendedUserCreationForm(final_data)
@@ -187,7 +189,7 @@ def fill_user_form_data(user_data, debug=False):
 # assign geographic access based on group and location restrictions. Also some logic to handle 
 # facility restrictions for field workers. If new groups are added to the system, need
 # to update this logic.
-def prep_form_data(user_data):
+def prep_form_data(user_data, debug=False, default_group="data viewer"):
     # if geographic_access missing, assign it based on group and/or location_restrictions
     if "group" not in user_data:
         raise(ValueError("Must provide group to determine geographic access."))
@@ -195,19 +197,36 @@ def prep_form_data(user_data):
     elif not user_data.get("location_restrictions", None):
         user_data["location_restrictions"] = ""
 
-    # Parse and clean group name. If group object provided, parse name field.
+    # Parse and clean group name. Default to default_group if no match found 
+    group_name = default_group
     if type(user_data["group"]) is QuerySet:
-        group = user_data["group"].first().name
+        # queryset provided (i.e. match found). If non-empty, parse group's name field. 
+        if len(user_data["group"]) > 0:
+            group_name = user_data["group"].first().name
     else:
-        group = user_data["group"]
-    try:
-        group = re.sub("s$", "", group.lower())
-    except:
-        # defaulting to data viewer when group is unknown***
-        group = "Data Viewer"
+        # group field is a string. Try matching against known groups
+        try:
+            # strip plural from group name
+            group_name = re.sub("s$", "", user_data["group"].lower())
+        except:
+            pass
+        
+        # check group name against known groups. Update group_name to match if found, otherwise default to data viewer
+        group_match = fuzzy_match(group_name, list(GROUPS_PERMISSIONS.keys()))
+        if debug:
+            print(f"group key for fuzzy match: {group_name}")
+            print(f"group match: {group_match}")
+        if group_match:
+            group_name = group_match
+        else:
+            group_name = default_group
+        if debug:
+            print(f"final group name: {group_name}")
+        # override raw group name with clean one
+        user_data["group"] = group_name
 
     # field worker logic
-    if group == "field worker":
+    if group_name.lower().startswith("field worker"):
         geo_access = "location-specific"
         # if no facility restriction, check for group restriction. Otherwise, drop location restriction
         if user_data.get("facility_restrictions", None) in [None, [], "", [""]]:
@@ -216,9 +235,10 @@ def prep_form_data(user_data):
     # catch-all logic for groups in ["data viewer", "data manager", "dashboard viewer"]
     else:
         geo_access = "national"
-        if len(user_data["location_restrictions"]) > 0:
-            if user_data["location_restrictions"][0] is not None:
-                geo_access = "location-specific"
+        if not pd.isnull(user_data["location_restrictions"]):
+            if len(user_data["location_restrictions"]) > 0:
+                if user_data["location_restrictions"][0] is not None:
+                    geo_access = "location-specific"
         if geo_access == "national":
             _ = user_data.pop("location_restrictions")
         # remove facility restriction data if it exists (only field workers should have this key)
