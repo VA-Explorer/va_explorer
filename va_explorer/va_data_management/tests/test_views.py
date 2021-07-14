@@ -5,6 +5,7 @@ from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory, LocationFactory, \
     FieldWorkerFactory, FieldWorkerGroupFactory, FacilityFactory, VaUsernameFactory
+from va_explorer.va_data_management.models import REDACTED_STRING
 
 pytestmark = pytest.mark.django_db
 
@@ -15,13 +16,12 @@ def test_index_with_valid_permission(user: User):
     can_view_pii = Permission.objects.filter(codename="view_pii").first()
     can_view_record_group = GroupFactory.create(permissions=[can_view_record, can_view_pii])
     user = UserFactory.create(groups=[can_view_record_group])
-
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert bytes(va.Id10007, "utf-8") in response.content
+    assert bytes(va.Id10010, "utf-8") in response.content
 
 
 # Get the index and make sure the VA in the system is listed
@@ -32,11 +32,12 @@ def test_index_redacted(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10023='death date')
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert bytes(va.Id10007, "utf-8") not in response.content
-    assert bytes('** redacted **', "utf-8") in response.content
+    assert bytes(REDACTED_STRING, "utf-8") in response.content
+    assert bytes(va.Id10023, "utf-8") not in response.content
+    
 
 
 # Request the index without permissions and make sure its forbidden
@@ -57,10 +58,10 @@ def test_show(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name')
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
-    assert bytes(va.Id10007, "utf-8") in response.content
+    assert bytes(va.Id10017, "utf-8") in response.content
 
 
 # Show a VA and make sure the data is as expected (with redacted)
@@ -71,18 +72,18 @@ def test_show_redacted(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name')
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
-    assert bytes(va.Id10007, "utf-8") not in response.content
-    assert bytes('** redacted **', "utf-8") in response.content
+    assert bytes(REDACTED_STRING, "utf-8") in response.content
+    assert bytes(va.Id10017, "utf-8") not in response.content
 
 
 # Request the show page for VA without permissions and make sure it's forbidden
 def test_show_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 403
 
@@ -97,10 +98,11 @@ def test_edit_with_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
 
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get(f"/va_data_management/edit/{va.id}")
     assert response.status_code == 200
-    assert bytes(va.Id10007, "utf-8") in response.content
+    assert bytes(va.Id10010, "utf-8") in response.content
+    assert bytes(va.Id10017, "utf-8") in response.content
 
 
 # Request the edit form of a VA without permissions and make sure its forbidden
@@ -108,7 +110,7 @@ def test_edit_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
 
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get(f"/va_data_management/edit/{va.id}")
     assert response.status_code == 403
 
@@ -123,14 +125,14 @@ def test_save_with_valid_permissions(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
-    assert va.Id10007 == new_name
+    assert va.Id10010 == new_name
     assert va.Id10023 == "2021-03-01"
     assert va.history.count() == 2
     assert va.history.first().history_user == user
@@ -149,21 +151,21 @@ def test_save_with_invalid_date_format(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name, "Id10023":"21-03-01", "Id10058": va.location.name })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023":"21-03-01", "Id10058": va.location.name })
     assert response.status_code == 200
 
 # Verify save access is restricted
 def test_save_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     assert va.history.count() == 1
     new_name = "Updated Example Name"
     location = va.location
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name })
     assert response.status_code == 403
 
 
@@ -176,20 +178,20 @@ def test_reset_with_valid_permissions(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
-    original_name = va.Id10007
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    original_name = va.Id10010
     original_dod = va.Id10023
     new_name = "Updated Name"
-    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": new_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
     va = VerbalAutopsy.objects.get(id=va.id)
-    assert va.Id10007 == new_name
+    assert va.Id10010 == new_name
     assert va.history.count() == 2
     # TODO: Switch the buttons to forms in show.html and make this a POST.
     response = client.get(f"/va_data_management/reset/{va.id}")
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
-    assert va.Id10007 == original_name
+    assert va.Id10010 == original_name
     assert va.Id10023 == original_dod
     assert va.history.count() == 3
     assert va.history.first().history_user == user
@@ -199,7 +201,7 @@ def test_reset_with_valid_permissions(user: User):
 def test_reset_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get(f"/va_data_management/reset/{va.id}")
     assert response.status_code == 403
 
@@ -213,18 +215,18 @@ def test_revert_latest_with_valid_permissions(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
-    original_name = va.Id10007
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    original_name = va.Id10010
     second_name = "Second Name"
     third_name = "Third Name"
-    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": second_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10010": second_name, "Id10023":"2021-03-01", "Id10058": va.location.name })
     va = VerbalAutopsy.objects.get(id=va.id)
-    assert va.Id10007 == second_name
+    assert va.Id10010 == second_name
     assert va.Id10023 == "2021-03-01"
     assert va.history.count() == 2
-    client.post(f"/va_data_management/edit/{va.id}", { "Id10007": third_name, "Id10023":"2021-03-02", "Id10058": va.location.name })
+    client.post(f"/va_data_management/edit/{va.id}", { "Id10010": third_name, "Id10023":"2021-03-02", "Id10058": va.location.name })
     va = VerbalAutopsy.objects.get(id=va.id)
-    assert va.Id10007 == third_name
+    assert va.Id10010 == third_name
     assert va.Id10023 == "2021-03-02"
     assert va.history.count() == 3
     # TODO: Switch the buttons to forms in show.html and make this a POST.
@@ -232,7 +234,7 @@ def test_revert_latest_with_valid_permissions(user: User):
     assert response.status_code == 302
     assert response["Location"] == f"/va_data_management/show/{va.id}"
     va = VerbalAutopsy.objects.get(id=va.id)
-    assert va.Id10007 == second_name
+    assert va.Id10010 == second_name
     assert va.Id10023 == "2021-03-01"
     assert va.history.count() == 4
     assert va.history.first().history_user == user
@@ -242,7 +244,7 @@ def test_revert_latest_with_valid_permissions(user: User):
 def test_revert_latest_without_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get(f"/va_data_management/revert_latest/{va.id}")
     assert response.status_code == 403
 
@@ -260,18 +262,18 @@ def test_access_control(user: User):
     district1 = province.add_child(name='District1', location_type='district')
     district2 = province.add_child(name='District2', location_type='district')
     facility = district1.add_child(name='Facility', location_type='facility')
-    va = VerbalAutopsyFactory.create(location=facility)
+    va = VerbalAutopsyFactory.create(location=facility, Id10023='death date')
     user.location_restrictions.set([district2]) # Should not have access to VA
     client = Client()
     client.force_login(user=user)
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert bytes(va.Id10007, "utf-8") not in response.content
+    assert bytes(va.Id10023, "utf-8") not in response.content
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 404
     response = client.get(f"/va_data_management/edit/{va.id}")
     assert response.status_code == 404
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10007": "New Name" })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "10023": "new death date" })
     assert response.status_code == 404
     response = client.get(f"/va_data_management/reset/{va.id}")
     assert response.status_code == 404
@@ -292,16 +294,16 @@ def test_field_worker_access_control():
     field_worker.save()
     field_worker_username.save()
 
-    va = VerbalAutopsyFactory.create(Id10007='Unique Value VA1', location=facility, username=field_worker_username.va_username)
-    va2 = VerbalAutopsyFactory.create(Id10007='Another Value VA2', location=facility, username='')
+    va = VerbalAutopsyFactory.create(Id10010='Unique Value VA1', location=facility, username=field_worker_username.va_username)
+    va2 = VerbalAutopsyFactory.create(Id10010='Another Value VA2', location=facility, username='')
 
     client = Client()
     client.force_login(user=field_worker)
 
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert str(va.Id10007).encode('utf_8') in response.content
-    assert str(va2.Id10007).encode('utf_8') not in response.content
+    assert str(va.Id10010).encode('utf_8') in response.content
+    assert str(va2.Id10010).encode('utf_8') not in response.content
 
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
