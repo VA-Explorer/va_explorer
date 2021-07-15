@@ -5,8 +5,26 @@
 {% block content %}
 <div class="row mt-4">
   <div class="col">
+    {% if last_update or last_submission %}
+      <div class="row">
+        {% if last_update %}
+            <p class='msg-header'> <b>Last Data Update:</b> {{ last_update }}</p>
+        {% else %}
+            <p class='msg-header'>No VAs found</p>
+        {% endif %}
+
+        {% if last_submission %}
+            <p class='msg-header'><b>Last VA submission:</b> {{ last_submission }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
     {% if not user.is_fieldworker %}
-        <h2 class="mb-4">VA Explorer Overview for {{ locations }}</h2>
+        {% if last_update or last_submission %}
+          <h2 class="mb-4">VA Explorer Overview for {{ locations }}</h2>
+        {% else %}
+          <h2 class="mb-4">No VAs found for {{ locations }}</h2>
+        {% endif %}
     {% else %}
         <h2 class="mb-4">Your VA Trends</h2>
     {% endif %}

@@ -5,7 +5,7 @@ from va_explorer.utils.mixins import CustomAuthMixin
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 import numpy as np
-
+import pandas as pd
 # TODO: We're using plotly here since it's already included in the project, but there may be slimmer options
 import plotly.offline as opy
 import plotly.graph_objs as go
@@ -35,6 +35,18 @@ class Index(CustomAuthMixin, TemplateView):
         else:
             context['locations'] = 'All Regions'
 
+        # track last data update and submission date
+        context['last_submission'] = None
+        context['last_update'] = None
+        if user_vas.exists():
+            # Track last time VAs were updated. Again, using last import date so may need to change.
+            context['last_update'] =  max(user_vas.values_list('created', flat=True)).strftime('%d %b, %Y')
+            # Record latest submission date (from ODK). Column may/may not be available depending on source
+            raw_submissions =  user_vas.values_list('submissiondate', flat=True)
+            if raw_submissions.exists():
+                context['last_submission'] = pd.to_datetime(raw_submissions).max().strftime('%d %b, %Y')
+        
+
         # Load the VAs that are collected over various periods of time
         # TODO: We're using date imported, but might be more appropriate to use date collected? If updating
         # this, look for all references to 'created'
@@ -42,6 +54,9 @@ class Index(CustomAuthMixin, TemplateView):
         vas_1_week = user_vas.filter(created__gte=today - timedelta(days=7))
         vas_1_month = user_vas.filter(created__gte=today - relativedelta(months=1))
         vas_overall = user_vas.order_by('id')
+
+        
+
 
         # VAs collected in the past 24 hours, 1 week, and 1 month
         context['vas_collected_24_hours'] = vas_24_hours.count()
