@@ -9,6 +9,7 @@ import pandas as pd
 # TODO: We're using plotly here since it's already included in the project, but there may be slimmer options
 import plotly.offline as opy
 import plotly.graph_objs as go
+from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
 # Simple helper function for creating the plotly graphs used on the home page
 def graph(x, y):
@@ -33,26 +34,9 @@ class Index(CustomAuthMixin, TemplateView):
         if location_restrictions.count() > 0:
             context['locations'] = ', '.join([location.name for location in location_restrictions.all()])
         else:
-            context['locations'] = 'All Regions'
-
-        # track last data update and submission date
-        context['last_submission'] = None
-        context['last_update'] = None
-
-        if user_vas.count() > 0:
-            # Track last time VAs were updated. Again, using last import date so may need to change.
-            last_update = max(user_vas.values_list('created', flat=True))
-            if not pd.isnull(last_update):
-                context['last_update'] =  last_update.strftime('%d %b, %Y')
-            # Record latest submission date (from ODK). Column may/may not be available depending on source
-            raw_submissions =  user_vas.values_list('submissiondate', flat=True)
-            if raw_submissions.count() > 0:
-                last_submission = pd.to_datetime(raw_submissions).max()
-                if not pd.isnull(last_submission):
-                    context['last_submission'] = last_submission.strftime('%d %b, %Y')
-
+            context['locations'] = 'All Regions' 
         
-
+        context.update(get_va_summary_stats(user_vas))
         # Load the VAs that are collected over various periods of time
         # TODO: We're using date imported, but might be more appropriate to use date collected? If updating
         # this, look for all references to 'created'
@@ -62,8 +46,6 @@ class Index(CustomAuthMixin, TemplateView):
         vas_overall = user_vas.order_by('id')
 
         
-
-
         # VAs collected in the past 24 hours, 1 week, and 1 month
         context['vas_collected_24_hours'] = vas_24_hours.count()
         context['vas_collected_1_week'] = vas_1_week.count()
