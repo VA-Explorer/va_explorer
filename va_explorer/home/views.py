@@ -38,13 +38,19 @@ class Index(CustomAuthMixin, TemplateView):
         # track last data update and submission date
         context['last_submission'] = None
         context['last_update'] = None
-        if user_vas.exists():
+
+        if user_vas.count() > 0:
             # Track last time VAs were updated. Again, using last import date so may need to change.
-            context['last_update'] =  max(user_vas.values_list('created', flat=True)).strftime('%d %b, %Y')
+            last_update = max(user_vas.values_list('created', flat=True))
+            if not pd.isnull(last_update):
+                context['last_update'] =  last_update.strftime('%d %b, %Y')
             # Record latest submission date (from ODK). Column may/may not be available depending on source
             raw_submissions =  user_vas.values_list('submissiondate', flat=True)
-            if raw_submissions.exists():
-                context['last_submission'] = pd.to_datetime(raw_submissions).max().strftime('%d %b, %Y')
+            if raw_submissions.count() > 0:
+                last_submission = pd.to_datetime(raw_submissions).max()
+                if not pd.isnull(last_submission):
+                    context['last_submission'] = last_submission.strftime('%d %b, %Y')
+
         
 
         # Load the VAs that are collected over various periods of time
