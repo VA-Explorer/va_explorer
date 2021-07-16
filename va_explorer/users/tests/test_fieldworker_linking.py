@@ -44,7 +44,6 @@ def test_link_fieldworkers_to_vas():
     va4 = VerbalAutopsyFactory.create(Id10010='SEED', location=loc2).save()
     
     res = link_fieldworkers_to_vas(emails=worker_emails)
-    #breakpoint()
     res = set(res)
     assert len(res) == 3
     assert ('johnny', 'johnny') in res
