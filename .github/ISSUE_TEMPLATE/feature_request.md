@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for VA Explorer
+about: Suggest an idea for VA Explorer in the future
 title: ''
 labels: 'Type: Enhancement'
 assignees: ''
