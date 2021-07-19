@@ -1,9 +1,11 @@
 {% load bootstrap4 %}
 {% load va_explorer_tags %}
 <nav aria-label="Page navigation container" style="margin: 0 auto"> 
- <!-- <ul class="justify-content-center">{% bootstrap_pagination page_obj size="large"%}</ul> -->
   {% if page_obj.has_other_pages %}
   <ul class="pagination pagination-lg justify-content-center">
+    {% if page_obj.number|add:'-5' > 0 %}
+      <li class="page-item"><a class="page-link" href="?{% param_replace page=0">&laquo;</a></li>
+    {% endif %}
     {% for i in page_obj.paginator.page_range %}
         {% if page_obj.number == i %}
             <li class="page-item active" aria-current="page">
@@ -13,15 +15,18 @@
           <li class="page-item"><a class="page-link" href="?{% param_replace page=i %}">{{ i }}</a></li>
         {% endif %}
     {% endfor %}
+    {% if page_obj.number|add:'5' <= page_obj.paginator.num_pages %}
+      <li class="page-item"><a class="page-link" href="?{% param_replace page=page_obj.paginator.num_pages %}">&raquo;</a></li>
+    {% endif %}
   </ul>
   {% endif %}
 
   <ul class="pagination justify-content-center">
-    {% if page_obj.has_previous %}
-      <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; PREV </a></li>
+    {% if page_obj.has_previous and page_obj.paginator.num_pages > 2 %}
+      <li><a href="?{% param_replace page=page_obj.previous_page_number %}" class="page-link">&laquo; PREV </a></li>
     {% endif %}
-    {% if page_obj.has_next %}
-      <li><a href="?page={{ page_obj.next_page_number }}" class="page-link"> NEXT &raquo;</a></li>
+    {% if page_obj.has_next and page_obj.paginator.num_pages > 2 %}
+      <li><a href="?{% param_replace page=page_obj.next_page_number %}" class="page-link"> NEXT &raquo;</a></li>
    {% endif %}
   </ul>
 </nav>
