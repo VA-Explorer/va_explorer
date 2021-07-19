@@ -24,7 +24,7 @@ from django_plotly_dash import DjangoDash
 
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.models import Location
-from va_explorer.va_analytics.utils import plotting, loading
+from va_explorer.va_analytics.utils import plotting, loading, rendering
 
 # ================APP DEFINITION===============#
 # NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
@@ -64,7 +64,9 @@ app.layout = html.Div(
     id="app-body-container",
     children=[
         html.Div(
+
             [
+                html.Div(id="va_update_stats"),
                 # global filters (affect entire dashboard)
                 dbc.Row(
                     [
@@ -498,7 +500,9 @@ designated as "expanded"
         Output(component_id="invalid_va_data", component_property="data"),
         Output(component_id="locations", component_property="data"),
         Output(component_id="location_types", component_property="data"),
-        Output(component_id="download_data_div", component_property="children") #download button
+        Output(component_id="download_data_div", component_property="children"), #download button
+        Output(component_id="va_update_stats", component_property="children") # stats on last update
+
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
@@ -514,6 +518,8 @@ def init_va_data(hidden_trigger=None, **kwargs):
     invalid_va_data = res["data"]["invalid"].to_dict()
     locations = res.get("locations", [])
     location_types = res.get("location_types", [])
+    update_stats = res.get("update_stats", None)
+    update_div = rendering.render_update_header(update_stats)
 
     # Download button logic.
     # Only show the Download Data button if user has access to it.
@@ -523,7 +529,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
             dbc.Button("Download Data", href="/va_analytics/download", color="primary", external_link=True),
         ]
 
-    return valid_va_data, invalid_va_data, locations, location_types, download_div
+    return valid_va_data, invalid_va_data, locations, location_types, download_div, update_div
 
 # ============ Location search options (loaded after load_va_data())==================
 @app.callback(
