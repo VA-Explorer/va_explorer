@@ -108,11 +108,11 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
 
 
     # if View PII permission specified in form, override user group's default permission
-    if cleaned_data.get('view_pii', None) and cleaned_data['view_pii'] != '':
+    if 'view_pii' in cleaned_data:
         user.can_view_pii = cleaned_data['view_pii']
 
     # if download data permission specified in form, override user group's default permission
-    if cleaned_data.get('download_data', None) and cleaned_data['download_data'] != '':
+    if 'download_data' in cleaned_data:
         user.can_download_data = cleaned_data['download_data']
 
     user.save()
