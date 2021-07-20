@@ -16,6 +16,7 @@ import os
 import time
 
 from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
 # ============ GEOJSON Data (for map) =================
 # load geojson data from flat file (will likely migrate to a database later)
@@ -73,8 +74,10 @@ def load_geojson_data(json_file):
 def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     # the dashboard requires date of death, exclude if the date is unknown
     # Using .values at the end lets us do select_related("causes") which drastically speeds up the query.
-    all_vas = user \
-        .verbal_autopsies(date_cutoff=date_cutoff) \
+    user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
+    # get stats on last update and last va submission date
+    update_stats = get_va_summary_stats(user_vas)
+    all_vas = user_vas\
         .only(
             "id",
             "Id10019",
@@ -107,7 +110,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         )
     
     if not all_vas:
-        return {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}}
+        return {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}, "update_stats": {update_stats}}
 
     # Build a dictionary of location ancestors for each facility
     # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
@@ -153,6 +156,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         "location_types": location_types,
         "max_depth": len(location_types) - 1,
         "locations": locations,
+        "update_stats": update_stats
     }
 
 

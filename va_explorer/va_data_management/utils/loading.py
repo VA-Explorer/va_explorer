@@ -179,5 +179,21 @@ def deduplicate_columns(record_df, drop_duplicates=True):
     if drop_duplicates:
         record_df = record_df.drop(columns=other_cols)
     return record_df
-        
+
+def get_va_summary_stats(vas):
+    # track last data update and submission date
+    stats = {'last_submission': None, 'last_update': None, 'total_vas': vas.count()}
+    if stats['total_vas'] > 0:
+        # Track last time VAs were updated. Again, using last import date so may need to change.
+        last_update = max(vas.values_list('created', flat=True))
+        if not pd.isnull(last_update):
+            stats['last_update'] =  last_update.strftime('%d %b, %Y')
+        # Record latest submission date (from ODK). Column may/may not be available depending on source
+        raw_submissions =  vas.values_list('submissiondate', flat=True)
+        if raw_submissions.count() > 0:
+            last_submission = pd.to_datetime(raw_submissions).max()
+            if not pd.isnull(last_submission):
+                stats['last_submission'] = last_submission.strftime('%d %b, %Y')
+    return stats
+
 
