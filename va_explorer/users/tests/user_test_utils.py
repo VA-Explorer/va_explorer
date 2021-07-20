@@ -54,8 +54,8 @@ def get_fake_user_data():
 	users["u2"] = {'name': 'user2', 'email': 'user2@example.com', 'location_restrictions': 'DistrictY',
 	'group': 'Data Manager', 'view_pii': True, 'download_data': True}
 
-	# user 3: dashboard viewer - no location restrictions, cannot view PII but can download data
+	# user 3: data viewer - no location restrictions, can view PII but cannot download data
 	users["u3"] = {'name': 'user3', 'email': 'user3@example.com',
-	'group': 'Dashboard Viewer', 'view_pii': False, 'download_data': True}
+	'group': 'Data Viewer', 'view_pii': True, 'download_data': False}
 
 	return users

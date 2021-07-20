@@ -13,8 +13,10 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
+from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+
 
 LOGGER = logging.getLogger("event_logger")
 
@@ -51,13 +53,15 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         #parse_date(va.Id10023)
         context['object_list'] = [{
             "id": va.id,
-            "name": va.Id10007,
+            "interviewer": va.Id10010,
             "date":  va.Id10023 if (va.Id10023 != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
             "facility": va.location.name if va.location else "",
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
             "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
         } for va in context['object_list']]
+
+        context.update(get_va_summary_stats(self.filterset.qs))
 
         return context
 

@@ -21,14 +21,9 @@ GROUPS_PERMISSIONS = {
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
     "Data Viewers": {
-        Dashboard: ["view_dashboard", "download_data"],
-        User: [],
-        VerbalAutopsy: ["view_verbalautopsy"],
-    },
-    "Dashboard Viewers": {
         Dashboard: ["view_dashboard"],
         User: [],
-        VerbalAutopsy: [],
+        VerbalAutopsy: ["view_verbalautopsy"],
     },
     "Field Workers": {
         Dashboard: [],

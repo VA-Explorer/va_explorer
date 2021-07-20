@@ -89,7 +89,9 @@ def fuzzy_match(search, options=None, option_df=pd.DataFrame(), threshold=75, pr
         # if options not in dataframe format, create one to store them
         if option_df.size == 0:
             option_df = (pd.DataFrame({'name': options}).assign(key = lambda df: df['name'].str.lower()))
-    
+        # if threshold is a decimal, convert to percent
+        if threshold > 0 and threshold <= 1:
+            threshold = int(100 * threshold)
         # if preprocess=True, clean search term and options before comparing
         search_term = search
         if preprocess:
