@@ -108,11 +108,11 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
 
 
     # if View PII permission specified in form, override user group's default permission
-    if cleaned_data.get('view_pii', None) and cleaned_data['view_pii'] != '':
+    if 'view_pii' in cleaned_data:
         user.can_view_pii = cleaned_data['view_pii']
 
     # if download data permission specified in form, override user group's default permission
-    if cleaned_data.get('download_data', None) and cleaned_data['download_data'] != '':
+    if 'download_data' in cleaned_data:
         user.can_download_data = cleaned_data['download_data']
 
     user.save()
@@ -275,7 +275,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             # setup_user_email(self.request, user, [])
             # A workaround to run this script without a mail server. If True, it will send email like nomal. 
             # If False, user credentials will just be printed to console.
-            console_msg = ""*20 + f"\nCreated user with email {user.email} and temp. password {password}"
+            console_msg = ""*20 + f"Created user with email {user.email} and temp. password {password}"
             if email_confirmation:
                 try:
                     get_adapter().send_new_user_mail(self.request, user, password)

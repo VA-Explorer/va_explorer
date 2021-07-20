@@ -1,5 +1,0 @@
-uuid,is_active,is_staff,role,location_restrictions,view_pii,download_data
-55d8bfef-aa8e-42b8-b6c9-b56e95804378,True,False,,,NA/Unassigned,NA/Unassigned
-f10c95cd-4e3d-46e9-9c33-3c11f47d3bca,True,False,Field Workers,Kapiri General Hospital,NA/Unassigned,NA/Unassigned
-88ce9132-131e-4f4f-818a-93d8a47b0af9,True,False,Field Workers,,NA/Unassigned,NA/Unassigned
-057ff0cc-853b-4ab0-a4f7-ebb86c4ef8f9,True,False,Data Viewers,,NA/Unassigned,NA/Unassigned

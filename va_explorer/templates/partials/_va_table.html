@@ -5,7 +5,7 @@
     <tr>
       <th>ID</th>
       <th>Date</th>
-      <th>Name</th>
+      <th>Interviewer</th>
       <th>Facility</th>
       <th>Cause</th>
       {% if not user.is_fieldworker %}
@@ -20,7 +20,7 @@
     <tr>
       <td>{{ va.id }}</td>
       <td>{% pii_filter "Id10023" va.date %}</td>
-      <td>{% pii_filter "Id10007" va.name %}</td>
+      <td>{% pii_filter "Id10010" va.interviewer %}</td>
       <td>{{ va.facility }}</td>
       <td>{{ va.cause }}</td>
       {% if not user.is_fieldworker %}
