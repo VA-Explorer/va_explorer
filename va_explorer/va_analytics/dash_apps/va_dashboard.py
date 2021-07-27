@@ -70,7 +70,7 @@ app.layout = html.Div(
                 # global filters (affect entire dashboard)
                 dbc.Row(
                     [
-                        html.Span("Analytics Dashboard", className="dashboard-title"),
+                        html.Div(id="dashboard-title", children=html.Span("Analytics Dashboard", className="dashboard-title")),
                         html.Div(
                             className="dashboard-comp-container",
                             children=[
@@ -569,11 +569,11 @@ def update_map_options(search_value, locations, **kwargs):
 
 # ============ Filter logic (update filter table used by other componenets)========#
 @app.callback(
-#    [
+    [
         Output(component_id="filter_dict", component_property="data"),
-#        Output(component_id="timeframe", component_property="disabled"),
+        Output(component_id="dashboard-title", component_property="children"),
 #        Output(component_id="bounds", component_property="children")
-#    ],
+    ],
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="invalid_va_data", component_property="data"),
@@ -628,8 +628,16 @@ def filter_data(
             search_terms=search_terms,
             locations=locations,
             restrictions=location_restrictions
-        )      
-        
+        )     
+
+        # add chosen region to dashboard title 
+        if valid_filter['chosen_region'].lower().startswith("all"):
+            title = "Analytics Dashboard for All Regions"
+        else:
+            title = f"Analytics Dashboard for {valid_filter['chosen_region']}"
+        dashboard_title = html.Span(title, className='dashboard-title')
+
+        # combine filter information into dictionary to share across other callbacks
         combined_filter_dict = {
             "plot_regions": valid_filter["plot_regions"],  # same across both dicts
             "granularity": valid_filter["granularity"],  # same across both dictionaries
@@ -646,7 +654,7 @@ def filter_data(
             
         log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
 
-        return combined_filter_dict #, disable_timeframe
+        return combined_filter_dict , dashboard_title
 
 def log_callback_trigger(logger, context, request):
     if context:
@@ -686,7 +694,7 @@ def _get_filter_dict(
 
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
-    plot_ids, plot_regions = list(), list()
+    plot_ids = plot_regions = list()
     
     filter_dict = {
 
@@ -702,23 +710,23 @@ def _get_filter_dict(
         # first, check if geo filter is for location restrictions
         if len(restrictions) > 0:
             # TODO: make this work for more than one assigned region
-            granularity = locations.get(restrictions[0]['name'], granularity)
+            granularity = locations.get(restrictions[0]["name"], granularity)
             # no need to filter data, as that's already done in load_data
             chosen_region = restrictions[0]
             
-            location_obj = Location.objects.get(pk=chosen_region['id'])
+            location_obj = Location.objects.get(pk=chosen_region["id"])
             # if assigned to a POI (i.e. lowest level of location hierarchy) move one level up
             #TODO: make this more generic to handle other location types
-            if location_obj.location_type == 'facility':
+            if location_obj.location_type == "facility":
                 # ancestors returned in descending order
                 location_obj = location_obj.get_ancestors().last()
                 chosen_region = location_obj.name
             # otherwise, just plot chosen region and descendants
             plot_regions = [r.name for r in location_obj.get_children()]
-            plot_regions.append(chosen_region)
+            plot_regions.append(chosen_region["name"])
 
             plot_ids = filter_df.index.tolist()
-            filter_dict["chosen_region"] = chosen_region['name']
+            filter_dict["chosen_region"] = chosen_region["name"]
             
             
         # next, check if user searched anything. If yes, use that as filter.
@@ -854,10 +862,10 @@ def update_view_options(filter_dict, location_types, **kwargs):
 
 # ====================Map Logic===================================#
 @app.callback(
-#      [
+      # [
         Output(component_id="choropleth-container", component_property="children"),
-#        Output(component_id="bounds", component_property="children")
-#        ],
+        # Output(component_id="bounds", component_property="children")
+        # ],
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
@@ -887,6 +895,7 @@ def update_choropleth(
         
     figure = go.Figure()
     config = None
+
     if va_data is not None:
         # initialize variables
         all_data = pd.DataFrame(va_data)
@@ -895,7 +904,7 @@ def update_choropleth(
         granularity = INITIAL_GRANULARITY
         location_types = location_types
         include_no_datas = True
-#        ret_val = dict()
+        ret_val = dict()
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
         data_value = (
@@ -936,6 +945,7 @@ def update_choropleth(
                             if g["properties"]["area_name"] in plot_regions
                         ]
                         chosen_region = plot_data[granularity].unique()[0]
+
                         # if adjacent_ids specified, and data exists for these regions, plot them on map first
                         plot_ids = filter_dict["plot_ids"]["valid"]
 
@@ -974,7 +984,8 @@ def update_choropleth(
                 include_no_datas = True
             # if user has not chosen a view level or user is zooming in, default to granularity
             view_level = granularity if len(view_level) == 0 or zoom_in else view_level
-            
+            # ret_val = {'fd_plot_regions': filter_dict['plot_regions'], 'chosen_region': chosen_region, 'final_plot_regions': plot_regions, 'plot_geos': plot_geos, 'gran': granularity,\
+            # 'view_level': view_level, 'cod_type': cod_type, }
             # get map tooltips to match view level (disstrict or province)
             map_df = generate_map_data(
                 plot_data,

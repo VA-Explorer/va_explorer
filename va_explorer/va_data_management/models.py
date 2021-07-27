@@ -47,6 +47,11 @@ class Location(MP_Node):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    # optional address and lat/lon fields for POIs
+    lat = models.FloatField(null=True)
+    lon = models.FloatField(null=True)
+    address = models.TextField(blank=True)
+
     def __str__(self):
         return self.name
 

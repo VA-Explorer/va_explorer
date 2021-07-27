@@ -26,7 +26,7 @@ GROUPS_PERMISSIONS = {
         VerbalAutopsy: ["view_verbalautopsy"],
     },
     "Field Workers": {
-        Dashboard: [],
+        Dashboard: ["view_dashboard"],
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"]
     },
