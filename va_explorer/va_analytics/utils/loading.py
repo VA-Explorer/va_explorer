@@ -110,7 +110,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         )
     
     if not all_vas:
-        return json.dumps({"data": {"valid": pd.DataFrame().to_json(), "invalid": pd.DataFrame().to_json()}, "update_stats": {update_stats}})
+        return {"data": {"valid": pd.DataFrame(), "invalid": pd.DataFrame()}, "update_stats": {update_stats}}
 
     # Build a dictionary of location ancestors for each facility
     # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
