@@ -3,7 +3,7 @@ import numpy as np
 from simple_history.utils import bulk_create_with_history
 import logging
 from django.contrib.auth import get_user_model
-
+from django.db.models import Q
 
 from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
 from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
@@ -190,6 +190,9 @@ def get_va_summary_stats(vas):
             stats['last_update'] =  last_update.strftime('%d %b, %Y')
         # Record latest submission date (from ODK). Column may/may not be available depending on source
         raw_submissions =  vas.values_list('submissiondate', flat=True)
+
+        # track number of ineligible VAs for dashboard
+        stats['ineligible_vas'] = vas.filter(Q(Id10023='dk') | Q(location__isnull=True)).count()
         if raw_submissions.count() > 0:
             last_submission = pd.to_datetime(raw_submissions).max()
             if not pd.isnull(last_submission):
