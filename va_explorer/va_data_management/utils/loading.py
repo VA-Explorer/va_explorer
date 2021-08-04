@@ -187,12 +187,15 @@ def load_locations_from_file(csv_file, delete_previous=False):
             # first, check that parent exists. If not, skip location due to integrity issues
             parent_node = db_locations.get(row['parent'], None)
             if parent_node:
+                # update parent to get latest state
+                parent_node.refresh_from_db()
                 # next, check for current node in db. If not, create new child. If so, ensure parent matches parent_node
                 row_location = db_locations.get(row['name'], None)
                 if row_location:
                     # if child node points to right parent
-                    if row_location.get_parent() != parent_node:
+                    if row_location.get_parent().name != parent_node.name:
                         print(f"WARNING: Updating {row_location.name}'s prent to {parent_node.name}")
+                        #breakpoint()
                         row_location.move(parent_node, pos='sorted-child')
                     # updat existing location fields with data from csv
                     for field, value in model_data.items():
@@ -202,14 +205,16 @@ def load_locations_from_file(csv_file, delete_previous=False):
                     update_ct += 1
                 else:
                     print(f"Adding {row['name']} as child node of {row['parent']}")
-                    parent_node.add_child(**model_data)
+                    db_locations[row["name"]] = parent_node.add_child(**model_data)
                     location_ct += 1
             else:
                 print(f"Couldn't find location {row['name']}'s parent ({row['parent']}) in system. Skipping...")
         else:
-            print(f"Adding root node for {row['name']}")
-            Location.add_root(**model_data)
-            location_ct += 1
+            # add root node if it doesn't already exist
+            if not db_locations.get(row["name"], None):
+                print(f"Adding root node for {row['name']}")
+                db_locations[row["name"]] = Location.add_root(**model_data)
+                location_ct += 1
            
             
     # if non existent, add 'Null' location to databse to account for VAs with unknown locations
@@ -219,7 +224,7 @@ def load_locations_from_file(csv_file, delete_previous=False):
         location_ct += 1
 
     print(f"added {location_ct} new locations to system")
-    print(f"updated {update_ct} locations locations with new data")
+    print(f"updated {update_ct} locations with new data")
 
 
 
