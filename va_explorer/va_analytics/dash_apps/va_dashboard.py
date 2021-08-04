@@ -780,7 +780,7 @@ def _get_filter_dict(
             plot_regions.append(chosen_region)
 
             plot_ids = filter_df.index.tolist()
-            filter_dict["chosen_region"] = chosen_region["name"]
+            filter_dict["chosen_region"] = chosen_region
 
         # next, check if user searched anything. If yes, use that as filter.
         if search_terms is not None:
