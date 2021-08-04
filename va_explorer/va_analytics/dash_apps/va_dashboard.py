@@ -500,6 +500,8 @@ designated as "expanded"
         Output(component_id="invalid_va_data", component_property="data"),
         Output(component_id="locations", component_property="data"),
         Output(component_id="location_types", component_property="data"),
+        Output(component_id="map_search", component_property="options"), # map search options
+        Output(component_id="ts_search", component_property="options"), # search options for VA trends
         Output(component_id="download_data_div", component_property="children"), #download button
         Output(component_id="va_update_stats", component_property="children") # stats on last update
 
@@ -514,10 +516,23 @@ def init_va_data(hidden_trigger=None, **kwargs):
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
 
     res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
+    # all VAs with required fields for dashboard (COD, date of death, location). 
     valid_va_data = res["data"]["valid"].to_dict()
+    # all VAs without a COD assignment
     invalid_va_data = res["data"]["invalid"].to_dict()
+    # list of locations used in dashboard
     locations = res.get("locations", [])
-    location_types = res.get("location_types", [])
+    # geographical hierarchy (ex. Province -> District -> Facility)
+    location_types = res.get("location_types", {})
+    # map search options
+    search_options = [{"label": location, "value": location} for location in locations.keys()]
+
+    # trend search options
+    raw_ts_options = plotting.load_ts_options(res["data"]["valid"], cod_groups=COD_GROUPS)
+    ts_options =  [{"label": LOOKUP["display_names"].get(name, name.capitalize()),
+                             "value": f"{name}.{type}"} for name, type in raw_ts_options] 
+
+    # statistics on when data was last updated/submitted
     update_stats = res.get("update_stats", None)
     update_div = rendering.render_update_header(update_stats)
 
@@ -529,7 +544,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
             dbc.Button("Download Data", href="/va_analytics/download", color="primary", external_link=True),
         ]
 
-    return valid_va_data, invalid_va_data, locations, location_types, download_div, update_div
+    return valid_va_data, invalid_va_data, locations, location_types, search_options, ts_options, download_div, update_div
 
 # ============ Location search options (loaded after load_va_data())==================
 @app.callback(
@@ -544,28 +559,6 @@ def log_tab_value(tab_value, **kwargs):
         write_va_log(LOGGER, f"[dashboard] Clicked on {tab_name} Tab ", kwargs["request"])
     return tab_name
     
-
-
-
-# ============ Location search options (loaded after load_va_data())==================
-@app.callback(
-    Output(component_id="map_search", component_property="options"),
-    [
-        Input(component_id="map_search", component_property="search_value"),
-        Input(component_id="locations", component_property="data"),
-    ],
-)
-def update_map_options(search_value, locations, **kwargs):
-    if search_value and locations:
-        options = [
-            {"label": location, "value": location}
-            for location in locations.keys()
-            if search_value.lower() in location.lower()
-        ]
-        return options
-
-    raise dash.exceptions.PreventUpdate
-
 
 # ============ Filter logic (update filter table used by other componenets)========#
 @app.callback(
@@ -908,7 +901,7 @@ def update_choropleth(
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
         data_value = (
-            "age_mean" if len(re.findall("[mM]ean", cod_type)) > 0 else "age_count"
+            "age_mean" if len(re.findall("[mM]ean", cod_type)) > 0 else "id_count"
         )
 
         if plot_data.size > 0:
@@ -919,8 +912,6 @@ def update_choropleth(
             # if dashboard filter applied, carry over to data
             if filter_dict is not None:
                 granularity = filter_dict.get("granularity", granularity)
-
-                # only proceed if filter is non-empty
 
                 # geo_filter is true if user clicked on map or searches for location
                 zoom_in = filter_dict["geo_filter"]
@@ -1117,9 +1108,9 @@ def generate_map_data(
     # doesn't matter if map data is empty if we join with empty data
     if va_df.size > 0 or include_no_datas:
         map_df = (
-            va_df[[view_level, "age", "location"]]
+            va_df[[view_level, "id", "age", "location"]]
             .groupby(view_level)
-            .agg({"age": ["mean", "count"], "location": [pd.Series.nunique]})
+            .agg({"id": ["count"], "age": ["mean"], "location": [pd.Series.nunique]})
         )
 
         map_df.columns = ["_".join(tup) for tup in map_df.columns.to_flat_index()]
@@ -1134,7 +1125,7 @@ def generate_map_data(
             + "</b>"
             + "<br>"
             + f"<b>{metric_name}: </b>"
-            + map_df["age_count"].astype(str)
+            + map_df["id_count"].astype(str)
             + "<br>"
             + "<b>Mean Age of Death: </b>"
             + map_df["age_mean"].astype(str)
@@ -1333,41 +1324,42 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
         raise dash.exceptions.PreventUpdate
         
 # ============ Trend search options ==================
-@app.callback(
-    Output(component_id="ts_search", component_property="options"),
-    [
-        Input(component_id="ts_search", component_property="search_value"),
-        Input(component_id="va_data", component_property="data"),
-        Input(component_id="filter_dict", component_property="data"),
-    ],
-)
+# @app.callback(
+#     Output(component_id="ts_search", component_property="options"),
+#     [
+#         Input(component_id="ts_search", component_property="search_value"),
+#         Input(component_id="va_data", component_property="data"),
+#         Input(component_id="filter_dict", component_property="data"),
+#     ],
+# )
+# def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, **kwargs):
+#     if search_value and va_data:
+#         if not cod_groups:
+#             cod_groups = COD_GROUPS
+        
+#         # load cod groups
+#         all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
+        
+#         # load unique cods in selected data
+#         va_data = pd.DataFrame(va_data)
+#         if va_data.size > 0 and filter_dict:
+#             valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
+#             unique_cods = valid_va_data["cause"].unique().tolist()
+#             all_options += [(cod_name, "cod") for cod_name in unique_cods]
+            
+#         # always load all-cause option
+#         all_options.append(("All Causes", "All causes.all"))
+            
+#         # filter options based on search criteria
+#         matching_options = [
+#             {"label": LOOKUP["display_names"].get(name, name.capitalize()),
+#              "value": f"{name}.{type}"}
+#             for name, type in all_options #if search_value.lower() in name.lower()
+#         ]  
+#         return matching_options
+#     raise dash.exceptions.PreventUpdate
 
-def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, **kwargs):
-    if search_value and va_data:
-        if not cod_groups:
-            cod_groups = COD_GROUPS
-        
-        # load cod groups
-        all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
-        
-        # load unique cods in selected data
-        va_data = pd.DataFrame(va_data)
-        if va_data.size > 0 and filter_dict:
-            valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
-            unique_cods = valid_va_data["cause"].unique().tolist()
-            all_options += [(cod_name, "cod") for cod_name in unique_cods]
-            
-        # always load all-cause option
-        all_options.append(("All Causes", "All causes.all"))
-            
-        # filter options based on search criteria
-        matching_options = [
-            {"label": LOOKUP["display_names"].get(name, name.capitalize()),
-             "value": f"{name}.{type}"}
-            for name, type in all_options #if search_value.lower() in name.lower()
-        ]  
-        return matching_options
-    raise dash.exceptions.PreventUpdate
+
             
 
 # ========= Time Series Plot Logic============================================#
