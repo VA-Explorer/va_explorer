@@ -5,13 +5,14 @@
     <tr>
       <th>ID</th>
       <th>Date</th>
-      <th>Interviewer</th>
+      <th>Deceased</th>
+      {% if not user.is_fieldworker %}
+        <th>Interviewer</th>
+      {% endif %}
       <th>Facility</th>
       <th>Cause</th>
-      {% if not user.is_fieldworker %}
-        <th>Warnings</th>
-        <th>Errors</th>
-      {% endif %}
+      <th>Warnings</th>
+      <th>Errors</th>
       <th>View</th>
     </tr>
   </thead>
@@ -20,13 +21,14 @@
     <tr>
       <td>{{ va.id }}</td>
       <td>{% pii_filter "Id10023" va.date %}</td>
-      <td>{% pii_filter "Id10010" va.interviewer %}</td>
+      <td>{% pii_filter "Id10017" va.deceased %}</td>
+      {% if not user.is_fieldworker %}
+        <td>{{ va.interviewer }}</td>
+      {% endif %}
       <td>{{ va.facility }}</td>
       <td>{{ va.cause }}</td>
-      {% if not user.is_fieldworker %}
-        <td>{{ va.warnings }}</td>
-        <td>{{ va.errors }}</td>
-      {% endif %}
+      <td>{{ va.warnings }}</td>
+      <td>{{ va.errors }}</td>
       <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
     </tr>
     {% endfor %}
