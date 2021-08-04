@@ -11,11 +11,9 @@
   <li class="nav-item">
     <a class="nav-link active" id="record-tab" data-toggle="tab" href="#record" role="tab" aria-controls="record" aria-selected="true">Record</a>
   </li>
-  {% if errors or warnings and not user.is_fieldworker  %}
-    <li class="nav-item">
-      <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="false">Coding Issues</a>
-    </li>
-  {% endif %}
+  <li class="nav-item">
+    <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="false">Coding Issues</a>
+  </li>
   {% if diffs and not user.is_fieldworker %}
     <li class="nav-item">
       <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">Change History</a>
@@ -52,43 +50,41 @@
       </table>
     </div>
   </div>
-  {% if errors or warnings and not user.is_fieldworker  %}
-    <div class="tab-pane fade" id="issues" role="tabpanel" aria-labelledby="issues-tab">
-      <div class="row mt-4">
-        {% if errors %}
-          <table class="table table-hover table-sm">
-            <thead>
-              <tr>
-                <th>{{ errors|length }} Error{{ errors|pluralize }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for error in errors %}
-                <tr><td>{{ error }}</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% endif %}
-      </div>
-
-      {% if warnings %}
-        <div class="row mt-4">
-          <table class="table table-hover table-sm">
-            <thead>
-              <tr>
-                <th>{{ warnings|length }} Warning{{ warnings|pluralize }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for warning in warnings %}
-                <tr><td>{{ warning }}</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+  <div class="tab-pane fade" id="issues" role="tabpanel" aria-labelledby="issues-tab">
+    <div class="row mt-4">
+      {% if errors %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>{{ errors|length }} Error{{ errors|pluralize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for error in errors %}
+              <tr><td>{{ error }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       {% endif %}
     </div>
-  {% endif %}
+
+    {% if warnings %}
+      <div class="row mt-4">
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>{{ warnings|length }} Warning{{ warnings|pluralize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for warning in warnings %}
+              <tr><td>{{ warning }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
 
   {% if diffs and not user.is_fieldworker  %}
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
