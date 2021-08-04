@@ -251,15 +251,15 @@ def get_va_summary_stats(vas):
     stats = {'last_submission': None, 'last_update': None, 'total_vas': vas.count()}
     if stats['total_vas'] > 0:
         # Track last time VAs were updated. Again, using last import date so may need to change.
-        last_update = max(vas.values_list('created', flat=True))
+        date_df = pd.DataFrame(vas.values('created', 'submissiondate'))
+        last_update = date_df['created'].max()
         if not pd.isnull(last_update):
             stats['last_update'] =  last_update.strftime('%d %b, %Y')
         # Record latest submission date (from ODK). Column may/may not be available depending on source
-        raw_submissions =  vas.values_list('submissiondate', flat=True)
-        if raw_submissions.count() > 0:
-            last_submission = pd.to_datetime(raw_submissions).max()
-            if not pd.isnull(last_submission):
-                stats['last_submission'] = last_submission.strftime('%d %b, %Y')
+        raw_submissions =  date_df['submissiondate']
+        last_submission = pd.to_datetime(raw_submissions).max()
+        if not pd.isnull(last_submission):
+            stats['last_submission'] = last_submission.strftime('%d %b, %Y')
     return stats
 
 

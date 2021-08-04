@@ -228,8 +228,10 @@ app.layout = html.Div(
                                         # data stores
                                         dcc.Store(id="va_data"),
                                         dcc.Store(id="invalid_va_data"),
-                                        dcc.Store(id="locations"),
-                                        dcc.Store(id="location_types"),
+                                        #dcc.Store(id="locations"),
+                                        #dcc.Store(id="location_types"),
+                                        dcc.Store(id="location_data"),
+                                        dcc.Store(id="pois"),
                                         dcc.Store(id="filter_dict"),
                                         # used to trigger data ingest when page first loads
                                         html.Div(
@@ -539,8 +541,11 @@ designated as "expanded"
     [
         Output(component_id="va_data", component_property="data"),
         Output(component_id="invalid_va_data", component_property="data"),
-        Output(component_id="locations", component_property="data"),
-        Output(component_id="location_types", component_property="data"),
+        # Output(component_id="locations", component_property="data"),
+        # Output(component_id="location_types", component_property="data"),
+        Output(component_id="location_data", component_property="data"),
+        Output(component_id="pois", component_property="data"),
+        Output(component_id="map_search", component_property="options"),
         Output(
             component_id="download_data_div", component_property="children"
         ),  # download button
@@ -557,10 +562,25 @@ def init_va_data(hidden_trigger=None, **kwargs):
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
 
     res = loading.load_va_data(kwargs["user"], date_cutoff=date_cutoff)
+    # all VAs with necessary fields for dashboard (COD, Date of Death, Location)
     valid_va_data = res["data"]["valid"].to_dict()
+    # all VAs without a COD
     invalid_va_data = res["data"]["invalid"].to_dict()
+    # all locations present in django db
     locations = res.get("locations", [])
+    # geographical hierarchy of country (e.g. Province -> District -> Facility)
     location_types = res.get("location_types", [])
+    # options for map search bar
+    # POIs (facilities with coordinates)
+    pois = res.get("pois", {})
+    search_bar_options = [
+        {"label": location, "value": location} for location in locations.keys()
+    ]
+    # dict to store all location data/metadata 
+    # TODO: add pois to this dict
+    location_data = {"locations": locations, "types": location_types, "max_depth": res["max_depth"]}
+
+    # stats on when data was last imported & collected
     update_stats = res.get("update_stats", None)
     update_div = rendering.render_update_header(update_stats)
 
@@ -576,12 +596,14 @@ def init_va_data(hidden_trigger=None, **kwargs):
                 external_link=True,
             ),
         ]
+    
 
     return (
         valid_va_data,
         invalid_va_data,
-        locations,
-        location_types,
+        location_data,
+        pois,
+        search_bar_options,
         download_div,
         update_div,
     )
@@ -603,23 +625,26 @@ def log_tab_value(tab_value, **kwargs):
 
 
 # ============ Location search options (loaded after load_va_data())==================
-@app.callback(
-    Output(component_id="map_search", component_property="options"),
-    [
-        Input(component_id="map_search", component_property="search_value"),
-        Input(component_id="locations", component_property="data"),
-    ],
-)
-def update_map_options(search_value, locations, **kwargs):
-    if search_value and locations:
-        options = [
-            {"label": location, "value": location}
-            for location in locations.keys()
-            if search_value.lower() in location.lower()
-        ]
-        return options
+# @app.callback(
+# #    [
+#           Output(component_id="map_search", component_property="options"),
+#     #     Output(component_id="bounds", component_property="children")
+#     # ],
+#     [
+#         Input(component_id="map_search", component_property="search_value"),
+#         Input(component_id="location_data", component_property="data"),
+#     ],
+# )
+# def update_map_options(search_value, location_data, **kwargs):
+#     if search_value and location_data["locations"]:
+#         options = [
+#             {"label": location, "value": location}
+#             for location in location_data["locations"].keys()
+#             if search_value.lower() in location.lower()
+#         ]
+#         return options
 
-    raise dash.exceptions.PreventUpdate
+    #raise dash.exceptions.PreventUpdate
 
 
 # ============ Filter logic (update filter table used by other componenets)========#
@@ -636,8 +661,8 @@ def update_map_options(search_value, locations, **kwargs):
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_type", component_property="value"),
         Input(component_id="map_search", component_property="value"),
-        Input(component_id="locations", component_property="data"),
-        Input(component_id="location_types", component_property="data"),
+        Input(component_id="location_data", component_property="data"),
+        # Input(component_id="location_types", component_property="data"),
     ],
 )
 def filter_data(
@@ -647,8 +672,8 @@ def filter_data(
     timeframe="all",
     cod_type="all",
     search_terms=[],
-    locations=None,
-    location_types=None,
+    location_data={},
+#    location_types=None,
     **kwargs,
 ):
     if va_data is not None:
@@ -671,9 +696,9 @@ def filter_data(
             valid_va_df,
             selected_json,
             timeframe=timeframe,
-            location_types=location_types,
+            # location_types=location_data["types"],
             search_terms=search_terms,
-            locations=locations,
+            location_data=location_data,
             restrictions=location_restrictions,
         )
         # filter invalid vas (VAs without COD)
@@ -681,9 +706,9 @@ def filter_data(
             invalid_va_df,
             selected_json,
             timeframe=timeframe,
-            location_types=location_types,
+            # location_types=location_data["types"],,
             search_terms=search_terms,
-            locations=locations,
+            location_data=location_data,
             restrictions=location_restrictions,
         )
 
@@ -712,26 +737,27 @@ def filter_data(
 
 def log_callback_trigger(logger, context, request):
     if context:
-        trigger = context.triggered[0]
-        if trigger:
-            component_id = trigger["prop_id"].split(".")[0]
-            # don't log entire filter dictionary
-            if component_id != "filter_dict":
-                # by default, set action and value to raw trigger values
-                action = f"changed {component_id} to value "
-                value = trigger["value"]
-                # make message more specific for certain component callbacks
-                if component_id == "choropleth":
-                    action = "Zoomed in on region"
-                    value = trigger["value"]["points"][0]["location"]
-                elif component_id == "map_search":
-                    action = "Searched for region"
-                elif component_id == "cod_type":
-                    action = "Changed COD Type to"
-                elif component_id == "timeframe":
-                    action = "Changed Timeframe to"
+        if len(context.triggered) > 0:
+            trigger = context.triggered[0]
+            if trigger:
+                component_id = trigger["prop_id"].split(".")[0]
+                # don't log entire filter dictionary
+                if component_id != "filter_dict":
+                    # by default, set action and value to raw trigger values
+                    action = f"changed {component_id} to value "
+                    value = trigger["value"]
+                    # make message more specific for certain component callbacks
+                    if component_id == "choropleth":
+                        action = "Zoomed in on region"
+                        value = trigger["value"]["points"][0]["location"]
+                    elif component_id == "map_search":
+                        action = "Searched for region"
+                    elif component_id == "cod_type":
+                        action = "Changed COD Type to"
+                    elif component_id == "timeframe":
+                        action = "Changed Timeframe to"
 
-                write_va_log(logger, f"[dashboard] {action} {value}", request)
+                    write_va_log(logger, f"[dashboard] {action} {value}", request)
 
 
 # helper method to get filter ids given adjacent plot regions
@@ -740,10 +766,12 @@ def _get_filter_dict(
     selected_json={},
     timeframe="all",
     search_terms=[],
-    locations=None,
-    location_types=None,
+    location_data=None,
     restrictions=[],
 ):
+
+    locations = location_data["locations"]
+    location_types = location_data["types"]
 
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
@@ -773,8 +801,8 @@ def _get_filter_dict(
             # TODO: make this more generic to handle other location types
             if location_obj.location_type == "facility":
                 # ancestors returned in descending order
-                location_obj = location_obj.get_ancestors().last()
-                chosen_region = location_obj.name
+                parent = location_obj.get_ancestors().last()
+                chosen_region = parent.name
             # otherwise, just plot chosen region and descendants
             plot_regions = [r.name for r in location_obj.get_children()]
             plot_regions.append(chosen_region)
@@ -805,7 +833,7 @@ def _get_filter_dict(
 
             # get parent location type from current granularity
             parent_location_type = shift_granularity(
-                granularity, location_types, move_up=True
+                granularity, location_data["types"], move_up=True
             )
 
             for parent_name in filter_df[parent_location_type].unique():
@@ -897,16 +925,16 @@ def get_metric_display_names(map_metrics):
     ],
     [
         Input(component_id="filter_dict", component_property="data"),
-        Input(component_id="location_types", component_property="data"),
+        Input(component_id="location_data", component_property="data"),
     ],
 )
-def update_view_options(filter_dict, location_types, **kwargs):
+def update_view_options(filter_dict, location_data, **kwargs):
     if filter_dict is not None:
 
         # only activate when user is zoomed out and hasn't searched for anything
         disable = filter_dict["geo_filter"] or filter_dict["search_filter"]
         if not disable:
-            view_options = location_types
+            view_options = location_data["types"]
         # label_class = "input-label"
         else:
             view_options = []
@@ -917,17 +945,19 @@ def update_view_options(filter_dict, location_types, **kwargs):
 
 # ====================Map Logic===================================#
 @app.callback(
-    #      [
-    Output(component_id="choropleth-container", component_property="children"),
-    #        Output(component_id="bounds", component_property="children")
-    #        ],
+    [
+           Output(component_id="choropleth-container", component_property="children"),
+           Output(component_id="bounds", component_property="children")
+    ],
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_type", component_property="value"),
         Input(component_id="view_level", component_property="value"),
-        Input(component_id="location_types", component_property="data"),
+        #Input(component_id="location_types", component_property="data"),
+        Input(component_id="location_data", component_property="data"),
         Input(component_id="filter_dict", component_property="data"),
+        Input(component_id="pois", component_property="data"),
     ],
 )
 def update_choropleth(
@@ -935,8 +965,10 @@ def update_choropleth(
     timeframe,
     cod_type="All",
     view_level=None,
-    location_types=None,
+    #location_types=None,
+    location_data={},
     filter_dict=None,
+    pois=None,
     geojson=GEOJSON,
     zoom_in=False,
     **kwargs,
@@ -944,9 +976,9 @@ def update_choropleth(
 
     # first, see which input triggered update. If granularity change, log the new value
     context = dash.callback_context
-    trigger = context.triggered[0]
-    if trigger["prop_id"].split(".")[0] == "view_level":
-        log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
+    # trigger = context.triggered[0]
+    # if trigger["prop_id"].split(".")[0] == "view_level":
+    #     log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
 
     figure = go.Figure()
     config = None
@@ -956,9 +988,8 @@ def update_choropleth(
         plot_data = all_data.copy()
         return_value = html.Div(id="choropleth")
         granularity = INITIAL_GRANULARITY
-        location_types = location_types
         include_no_datas = True
-        #        ret_val = dict()
+        ret_val = {'view_level': view_level, 'geo_filter': filter_dict['geo_filter']}
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
         data_value = (
@@ -966,6 +997,7 @@ def update_choropleth(
         )
 
         if plot_data.size > 0:
+
             timeframe = timeframe.lower()
             feature_id = "properties.area_name"
             plot_geos = geojson["features"]
@@ -973,33 +1005,43 @@ def update_choropleth(
             # if dashboard filter applied, carry over to data
             if filter_dict is not None:
                 granularity = filter_dict.get("granularity", granularity)
-
-                # only proceed if filter is non-empty
+                ret_val['init_gran'] = granularity 
 
                 # geo_filter is true if user clicked on map or searches for location
                 zoom_in = filter_dict["geo_filter"]
-                plot_regions = filter_dict["plot_regions"]
+                plot_regions = set(filter_dict["plot_regions"])
 
                 # filter geojson to match plotting regions, stop update if regions are empty, No Data
                 if len(plot_regions) == 0 and zoom_in:
                     raise dash.exceptions.PreventUpdate
 
                 plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
-                # only proceed with filter if remaining data after filter
+                ret_val['plot_data'] = json.dumps(plot_data.shape)
+                # only proceed if any remaining data after filter
+                #ret_val["valid"] = filter_dict["ids"]["valid"]
                 if plot_data.size > 0:
                     # if zoom in necessary, filter geojson to only chosen region(s)
                     if zoom_in:
-                        # if user has clicked on map, try to zoom into a finer granularity
-                        granularity = shift_granularity(
-                            granularity, location_types, move_up=False
-                        )
-
+                        # if user has clicked on map, and not at max depth, try zooming in
+                        ret_val['max_depth'] = location_data["max_depth"] - 1
+                        if location_data["types"].index(granularity) < (location_data["max_depth"] - 1):
+                            granularity = shift_granularity(
+                                granularity, location_data["types"], move_up=False
+                            )
+                        # filter geojson
                         plot_geos = [
                             g
                             for g in geojson["features"]
                             if g["properties"]["area_name"] in plot_regions
                         ]
+
+                        ret_val['plot_regs'] = list(plot_regions)
+                        ret_val['plot_geos'] = plot_geos
+
                         chosen_region = plot_data[granularity].unique()[0]
+                        ret_val['chosen_region'] = chosen_region
+
+                        
                         # if adjacent_ids specified, and data exists for these regions, plot them on map first
                         plot_ids = filter_dict["plot_ids"]["valid"]
 
@@ -1017,7 +1059,7 @@ def update_choropleth(
                                     zoom_in,
                                     cod_type,
                                 )
-                                figure = add_trace_to_map(
+                                figure = add_regions_to_map(
                                     figure,
                                     adjacent_map_df,
                                     geojson,
@@ -1028,6 +1070,7 @@ def update_choropleth(
                                 # only plot non-empty regions in main layer so as not to hide secondary layer
                                 include_no_datas = False
                                 border_thickness = 2 * border_thickness
+                            
 
             if cod_type != "all":
                 plot_data = plot_data[plot_data["cause"] == cod_type]
@@ -1079,6 +1122,12 @@ def update_choropleth(
                 )
             )
 
+            # if any POIs available user has zoomed in, filter down to relevant regions and plot them as points
+            if pois and filter_dict['geo_filter']:
+                poi_data = pd.DataFrame([poi for poi in pois.values() if poi["parent"] in plot_regions])
+                if not poi_data.empty:
+                    figure = add_pois_to_map(figure, poi_data)
+
             # update figure layout
             figure.update_layout(
                 margin={"r": 0, "t": 0, "l": 0, "b": 0},
@@ -1110,11 +1159,11 @@ def update_choropleth(
             )
 
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config)
-    return return_value  # , json.dumps(ret_val)
+    return return_value, json.dumps(ret_val)
 
 
 # ==========Helper method to plot adjacent regions on map =====#
-def add_trace_to_map(
+def add_regions_to_map(
     figure,
     trace_data,
     geojson,
@@ -1124,6 +1173,7 @@ def add_trace_to_map(
     z_col=None,
     tooltip_col=None,
     theme_name=None,
+    **kwargs
 ):
 
     feature_id = "properties.area_name" if not feature_id else feature_id
@@ -1146,6 +1196,33 @@ def add_trace_to_map(
     )
     figure.add_trace(trace)
 
+    return figure
+
+# add POIs (with lats and lons) to map
+def add_pois_to_map(figure, poi_df, tooltip_col="name", marker_style=None):
+    if not marker_style:
+        marker_style = dict(
+            #size = scd['negative']/scale,
+            color = 'blue',
+            line_color='rgb(236,240,244)',
+            line_width=0.5,
+            sizemode = 'area',
+            opacity=.7
+        )
+    poi_trace = go.Scattergeo(
+        lon =poi_df['lon'],
+        lat =poi_df['lat'],
+        mode="markers+text",
+        name="Facilities",
+        hovertext=poi_df[tooltip_col],
+        hoverinfo='text',
+        marker = marker_style, 
+        textfont=dict(
+            size=12,
+            color="white"
+        )
+    )
+    figure.add_trace(poi_trace)
     return figure
 
 
