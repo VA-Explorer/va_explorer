@@ -696,7 +696,7 @@ def _get_filter_dict(
         "geo_filter": any(map(lambda x: len(x) > 0, [restrictions, selected_json, search_terms])),
         "search_filter": (len(search_terms) > 0),
         "plot_regions": [],
-        "chosen_region": "all",
+        "chosen_region": {"name": "all"},
         "ids": [],
         "plot_ids": [],
     }
