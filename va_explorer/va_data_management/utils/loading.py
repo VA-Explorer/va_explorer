@@ -192,7 +192,8 @@ def get_va_summary_stats(vas):
         raw_submissions =  vas.values_list('submissiondate', flat=True)
 
         # track number of ineligible VAs for dashboard
-        stats['ineligible_vas'] = vas.filter(Q(Id10023='dk') | Q(location__isnull=True)).count()
+        stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
+         Q(location__isnull=True)).count()
         if raw_submissions.count() > 0:
             last_submission = pd.to_datetime(raw_submissions).max()
             if not pd.isnull(last_submission):

@@ -13,7 +13,7 @@ def render_update_header(va_stats):
                 submission_desc = html.P(children=[html.B("Last VA Submission: "), va_stats["last_submission"]], style={"margin-left": "10px"})
                 header.children.append(submission_desc)
             if va_stats.get("ineligible_vas", None):
-                ineligible_tooltip = "VAs excluded from dashborad due to missing location, date of death (Id10023) or both."
+                ineligible_tooltip = "VAs excluded from dashboard due to missing location, date of death (Id10023) or both."
                 ineligible_desc = html.P(
                     id="inelig-tooltip-target",
                     children=[html.B("# of Ineligible VAs: "), 
