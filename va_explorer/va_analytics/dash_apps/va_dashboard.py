@@ -855,10 +855,7 @@ def update_view_options(filter_dict, location_types, **kwargs):
 
 # ====================Map Logic===================================#
 @app.callback(
-      # [
         Output(component_id="choropleth-container", component_property="children"),
-        # Output(component_id="bounds", component_property="children")
-        # ],
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
@@ -975,8 +972,6 @@ def update_choropleth(
                 include_no_datas = True
             # if user has not chosen a view level or user is zooming in, default to granularity
             view_level = granularity if len(view_level) == 0 or zoom_in else view_level
-            # ret_val = {'fd_plot_regions': filter_dict['plot_regions'], 'chosen_region': chosen_region, 'final_plot_regions': plot_regions, 'plot_geos': plot_geos, 'gran': granularity,\
-            # 'view_level': view_level, 'cod_type': cod_type, }
             # get map tooltips to match view level (disstrict or province)
             map_df = generate_map_data(
                 plot_data,
@@ -987,7 +982,7 @@ def update_choropleth(
                 include_no_datas,
             )
             
-                # Set plot title to Total VAs if cod_type=='all'
+            # Set plot title to Total VAs if cod_type=='all'
             cod_title = "Total VAs" if cod_type == "all" else cod_type.capitalize()
 
             highlight_region = map_df.shape[0] == 1
@@ -1321,53 +1316,12 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
             log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
         return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
     else:
-        raise dash.exceptions.PreventUpdate
-        
-# ============ Trend search options ==================
-# @app.callback(
-#     Output(component_id="ts_search", component_property="options"),
-#     [
-#         Input(component_id="ts_search", component_property="search_value"),
-#         Input(component_id="va_data", component_property="data"),
-#         Input(component_id="filter_dict", component_property="data"),
-#     ],
-# )
-# def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, **kwargs):
-#     if search_value and va_data:
-#         if not cod_groups:
-#             cod_groups = COD_GROUPS
-        
-#         # load cod groups
-#         all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
-        
-#         # load unique cods in selected data
-#         va_data = pd.DataFrame(va_data)
-#         if va_data.size > 0 and filter_dict:
-#             valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
-#             unique_cods = valid_va_data["cause"].unique().tolist()
-#             all_options += [(cod_name, "cod") for cod_name in unique_cods]
-            
-#         # always load all-cause option
-#         all_options.append(("All Causes", "All causes.all"))
-            
-#         # filter options based on search criteria
-#         matching_options = [
-#             {"label": LOOKUP["display_names"].get(name, name.capitalize()),
-#              "value": f"{name}.{type}"}
-#             for name, type in all_options #if search_value.lower() in name.lower()
-#         ]  
-#         return matching_options
-#     raise dash.exceptions.PreventUpdate
-
-
-            
+        raise dash.exceptions.PreventUpdate     
 
 # ========= Time Series Plot Logic============================================#
 @app.callback(
-#    [
      Output(component_id="ts-container", component_property="children"),
-#     Output(component_id="bounds", component_property="children"),
-#     ],
+
     
     [
         Input(component_id="va_data", component_property="data"),
