@@ -33,12 +33,13 @@ class Index(CustomAuthMixin, TemplateView):
         name_field = "Id10007" if user.is_fieldworker() else "Id10010"
         today = date.today()
         start_month = pd.to_datetime(date(today.year - 1, today.month, 1))
+
         location_restrictions = user.location_restrictions
         if location_restrictions.count() > 0:
             context['locations'] = ', '.join([location.name for location in location_restrictions.all()])
         else:
             context['locations'] = 'All Regions' 
-    # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
+        # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
             va_df = pd.DataFrame(user_vas\
@@ -82,8 +83,6 @@ class Index(CustomAuthMixin, TemplateView):
 
             # Graphs of the past 12 months, not including this month (current month will almost
             # always show the month with artificially low numbers)
-            
-
             months = [start_month + relativedelta(months=i) for i in range(12)]
             x = [month.strftime('%b') for month in months]
 
@@ -127,7 +126,6 @@ class Index(CustomAuthMixin, TemplateView):
             for va_type in ['collected', 'coded', 'uncoded']: 
                 context[f"graph_{va_type}"] = graph(x, np.repeat(0, len(x)))
             context['issue_list'] = []
-
 
         return context
 
