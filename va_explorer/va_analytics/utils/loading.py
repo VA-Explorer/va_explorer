@@ -90,7 +90,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
             "isAdult1",
             "location",
         ) \
-        .exclude(Id10023="dk") \
+        .exclude(Id10023__in=["dk", "DK"]) \
         .exclude(location__isnull=True) \
         .select_related("location") \
         .select_related("causes") \
