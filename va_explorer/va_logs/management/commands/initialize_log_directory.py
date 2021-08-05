@@ -12,10 +12,6 @@ class Command(BaseCommand):
         if not os.path.isdir(LOG_DIR):
             try:
                 os.mkdir(LOG_DIR)
-                try:
-                    os.chown(LOG_DIR, gid=101, uid=101)
-                except:
-                    print(f"failed to change ownership of {LOG_DIR}")
                 print(f"Made log directory at {LOG_DIR}")
                 
             except:

@@ -638,6 +638,7 @@ def va_trend_plot(va_df, group_period, factor="All", title=None, search_term_ids
     aggregate_title = group_period.capitalize()
     factor = factor.lower()
     plot_fn = go.Scatter
+    figure = go.Figure()
     
     if va_df.size > 0:
         va_df["date"] = pd.to_datetime(va_df["date"])
