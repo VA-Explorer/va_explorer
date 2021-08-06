@@ -4,19 +4,19 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 from django.core.management import BaseCommand
 
+from va_explorer.users.models import User
 from va_explorer.va_analytics.models import Dashboard
 from va_explorer.va_data_management.models import VerbalAutopsy
 
-User = get_user_model()
 
 GROUPS_PERMISSIONS = {
     "Admins": {
-        Dashboard: ["view_dashboard", "download_data", "view_pii"],
+        Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["add_user", "change_user", "delete_user", "view_user"],
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
     "Data Managers": {
-        Dashboard: ["view_dashboard", "download_data", "view_pii"],
+        Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["view_user"],
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
@@ -65,5 +65,9 @@ class Command(BaseCommand):
                         permission = Permission.objects.get(content_type=content_type, codename=codename)
                         group.permissions.add(permission)
                         self.stdout.write(f"Adding {codename} to group {group}")
-                    except Permission.DoesNotExist:
+                    # except Permission.DoesNotExist:
+                    except Exception as instance:
+                        print(type(instance))
+                        print(instance.args)
+                        print(instance)
                         self.stderr.write(f"{codename} not found")

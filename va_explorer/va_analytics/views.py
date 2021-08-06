@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.views.generic import TemplateView, View
+from django.contrib.auth.models import Group
+from django.views.generic import TemplateView, View, ListView
 from django.http import HttpResponse
 from django.db.models import F
 import logging
@@ -9,6 +10,7 @@ import pandas as pd
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import PII_FIELDS
 from va_explorer.va_data_management.models import REDACTED_STRING
+from va_explorer.users.models import User
 from va_explorer.va_logs.logging_utils import write_va_log
 
 from va_explorer.utils.mixins import CustomAuthMixin
@@ -77,3 +79,13 @@ class DownloadCsv(CustomAuthMixin, PermissionRequiredMixin, View):
 
 
 download_csv = DownloadCsv.as_view()
+
+
+class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
+    permission_required = "va_analytics.supervise_users"
+    template_name = "va_analytics/user_supervision_view.html"
+    model = User
+    queryset = User.objects.all()
+
+
+user_supervision_view = UserSupervisionView.as_view()

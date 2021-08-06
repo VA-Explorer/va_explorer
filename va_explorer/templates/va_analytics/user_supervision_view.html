@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Field Worker Supervision{% endblock %}
+
+{% block heading %}Field Workers{% endblock %}
+
+{% block content %}
+  <div class="row mt-4">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Assigned Location(s)</th>
+          <th>Submitted VAs</th>
+          <th>Expected VAs</th>
+          <th>Errors/Warnings</th>
+        </tr>
+      </thead>
+        <tbody>
+          {% for user in object_list %}
+          <tr>
+            <td>{{ user.name }}</td>
+            <td>
+              {%  for location in user.location_restrictions.all %}
+                {{ location.name }} <br>
+              {% empty %}
+                National
+              {%  endfor %}
+            </td>
+            <td>0</td> <!-- #TODO: Update to query VAs associated with user -->
+            <td>7</td> <!-- #TODO: Update to calculate weekly avg -->
+            <td>100/200</td> <!-- #TODO: Update to sum errors/warnings of associated VAs -->
+          </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+    {% if is_paginated %}
+      {% include "partials/_pagination.html" %}
+    {% endif %}
+  </div>
+{% endblock %}
