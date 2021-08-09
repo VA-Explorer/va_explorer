@@ -117,6 +117,12 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             logger.info(f"va_id: {va_id} - Parsed {parsed_date} for Date of Death from {va.Id10023}") 
         va.Id10023 = parsed_date
 
+        # Try to parse submission date as as datetime. Otherwise, record string and add record issue during validation
+        parsed_sub_date = parse_date(va.submissiondate, strict=False)
+        if logger:
+            logger.info(f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}") 
+        va.submissiondate = parsed_sub_date
+
         # Try mapping va location to known db location. If not possible, set to null location
         
         # if random_locations, assign random field worker to VA which can be used to determine location.
