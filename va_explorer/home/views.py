@@ -40,6 +40,7 @@ class Index(CustomAuthMixin, TemplateView):
         else:
             context['locations'] = 'All Regions' 
         # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
+
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
             va_df = pd.DataFrame(user_vas\
