@@ -40,6 +40,11 @@ class Location(MP_Node):
     location_type = models.TextField()
     node_order_by = ['name']
 
+    # optional address and lat/lon fields for POIs
+    lat = models.FloatField(null=True)
+    lon = models.FloatField(null=True)
+    address = models.TextField(blank=True)
+    
     # A user can have their access scoped by one or more locations
     #users = models.ManyToManyField(get_user_model(), related_name='locations')
 
