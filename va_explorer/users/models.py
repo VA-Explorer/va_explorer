@@ -61,11 +61,6 @@ class User(AbstractUser):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     location_restrictions = ManyToManyField(Location, related_name="users", db_table="users_user_location_restrictions")
 
-    # optional address and lat/lon fields for POIs
-    lat = models.FloatField(null=True)
-    lon = models.FloatField(null=True)
-    address = models.TextField(blank=True)
-
     # The query set of verbal autopsies that this user has access to, based on location restrictions
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
