@@ -12,6 +12,7 @@ from django.db.models import F
 import plotly.offline as opy
 import plotly.graph_objs as go
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
+from va_explorer.va_data_management.utils.validate import parse_date
 
 # Simple helper function for creating the plotly graphs used on the home page
 def graph(x, y):
@@ -32,7 +33,7 @@ class Index(CustomAuthMixin, TemplateView):
         # determine which name column to pull in based on user role
         name_field = "Id10007" if user.is_fieldworker() else "Id10010"
         today = date.today()
-        start_month = pd.to_datetime(date(today.year - 1, today.month, 1))
+        start_month = to_dt(date(today.year - 1, today.month, 1))
 
         location_restrictions = user.location_restrictions
         if location_restrictions.count() > 0:
@@ -106,7 +107,7 @@ class Index(CustomAuthMixin, TemplateView):
             context['issue_list'] = [{
                 "id": va.id,
                 "name": f"{va.Id10017} {va.Id10018}" if user.is_fieldworker() else va.Id10010,
-                "date":  va.submissiondate if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+                "date":  to_dt(va.submissiondate).date, #if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
                 "facility": va.location.name if va.location else "",
                 "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
                 "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
