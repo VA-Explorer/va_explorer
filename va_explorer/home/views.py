@@ -34,14 +34,12 @@ class Index(CustomAuthMixin, TemplateView):
         name_field = "Id10007" if user.is_fieldworker() else "Id10010"
         today = date.today()
         start_month = to_dt(date(today.year - 1, today.month, 1))
-
         location_restrictions = user.location_restrictions
         if location_restrictions.count() > 0:
             context['locations'] = ', '.join([location.name for location in location_restrictions.all()])
         else:
             context['locations'] = 'All Regions' 
         # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
-
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
             va_df = pd.DataFrame(user_vas\
@@ -107,7 +105,7 @@ class Index(CustomAuthMixin, TemplateView):
             context['issue_list'] = [{
                 "id": va.id,
                 "name": f"{va.Id10017} {va.Id10018}" if user.is_fieldworker() else va.Id10010,
-                "date":  to_dt(va.submissiondate).date, #if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+                "date":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
                 "facility": va.location.name if va.location else "",
                 "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
                 "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
