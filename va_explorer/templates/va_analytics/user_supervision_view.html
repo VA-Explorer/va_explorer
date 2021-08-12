@@ -4,7 +4,23 @@
 
 {% block heading %}Field Workers{% endblock %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
+  <form method="get">
+    <div class="form-row align-items-end">
+      {% crispy filterset.form %}
+      <div class="form-group">
+        <button class="form-control btn btn-primary filter-button" type="submit">Search</button>
+      </div>
+      {% if filterset.is_valid %}
+        <div class="form-group">
+          <a class="btn btn-secondary form-control filter-button" href="{% url 'va_analytics:supervision' %}">Reset</a>
+        </div>
+      {% endif %}
+    </div>
+  </form>
+
   <div class="row mt-4">
     <table class="table">
       <thead>
@@ -12,24 +28,20 @@
           <th>Name</th>
           <th>Assigned Location(s)</th>
           <th>Submitted VAs</th>
-          <th>Expected VAs</th>
-          <th>Errors/Warnings</th>
+          <th>Submission Rate (VAs/wk)</th>
+          <th>Errors</th>
+          <th>Warnings</th>
         </tr>
       </thead>
         <tbody>
-          {% for user in object_list %}
+          {% for user_record in worker_stats %}
           <tr>
-            <td>{{ user.name }}</td>
-            <td>
-              {%  for location in user.location_restrictions.all %}
-                {{ location.name }} <br>
-              {% empty %}
-                National
-              {%  endfor %}
-            </td>
-            <td>0</td> <!-- #TODO: Update to query VAs associated with user -->
-            <td>7</td> <!-- #TODO: Update to calculate weekly avg -->
-            <td>100/200</td> <!-- #TODO: Update to sum errors/warnings of associated VAs -->
+            <td>{{ user_record.interviewer }}</td>
+            <td>{{ user_record.facility }}</td>
+            <td>{{ user_record.total_vas }}</td> <!-- #TODO: Update to query VAs associated with user -->
+            <td>{{ user_record.submission_rate }}</td> <!-- #TODO: Update to calculate weekly avg -->
+            <td>{{ user_record.errors }}</td> <!-- #TODO: Update to sum errors/warnings of associated VAs -->
+            <td>{{ user_record.warnings }}</td>
           </tr>
           {% endfor %}
         </tbody>

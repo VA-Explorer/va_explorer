@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas import to_datetime as to_dt
 import numpy as np
 from simple_history.utils import bulk_create_with_history
 import logging
@@ -195,7 +196,10 @@ def get_va_summary_stats(vas):
         stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
          Q(location__isnull=True)).count()
         if raw_submissions.count() > 0:
-            last_submission = pd.to_datetime(raw_submissions).max()
+            try:
+                last_submission = to_dt(raw_submissions).max()
+            except:
+                last_submission = to_dt(pd.Series(to_dt(raw_submissions, utc=True)).dt.date).max()
             if not pd.isnull(last_submission):
                 stats['last_submission'] = last_submission.strftime('%d %b, %Y')
     return stats
