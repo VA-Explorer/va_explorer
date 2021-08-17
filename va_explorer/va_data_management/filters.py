@@ -30,9 +30,7 @@ class VAFilter(FilterSet):
 
     def filter_deceased(self, queryset, name, value):
         if value:
-            return VerbalAutopsy.objects.filter(
-                Q(Id10017__icontains=value) | Q(Id10018__icontains=value)
-            )
+            return queryset.filter(Q(Id10017__icontains=value) | Q(Id10018__icontains=value))
         return queryset
 
     def filter_errors(self, queryset, name, value):
