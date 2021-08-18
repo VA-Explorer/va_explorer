@@ -154,7 +154,7 @@ def test_save_with_invalid_date_format(user: User):
     va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023":"21-03-01", "Id10058": va.location.name })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023":"this is not a date 1234" })
     assert response.status_code == 200
 
 # Verify save access is restricted
@@ -294,17 +294,16 @@ def test_field_worker_access_control():
     field_worker.save()
     field_worker_username.save()
 
-    va = VerbalAutopsyFactory.create(Id10017='Unique Value VA1', Id10010='Role specific value', location=facility, username=field_worker_username.va_username)
-    va2 = VerbalAutopsyFactory.create(Id10017='Another Value VA2', location=facility, username='')
+    va = VerbalAutopsyFactory.create(Id10010='Unique Value VA1', location=facility, username=field_worker_username.va_username)
+    va2 = VerbalAutopsyFactory.create(Id10010='Another Value VA2', location=facility, username='')
 
     client = Client()
     client.force_login(user=field_worker)
 
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert str(va.Id10017).encode('utf_8') in response.content
-    assert str(va.Id10010).encode('utf_8') not in response.content  # field workers see deceased, not interviewer
-    assert str(va2.Id10017).encode('utf_8') not in response.content
+    assert str(va.Id10010).encode('utf_8') in response.content
+    assert str(va2.Id10010).encode('utf_8') not in response.content
 
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
