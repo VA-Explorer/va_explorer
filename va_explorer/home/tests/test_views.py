@@ -30,7 +30,7 @@ def test_index(user: User):
     assert response.context['vas_uncoded_1_month'] == 1
     assert response.context['vas_uncoded_overall'] == 1
     assert len(response.context['issue_list']) == 1
-    assert va.Id10017 in response.context['issue_list'][0]['name']
+    assert va.Id10017 in response.context['issue_list'][0]['deceased']
     assert response.context['additional_issues'] == 0
 
 
