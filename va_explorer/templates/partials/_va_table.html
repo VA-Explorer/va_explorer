@@ -3,13 +3,13 @@
 <table class="table table-sm">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Date</th>
-      <th>Deceased</th>
+      <th>Submitted</th>
       {% if not user.is_fieldworker %}
         <th>Interviewer</th>
       {% endif %}
       <th>Facility</th>
+      <th>Deceased</th>
+      <th>Deathdate</th>
       <th>Cause</th>
       <th>Warnings</th>
       <th>Errors</th>
@@ -19,13 +19,13 @@
   <tbody>
     {% for va in va_list %}
     <tr>
-      <td>{{ va.id }}</td>
-      <td>{% pii_filter "Id10023" va.date %}</td>
-      <td>{% pii_filter "Id10017" va.deceased %}</td>
+      <td>{% pii_filter "submissiondate" va.submitted %}</td>
       {% if not user.is_fieldworker %}
         <td>{{ va.interviewer }}</td>
       {% endif %}
       <td>{{ va.facility }}</td>
+      <td>{% pii_filter "Id10017" va.deceased %}</td>
+      <td>{% pii_filter "Id10023" va.dod %}</td>
       <td>{{ va.cause }}</td>
       <td>{{ va.warnings }}</td>
       <td>{{ va.errors }}</td>
