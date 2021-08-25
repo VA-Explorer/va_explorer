@@ -294,7 +294,7 @@ def test_field_worker_access_control():
     field_worker.save()
     field_worker_username.save()
 
-    va = VerbalAutopsyFactory.create(Id10017='deceased_name_1', location=facility, username=field_worker_username.va_username)
+    va = VerbalAutopsyFactory.create(Id10017='deceased_name_1', Id10010='Role specific value', location=facility, username=field_worker_username.va_username)
     va2 = VerbalAutopsyFactory.create(Id10017='deceased_name_2', location=facility, username='')
 
     client = Client()
@@ -303,6 +303,7 @@ def test_field_worker_access_control():
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert str(va.Id10017).encode('utf_8') in response.content
+    assert str(va.Id10010).encode('utf_8') not in response.content # field workers see deceased, not interviewer
     assert str(va2.Id10017).encode('utf_8') not in response.content
 
     response = client.get(f"/va_data_management/show/{va.id}")

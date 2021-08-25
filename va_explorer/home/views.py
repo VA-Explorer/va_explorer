@@ -30,8 +30,6 @@ class Index(CustomAuthMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user
-        # determine which name column to pull in based on user role
-        name_field = "Id10007" if user.is_fieldworker() else "Id10010"
         today = date.today()
         start_month = to_dt(date(today.year - 1, today.month, 1))
         location_restrictions = user.location_restrictions
@@ -43,11 +41,11 @@ class Index(CustomAuthMixin, TemplateView):
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
             va_df = pd.DataFrame(user_vas\
-                .only("id","Id10023","location","submissiondate","created",name_field) \
+                .only("id","Id10023","location","submissiondate","created","Id10010") \
                 .select_related("location") \
                 .select_related("causes") \
                 .values("id","Id10023", "created",date=F("submissiondate"),
-                    name=F(name_field),facility=F("location__name"),cause=F("causes__cause"),
+                    name=F("Id10010"),facility=F("location__name"),cause=F("causes__cause"),
                 ))
 
             # clean date fields - strip timezones from submissiondate and created dates
@@ -112,7 +110,8 @@ class Index(CustomAuthMixin, TemplateView):
                 "id": va.id,
                 "deceased": f"{va.Id10017} {va.Id10018}", 
                 "interviewer": va.Id10010,
-                "date":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+                "submitted":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+                "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
                 "facility": va.location.name if va.location else "",
                 "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
                 "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
