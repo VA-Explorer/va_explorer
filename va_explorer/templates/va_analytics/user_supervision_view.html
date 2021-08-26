@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Field Worker Supervision{% endblock %}
-
-{% block heading %}Field Workers{% endblock %}
+{% block heading %} {{ filterset.form.data.group_col|capfirst }} Supervision {% endblock %}
 
 {% load crispy_forms_tags %}
 
@@ -11,7 +9,7 @@
     <div class="form-row align-items-end">
       {% crispy filterset.form %}
       <div class="form-group">
-        <button class="form-control btn btn-primary filter-button" type="submit">Search</button>
+        <button class="form-control btn btn-primary filter-button" type="submit">Go</button>
       </div>
       {% if filterset.is_valid %}
         <div class="form-group">
@@ -22,32 +20,9 @@
   </form>
 
   <div class="row mt-4">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Assigned Location(s)</th>
-          <th>Submitted VAs</th>
-          <th>Submission Rate (VAs/wk)</th>
-          <th>Errors</th>
-          <th>Warnings</th>
-        </tr>
-      </thead>
-        <tbody>
-          {% for user_record in worker_stats %}
-          <tr>
-            <td>{{ user_record.interviewer }}</td>
-            <td>{{ user_record.facility }}</td>
-            <td>{{ user_record.total_vas }}</td> <!-- #TODO: Update to query VAs associated with user -->
-            <td>{{ user_record.submission_rate }}</td> <!-- #TODO: Update to calculate weekly avg -->
-            <td>{{ user_record.errors }}</td> <!-- #TODO: Update to sum errors/warnings of associated VAs -->
-            <td>{{ user_record.warnings }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-    </table>
-    {% if is_paginated %}
+    {% include 'partials/_generic_table.html' with table_data=supervision_stats %}
+<!--     {% if is_paginated %}
       {% include "partials/_pagination.html" %}
-    {% endif %}
+    {% endif %} -->
   </div>
 {% endblock %}

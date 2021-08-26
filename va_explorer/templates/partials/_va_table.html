@@ -19,10 +19,10 @@
     {% for va in va_list %}
     <tr>
       <td>{{ va.id }}</td>
-      <td>{% pii_filter "Id10023" va.date %}</td>
-      <td>{% pii_filter "Id10010" va.interviewer %}</td>
-      <td>{{ va.facility }}</td>
-      <td>{{ va.cause }}</td>
+      <td>{% pii_filter "Id10023" va.date|default:"Unknown" %}</td>
+      <td>{% pii_filter "Id10010" va.interviewer|default:"No Interviewer" %}</td>
+      <td>{{ va.facility|default:"Unknown"}}</td>
+      <td>{{ va.cause|default:"No Cause" }}</td>
       {% if not user.is_fieldworker %}
         <td>{{ va.warnings }}</td>
         <td>{{ va.errors }}</td>

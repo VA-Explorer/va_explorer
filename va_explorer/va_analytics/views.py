@@ -2,9 +2,10 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.views.generic import TemplateView, View, ListView
 from django.http import HttpResponse
-from django.db.models import F
+from django.db.models import F, Count, Q
 import logging
 import pandas as pd
+from numpy import round
 
 
 from va_explorer.va_data_management.models import Location
@@ -87,7 +88,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     permission_required = "va_analytics.supervise_users"
     template_name = "va_analytics/user_supervision_view.html"
     model = User
-    paginate_by = 15
+    #paginate_by = 15
 
     def get_queryset(self):
         # Restrict to VAs this user can access and prefetch related for performance
@@ -104,30 +105,60 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context["filterset"] = self.filterset
-        #parse_date(va.Id10023)
-        va_data = [{
-            "id": va.id,
-            "interviewer": va.username,
-            "date":  parse_date(va.submissiondate, strict=False),
-            "facility": va.location.name if va.location else "",
-            "cause": va.causes.first().cause if va.causes.count() > 0 else "",
-            "warnings": va.coding_issues.filter(severity='warning').count(),
-            "errors": va.coding_issues.filter(severity='error').count()
-        } for va in context['object_list']]
-        va_df = pd.DataFrame(va_data)
-        context['worker_stats'] = (va_df
+
+        # group column(s) - figure out appropriate level of aggregation based on filter
+        group_col = context['filterset'].form.data.get('group_col', 'interviewer')
+        if group_col == 'interviewer':
+            index_cols = ["interviewer", "facility"]
+        elif group_col == 'facility': 
+            index_cols = ["facility"]
+        else:
+            index_cols = [group_col]
+
+       # sort by chosen field (default is count)
+        sort_col = self.request.GET.get('order_by', 'Total VAs')
+        # if order_by param starts with -, sort in descending order. Otherwise, ascending
+        is_ascending = sort_col.startswith('-')
+        if is_ascending:
+            sort_col = sort_col.lstrip('-')
+
+        all_vas =context["object_list"]\
+        .only(
+            "id",
+            "submissiondate",
+            "username"
+        ) \
+        .select_related("location") \
+        .select_related("causes") \
+        .select_related("coding_issues") \
+        .values(
+            "id",
+            interviewer=F("username"),
+            date=F("submissiondate"),
+            facility=F("location__name"),
+            cause=F("causes__cause"),
+            errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
+            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning"))
+        )
+        va_df = pd.DataFrame(all_vas)
+        context['supervision_stats'] = (va_df
             .assign(date = lambda df: pd.to_datetime(df['date'], utc=True))
             .assign(week_hash=lambda df: df['date'].dt.isocalendar().week + 52 * df['date'].dt.year)
-            .groupby('interviewer')
-            .agg({'id': 'count', 'warnings': 'sum', 'errors': 'sum', 'week_hash': 'nunique'})
-            .rename(columns={'id': 'total_vas', 'week_hash': 'weeks_worked'})
-            .assign(submission_rate = lambda df: df['total_vas'] / df['weeks_worked'])
+            .groupby(group_col)
+            .agg({'id':'count','warnings':'sum', 'errors':'sum', 'week_hash':'nunique', 'date':'max'})
+            .assign(submission_rate = lambda df: round(df['id'] / df['week_hash'], 2))
             .reset_index()
-            .merge(va_df[['interviewer', 'facility']].drop_duplicates())
+            .merge(va_df[index_cols].drop_duplicates())
+            .assign(date = lambda df: df["date"].dt.date)
+            .rename(columns={'id':'Total VAs',
+                            'week_hash':'Weeks of Data',
+                            "submission_rate": "VAs / week", 
+                            "date": "Last Submission"})
+            .sort_values(by=sort_col, ascending=is_ascending)
         ).to_dict(orient='records')
-        #context.update(get_va_summary_stats(self.filterset.qs))
+
+         #context.update(get_va_summary_stats(self.filterset.qs))
         return context
 
 
