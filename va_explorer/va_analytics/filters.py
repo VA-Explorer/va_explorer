@@ -13,19 +13,17 @@ PIVOT_OPTIONS = (
 )
 
 class SupervisionFilter(FilterSet):
-	group_col = BooleanFilter(method="build_pivot", label="Group by: ", widget=forms.Select(choices=PIVOT_OPTIONS, attrs={'class': 'custom-select'}))
-#	interviewer = CharFilter(field_name="username", lookup_expr="icontains", label="Interviewer")
+	group_col = BooleanFilter(method="filter_for_pivot", label="Group by: ", widget=forms.Select(choices=PIVOT_OPTIONS, attrs={'class': 'custom-select'}))
+	location = CharFilter(field_name="location__name", lookup_expr="icontains", label="Facility")
 	start_date = DateFilter(field_name="submissiondate", lookup_expr="gte", label="Earliest Date", widget=DateInput(attrs={'class': 'datepicker'}))
 	end_date = DateFilter(field_name="submissiondate", lookup_expr="lte", label="Latest Date", widget=DateInput(attrs={'class': 'datepicker'}))
-	location = CharFilter(field_name="location__name", lookup_expr="icontains", label="Facility"), 
 	
 
 	class Meta:
 		model = VerbalAutopsy
 		fields = []
 
-	def build_pivot(self, queryset, name, value):
+	def filter_for_pivot(self, queryset, name, value):
 		if value:
 			return queryset.filter(value__isnull=False)
 		return queryset
-
