@@ -15,7 +15,7 @@ from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_logs.logging_utils import write_va_log
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
 
 
 LOGGER = logging.getLogger("event_logger")
@@ -28,16 +28,16 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
         # Restrict to VAs this user can access and prefetch related for performance
         queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
-        # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
-        # since many do not apply to them. This prevents data passed through the params from being
-        # passed to the VAFilter
-        # Also hide filter if the user cannot view PII since the filterable fields contain PII.
-        if self.request.user.is_fieldworker() or not self.request.user.can_view_pii:
-            self.filterset = VAFilter(data=None, queryset=queryset)
+        self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+        if self.request.user.is_fieldworker:
+            del self.filterset.form.fields['interviewer']
 
-        # do the filtering thing
-        else:
-            self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+        # Don't allow search based on fields the user can't see anyway
+        if not self.request.user.can_view_pii:
+            del self.filterset.form.fields['deceased']
+            del self.filterset.form.fields['start_date']
+            del self.filterset.form.fields['end_date']
+
         query_dict = self.request.GET.dict()
         query_keys = [k for k in query_dict if k != 'csrfmiddlewaretoken']
         if len(query_keys) > 0:
@@ -50,11 +50,12 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context["filterset"] = self.filterset
-        #parse_date(va.Id10023)
         context['object_list'] = [{
             "id": va.id,
+            "deceased": f"{va.Id10017} {va.Id10018}",
             "interviewer": va.Id10010,
-            "date":  va.Id10023 if (va.Id10023 != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+            "submitted":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+            "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
             "facility": va.location.name if va.location else "",
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),

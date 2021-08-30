@@ -9,6 +9,7 @@ from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import VaUsername
 from va_explorer.va_data_management.utils.location_assignment import assign_va_location
 from config.settings.base import DATE_FORMATS
+from pandas import to_datetime
 
 
 def validate_vas_for_dashboard(verbal_autopsies):
@@ -106,15 +107,18 @@ def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False, return_forma
                     return datetime.strptime(date_str, fmt).date().strftime(return_format)
                 except ValueError:
                     pass
-            # if we get here, all hardcoded patterns failed - try timestamp regex as last resort
+            # if we get here, all hardcoded patterns failed - try timestamp regex 
             # if time time separator T present, strip out time and pull solely date
             if len(re.findall("\dT\d", date_str)) > 0:
                 return re.split("T\d", date_str)[0]
+            # if regex patterns not found, try pandas's to_datetime util as last resort
             else:
-                # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
-                if strict:
-                    raise ValueError(f'no valid date format found for date string {date_str}')
-                else:
-                    return str(date_str)
+                try:
+                    return to_datetime(date_str).date().strftime(return_format)
+                except:
+                    # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
+                    if strict:
+                        raise ValueError(f'no valid date format found for date string {date_str}')
+                    else:
+                        return str(date_str)
     return 'dk'
-        

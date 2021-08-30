@@ -3,32 +3,34 @@
 <table class="table table-sm">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Date</th>
-      <th>Interviewer</th>
-      <th>Facility</th>
-      <th>Cause</th>
+      <th>Submitted</th>
       {% if not user.is_fieldworker %}
-        <th>Warnings</th>
-        <th>Errors</th>
+        <th>Interviewer</th>
       {% endif %}
+      <th>Facility</th>
+      <th>Deceased</th>
+      <th>Deathdate</th>
+      <th>Cause</th>
+      <th>Warnings</th>
+      <th>Errors</th>
       <th>View</th>
     </tr>
   </thead>
   <tbody>
     {% for va in va_list %}
-    <tr>
-      <td>{{ va.id }}</td>
-      <td>{% pii_filter "Id10023" va.date|default:"Unknown" %}</td>
-      <td>{% pii_filter "Id10010" va.interviewer|default:"No Interviewer" %}</td>
-      <td>{{ va.facility|default:"Unknown"}}</td>
-      <td>{{ va.cause|default:"No Cause" }}</td>
-      {% if not user.is_fieldworker %}
+      <tr>
+        <td>{% pii_filter "submissiondate" va.submitted|default:"Date Unknown" %}</td>
+        {% if not user.is_fieldworker %}
+          <td>{% pii_filter "Id10010" va.interviewer|default:"Not Listed" %}</td>
+        {% endif %}
+        <td>{{ va.facility|default:"Location Unknown" }}</td>
+        <td>{% pii_filter "Id10017" va.deceased|default:"Subject Unknown" %}</td>
+        <td>{% pii_filter "Id10023" va.dod|default:"Date Unknown" %}</td>
+        <td>{{ va.cause|default:"Not Coded" }}</td>
         <td>{{ va.warnings }}</td>
         <td>{{ va.errors }}</td>
-      {% endif %}
-      <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
-    </tr>
+        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+      </tr>
     {% endfor %}
   </tbody>
 </table>
