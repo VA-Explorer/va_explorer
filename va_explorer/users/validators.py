@@ -102,7 +102,7 @@ def validate_user_object(user_data, user_object=None):
     
     # Only validate permissions that aren't set by group. If you create new permissions types, need to add them below.
     # Assumes each permission X maps to a user getter starting with 'can' (e.g. view_pii -> user.can_view_pii)
-    for permission in ['view_pii', 'download_data', 'supervise_users']:
+    for permission in ['view_pii', 'download_data']:
         is_group_permission = user_object.groups.first().permissions.filter(codename=permission).first()
         if not is_group_permission:
             assert getattr(user_object, f"can_{permission}") == user_data[permission]

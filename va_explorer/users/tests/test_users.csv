@@ -1,8 +1,8 @@
-﻿name,email,group,location_restrictions,facility_restrictions,view_pii,download_data,supervise_users
-smith,smith@example.com,Field Worker,,Facility1,FALSE,TRUE,FALSE
-yacoub,yacoub@example.com,Data Manager,DistrictX,,TRUE,TRUE,TRUE
-kristin,kristin@example.com,Data Viewer,Province1,,TRUE,FALSE,FALSE
-stefan,stefan@example.com,Data Viewer,DistrictX,,FALSE,TRUE,FALSE
-edwin,edwin@example.com,Data Viewer,DistrictY,,TRUE,TRUE,FALSE
-caroline,caroline@example.com,Data Viewer,,,TRUE,TRUE,FALSE
-tubb,tubb@example.com,Data Manager,,,FALSE,TRUE,TRUE
+﻿name,email,group,location_restrictions,facility_restrictions,view_pii,download_data
+smith,smith@example.com,Field Worker,,Facility1,FALSE,TRUE
+yacoub,yacoub@example.com,Data Manager,DistrictX,,TRUE,TRUE
+kristin,kristin@example.com,Data Viewer,Province1,,TRUE,FALSE
+stefan,stefan@example.com,Data Viewer,DistrictX,,FALSE,TRUE
+edwin,edwin@example.com,Data Viewer,DistrictY,,TRUE,TRUE
+caroline,caroline@example.com,Data Viewer,,,TRUE,TRUE
+tubb,tubb@example.com,Data Manager,,,FALSE,TRUE

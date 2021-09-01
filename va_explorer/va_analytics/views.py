@@ -157,36 +157,37 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             )
         )
         va_df = pd.DataFrame(all_vas)
-        context["supervision_stats"] = (
-            va_df.assign(date=lambda df: pd.to_datetime(df["date"], utc=True))
-            .assign(
-                week_hash=lambda df: df["date"].dt.isocalendar().week
-                + 52 * df["date"].dt.year
-            )
-            .groupby(group_col)
-            .agg(
-                {
-                    "id": "count",
-                    "warnings": "sum",
-                    "errors": "sum",
-                    "week_hash": "nunique",
-                    "date": "max",
-                }
-            )
-            .assign(submission_rate=lambda df: round(df["id"] / df["week_hash"], 2))
-            .reset_index()
-            .merge(va_df[index_cols].drop_duplicates())
-            .assign(date=lambda df: df["date"].dt.date)
-            .rename(
-                columns={
-                    "id": "Total VAs",
-                    "week_hash": "Weeks of Data",
-                    "submission_rate": "VAs / week",
-                    "date": "Last Submission",
-                }
-            )
-            .sort_values(by=sort_col, ascending=is_ascending)
-        ).to_dict(orient="records")
+        if not va_df.empty:
+            context["supervision_stats"] = (
+                va_df.assign(date=lambda df: pd.to_datetime(df["date"], utc=True))
+                .assign(
+                    week_hash=lambda df: df["date"].dt.isocalendar().week
+                    + 52 * df["date"].dt.year
+                )
+                .groupby(group_col)
+                .agg(
+                    {
+                        "id": "count",
+                        "warnings": "sum",
+                        "errors": "sum",
+                        "week_hash": "nunique",
+                        "date": "max",
+                    }
+                )
+                .assign(submission_rate=lambda df: round(df["id"] / df["week_hash"], 2))
+                .reset_index()
+                .merge(va_df[index_cols].drop_duplicates())
+                .assign(date=lambda df: df["date"].dt.date)
+                .rename(
+                    columns={
+                        "id": "Total VAs",
+                        "week_hash": "Weeks of Data",
+                        "submission_rate": "VAs / week",
+                        "date": "Last Submission",
+                    }
+                )
+                .sort_values(by=sort_col, ascending=is_ascending)
+            ).to_dict(orient="records")
 
         return context
 

@@ -53,7 +53,6 @@ def get_fake_user_data():
         "group": "Data Viewer",
         "view_pii": False,
         "download_data": True,
-        "supervise_users": False,
     }
 
     # user 2: data manager restricted to districtY, can view PII and can download data
@@ -64,7 +63,6 @@ def get_fake_user_data():
         "group": "Data Manager",
         "view_pii": True,
         "download_data": True,
-        "supervise_users": True,
     }
 
     # user 3: data viewer - no location restrictions, can view PII but cannot download data
@@ -74,7 +72,6 @@ def get_fake_user_data():
         "group": "Data Viewer",
         "view_pii": True,
         "download_data": False,
-        "supervise_users": False,
     }
 
     return users
