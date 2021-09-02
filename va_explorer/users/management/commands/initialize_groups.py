@@ -39,7 +39,11 @@ class Command(BaseCommand):
 
     help = "Create default groups and permissions"
 
+    def add_arguments(self, parser):
+        parser.add_argument('--debug', type=bool, nargs='?', default=False)
+
     def handle(self, *args, **options):
+        debug = options.get('debug', False)
         # Loop through groups and permissions; add permissions, as applicable, to related group objects
         for group_name, group_permissions in GROUPS_PERMISSIONS.items():
             group, created = Group.objects.get_or_create(name=group_name)
@@ -65,9 +69,8 @@ class Command(BaseCommand):
                         permission = Permission.objects.get(content_type=content_type, codename=codename)
                         group.permissions.add(permission)
                         self.stdout.write(f"Adding {codename} to group {group}")
-                    # except Permission.DoesNotExist:
+
                     except Exception as instance:
-                        print(type(instance))
-                        print(instance.args)
-                        print(instance)
+                        if debug:
+                            print(f'{type(instance)} error:\nargs:{instance.args}\n{instance}')
                         self.stderr.write(f"{codename} not found")

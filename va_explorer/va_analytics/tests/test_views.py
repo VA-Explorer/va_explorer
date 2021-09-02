@@ -63,12 +63,11 @@ class TestSupervisionView:
             user_supervision_view(request)
 
     def test_supervision_stats(self, rf: RequestFactory):
-        # client = Client()
         can_supervise_users = Permission.objects.filter(codename="supervise_users").first()
         can_supervise_users_group = GroupFactory.create(permissions=[can_supervise_users])
         manager = UserFactory.create(groups=[can_supervise_users_group])
-        # client.force_login(user=manager)
-        # Build initial data
+
+        # Build example data to 'supervise'
         province = LocationFactory.create()
         district1 = province.add_child(name='District1', location_type='district')
         facility1 = district1.add_child(name='Facility1', location_type='facility')
@@ -77,8 +76,6 @@ class TestSupervisionView:
         va1 = VerbalAutopsyFactory.create(location=facility1, username='field_worker', submissiondate=str(date.today() - timedelta(days=8)))
         va2 = VerbalAutopsyFactory.create(location=facility1, username='field_worker', submissiondate=str(date.today()))
 
-        # response = client.get("/va_analytics/supervision/")
-        # import pdb; pdb.set_trace()
         request = rf.get("/va_analytics/supervision/")
         request.user = manager
         response = user_supervision_view(request)
