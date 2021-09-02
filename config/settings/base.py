@@ -73,7 +73,8 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
-    "dpd_static_support"
+    "dpd_static_support", 
+    "django_pivot"
 ]
 
 LOCAL_APPS = [

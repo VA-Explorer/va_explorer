@@ -20,6 +20,11 @@
         <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
       </li>
       {% endif %}
+      {% if perms.va_analytics.supervise_users %}
+      <li class="nav-item">
+        <a class="{% active '\/(.*)supervision' %} nav-link" href="{% url 'va_analytics:supervision' %}">Supervision</a>
+      </li>
+      {% endif %}
       {% if perms.va_analytics.view_dashboard %}
       <li class="nav-item">
           <a class="{% active '\/(.*)dashboard' %} nav-link" href="{% url 'va_analytics:dashboard' %}">Dashboard</a>

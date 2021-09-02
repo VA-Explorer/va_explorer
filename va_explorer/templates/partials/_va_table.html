@@ -18,19 +18,19 @@
   </thead>
   <tbody>
     {% for va in va_list %}
-    <tr>
-      <td>{% pii_filter "submissiondate" va.submitted %}</td>
-      {% if not user.is_fieldworker %}
-        <td>{{ va.interviewer }}</td>
-      {% endif %}
-      <td>{{ va.facility }}</td>
-      <td>{% pii_filter "Id10017" va.deceased %}</td>
-      <td>{% pii_filter "Id10023" va.dod %}</td>
-      <td>{{ va.cause }}</td>
-      <td>{{ va.warnings }}</td>
-      <td>{{ va.errors }}</td>
-      <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
-    </tr>
+      <tr>
+        <td>{% pii_filter "submissiondate" va.submitted|default:"Date Unknown" %}</td>
+        {% if not user.is_fieldworker %}
+          <td>{% pii_filter "Id10010" va.interviewer|default:"Not Listed" %}</td>
+        {% endif %}
+        <td>{{ va.facility|default:"Location Unknown" }}</td>
+        <td>{% pii_filter "Id10017" va.deceased|default:"Subject Unknown" %}</td>
+        <td>{% pii_filter "Id10023" va.dod|default:"Date Unknown" %}</td>
+        <td>{{ va.cause|default:"Not Coded" }}</td>
+        <td>{{ va.warnings }}</td>
+        <td>{{ va.errors }}</td>
+        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+      </tr>
     {% endfor %}
   </tbody>
 </table>
