@@ -6,13 +6,12 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
-from pandas import to_datetime as to_dt
 from django.db.models import F
 # TODO: We're using plotly here since it's already included in the project, but there may be slimmer options
 import plotly.offline as opy
 import plotly.graph_objs as go
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
-from va_explorer.va_data_management.utils.validate import parse_date
+from va_explorer.va_data_management.utils.date_parsing import parse_date, to_dt, get_submissiondates
 
 # Simple helper function for creating the plotly graphs used on the home page
 def graph(x, y):
@@ -31,7 +30,7 @@ class Index(CustomAuthMixin, TemplateView):
 
         user = self.request.user
         today = date.today()
-        start_month = to_dt(date(today.year - 1, today.month, 1))
+        start_month = pd.to_datetime(date(today.year - 1, today.month, 1))
         location_restrictions = user.location_restrictions
         if location_restrictions.count() > 0:
             context['locations'] = ', '.join([location.name for location in location_restrictions.all()])
@@ -41,22 +40,23 @@ class Index(CustomAuthMixin, TemplateView):
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
             va_df = pd.DataFrame(user_vas\
-                .only("id","Id10023","location","submissiondate","created","Id10010") \
+                .only("id","Id10023","location","Id10011", "submissiondate","created","Id10010", "Id10011") \
                 .select_related("location") \
                 .select_related("causes") \
-                .values("id","Id10023", "created",date=F("submissiondate"),
-                    name=F("Id10010"),facility=F("location__name"),cause=F("causes__cause"),
-                ))
+                .values("id","Id10023", "created", "Id10011", "submissiondate",\
+                    name=F("Id10010"),facility=F("location__name"),cause=F("causes__cause"))
+                )
+            va_df["date"] = get_submissiondates(va_df)
 
             # clean date fields - strip timezones from submissiondate and created dates
-            va_df["date"] = to_dt(to_dt(va_df["date"]).dt.date)
-            va_df["created"] = to_dt(to_dt(va_df["created"]).dt.date)
-            va_df["Id10023"] = to_dt(va_df["Id10023"], errors="coerce")
+            va_df["date"] = to_dt(va_df["date"])
+            va_df["created"] = to_dt(va_df["created"])
+            va_df["Id10023"] = to_dt(va_df["Id10023"])
             va_df["yearmonth"] = va_df["date"].dt.strftime("%Y-%m")
             
             context.update(get_va_summary_stats(user_vas))
             # Load the VAs that are collected over various periods of time
-            today = to_dt(date.today())
+            today = pd.to_datetime(date.today())
 
             vas_24_hours = va_df[va_df["date"] == today].index
             vas_1_week = va_df[va_df['date'] >= (today - timedelta(days=7))].index
@@ -104,7 +104,7 @@ class Index(CustomAuthMixin, TemplateView):
 
             # List the VAs that need attention; requesting certain fields and prefetching makes this more efficient
             vas_to_address = user_vas.only('id', 'location_id', 'Id10007', 'Id10010', 'Id10017',
-                'Id10018', 'submissiondate', 'Id10023').filter(causes__isnull=True)[:10].prefetch_related("causes", "coding_issues", "location")
+                'Id10018', 'submissiondate', 'Id10011', 'Id10023').filter(causes__isnull=True)[:10].prefetch_related("causes", "coding_issues", "location")
 
             context['issue_list'] = [{
                 "id": va.id,
