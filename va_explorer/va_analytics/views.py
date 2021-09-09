@@ -159,8 +159,9 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             )
         )
         va_df = pd.DataFrame(all_vas)
-        va_df["date"] = get_submissiondates(va_df)
+        
         if not va_df.empty:
+            va_df["date"] = get_submissiondates(va_df)
             context["supervision_stats"] = (
                 va_df.assign(date=lambda df: pd.to_datetime(df["date"], utc=True))
                 .assign(

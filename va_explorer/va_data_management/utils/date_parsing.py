@@ -46,11 +46,12 @@ def to_dt(dates, utc=True):
 def get_submissiondates(va_data, empty_string=None):
     # va_data is a dataframe - use vectorized logic
     if type(va_data) is pd.DataFrame:
-        assert 'Id10011' in va_data.columns
-        if 'submissiondate' not in va_data.columns:
-            return va_data['Id10011']
-        else:
-            return np.where(~empty_dates(va_data, 'submissiondate'), va_data['submissiondate'], va_data['Id10011'])
+        if not va_data.empty:
+            assert 'Id10011' in va_data.columns
+            if 'submissiondate' not in va_data.columns:
+                return va_data['Id10011']
+            else:
+                return np.where(~empty_dates(va_data, 'submissiondate'), va_data['submissiondate'], va_data['Id10011'])
 
     # va_data is a list of va objects. Iterate through and get indivudal submission dates
     else:
