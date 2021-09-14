@@ -59,8 +59,8 @@ def get_submissiondates(va_data, empty_string=None):
 
 # get submissiondate for single va object. Uses the same field logic as above.
 def get_submissiondate(va_data, empty_string=None, parse=False):
-    if pd.isnull(va_data.submissiondate) or va_data.submissiondate in ['nan', 'dk']:
-        if not pd.isnull(va_data.Id10011) and va_data.Id10011 not in ['nan', 'dk']:
+    if pd.isnull(va_data.submissiondate) or va_data.submissiondate in ['', 'nan', 'dk']:
+        if not pd.isnull(va_data.Id10011) and va_data.Id10011 not in ['', 'nan', 'dk']:
             return parse_date(va_data.Id10011) if parse else va_data.Id10011
         else:
             return empty_string

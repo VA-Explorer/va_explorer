@@ -8,6 +8,7 @@ from django.core.management import call_command
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
+
 from va_explorer.va_data_management.utils.loading import load_records_from_dataframe
 
 pytestmark = pytest.mark.django_db
@@ -126,3 +127,5 @@ def test_load_va_csv_command():
     assert VerbalAutopsy.objects.get(instanceid='instance3').Id10007 == 'name3'
 
 # TODO add tests for date of death, location, and age_group
+
+

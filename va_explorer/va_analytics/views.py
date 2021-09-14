@@ -147,7 +147,6 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "submissiondate",
                 "Id10011",
                 interviewer=F("username"),
-                #date=F("submissiondate"),
                 facility=F("location__name"),
                 cause=F("causes__cause"),
                 errors=Count(

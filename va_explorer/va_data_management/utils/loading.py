@@ -100,7 +100,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         va = VerbalAutopsy(**row)
         # only import VA if its instanceId doesn't already exist
         if row['instanceid']:
-            #existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
             va_exists = (row['instanceid'] in va_instance_ids)
             if va_exists:
                 ignored_vas.append(va)
@@ -124,8 +123,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         if logger:
             logger.info(f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}") 
         va.submissiondate = parsed_sub_date
-
-        # Try mapping va location to known db location. If not possible, set to null location
         
         # if random_locations, assign random field worker to VA which can be used to determine location.
         # Otherwise, try assigning location based on hospital field. 
@@ -197,7 +194,6 @@ def get_va_summary_stats(vas):
         if not pd.isnull(last_update):
             stats['last_update'] =  last_update.strftime('%d %b, %Y')
         # Record latest submission date (from ODK). Column may/may not be available depending on source
-        #raw_submissions = vas.values_list('submissiondate', flat=True)
         raw_submissions = to_dt(get_submissiondates(vas))
 
         # track number of ineligible VAs for dashboard
