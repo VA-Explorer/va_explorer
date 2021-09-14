@@ -12,7 +12,7 @@ from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_analytics.filters import SupervisionFilter
 from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING, Location
-from va_explorer.va_data_management.utils.validate import parse_date
+from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondates
 from va_explorer.va_logs.logging_utils import write_va_log
 
 LOGGER = logging.getLogger("event_logger")
@@ -138,14 +138,15 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         all_vas = (
             context["object_list"]
-            .only("id", "submissiondate", "username")
+            .only("id", "submissiondate","Id10011", "username")
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
             .values(
                 "id",
+                "submissiondate",
+                "Id10011",
                 interviewer=F("username"),
-                date=F("submissiondate"),
                 facility=F("location__name"),
                 cause=F("causes__cause"),
                 errors=Count(
@@ -157,7 +158,9 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             )
         )
         va_df = pd.DataFrame(all_vas)
+        
         if not va_df.empty:
+            va_df["date"] = get_submissiondates(va_df)
             context["supervision_stats"] = (
                 va_df.assign(date=lambda df: pd.to_datetime(df["date"], utc=True))
                 .assign(

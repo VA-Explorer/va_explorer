@@ -15,7 +15,8 @@ from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_logs.logging_utils import write_va_log
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
 
 
 LOGGER = logging.getLogger("event_logger")
@@ -54,7 +55,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             "id": va.id,
             "deceased": f"{va.Id10017} {va.Id10018}",
             "interviewer": va.Id10010,
-            "submitted":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+            "submitted":  get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
             "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
             "facility": va.location.name if va.location else "",
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
