@@ -72,9 +72,10 @@ class TestSupervisionView:
         district1 = province.add_child(name='District1', location_type='district')
         facility1 = district1.add_child(name='Facility1', location_type='facility')
         field_worker = UserFactory.create(location_restrictions=[facility1])
-        field_worker.set_va_username("field_worker")
-        va1 = VerbalAutopsyFactory.create(location=facility1, username='field_worker', submissiondate=str(date.today() - timedelta(days=8)))
-        va2 = VerbalAutopsyFactory.create(location=facility1, username='field_worker', submissiondate=str(date.today()))
+        username = "field_worker"
+        field_worker.set_va_username(username)
+        va1 = VerbalAutopsyFactory.create(location=facility1, username=username, Id10010=username, submissiondate=str(date.today() - timedelta(days=8)))
+        va2 = VerbalAutopsyFactory.create(location=facility1, username=username, Id10010=username, submissiondate=str(date.today()))
 
         request = rf.get("/va_analytics/supervision/")
         request.user = manager

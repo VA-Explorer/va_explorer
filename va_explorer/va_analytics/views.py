@@ -1,6 +1,7 @@
 import logging
 
 import pandas as pd
+from pandas import to_datetime as to_dt
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.db.models import Count, F, Q
@@ -98,7 +99,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
         queryset = (
             self.request.user.verbal_autopsies()
             .prefetch_related("location", "causes", "coding_issues")
-            .exclude(username="")
+            .exclude(Id10010="")
         )
 
         self.filterset = SupervisionFilter(
@@ -138,7 +139,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         all_vas = (
             context["object_list"]
-            .only("id", "submissiondate","Id10011", "username")
+            .only("id", "submissiondate","Id10011", "Id10010")
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
@@ -146,7 +147,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "id",
                 "submissiondate",
                 "Id10011",
-                interviewer=F("username"),
+                interviewer=F("Id10010"),
                 facility=F("location__name"),
                 cause=F("causes__cause"),
                 errors=Count(
@@ -162,7 +163,10 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
         if not va_df.empty:
             va_df["date"] = get_submissiondates(va_df)
             context["supervision_stats"] = (
-                va_df.assign(date=lambda df: pd.to_datetime(df["date"], utc=True))
+                va_df.assign(date=lambda df: df["date"].apply(parse_date))
+                .assign(date = lambda df: to_dt(df["date"], errors="coerce"))
+                # only analyze vas with valid submission dates
+                .query("date == date")
                 .assign(
                     week_hash=lambda df: df["date"].dt.isocalendar().week
                     + 52 * df["date"].dt.year
