@@ -30,7 +30,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # Restrict to VAs this user can access and prefetch related for performance
         queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
         self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
-        if self.request.user.is_fieldworker:
+        if self.request.user.is_fieldworker():
             del self.filterset.form.fields['interviewer']
 
         # Don't allow search based on fields the user can't see anyway
