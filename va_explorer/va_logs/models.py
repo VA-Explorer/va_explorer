@@ -1,3 +1,10 @@
 from django.db import models
 
-# Create your models here.
+# import models already created in va data management
+from va_explorer.va_data_management.models import VerbalAutopsy, Location, CauseOfDeath
+
+
+
+
+
+
