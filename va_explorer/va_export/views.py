@@ -61,6 +61,7 @@ class VaApi(CustomAuthMixin, View):
 		    loc_name=F("location__name"),
 		))
 
+		#=========LOCATION FILTER LOGIC===================#
 		# if location query, filter down to VAs within chosen location's jurisdiction
 		loc_query = params.get('locations', None)
 		if loc_query:
@@ -70,22 +71,30 @@ class VaApi(CustomAuthMixin, View):
 			# filter VA queryset down to just those with matching location_ids
 			matching_vas = matching_vas.filter(location__id__in=match_list)
 
+		#=========DATE FILTER LOGIC===================#
 		# if start/end dates specified, filter to only VAs within time range
-		start_date = params.get("start_date", [])
-		end_date = params.get("end_date", [])
+		start_date = params.get("start_date", None)
+		end_date = params.get("end_date", None)
 
-		if len(start_date) > 0:
+		if start_date not in ([], None, "None"):
 			start_date = start_date[0] if type(start_date) is list else start_date
 			matching_vas = matching_vas.filter(Id10023__gte=start_date)
 
-		if len(end_date) > 0:
+		if end_date not in ([], None, "None"):
 			end_date = end_date[0] if type(end_date) is list else end_date
 			matching_vas = matching_vas.filter(Id10023__lte=end_date)	
 
 		# get causes for matching vas and convert to list of records
-		matching_vas = matching_vas.select_related("causes").annotate(cause=F("causes__cause")).values()
+		matching_vas = matching_vas.select_related("causes").annotate(cause=F("causes__cause"), cause_id=F("causes__pk")).values()
 
-		#=========clean up results=======================#
+		#=========COD FILTER LOGIC===================#
+		cod_query = params.get('causes', None)
+		if cod_query:
+			# get all valid cod ids (TODO - make this work with if cod names provided)
+			match_list = [int(i) for i in cod_query.split(",")]
+			# filter VA queryset down to just those with matching location_ids
+			matching_vas = matching_vas.filter(cause_id__in=match_list)
+		#=========DATA CLEANING=======================#
 		# Build a location ancestors lookup and add location information at all levels to all vas
 		location_ancestors = {
 		    location.id: location.get_ancestors()
@@ -114,6 +123,7 @@ class VaApi(CustomAuthMixin, View):
 				if field in va_df.columns:
 					va_df[field] = REDACTED_STRING
 
+		#=========DATA FORMAT LOGIC===================#
 		# convert VAs to proper format. Currently supports .csv (default) and .json
 		fmt = params.get('format', 'csv').lower().replace('/', '')
 		# determine whether to download as attachment or return raw data (default: return raw)
@@ -126,16 +136,14 @@ class VaApi(CustomAuthMixin, View):
 			# download raw csv (no metadata)
 			response.write(va_df.to_csv(index=False))
 			response["Content-Disposition"] = 'attachment; filename="va_download.csv"'
-		# download or render for json
+		# download for json
 		elif fmt.endswith('json'):
 			data = {"count": va_df.shape[0], "records":  va_df.to_json(orient='records')}
 			
 			# Create HttpResponse object with appropriate JSON header
-			if download:
-				response = HttpResponse(json.dumps(data), content_type="application/json")
-				response["Content-Disposition"] = 'attachment; filename="va_download.json"'
-			else:
-				response = JsonResponse(data)
+			response = HttpResponse(json.dumps(data), content_type="application/json")
+			response["Content-Disposition"] = 'attachment; filename="va_download.json"'
+
 		else:
 			response = HttpResponse()
 		write_va_log(LOGGER, f"downloaded data in {fmt} format", self.request)
