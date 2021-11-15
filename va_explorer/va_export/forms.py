@@ -94,10 +94,13 @@ class VADownloadForm(forms.Form):
              cleaned_data['locations'] = ','.join([str(loc.pk) for loc in list(locs)])
         else:
             cleaned_data['locations'] = ''
+        
         # Convert any COD objects back to ids for API
         cods = cleaned_data.get('causes', [])
         if len(cods) > 0:
-            cleaned_data['causes'] = ','.join([str(cod.pk) for cod in cods])
+            cleaned_data['causes'] = ','.join([str(cod.cause) for cod in cods])
+        else:
+            cleaned_data['causes'] = None
 
         # convert format to lowercase
         cleaned_data['format'] = cleaned_data.get('format', 'csv').lower()

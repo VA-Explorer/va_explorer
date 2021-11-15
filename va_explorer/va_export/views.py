@@ -89,11 +89,12 @@ class VaApi(CustomAuthMixin, View):
 
 		#=========COD FILTER LOGIC===================#
 		cod_query = params.get('causes', None)
-		if cod_query:
+		if cod_query not in ([], None, "None"):
 			# get all valid cod ids (TODO - make this work with if cod names provided)
-			match_list = [int(i) for i in cod_query.split(",")]
+			match_list = cod_query.split(",")
 			# filter VA queryset down to just those with matching location_ids
-			matching_vas = matching_vas.filter(cause_id__in=match_list)
+			matching_vas = matching_vas.filter(cause__in=match_list)
+
 		#=========DATA CLEANING=======================#
 		# Build a location ancestors lookup and add location information at all levels to all vas
 		location_ancestors = {
