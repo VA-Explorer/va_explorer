@@ -75,8 +75,6 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "dpd_static_support", 
     "django_pivot", 
-    "rest_framework",
-    "rest_framework.authtoken"
 ]
 
 LOCAL_APPS = [
@@ -89,13 +87,6 @@ LOCAL_APPS = [
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
-# REST Framework
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # <-- And here
-    ],
-}
 
 # Authentication
 

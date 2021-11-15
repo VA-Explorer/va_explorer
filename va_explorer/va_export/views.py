@@ -30,10 +30,6 @@ from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 from va_explorer.va_export.forms import VADownloadForm
 from va_explorer.va_export.utils import get_loc_ids_for_filter
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
 
 
 LOGGER = logging.getLogger("event_logger")
