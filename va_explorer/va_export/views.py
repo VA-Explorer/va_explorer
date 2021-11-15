@@ -48,6 +48,8 @@ class VaApi(CustomAuthMixin, View):
 		# params = super(VaApi, self).get(self, request, *args, **kwargs)
 		# get all query params
 		params = request.GET
+		# for nullity checks
+		empty_values = (None, 'None', '', [])
 
 		# NOTE: using same filters as dashboard - exclude vas w/ null locations, unknown death dates, or unknown CODs
 		matching_vas = (request.user.verbal_autopsies()
@@ -76,11 +78,11 @@ class VaApi(CustomAuthMixin, View):
 		start_date = params.get("start_date", None)
 		end_date = params.get("end_date", None)
 
-		if start_date not in ([], None, "None"):
+		if start_date not in empty_values:
 			start_date = start_date[0] if type(start_date) is list else start_date
 			matching_vas = matching_vas.filter(Id10023__gte=start_date)
 
-		if end_date not in ([], None, "None"):
+		if end_date not in empty_values:
 			end_date = end_date[0] if type(end_date) is list else end_date
 			matching_vas = matching_vas.filter(Id10023__lte=end_date)	
 
@@ -89,7 +91,7 @@ class VaApi(CustomAuthMixin, View):
 
 		#=========COD FILTER LOGIC===================#
 		cod_query = params.get('causes', None)
-		if cod_query not in ([], None, "None"):
+		if cod_query not in empty_values:
 			# get all valid cod ids (TODO - make this work with if cod names provided)
 			match_list = cod_query.split(",")
 			# filter VA queryset down to just those with matching location_ids

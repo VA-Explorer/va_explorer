@@ -48,13 +48,6 @@ class VADownloadForm(forms.Form):
         help_text="Choose location(s) from which to download data"
     )
 
-    # causes = MultipleChoiceField(
-    #     choices=get_cod_options(),
-    #     widget = SelectMultiple(attrs={'class': 'cod-select'}),
-    #     required=False,
-    #     help_text="Filter data by Cause of Death (CoD)"
-    # )
-
     causes = ModelMultipleChoiceField(
         queryset=CauseOfDeath.objects.distinct('cause').order_by('cause'),
         widget=SelectMultiple(attrs={'class': 'cod-select'}),
@@ -62,7 +55,7 @@ class VADownloadForm(forms.Form):
         help_text="Filter data by Cause of Death (CoD)"
     )
 
-    # TODO: Enable once we have figure out which export options to present
+    # which endpoint system you're exporting to. Only for exports (not downloads)
     export_config = forms.ChoiceField(
         disabled=True,
         label="<b>#TODO:</b> Export Endpoint", 
@@ -94,6 +87,10 @@ class VADownloadForm(forms.Form):
              cleaned_data['locations'] = ','.join([str(loc.pk) for loc in list(locs)])
         else:
             cleaned_data['locations'] = ''
+
+        # make sure action is specified
+        if 'action' not in cleaned_data:
+            cleaned_data['action'] = 'download'
         
         # Convert any COD objects back to ids for API
         cods = cleaned_data.get('causes', [])

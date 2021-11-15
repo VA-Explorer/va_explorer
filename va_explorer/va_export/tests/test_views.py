@@ -3,6 +3,10 @@ from datetime import date, timedelta
 from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
+from django.urls import reverse
+from urllib.parse import urlencode
+
+
 import pandas as pd
 import json
 
@@ -10,6 +14,8 @@ from va_explorer.tests.factories import GroupFactory
 from va_explorer.tests.factories import LocationFactory
 from va_explorer.tests.factories import UserFactory
 from va_explorer.tests.factories import VerbalAutopsyFactory
+
+
 from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, Location
 from va_explorer.va_data_management.models import REDACTED_STRING
 from va_explorer.users.models import User
@@ -17,6 +23,7 @@ from va_explorer.va_analytics.views import dashboard_view
 from va_explorer.va_analytics.views import user_supervision_view
 # from va_explorer.va_analytics.views import download_csv
 from va_explorer.va_export.views import va_api_view
+from va_explorer.va_export.forms import VADownloadForm
 from io import BytesIO
 
 pytestmark = pytest.mark.django_db
@@ -55,8 +62,6 @@ def build_test_db():
 
     # build a non-admin user that can download but can't view pii
     user_no_pii = UserFactory.create(name='no_pii', groups=[non_admin_group])
-
-
 
 
 class TestAPIView:
@@ -135,7 +140,7 @@ class TestAPIView:
         uniq_cod = df['cause'].unique().tolist()
         assert (len(uniq_cod) == 1) and (uniq_cod[0] == cod_name)
 
-    def test_tile_filter(self, rf:RequestFactory):
+    def test_time_filter(self, rf:RequestFactory):
         build_test_db()
         # only download data from location a
         start_date, end_date = "2020-01-01", "2021-01-01"
@@ -224,3 +229,25 @@ class TestAPIView:
         # confirm all records are included in download
         df = pd.read_csv(BytesIO(response.content))
         assert VerbalAutopsy.objects.count() == df.shape[0]
+
+    def test_download_via_form(self, rf:RequestFactory):
+        build_test_db()
+        # filter by id of last location in test db
+        loc_id = Location.objects.last().pk
+        download_form = VADownloadForm(
+            {'action': 'download', 'format':'csv',
+            'end_date':'2020-01-01','location':str(loc_id)})
+        
+        assert download_form.is_valid()
+
+        form_data = download_form.cleaned_data
+        api_url = reverse('va_export:va_api') + '?' + urlencode(form_data)
+        request = rf.get(api_url)
+        request.user = User.objects.get(name='admin')
+        response = va_api_view(request)
+        df = pd.read_csv(BytesIO(response.content))
+        # result should be a subset of all data
+        assert df.shape[0] < VerbalAutopsy.objects.count() 
+
+
+
