@@ -284,7 +284,7 @@ def test_access_control(user: User):
 def test_field_worker_access_control():
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
     can_view_pii = Permission.objects.filter(codename="view_pii").first()
-    field_worker_group = FieldWorkerGroupFactory.create(permissions=[can_view_record, can_view_pii])
+    field_worker_group = FieldWorkerGroupFactory.create(name="test_fw_group", permissions=[can_view_record, can_view_pii])
     field_worker = FieldWorkerFactory.create(groups=[field_worker_group])
     field_worker_username = VaUsernameFactory.create(user=field_worker)
 
@@ -303,6 +303,7 @@ def test_field_worker_access_control():
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert str(va.Id10017).encode('utf_8') in response.content
+    breakpoint()
     assert str(va.Id10010).encode('utf_8') not in response.content # field workers see deceased, not interviewer
     assert str(va2.Id10017).encode('utf_8') not in response.content
 

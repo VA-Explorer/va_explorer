@@ -4,7 +4,7 @@ import numpy as np
 from simple_history.utils import bulk_create_with_history
 import logging
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, Max, Count
 
 from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
@@ -185,27 +185,45 @@ def deduplicate_columns(record_df, drop_duplicates=True):
         record_df = record_df.drop(columns=other_cols)
     return record_df
 
-def get_va_summary_stats(vas):
-    # track last data update and submission date
-    stats = {'last_submission': None, 'last_update': None, 'total_vas': vas.count()}
-    if stats['total_vas'] > 0:
-        # Track last time VAs were updated. Again, using last import date so may need to change.
-        last_update = max(vas.values_list('created', flat=True))
-        if not pd.isnull(last_update):
-            stats['last_update'] =  last_update.strftime('%d %b, %Y')
-        # Record latest submission date (from ODK). Column may/may not be available depending on source
-        raw_submissions = to_dt(get_submissiondates(vas))
+# def get_va_summary_stats(vas):
+#     # track last data update and submission date
+#     stats = {'last_submission': None, 'last_update': None, 'total_vas': vas.count()}
+#     if stats['total_vas'] > 0:
+#         # Track last time VAs were updated. Again, using last import date so may need to change.
+#         last_update = max(vas.values_list('created', flat=True))
+#         if not pd.isnull(last_update):
+#             stats['last_update'] =  last_update.strftime('%d %b, %Y')
+#         # Record latest submission date (from ODK). Column may/may not be available depending on source
+#         raw_submissions = to_dt(get_submissiondates(vas))
 
-        # track number of ineligible VAs for dashboard
+#         # track number of ineligible VAs for dashboard
+#         stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
+#          Q(location__isnull=True)).count()
+#         if raw_submissions.count() > 0:
+#             try:
+#                 last_submission = to_dt(raw_submissions).max()
+#             except:
+#                 last_submission = to_dt(pd.Series(to_dt(raw_submissions, utc=True)).dt.date).max()
+#             if not pd.isnull(last_submission):
+#                 stats['last_submission'] = last_submission.strftime('%d %b, %Y')
+#     return stats
+
+def get_va_summary_stats(vas):
+    # filter down to only relevant fields
+    stats = {"last_update": None, "last_submission": None, "total_vas": None, "ineligible_vas": None}
+    if vas:
+        vas = vas.only("created", "id", "location", "Id10023")
+        stats.update(vas.aggregate(last_update=Max("created"),\
+                            last_submission=Max("submissiondate"),\
+                            total_vas=Count("id")))
+
         stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
          Q(location__isnull=True)).count()
-        if raw_submissions.count() > 0:
-            try:
-                last_submission = to_dt(raw_submissions).max()
-            except:
-                last_submission = to_dt(pd.Series(to_dt(raw_submissions, utc=True)).dt.date).max()
-            if not pd.isnull(last_submission):
-                stats['last_submission'] = last_submission.strftime('%d %b, %Y')
+
+        # clean up dates if non-null
+        if stats["last_update"] and type(stats["last_update"]) is not str:
+            stats["last_update"] = stats["last_update"].strftime('%Y-%m-%d')
+
+        if stats["last_submission"] and type(stats["last_update"]) is not str:
+            stats["last_submission"] = stats["last_submission"].strftime('%Y-%m-%d')
     return stats
-
-
