@@ -21,7 +21,6 @@ from va_explorer.va_data_management.models import REDACTED_STRING
 from va_explorer.users.models import User
 from va_explorer.va_analytics.views import dashboard_view
 from va_explorer.va_analytics.views import user_supervision_view
-# from va_explorer.va_analytics.views import download_csv
 from va_explorer.va_export.views import va_api_view
 from va_explorer.va_export.forms import VADownloadForm
 from io import BytesIO

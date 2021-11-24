@@ -185,7 +185,6 @@ def deduplicate_columns(record_df, drop_duplicates=True):
         record_df = record_df.drop(columns=other_cols)
     return record_df
 
-<<<<<<< HEAD
 # def get_va_summary_stats(vas):
 #     # track last data update and submission date
 #     stats = {'last_submission': None, 'last_update': None, 'total_vas': vas.count()}
