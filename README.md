@@ -191,8 +191,8 @@ va_explorer/django
 
 ### Deploying with a reverse proxy
 
-Set the following environment variables:
-TODO: to /etc/env?
+Set the following environment variables to an appropriate place for the
+host such as `/etc/env` or preferred location.
 
 ```
 export EMAIL_URL=smtp://localhost:25 <or> consolemail://
