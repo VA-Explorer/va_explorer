@@ -243,7 +243,7 @@ LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
         ServerName va-explorer.mitre.org
         ServerAlias www.va-explorer.mitre.org
 
-        AddOutputFilterByType DEFLATE text/html text/plain application/json text/css text/javascript application/javascript
+        AddOutputFilterByType DEFLATE text/plain text/html text/css text/javascript application/javascript application/json text/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 
         <Location />
                 ProxyPreserveHost on
