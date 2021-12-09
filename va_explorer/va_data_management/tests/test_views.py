@@ -303,7 +303,6 @@ def test_field_worker_access_control():
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert str(va.Id10017).encode('utf_8') in response.content
-    breakpoint()
     assert str(va.Id10010).encode('utf_8') not in response.content # field workers see deceased, not interviewer
     assert str(va2.Id10017).encode('utf_8') not in response.content
 
