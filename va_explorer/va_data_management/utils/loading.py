@@ -188,7 +188,8 @@ def deduplicate_columns(record_df, drop_duplicates=True):
 # calculate key summary statistics about a VA queryset
 def get_va_summary_stats(vas):
     # filter down to only relevant fields
-    vas = vas.only("created", "id", "location", "Id10023")
+    # if type(vas) is not dict:
+    #     vas = vas.only("created", "id", "location", "Id10023")
     stats = vas.aggregate(last_update=Max("created"),\
                         last_submission=Max("submissiondate"),\
                         total_vas=Count("id"))

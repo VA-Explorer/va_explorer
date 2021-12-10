@@ -5,6 +5,9 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
+from django.db.models import F, Q, Count, Value as V
+from django.db.models.functions import Concat
+
 import logging
 
 from config.celery_app import app
@@ -30,7 +33,45 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         # Restrict to VAs this user can access and prefetch related for performance
-        queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
+        # ti=time.time(); queryset = (self.request.user.verbal_autopsies()\
+        #     .prefetch_related("location", "causes", "coding_issues")\
+        #     .annotate(deceased = Concat('Id10017', V(' '), 'Id10018')))
+
+        ti=time.time(); queryset = (self.request.user.verbal_autopsies()\
+                    .select_related("location")\
+                    .select_related("causes")\
+                    .select_related("coding_issues")\
+                    .annotate(deceased = Concat('Id10017', V(' '), 'Id10018'))
+                    .values("id",
+                            "location__name",
+                            "causes__cause",
+                            "Id10023",
+                            "Id10010",
+                            "submissiondate",
+                            "deceased",
+                            errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
+                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
+
+        # sort by chosen field (default is VA ID)
+        # get raw sort key (includes direction)
+        sort_key_raw = self.request.GET.get("order_by", "id")
+        # strip out direction and map to va field
+        sort_key = sort_key_raw.lstrip("-")
+        sort_key_to_field = {
+            'id': 'id',
+            'interviewer': 'Id10010',
+            'dod': 'Id10023',
+            'facility': 'location__name',
+            'cause': 'causes__cause',
+            'submitted': 'submissiondate',
+            'deceased': 'deceased'
+        }
+        sort_field = sort_key_to_field.get(sort_key, sort_key)
+        # add sort direction
+        if sort_key_raw.startswith("-") and not sort_field.startswith("-"):
+            sort_field = "-" + sort_field
+        queryset = queryset.order_by(sort_field)
+
         self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
         if self.request.user.is_fieldworker():
             del self.filterset.form.fields['interviewer']
@@ -47,6 +88,9 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             query = ', '.join([f"{k}: {query_dict[k]}" for k in query_keys if query_dict[k] != ""])
             write_va_log(LOGGER, f"[data_mgnt] Queried VAs for: {query}", self.request)
 
+
+
+
         return self.filterset.qs
 
     def get_context_data(self, **kwargs):
@@ -56,21 +100,22 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         ti = time.time()
         context['object_list'] = [{
-            "id": va.id,
-            "deceased": f"{va.Id10017} {va.Id10018}",
-            "interviewer": va.Id10010,
-            "submitted":  get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
-            "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
-            "facility": va.location.name if va.location else "",
-            "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-            "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-            "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            "id": va["id"],
+            "deceased": va["deceased"],
+            "interviewer": va["Id10010"],
+            "submitted":  va["submissiondate"], #get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
+            "dod":  parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
+            "facility": va["location__name"], #va.location.name if va.location else "",
+            "cause": va["causes__cause"],  #va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+            "warnings": va["warnings"], #len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+            "errors": va["errors"]# len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
         } for va in context['object_list']]
 
         context.update(get_va_summary_stats(self.filterset.qs))
         print(f"total time to format display VAs: {time.time() - ti} secs")
 
         return context
+
 
 
 
