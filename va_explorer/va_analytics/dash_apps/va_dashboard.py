@@ -543,7 +543,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
     download_div = html.Div(id="download_data_div")
     download_div.children = [
         dbc.Button("Download Data", id="download_button", href=reverse("va_export:va_api"), color="primary",
-            external_link=True) #title="Download data meeting dashboard filter criteria")
+            external_link=True) 
     ]
     # hide download data button if user doesn't have permission to download
     download_div.hidden = (not kwargs["user"].can_download_data)

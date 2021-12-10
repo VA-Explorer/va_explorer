@@ -32,7 +32,7 @@
       {% endif %}
       {% if perms.va_analytics.download_data %}
       <li class="nav-item">
-          <a class="{% active '\/(.*)download' %} nav-link" href="{% url 'va_export:download_form' %}">Download Data</a>
+          <a class="{% active '\/(.*)download' %} nav-link" href="{% url 'va_export:download_form' %}">Export</a>
       </li>
       {% endif %}
       {% if perms.va_data_management.view_verbalautopsy %}

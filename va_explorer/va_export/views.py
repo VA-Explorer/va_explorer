@@ -34,11 +34,9 @@ from va_explorer.va_export.utils import get_loc_ids_for_filter
 
 LOGGER = logging.getLogger("event_logger")
 
-# TODO: REMOVE THIS AND IMPLEMENT AUTH
 @method_decorator(csrf_exempt, name='dispatch')
 class VaApi(CustomAuthMixin, View):
-	#permission_required = "va_analytics.download_data"
-#	permission_classes = (IsAuthenticated,) 
+	permission_required = "va_analytics.download_data"
 
 	def get(self, request, *args, **kwargs):
 		# params = super(VaApi, self).get(self, request, *args, **kwargs)
