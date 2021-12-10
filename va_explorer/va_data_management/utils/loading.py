@@ -186,7 +186,6 @@ def deduplicate_columns(record_df, drop_duplicates=True):
     return record_df
 
 def get_va_summary_stats(vas):
-
     # calculate stats
     if vas.count() == 0:
         # filter down to only relevant fields
