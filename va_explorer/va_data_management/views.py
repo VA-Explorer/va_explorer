@@ -18,6 +18,8 @@ from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
 
+import time
+
 
 LOGGER = logging.getLogger("event_logger")
 
@@ -51,6 +53,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context["filterset"] = self.filterset
+
+        ti = time.time()
         context['object_list'] = [{
             "id": va.id,
             "deceased": f"{va.Id10017} {va.Id10018}",
@@ -64,6 +68,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         } for va in context['object_list']]
 
         context.update(get_va_summary_stats(self.filterset.qs))
+        print(f"total time to format display VAs: {time.time() - ti} secs")
 
         return context
 
