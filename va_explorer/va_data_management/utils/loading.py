@@ -185,11 +185,14 @@ def deduplicate_columns(record_df, drop_duplicates=True):
         record_df = record_df.drop(columns=other_cols)
     return record_df
 
-def get_va_summary_stats(vas):
+def get_va_summary_stats(vas, filter_fields=False):
     # calculate stats
-    if vas.count() == 0:
-        # filter down to only relevant fields
-        vas = vas.only("created", "id", "location", "Id10023")
+    if vas.count() > 0:
+       
+        # if filter_fields=True, filter down to only relevant fields
+        if filter_fields:
+            vas = vas.only("created", "id", "location", "Id10023")
+
         stats = vas.aggregate(last_update=Max("created"),\
                             last_submission=Max("submissiondate"),\
                             total_vas=Count("id"))
