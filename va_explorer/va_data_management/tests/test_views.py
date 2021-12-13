@@ -36,7 +36,6 @@ def test_index_redacted(user: User):
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert bytes(REDACTED_STRING, "utf-8") in response.content
-    breakpoint()
     assert bytes(va.Id10023, "utf-8") not in response.content
     
 
