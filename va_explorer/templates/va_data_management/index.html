@@ -23,7 +23,7 @@
 </form>
 
 <div class="row mt-4">
-  {% include 'partials/_generic_table.html' with table_data=object_list %}
+  {% include "partials/_va_table.html" with va_list=object_list %}
   {% if page_obj.has_other_pages %}
   {% include "partials/_pagination.html" %}
   {% endif %}
