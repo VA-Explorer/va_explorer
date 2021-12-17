@@ -56,6 +56,9 @@ To work with the application, you will need to install some prerequisites:
 * [Postgres](http://www.postgresql.org/)
 * [Docker](https://www.docker.com/)
 
+*Note:* If this is your first time using Postgres, you may be requested to create a user and password for the first time during setup. Take note of this user and password as it will be used later for our setup, as well as your future other projects setups. \
+Instructions can be found online to change your postgres user's password.
+
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
 ### Setup
@@ -80,7 +83,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `pip install -r requirements/base.txt`
 
-* Create the va_explorer database
+* Create the va_explorer database using your postgres user made during postgres download. It may be `postgres` for example.
 
     `createdb va_explorer -U <name of Postgres user> --password`
 
@@ -338,6 +341,9 @@ Alternatively, you can specify email and pasword as command line arguments:
 ```
 ./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
 ```
+
+## Troubleshooting
+* If experiencing trouble installing the `pyscopg2` application requirement. It is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
 
 ## Version History
 
