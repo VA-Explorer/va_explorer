@@ -5,8 +5,8 @@ from io import StringIO
 from collections import OrderedDict
 import dateutil.parser,os,requests,collections
 import csv, environ
-#from . import dhis as dhis
-import openva_pipeline.dhis as dhis
+from . import dhis as dhis
+#import openva_pipeline.dhis as dhis
 import pandas as pd
 import numpy as np
 
@@ -151,11 +151,15 @@ class Command(BaseCommand):
             queryCODCodes = queryCODCodes[{"codname", "codcode"}]
 
             dhisCODCodes = dict(zip(queryCODCodes.codname, queryCODCodes.codcode))
+
+            dhisCODCodes = {}
             argsDHIS = [settingsDHIS, dhisCODCodes]
 
             # execute pipeline
             pipelineDHIS = dhis.DHIS(argsDHIS,"")
+
             apiDHIS = pipelineDHIS.connect()
+            self.clearFolder("DHIS/blobs/")
             postLog = pipelineDHIS.postVA(apiDHIS)
             self.clearFolder("DHIS/blobs/")
             if postLog['response']['status']=='SUCCESS' and postLog['response']['imported']==len(va_not_in_dhis):

@@ -224,7 +224,7 @@ def create_db(fName, evaList):
     Create a SQLite database with VA data + COD
 
     :param evaList: Event-Value-Attribute data structure with verbal autopsy
-      data, cause of death result, and VA metadata.
+      data, cause of death result, an   d VA metadata.
     :type evaList: list
     :rtype: None
     """
