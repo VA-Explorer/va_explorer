@@ -2,7 +2,6 @@ import re
 
 from django import template
 from django.urls import NoReverseMatch, reverse
-from django.template.defaultfilters import stringfilter
 
 
 from urllib.parse import urlencode
