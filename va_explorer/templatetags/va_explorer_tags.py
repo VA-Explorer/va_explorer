@@ -2,6 +2,8 @@ import re
 
 from django import template
 from django.urls import NoReverseMatch, reverse
+from django.template.defaultfilters import stringfilter
+
 
 from urllib.parse import urlencode
 from collections import OrderedDict
@@ -11,6 +13,18 @@ from va_explorer.va_data_management.models import REDACTED_STRING
 
 register = template.Library()
 
+@register.filter
+def replace(value):
+    if("dk" in value):
+        return "Don't know"
+    elif("nan" in value):
+        return "Not a number"
+    else:
+        return value
+
+@register.filter
+def upper(value):
+    return value.upper()
 
 @register.simple_tag(takes_context=True)
 def active(context, pattern_or_url):
