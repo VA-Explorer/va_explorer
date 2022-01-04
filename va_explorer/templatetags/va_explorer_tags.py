@@ -14,12 +14,15 @@ register = template.Library()
 
 @register.filter
 def replace(value):
-    if("dk" in value or "DK" in value):
+    value = value.strip()
+    if("dk" == value or "DK" == value):
         return "Don't know"
-    elif("nan" in value):
+    elif("nan" == value):
         return "n/a"
-    elif("veryl" in value):
+    elif("veryl" == value):
         return "Very Low"
+    elif("ref" == value):
+        return "refuse to answer"
     else:
         return value
 
