@@ -511,15 +511,19 @@ designated as "expanded"
     [Input(component_id="hidden_trigger", component_property="children")],
 )
 
+# TODO: Decide if we want to display COD Codes in
 def init_va_data(hidden_trigger=None, **kwargs):
     date_cutoff=None
     timeframe = LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "all")
     if timeframe != "all":
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
 
-    res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
+    res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)    
+
     # all VAs with required fields for dashboard (COD, date of death, location). 
     valid_va_data = res["data"]["valid"].to_dict()
+    valid_va_data["cause"] = { k:v.lstrip('0123456789.- ') for k, v in valid_va_data["cause"].items()}
+
     # all VAs without a COD assignment
     invalid_va_data = res["data"]["invalid"].to_dict()
     # list of locations used in dashboard
@@ -1336,7 +1340,9 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
 
 # ========= Time Series Plot Logic============================================#
 @app.callback(
+    
      Output(component_id="ts-container", component_property="children"),
+     
 
     
     [
@@ -1351,6 +1357,7 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
 def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All", search_terms=None, **kwargs):
     figure, plot_title = go.Figure(), None
     search_term_ids = {}
+    ret_val = {}
     if va_data is not None:
         plot_data = pd.DataFrame(va_data)
         if plot_data.size > 0:
@@ -1362,7 +1369,7 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                     if type(search_terms) is str:
                         search_terms = [search_terms]
                     cod_groups = COD_GROUPS
-                    #ret_val["groups"] = cod_groups.to_json()
+                    ret_val["groups"] = cod_groups.to_json()
                    
                     for search_value in search_terms:
                         if search_value.lower().startswith("all"):
