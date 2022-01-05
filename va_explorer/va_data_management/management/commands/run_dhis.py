@@ -5,8 +5,8 @@ from io import StringIO
 from collections import OrderedDict
 import dateutil.parser,os,requests,collections
 import csv, environ
-from . import dhis as dhis
-#import openva_pipeline.dhis as dhis
+# from . import dhis as dhis
+import openva_pipeline.dhis as dhis
 import pandas as pd
 import numpy as np
 

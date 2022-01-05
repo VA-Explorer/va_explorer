@@ -18,7 +18,7 @@ urlpatterns = [
     path("va_analytics/", include("va_explorer.va_analytics.urls", namespace="va_analytics")),
     path("va_data_management/", include("va_explorer.va_data_management.urls", namespace="va_data_management")),
     # TODO: remove this and move DHIS functionality into export
-    path("dhis/",include("va_explorer.dhis_manager.urls", namespace="dhis_manager"))
+    path("dhis/",include("va_explorer.dhis_manager.urls", namespace="dhis_manager")),
     path("va_logs/", include("va_explorer.va_logs.urls", namespace="va_logs")),
     path("va_export/", include("va_explorer.va_export.urls", namespace="va_export"))
 
