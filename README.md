@@ -9,7 +9,7 @@ VA Explorer currently supports the following functionality at various degrees of
   *  Creation/disabling of user accounts by administrators
   *  Password management for individual users
 * User access controls, including:
-  *  Role-based access with the following roles: administrators, data managers, data viewers,
+  *  Role-based access with the following roles: administrators, data managers, data viewers, dashboard viewers,
   and field workers
   *  Assignment to one or more geographic areas for geographical-level scoping of data
 * Loading of verbal autopsy questionnaire data
@@ -21,6 +21,16 @@ InterVA5 services)
   *  Cause of death plots for chosen regions
   *  Death distributions by age, gender, and place of death for chosen regions
   *  Trends over time for chosen regions
+
+<a href="docs/assets/overview.png">
+  <img src="docs/assets/overview.png" alt="Overview" title="VA Explorer Overview" width="270" />
+</a>Î
+<a href="docs/assets/dashboard.png">
+  <img src="docs/assets/dashboard.png" alt="Dashboard" title="VA Explorer Dashboard" width="270" />
+</a>
+<a href="docs/assets/vas.png">
+  <img src="docs/assets/vas.png" alt="Verbal Autopsies" title="VA Explorer VAs" width="270" />
+</a>Î
 
 ## Background
 
@@ -46,6 +56,9 @@ To work with the application, you will need to install some prerequisites:
 * [Postgres](http://www.postgresql.org/)
 * [Docker](https://www.docker.com/)
 
+*Note:* If this is your first time using Postgres, you may be requested to create a user and password for the first time during setup. Take note of this user and password as it will be used later for our setup, as well as your future other projects setups. \
+Instructions can be found online to change your postgres user's password.
+
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
 ### Setup
@@ -70,7 +83,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `pip install -r requirements/base.txt`
 
-* Create the va_explorer database
+* Create the va_explorer database using your postgres user made during postgres download. It may be `postgres` for example.
 
     `createdb va_explorer -U <name of Postgres user> --password`
 
@@ -81,8 +94,8 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
 
 * Run the database migrations
-    * `python manage.py makemigrations`
-    * `python manage.py migrate`
+    * `./manage.py makemigrations`
+    * `./manage.py migrate`
 
 ### Tasks
 
@@ -90,45 +103,62 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
   * Create user roles
 
-    `python manage.py initialize_groups`
+    `./manage.py initialize_groups`
 
   * Create an administrator user for the local environment (note that for the production environment instead of providing the password on the command line a system-assigned, randomly-generated password will be printed to the console)
 
-    `python manage.py seed_admin_user <EMAIL_ADDRESS> --password <PASSWORD>`
+    `./manage.py seed_admin_user <EMAIL_ADDRESS> --password <PASSWORD>`
 
   * Create demonstration accounts for data manager, data viewer, and field worker. This task
   only works in the local environment and is for demonstration purposes, only.
 
-    `python manage.py seed_demo_users`
+    `./manage.py seed_demo_users`
 
+  * Bulk-create users from a csv file.
+
+    `./manage.py bulk_load_users <CSV_FILE> --email_confirmation <True/False>`
+
+    You can specify user emails, roles, location restrictions, and any other restrictions that are currently exposed in the User Creation Form. If `--email_confirmation` is set to `True`, a confirmation email will be sent out to each new user. Otherwise, their credentials (with temporary password) will be printed to the console. To get a starting template for user csv file, you can run the following command:
+
+    `./manage.py get_user_form_template --output_file <FILENAME>`
+
+  * Export anynymous info for all users in system 
+    `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
+      This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
+      
+
+  * Link Field Workers to VAs
+  `./manage.py link_fieldworkers_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
+    This command links a group of field workers to their corresponding VAs in the system. Linking is done by searching a VA's interviewer name (field `Id10010`) against names of field workers in the system. If there's a match, a link is created by setting the VA's username to the matching field worker's username. By default, all field workers in the system are considered for matching, but you can specify a subset with the `--emails` argument (comma-separated, no spaces). To account for typos and slight variations in name spelling, a fuzzy-matching algorithm is used. You can specify how stringent the algorithm is with `--matching_threshold` (higher is stricter, with 100 being a perfect match). 
+  
 * Load location data
 
-  `python manage.py load_locations <NAME OF CSV>`
+  `./manage.py load_locations <NAME OF CSV>`
 
 * Load verbal autopsy questionnaire data
 
-  `python manage.py load_va_csv <NAME OF CSV>`
+  `./manage.py load_va_csv <NAME OF CSV>`
 
 * Start the cause of death coding microservices (pyCrossVA for format
   translation and InterVA5 for coding); note that these are services
   that should be left running during development activities, which can
-  be accomplished using a separate terminal or the -d flag
+  be accomplished using a separate terminal or the -d flag. (See [Building/Running in Docker](#buildingrunning-in-docker) for more details).
 
   `docker-compose up --build`
 
-* Run the InterVA5 cause of death coding algorithm
+* Run the InterVA5 cause of death coding algorithm (See [Running Coding Algorithm](#running-coding-algorithm) for more details).
 
-  `python manage.py run_coding_algorithms`
+  `./manage.py run_coding_algorithms`
 
 * Run the tests
 
     `pytest`
 
-### Running the application
+### Running the Application
 
 * Run the application server
 
-    `python manage.py runserver 0.0.0.0:8000`
+    `./manage.py runserver 0.0.0.0:8000`
 
 The server will be running at http://0.0.0.0:8000/
 
@@ -137,7 +167,7 @@ The server will be running at http://0.0.0.0:8000/
 Django can run locally inside Docker. This will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
 
 ```
-docker-compose -f docker-compose.yml -f docker-compose.local.yml up django postgres
+docker-compose -f docker-compose.yml -f docker-compose.local.yml up django vapostgres
 ```
 
 The server will be running at http://0.0.0.0:5000/
@@ -155,7 +185,7 @@ This will build the following docker images:
 ```
 va_explorer/pycrossva
 va_explorer/interva5
-va_explorer/postgres
+va_explorer/vapostgres
 va_explorer/celeryworker
 va_explorer/celerybeat
 va_explorer/flower
@@ -164,13 +194,14 @@ va_explorer/django
 
 ### Deploying with a reverse proxy
 
-Set the following environment variables:
+Set the following environment variables to an appropriate place for the
+host such as `/etc/env` or preferred location.
 
 ```
 export EMAIL_URL=smtp://localhost:25 <or> consolemail://
 export CELERY_BROKER_URL=redis://redis:6379/0
 export REDIS_URL=redis://redis:6379/0
-export POSTGRES_HOST=postgres
+export POSTGRES_HOST=vapostgres
 export POSTGRES_PORT=5432
 export POSTGRES_DB=va_explorer
 export POSTGRES_USER=postgres
@@ -185,24 +216,58 @@ Run docker-compose in daemon mode:
 docker-compose up -d django
 ```
 
-If using Apache, set the following configuration in your apache configuration:
-
+If using Apache, ensure the following modules are enabled:
+- proxy proxy_http proxy_wstunnel
+- headers rewrite
+- ssl
+- deflate
+and set the following configuration in your apache configuration:
 ```
 LoadModule rewrite_module modules/mod_rewrite.so
 LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_http_module modules/mod_proxy_http.so
 LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 
-<Location />
-    ProxyPreserveHost on
-    ProxyPass http://localhost:5000/
-    ProxyPassReverse http://localhost:5000/
+<VirtualHost *:80>
+        ServerAdmin verbal-autopsy@mitre.org
+        ServerName va-explorer.mitre.org
+        ServerAlias www.va-explorer.mitre.org
 
-    RewriteEngine on
-    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
-    RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
-    RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
-</Location>
+        Redirect permanent / https://va-explorer.mitre.org
+
+        ErrorLog ${APACHE_LOG_DIR}/va_error.log
+        CustomLog ${APACHE_LOG_DIR}/va_access.log combined
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+  <VirtualHost _default_:443>
+        SSLEngine on
+        ServerAdmin verbal-autopsy@mitre.org
+        ServerName va-explorer.mitre.org
+        ServerAlias www.va-explorer.mitre.org
+
+        AddOutputFilterByType DEFLATE text/plain text/html text/css text/javascript application/javascript application/json text/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+        <Location />
+                ProxyPreserveHost on
+                ProxyPass http://localhost:5000/
+                ProxyPassReverse http://localhost:5000/
+
+                SetOutputFilter INFLATE;DEFLATE
+
+                RewriteEngine on
+                RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+                RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+                RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
+        </Location>
+
+        SSLCertificateFile /etc/ssl/certs/va-explorer.pem
+        SSLCertificateKeyFile /etc/ssl/private/va-explorer.key
+
+        ErrorLog ${APACHE_LOG_DIR}/va_error.log
+        CustomLog ${APACHE_LOG_DIR}/va_access.log combined
+  </VirtualHost>
+</IfModule>
 ```
 
 ### Creating first user
@@ -219,6 +284,66 @@ From there, you can create a super user. Follow the prompts after running this c
 ./manage.py createsuperuser
 ```
 
+## Running Coding Algorithm
+
+There are two ways to run the coding algorithm to add cause of death to uncoded verbal autopsies: from the command line or from the user interface.
+
+Both methods require the `PYCROSS_HOST` and `INTERVA_HOST` environment variables to be configured to point to the locations of pyCrossVA
+InterVA5 respectively. If you are in Docker, both of those will have been configured and started up automatically.
+
+### Command Line
+
+From the command line, you can run the following to run coding algorithms:
+
+```
+./manage.py run_coding_algorithms
+```
+
+This will list a brief report of results in the following format:
+
+```
+Coded 24 verbal autopsies (out of 30) [6 issues]
+```
+
+You will receive an error message if pyCrossVA or InterVA5 are unavailable.
+
+### User Interface
+
+Users with permissions to modify verbal autopsy records will see a "Run Coding Algorithms" button on the home page of the application.
+
+In addition to pyCrossVA and InterVA5, this functionality requires that Celery is running and the `CELERY_BROKER_URL` and `REDIS_URL` environment variables have been configured properly. If you are running in Docker, Celery will have been configured and started up automatically.
+
+Clicking the "Run Coding Algorithms" will execute the coding algorithms in the background using Celery. You will not receive an error on the user interface if the process is not successful. To check for errors, you will need to view the Celery logs.
+
+## Importing From ODK
+
+You can use the `import_from_odk` management command to import records from an ODK server like so. 
+You must specify either project-name or project-id and form-name or form-id to import:
+
+```
+./manage.py import_from_odk --project-id=1234 --form-id=va_form_id
+# or
+./manage.py import_from_odk --project-name=zambia-test --form_id=va_form_id
+# or
+./manage.py import_from_odk --project-name=zambia-test --form_name='Form Name'
+```
+
+This depends on the following environment variables being set:
+
+```
+ODK_HOST=https://odk-server
+ODK_EMAIL=example@example.com
+ODK_PASSWORD=example
+```
+
+Alternatively, you can specify email and pasword as command line arguments:
+
+```
+./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
+```
+
+## Troubleshooting
+* If experiencing trouble installing the `pyscopg2` application requirement. It is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
 
 ## Version History
 
@@ -229,6 +354,8 @@ Releases are documented in the [CHANGELOG]().
 ## License
 
 Copyright 2020-2021 The MITRE Corporation
+
+The source of this information is the Data for Health Initiative, a joint project of the CDC Foundation and Bloomberg Philanthropies.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

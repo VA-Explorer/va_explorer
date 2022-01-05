@@ -7,7 +7,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-
+{% include 'partials/_va_update_stats.html' %}
 <form method="get">
   <div class="form-row align-items-end">
     {% crispy filterset.form %}
@@ -23,7 +23,7 @@
 </form>
 
 <div class="row mt-4">
-  {% include 'partials/_va_table.html' with va_list=object_list %}
+  {% include "partials/_va_table.html" with va_list=object_list %}
   {% if page_obj.has_other_pages %}
   {% include "partials/_pagination.html" %}
   {% endif %}

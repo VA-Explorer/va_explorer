@@ -5,10 +5,13 @@ from va_explorer.utils.mixins import CustomAuthMixin
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 import numpy as np
-
+import pandas as pd
+from django.db.models import F
 # TODO: We're using plotly here since it's already included in the project, but there may be slimmer options
 import plotly.offline as opy
 import plotly.graph_objs as go
+from va_explorer.va_data_management.utils.loading import get_va_summary_stats
+from va_explorer.va_data_management.utils.date_parsing import parse_date, to_dt, get_submissiondates
 
 # Simple helper function for creating the plotly graphs used on the home page
 def graph(x, y):
@@ -26,74 +29,109 @@ class Index(CustomAuthMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user
-        user_vas = user.verbal_autopsies()
-        location_restrictions = user.location_restrictions
         today = date.today()
-
+        start_month = pd.to_datetime(date(today.year - 1, today.month, 1))
+        location_restrictions = user.location_restrictions
         if location_restrictions.count() > 0:
             context['locations'] = ', '.join([location.name for location in location_restrictions.all()])
         else:
-            context['locations'] = 'All Regions'
+            context['locations'] = 'All Regions' 
+        # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
+        user_vas = user.verbal_autopsies()
+        if user_vas.count() > 0:
+            va_df = pd.DataFrame(user_vas\
+                .only("id","Id10023","location","Id10011", "submissiondate","created","Id10010", "Id10011") \
+                .select_related("location") \
+                .select_related("causes") \
+                .values("id","Id10023", "created", "Id10011", "submissiondate",\
+                    name=F("Id10010"),facility=F("location__name"),cause=F("causes__cause"))
+                )
+            va_df["date"] = get_submissiondates(va_df)
 
-        # Load the VAs that are collected over various periods of time
-        # TODO: We're using date imported, but might be more appropriate to use date collected? If updating
-        # this, look for all references to 'created'
-        vas_24_hours = user_vas.filter(created__gte=today)
-        vas_1_week = user_vas.filter(created__gte=today - timedelta(days=7))
-        vas_1_month = user_vas.filter(created__gte=today - relativedelta(months=1))
-        vas_overall = user_vas
+            # clean date fields - strip timezones from submissiondate and created dates
+            va_df["date"] = to_dt(va_df["date"])
+            va_df["created"] = to_dt(va_df["created"])
+            va_df["Id10023"] = to_dt(va_df["Id10023"])
+            va_df["yearmonth"] = va_df["date"].dt.strftime("%Y-%m")
+            
+            context.update(get_va_summary_stats(user_vas))
+            # Load the VAs that are collected over various periods of time
+            today = pd.to_datetime(date.today())
 
-        # VAs collected in the past 24 hours, 1 week, and 1 month
-        context['vas_collected_24_hours'] = vas_24_hours.count()
-        context['vas_collected_1_week'] = vas_1_week.count()
-        context['vas_collected_1_month'] = vas_1_month.count()
-        context['vas_collected_overall'] = vas_overall.count()
-        # VAs successfully coded in the past 24 hours, 1 week, and 1 month
-        context['vas_coded_24_hours'] = vas_24_hours.filter(causes__isnull=False).count()
-        context['vas_coded_1_week'] = vas_1_week.filter(causes__isnull=False).count()
-        context['vas_coded_1_month'] = vas_1_month.filter(causes__isnull=False).count()
-        context['vas_coded_overall'] = vas_overall.filter(causes__isnull=False).count()
-        # VAs not able to be coded in the past 24 hours, 1 week, and 1 month
-        context['vas_uncoded_24_hours'] = context['vas_collected_24_hours'] - context['vas_coded_24_hours']
-        context['vas_uncoded_1_week'] = context['vas_collected_1_week'] - context['vas_coded_1_week']
-        context['vas_uncoded_1_month'] = context['vas_collected_1_month'] - context['vas_coded_1_month']
-        context['vas_uncoded_overall'] = context['vas_collected_overall'] - context['vas_coded_overall']
+            vas_24_hours = va_df[va_df["date"] == today].index
+            vas_1_week = va_df[va_df['date'] >= (today - timedelta(days=7))].index
+            vas_1_month = va_df[va_df['date'] >= (today - relativedelta(months=1))].index
+            vas_overall = va_df.sort_values(by="id").index
 
-        # Graphs of the past 12 months, not including this month (including the current month will almost
-        # always show the month with artificially low numbers)
-        start_month = date(today.year - 1, today.month, 1)
-        months = [start_month + relativedelta(months=i) for i in range(12)]
-        x = [month.strftime('%b') for month in months]
+            # VAs collected in the past 24 hours, 1 week, and 1 month
+            context['vas_collected_24_hours'] = len(vas_24_hours)
+            context['vas_collected_1_week'] = len(vas_1_week)
+            context['vas_collected_1_month'] = len(vas_1_month)
+            context['vas_collected_overall'] = len(vas_overall)
+            # VAs successfully coded in the past 24 hours, 1 week, and 1 month        
+            context['vas_coded_24_hours'] = va_df.loc[vas_24_hours,:].query("cause == cause").shape[0]
+            context['vas_coded_1_week'] = va_df.loc[vas_1_week,:].query("cause == cause").shape[0]
+            context['vas_coded_1_month'] = va_df.loc[vas_1_month,:].query("cause == cause").shape[0]
+            context['vas_coded_overall'] = va_df.loc[vas_overall,:].query("cause == cause").shape[0]
+            # VAs not able to be coded in the past 24 hours, 1 week, and 1 month
+            context['vas_uncoded_24_hours'] = context['vas_collected_24_hours'] - context['vas_coded_24_hours']
+            context['vas_uncoded_1_week'] = context['vas_collected_1_week'] - context['vas_coded_1_week']
+            context['vas_uncoded_1_month'] = context['vas_collected_1_month'] - context['vas_coded_1_month']
+            context['vas_uncoded_overall'] = context['vas_collected_overall'] - context['vas_coded_overall']
 
-        # Collected; this query groups by month (cast to a date from a datetime) and returns the counts by month
-        collected_counts = user_vas.filter(created__gte=start_month).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('*'))
-        collected_by_month = {entry['month'].date():entry['count'] for entry in collected_counts}
-        y_collected = [collected_by_month.get(month, 0) for month in months]
-        context['graph_collected'] = graph(x, y_collected)
+            # Graphs of the past 12 months, not including this month (current month will almost
+            # always show the month with artificially low numbers)
+            plot_df = (pd.DataFrame({'month':[start_month + relativedelta(months=i) for i in range(12)]})
+                        .assign(month_num = lambda df: df['month'].dt.month)
+                )
 
-        # Coded; same query as above, just filtered by whether the va has been coded
-        coded_counts = user_vas.filter(created__gte=start_month, causes__isnull=False).annotate(month=TruncMonth('created')).values('month').annotate(count=Count('*'))
-        coded_by_month = {entry['month'].date():entry['count'] for entry in coded_counts}
-        y_coded = [coded_by_month.get(month, 0) for month in months]
-        context['graph_coded'] = graph(x, y_coded)
+            months = [start_month + relativedelta(months=i) for i in range(12)]
+            x = [month.strftime('%b') for month in months]
+            plot_df = pd.DataFrame({'yearmonth': [month.strftime('%Y-%m') for month in months], 'x': x})
 
-        # Uncoded; just take the difference between the two previous queries
-        context['graph_uncoded'] = graph(x, np.subtract(y_collected, y_coded))
+            # Collected; total VAs by month
+            plot_df = plot_df.merge(va_df.query("date >= @start_month").groupby("yearmonth")["id"].count().rename("y_collected").reset_index(), how="left").fillna(0)
+            context['graph_collected'] = graph(plot_df['x'], plot_df['y_collected'])
 
-        # List the VAs that need attention; requesting certain fields and prefetching makes this more efficient
-        vas_to_address = vas_overall.only('id', 'location_id', 'Id10007', 'Id10023').filter(causes__isnull=True).prefetch_related("causes", "coding_issues", "location")[:10]
-        context['issue_list'] = [{
-            "id": va.id,
-            "name": va.Id10007,
-            "date": va.Id10023,
-            "facility": va.location.name,
-            "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-            "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-            "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
-        } for va in vas_to_address]
+            # Coded; same query as above, just filtered by whether the va has been coded
+            plot_df = plot_df.merge(va_df.query("date >= @start_month & cause==cause").groupby("yearmonth")["id"].count().rename("y_coded").reset_index(), how="left").fillna(0)
+            # y_coded = va_df.query().groupby("yearmonth")["id"].count().values
+            #y_coded = [coded_by_month.get(month, 0) for month in months]
+            context['graph_coded'] = graph(plot_df['x'], plot_df['y_coded'])
 
-        # If there are more than 10 show a link to where the rest can be seen
-        context['additional_issues'] = max(context['vas_uncoded_overall'] - 10, 0)
+            # Uncoded; just take the difference between the two previous queries
+            context['graph_uncoded'] = graph(plot_df['x'], (plot_df['y_collected'] - plot_df['y_coded']))
+
+            # List the VAs that need attention; requesting certain fields and prefetching makes this more efficient
+            vas_to_address = user_vas.only('id', 'location_id', 'Id10007', 'Id10010', 'Id10017',
+                'Id10018', 'submissiondate', 'Id10011', 'Id10023').filter(causes__isnull=True)[:10].prefetch_related("causes", "coding_issues", "location")
+
+            context['issue_list'] = [{
+                "id": va.id,
+                "deceased": f"{va.Id10017} {va.Id10018}", 
+                "interviewer": va.Id10010,
+                "submitted":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+                "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
+                "facility": va.location.name if va.location else "",
+                "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+                "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+                "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            } for va in vas_to_address]
+
+            # If there are more than 10 show a link to where the rest can be seen
+            context['additional_issues'] = max(context['vas_uncoded_overall'] - 10, 0)
+        # NO VAS FOUND - RETURN EMPTY STATS
+        else:
+            # empty stats
+            for va_type in ['collected', 'coded', 'uncoded']:
+                for va_time_period in ['24_hours', '1_week', '1_mont',  'overall']:
+                    context[f"vas_{va_type}_{va_time_period}"] = 0
+            # empty graphs
+            months = [start_month + relativedelta(months=i) for i in range(12)]
+            x = [month.strftime('%b') for month in months]
+            for va_type in ['collected', 'coded', 'uncoded']: 
+                context[f"graph_{va_type}"] = graph(x, np.repeat(0, len(x)))
+            context['issue_list'] = []
 
         return context
 

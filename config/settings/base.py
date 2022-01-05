@@ -15,12 +15,20 @@ env.read_env(str(ROOT_DIR / ".env"))
 # General
 
 TIME_ZONE = "UTC"
+# accepted date formats for VA records
+DATE_FORMATS = {"%Y-%m-%d": "yyyy-mm-dd",
+                "%m/%d/%Y": "mm/dd/yyyy",
+                "%m/%d/%y": "mm/dd/yy",
+                "%d/%m/%Y": "dd/mm/yyyy",
+                "%d/%m/%y": "dd/mm/yy", 
+                "%Y-%m-%d %H:%M:%S": "yyyy-mm-dd HH:MM:SS"}
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 LOCALE_PATHS = [str(ROOT_DIR / "locale")]
+
 
 # Databases
 
@@ -65,14 +73,18 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
+    "dpd_static_support", 
+    "django_pivot", 
 ]
 
 LOCAL_APPS = [
     "va_explorer.home.apps.HomeConfig",
+    "va_explorer.va_logs.apps.VaLogsConfig",
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
     "va_explorer.dhis_manager.apps.DhisManagerConfig"
+    "va_explorer.va_export.apps.VaExportConfig"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -192,6 +204,7 @@ FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 SECURE_BROWSER_XSS_FILTER = True
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 # Email
 
@@ -204,12 +217,12 @@ EMAIL_PORT = email_config['EMAIL_PORT']
 EMAIL_FILE_PATH = email_config['EMAIL_FILE_PATH']
 EMAIL_TIMEOUT = 5
 
-DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="VA Explorer <noreply@va_explorer.org>")
+DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="VA Explorer <noreply@vaexplorer.org>")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
 # Logging
-
+LOG_DIR = env("LOG_DIR", default="va_explorer/va_logs")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -217,6 +230,12 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
+        },
+        "debug": {
+            "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
+        }, 
+        "event": {
+            "format": "%(asctime)s - %(message)s"
         }
     },
     "handlers": {
@@ -224,9 +243,26 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+        },
+        "ingest_file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/logfiles/data_ingest.log",
+            "formatter": "debug"
+        },
+        "event_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/logfiles/events.log",
+            "formatter": "event"
+
         }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
+    "loggers": {
+        "ingest_logger": {"level": "DEBUG", "handlers": ["ingest_file"], "propagate": False},
+        "event_logger": {"level": "INFO", "handlers": ["event_file"], "propagate": False}
+    }
 }
 
 # Caches
@@ -247,7 +283,7 @@ CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-CELERY_TASK_TIME_LIMIT = 5 * 60
+CELERY_TASK_TIME_LIMIT = 60 * 60
 CELERY_TASK_SOFT_TIME_LIMIT = 60
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
@@ -270,7 +306,7 @@ PLOTLY_COMPONENTS = [
     'dash_html_components',
     'dash_renderer',
     'dpd_components',
-    'dash_bootstrap_components'
+    'dash_bootstrap_components',
 ]
 
 PLOTLY_DASH = {

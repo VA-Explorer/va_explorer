@@ -1,16 +1,18 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import Permission
 from django.db import models
 from django.db.models import ManyToManyField
 from django.urls import reverse
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 from functools import reduce
+import uuid
 
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
-from va_explorer.va_data_management.models import VerbalAutopsy, Location
+from va_explorer.va_data_management.models import VerbalAutopsy, Location, VaUsername
 
 
 class CustomUserManager(BaseUserManager):
@@ -56,23 +58,85 @@ class User(AbstractUser):
     has_valid_password = models.BooleanField(
         _("The user has a user-defined password"), default=False
     )
-
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     location_restrictions = ManyToManyField(Location, related_name="users", db_table="users_user_location_restrictions")
 
     # The query set of verbal autopsies that this user has access to, based on location restrictions
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
-    def verbal_autopsies(self):
-      if self.location_restrictions.count() > 0:
-        # Get the query set of all locations at or below the parent nodes the user can access by joining
-        # the query sets of all the location trees; using the | operator leads to an efficient query
-        location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
-        locations = reduce((lambda set1, set2: set1 | set2), location_sets)
-        # Return the list of all verbal autopsies associated with that query set of locations
-        return VerbalAutopsy.objects.filter(location__in=locations)
-      else:
-        # No location restrictions, which implies access to all data
-        return VerbalAutopsy.objects.all()
+    def verbal_autopsies(self, date_cutoff= None):
+               
+        # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
+        date_cutoff = "1901-01-01" if not date_cutoff else date_cutoff
+        va_objects = VerbalAutopsy.objects.filter(Id10023__gte=date_cutoff)
+        
+        if self.is_fieldworker():
+            return va_objects.filter(username__in=self.vausername_set.all().values_list('va_username'))
+        if self.location_restrictions.count() > 0:
+            # Get the query set of all locations at or below the parent nodes the user can access by joining
+            # the query sets of all the location trees; using the | operator leads to an efficient query
+            location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
+            locations = reduce((lambda set1, set2: set1 | set2), location_sets)
+            # Return the list of all verbal autopsies associated with that query set of locations
+            return va_objects.filter(location__in=locations)
+        else:
+            # No location restrictions, which implies access to all data
+            return va_objects
+
+    def is_fieldworker(self):
+        return self.groups.filter(name="Field Workers").exists()
+
+    @property
+    def can_view_pii(self):
+        return self.has_perm('va_analytics.view_pii')
+
+    @can_view_pii.setter
+    def can_view_pii(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='view_pii')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
+
+    @property
+    def can_download_data(self):
+        return self.has_perm('va_analytics.download_data')
+
+    @can_download_data.setter
+    def can_download_data(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='download_data')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
+
+    @property
+    def can_supervise_users(self):
+        return self.has_perm('va_analytics.supervise_users')
+
+    @can_supervise_users.setter
+    def can_supervise_users(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='supervise_users')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
+
+    # TODO: Update this if we are supporting more than one username; for now, allow only one
+    def set_va_username(self, new_va_username):
+        # If None or blank string, delete existing username.
+        if not new_va_username:
+            self.vausername_set.all().delete()
+            return
+
+        # Update or create the VaUsername for this user. There should only be one.
+        self.vausername_set.update_or_create(defaults={'va_username': new_va_username})
+
+    # TODO: Update this if we are supporting more than one username; for now, allow only one
+    def get_va_username(self):
+        va_username_for_user = self.vausername_set.first()
+
+        return va_username_for_user.va_username if va_username_for_user else ""
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -104,7 +168,8 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         # TODO: May need to be changed depending on how username comes in from ODK?
-        self.username = self.email
+        if not self.username:
+            self.username = self.email
         super(User, self).save(*args, **kwargs)
         if self.original_password != self.password:
             UserPasswordHistory.remember_password(self)

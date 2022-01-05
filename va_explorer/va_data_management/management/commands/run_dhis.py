@@ -217,8 +217,8 @@ class Command(BaseCommand):
         DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
         url = DHIS2_URL+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
-        r = requests.get(url, auth=auth)
-        jn = r.json()
+        response = requests.get(url, auth=auth)
+        jn = response.json()
         return jn['pager']['total']
 
     def getPushedVA(self,prg, auth):

@@ -203,6 +203,10 @@ a.auth-title-link:active {
   margin-top: 1rem!important;
 }
 
+.msg-header {
+  margin-left:  10px;
+}
+
 table.home-page-statistics td {
     font-size: 2.0em;
     font-weight: 300;

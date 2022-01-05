@@ -1,32 +1,34 @@
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
 from django.core.management import BaseCommand
 
+from va_explorer.users.models import User
 from va_explorer.va_analytics.models import Dashboard
 from va_explorer.va_data_management.models import VerbalAutopsy
 
-User = get_user_model()
 
 GROUPS_PERMISSIONS = {
     "Admins": {
-        Dashboard: ["view"],
-        User: ["add", "change", "delete", "view"],
-        VerbalAutopsy: ["change", "view"],
+        Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
+        User: ["add_user", "change_user", "delete_user", "view_user"],
+        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
     "Data Managers": {
-        Dashboard: ["view"],
-        User: ["view"],
-        VerbalAutopsy: ["change", "view"],
+        Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
+        User: ["view_user"],
+        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
     },
     "Data Viewers": {
-        Dashboard: ["view"],
+        Dashboard: ["view_dashboard"],
         User: [],
-        VerbalAutopsy: ["view"],
+        VerbalAutopsy: ["view_verbalautopsy"],
     },
     "Field Workers": {
-        Dashboard: [],
+        Dashboard: ["view_dashboard"],
         User: [],
-        VerbalAutopsy: []
+        VerbalAutopsy: ["view_verbalautopsy"]
     },
 }
 
@@ -37,7 +39,11 @@ class Command(BaseCommand):
 
     help = "Create default groups and permissions"
 
+    def add_arguments(self, parser):
+        parser.add_argument('--debug', type=bool, nargs='?', default=False)
+
     def handle(self, *args, **options):
+        debug = options.get('debug', False)
         # Loop through groups and permissions; add permissions, as applicable, to related group objects
         for group_name, group_permissions in GROUPS_PERMISSIONS.items():
             group, created = Group.objects.get_or_create(name=group_name)
@@ -53,14 +59,18 @@ class Command(BaseCommand):
                 group.permissions.clear()
 
             for model_class, model_permissions in group_permissions.items():
-                for model_permission_name in model_permissions:
+                for codename in model_permissions:
 
-                    # Generate permission name as Django would, in terms of format
-                    codename = f"{model_permission_name}_{model_class._meta.model_name}"
+                    # Get the content type for the given model class.
+                    content_type = ContentType.objects.get_for_model(model_class)
 
+                    # Lookup permission based on content type and codename.
                     try:
-                        permission = Permission.objects.get(codename=codename)
+                        permission = Permission.objects.get(content_type=content_type, codename=codename)
                         group.permissions.add(permission)
                         self.stdout.write(f"Adding {codename} to group {group}")
-                    except Permission.DoesNotExist:
-                        self.stdout.write(f"{codename} not found")
+
+                    except Exception as instance:
+                        if debug:
+                            print(f'{type(instance)} error:\nargs:{instance.args}\n{instance}')
+                        self.stderr.write(f"{codename} not found")

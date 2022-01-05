@@ -10,11 +10,19 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
       <li class="nav-item">
+        <a class="{% active '^\/$' %} nav-link" href="{% url 'home:index' %}">Home</a>
+      </li>
+      <li class="nav-item">
         <a class="{% active 'about' %} nav-link" href="{% url 'home:about' %}">About</a>
       </li>
       {% if perms.users.view_user %}
       <li class="nav-item">
         <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
+      </li>
+      {% endif %}
+      {% if perms.va_analytics.supervise_users %}
+      <li class="nav-item">
+        <a class="{% active '\/(.*)supervision' %} nav-link" href="{% url 'va_analytics:supervision' %}">Supervision</a>
       </li>
       {% endif %}
       {% if perms.va_analytics.view_dashboard %}
@@ -28,6 +36,12 @@
         </li>
       </li>
         {% endif %}
+      {% if perms.va_analytics.download_data %}
+      <li class="nav-item">
+          <a class="{% active '\/(.*)download' %} nav-link" href="{% url 'va_export:download_form' %}">Export</a>
+      </li>
+      {% endif %}
+
       {% if perms.va_data_management.view_verbalautopsy %}
       <li class="nav-item">
         <a class="{% active '\/(.*)data_management' %} nav-link" href="{% url 'va_data_management:index' %}">Data Management</a>

@@ -33,15 +33,18 @@ services:
       EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_HOST: ${POSTGRES_HOST:-vapostgres}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       POSTGRES_DB: ${POSTGRES_DB:-va_explorer}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pimin73y!we}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dcc02e52ccbb649b9febe9182abfa5e03c49be6c}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost}
+      DJANGO_DEFAULT_FROM_EMAIL: ${DJANGO_DEFAULT_FROM_EMAIL:-VA Explorer <noreply@vaexplorer.org>} 
       PYCROSS_HOST: ${PYCROSS_HOST:-http://pycrossva:80}
       INTERVA_HOST: ${INTERVA_HOST:-http://interva5:5002}
+    volumes:
+      - ./va_explorer_logs:/app/va_explorer/va_logs/logfiles
     command: /start
 
   celeryworker:
@@ -63,9 +66,9 @@ services:
     # Don't publish ports like django does.
     ports: []
     image: va_explorer/flower
-    command: /start-flower
+    command: /start-celeryflower
 
-  postgres:
+  vapostgres:
     image: va_explorer/postgres
     build:
       context: .

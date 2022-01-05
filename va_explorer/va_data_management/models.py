@@ -1,9 +1,36 @@
 from django.db import models
+from django.conf import settings
 from simple_history.models import HistoricalRecords
 from django.db.models import JSONField
 #from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
+
+REDACTED_STRING = '** redacted **'
+
+PII_FIELDS = [
+    'Id10007',
+    'Id10017',
+    'Id10018',
+    'Id10021',
+    'Id10023_a',
+    'Id10023_b',
+    'Id10023',
+    'Id10060',
+    'Id10061',
+    'Id10062',
+    'Id10070',
+    'Id10071',
+    'Id10072',
+    'Id10073',
+    'Id10476',
+    'Id10477',
+    'Id10478',
+    'Id10479',
+    'comment',
+    'date',
+    'narrat_image',
+]
 
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
@@ -28,14 +55,16 @@ class Location(MP_Node):
 
     def parent_id(self):
         return self.get_parent().id
+            
 
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
-    location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE, null=True)
 
     # The VA fields collected as part of the WHO VA form or local versions
     # TODO: Need an approach that supports different variants in different countries
     deviceid = models.TextField("Device ID", blank=True)
+    instanceid = models.TextField("Instance ID", blank=True, editable=False)
     phonenumber = models.TextField("Phone Number", blank=True)
     simserial = models.TextField("SIM Serial", blank=True)
     username = models.TextField("Username", blank=True)
@@ -46,6 +75,7 @@ class VerbalAutopsy(models.Model):
     province = models.TextField("Province", blank=True)
     area = models.TextField("Area", blank=True)
     hospital = models.TextField("Hospital", blank=True)
+    submissiondate = models.TextField("Submission Date", blank=True)
     Id10002 = models.TextField("Is this a region of high HIV/AIDS mortality?", blank=True)
     Id10003 = models.TextField("Is this a region of high malaria mortality?", blank=True)
     Id10004 = models.TextField("During which season did (s)he die?", blank=True)
@@ -590,6 +620,22 @@ class VerbalAutopsy(models.Model):
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
+    def set_null_location(self, null_name="Unknown"):
+        # to handle passing null_name=None
+        if not null_name:
+            null_name = "Unknown"
+        # first, check if null location exists. If not, create one. 
+        null_location = Location.objects.filter(name=null_name).first()
+        if not null_location:
+            # if no locations, make null location root. Otherwise, add child to root
+            if not Location.objects.exists():
+                Location.add_root(name=null_name, location_type="facility")
+            else:
+                Location.objects.first().add_child(name=null_name, location_type="facility")
+            # find new location we just created
+            null_location = Location.objects.get(name=null_name)
+        self.location = null_location
+        
 class dhisStatus(models.Model):
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
     vaid = models.TextField(blank=False)
@@ -645,3 +691,8 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class VaUsername(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    va_username = models.TextField("va_username", unique=True)

@@ -2,7 +2,7 @@ import factory
 from django.contrib.auth import get_user_model, models
 from factory import DjangoModelFactory, Faker, Sequence
 from factory.fuzzy import FuzzyInteger
-from va_explorer.va_data_management.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy, VaUsername
 
 User = get_user_model()
 
@@ -41,11 +41,25 @@ class LocationFactory(DjangoModelFactory):
     location_type = "province"
     path = "0001"
 
+class LocationFacilityFactory(DjangoModelFactory):
+    class Meta:
+        model = Location
+
+    # Create a root node by default
+    name = Faker("city")
+    depth = 1
+    numchild = 0
+    location_type = "facility"
+    path = "0001"
+
 class VerbalAutopsyFactory(DjangoModelFactory):
     class Meta:
         model = VerbalAutopsy
     Id10007 = "Example Name"
-    location = factory.SubFactory(LocationFactory)
+    Id10023 = "dk"
+    Id10058 = "hospital"
+    location = factory.SubFactory(LocationFacilityFactory)
+    username = ""
 
 class UserFactory(DjangoModelFactory):
     class Meta:
@@ -103,5 +117,15 @@ class FieldWorkerGroupFactory(GroupFactory):
     name = "Field Workers"
 
 
+class AdminGroupFactory(GroupFactory):
+    name = "Admins"
+
+
 class FacilityFactory(LocationFactory):
     location_type = "facility"
+
+class VaUsernameFactory(DjangoModelFactory):
+    class Meta:
+        model = VaUsername
+
+    va_username = Faker("user_name")

@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.dispatch import receiver
+from allauth.account.signals import user_logged_in, user_logged_out
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -15,9 +17,22 @@ from django.views.generic import (
 
 from ..utils.mixins import CustomAuthMixin, UserDetailViewMixin
 from .forms import ExtendedUserCreationForm, UserChangePasswordForm, UserSetPasswordForm, UserUpdateForm
+from ..va_data_management.models import VaUsername
+from ..va_logs.logging_utils import write_va_log
+import logging
 
 User = get_user_model()
+LOGGER = logging.getLogger("event_logger")
 
+# track login
+@receiver(user_logged_in)
+def login_logger(request, user, **kwargs):
+    write_va_log(LOGGER, f"[login] User {user.uuid} logged in", request)
+
+# track logout
+@receiver(user_logged_out)
+def logout_logger(request, user, **kwargs):
+    write_va_log(LOGGER, f"[logout] User {user.uuid} logged out", request)
 
 class UserIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/urls.py
@@ -94,8 +109,11 @@ class UserUpdateView(
             restrictions associated with the user in the database, they have location-specific access;
             else national access.
             (2) Set the facilities restrictions associated with the user, if any
+
+        Initializes the user's VA username(s) on the form (see TODO)
         """
         initial = super(UserUpdateView, self).get_initial()
+
         initial["group"] = self.get_object().groups.first()
         initial["geographic_access"] = (
             "location-specific" if self.get_object().location_restrictions.exists() else "national"
@@ -103,6 +121,13 @@ class UserUpdateView(
         initial["facility_restrictions"] = (
                 self.get_object().location_restrictions.filter(location_type="facility")
         )
+
+        initial["view_pii"] = self.get_object().can_view_pii
+        initial["download_data"] = self.get_object().can_download_data
+
+        # TODO: Update this if we are supporting more than one username;
+        #  For now, we only ever allow one, so we will display one
+        initial["va_username"] = self.get_object().get_va_username()
 
         return initial
 
@@ -122,7 +147,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self):
         if self.request.user.has_valid_password:
-            return reverse("users:detail", kwargs={"pk": self.request.user.id})
+            return reverse("home:index")
         return reverse_lazy("users:set_password")
 
 

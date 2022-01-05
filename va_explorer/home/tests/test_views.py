@@ -1,8 +1,11 @@
 import pytest
 from django.test import Client
 from va_explorer.users.models import User
+from datetime import date
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import VerbalAutopsyFactory, LocationFactory
+from dateutil.relativedelta import relativedelta
+
 
 pytestmark = pytest.mark.django_db
 
@@ -10,7 +13,8 @@ pytestmark = pytest.mark.django_db
 def test_index(user: User):
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
+    today = date.today()
+    va = VerbalAutopsyFactory.create(submissiondate=today, Id10023=today)
     response = client.get("/")
     assert response.status_code == 200
     assert response.context['vas_collected_24_hours'] == 1
@@ -26,8 +30,9 @@ def test_index(user: User):
     assert response.context['vas_uncoded_1_month'] == 1
     assert response.context['vas_uncoded_overall'] == 1
     assert len(response.context['issue_list']) == 1
-    assert response.context['issue_list'][0]['name'] == va.Id10007
+    assert va.Id10017 in response.context['issue_list'][0]['deceased']
     assert response.context['additional_issues'] == 0
+
 
 # Get the about page and make sure it returns successfully
 def test_about(user: User):

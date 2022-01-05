@@ -6,8 +6,14 @@ set -o nounset
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
+echo "Initializing log directory..."
+python /app/manage.py initialize_log_directory
+
 echo "Running database migrations..."
 python /app/manage.py migrate
 
+echo "Initializing groups..."
+python /app/manage.py initialize_groups
+
 echo "Starting gunicorn..."
-/usr/local/bin/gunicorn config.wsgi --bind=0.0.0.0:5000 --chdir=/app
+/usr/local/bin/gunicorn config.wsgi --bind=0.0.0.0:5000 --workers=4 --chdir=/app
