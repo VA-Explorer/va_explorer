@@ -22,6 +22,7 @@ from va_explorer.va_data_management.utils.validate import validate_vas_for_dashb
 from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
 
 import time
+import re
 
 
 LOGGER = logging.getLogger("event_logger")
@@ -133,8 +134,14 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
-        context['warnings'] = [issue for issue in coding_issues if issue.severity == 'warning']
+        all_warnings = [issue for issue in coding_issues if issue.severity == 'warning']
+        all_warnings = self.filter_warnings(all_warnings)
+        context['warnings'] = all_warnings[0]
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
+        context['algo_warnings'] = all_warnings[1]
+        context['warnings'] = context['warnings'] + [(context["algo_warnings"])]
+        #user warning
+        #algo warning
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
@@ -145,6 +152,19 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
 
         return context
+    
+    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern 
+    @staticmethod
+    def filter_warnings(warnings):
+        user_warnings = []
+        algo_warnings = []
+        for warning in warnings:
+            if(re.search("^W\d{6}[-]",str(warning))):
+                algo_warnings.append(warning)
+            else:
+                user_warnings.append(warning)
+        return [user_warnings, algo_warnings]
+
 
 
 class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):

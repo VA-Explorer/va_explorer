@@ -86,6 +86,25 @@
     {% endif %}
   </div>
 
+  {% if algo_warning %}
+      <div class="row mt-4">
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>{{ algo_warning|length }} Warning{{ algo_warning|pluralize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for warning in algo_warning %}
+              <tr><td>{{ warning }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+  
+
   {% if diffs and not user.is_fieldworker  %}
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
       <div class="row mt-4">
