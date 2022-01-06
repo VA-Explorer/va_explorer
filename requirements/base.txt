@@ -34,8 +34,7 @@ channels==2.4.0
 daphne==2.5.0
 
 # Plotly
-scipy==1.5.2; python_version == '3.7'
-scipy==1.7.3; python_version > '3.7'
+scipy==1.5.2
 
 # Dash
 dash==1.14.0
