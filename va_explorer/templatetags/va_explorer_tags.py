@@ -17,7 +17,7 @@ def replace(value):
     value = value.strip()
     value_lowercase = value.lower()
     if "dk" == value_lowercase:
-        return "Don't know"
+        return "Don't Know"
     elif "nan" == value_lowercase:
         return "N/A"
     elif "veryl" == value_lowercase:
