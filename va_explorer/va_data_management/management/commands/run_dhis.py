@@ -5,7 +5,7 @@ from io import StringIO
 from collections import OrderedDict
 import dateutil.parser,os,requests,collections
 import csv, environ
-# from . import dhis as dhis
+
 import openva_pipeline.dhis as dhis
 import pandas as pd
 import numpy as np
@@ -45,10 +45,6 @@ class Command(BaseCommand):
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
 
         metadatacode = "InterVA5|5|Custom|1|2016 WHO Verbal Autopsy Form|v1_5_1"
-
-        #auth = (DHIS2_USER, DHIS2_PASS)
-        #va_in_dhis2 = self.getPushedVA('sv91bCroFFx', auth)
-        #dhisdata = [int(i) for i in va_in_dhis2]
 
         # Load all verbal autopsies that have been pushed to dhis2
         dhisdata = dhisStatus.objects.values_list("verbalautopsy_id", flat=True)
@@ -188,7 +184,6 @@ class Command(BaseCommand):
         va_in_dhis2 = self.getPushedVA('sv91bCroFFx', auth)
         va_in_dhis2 = [str(i) for i in va_in_dhis2]
 
-        #print(va_in_dhis2)
         dhisdata = dhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid',flat=True)
         dhisdata = list(dhisdata)
         dhisdata = [str(i) for i in dhisdata]
@@ -222,6 +217,8 @@ class Command(BaseCommand):
         return jn['pager']['total']
 
     def getPushedVA(self,prg, auth):
+        # default to hardcoded value used in VA DHIS program
+        prg = 'sv91bCroFFx' if not prg else prg
         env = environ.Env()
         # DHIS2 VARIABLES
         DHIS2_URL = env("DHIS2_URL")

@@ -65,7 +65,6 @@ class pushDHISView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
         vadata = VerbalAutopsy.objects.filter(causes__isnull=False, dhisva__isnull=True).exclude(
             id__in=dhisdata).count()
         if vadata > 0:
-            breakpoint()
             numPushed, numTotal, status = cmd.handle()
         else:
             cmd.syncDHISStatus()
