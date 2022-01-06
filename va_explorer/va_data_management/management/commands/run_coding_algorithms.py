@@ -8,7 +8,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         results = run_coding_algorithms()
-
         num_coded = len(results['causes'])
         num_total = len(results['verbal_autopsies'])
         num_issues = len(results['issues'])

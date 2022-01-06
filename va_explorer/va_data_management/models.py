@@ -613,19 +613,13 @@ class VerbalAutopsy(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
     # function to tell if VA had any coding errors
     def any_errors(self):
         return self.coding_issues.filter(severity='error').exists()
-
     # function to tell if VA had any coding warnings
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
-#    def clean(self):
-        # TODO: fill this out with cleaning operations we actually want to do
-#       return
-        
     def set_null_location(self, null_name="Unknown"):
         # to handle passing null_name=None
         if not null_name:
@@ -642,7 +636,23 @@ class VerbalAutopsy(models.Model):
             null_location = Location.objects.get(name=null_name)
         self.location = null_location
         
-  
+class dhisStatus(models.Model):
+    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
+    vaid = models.TextField(blank=False)
+    edate = models.DateTimeField(auto_now_add=True)
+    status = models.TextField(blank=False, default="SUCCESS")
+
+    def __str__(self):
+        return self.vaid
+
+class cod_codes_dhis(models.Model):
+    codsource = models.TextField(blank=False)
+    codcode = models.TextField(blank=False)
+    codname =models.TextField(blank=False)
+    codid =models.TextField(blank=False)
+
+    def __str__(self):
+        return self.codname
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
@@ -681,6 +691,7 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
+
 
 class VaUsername(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
