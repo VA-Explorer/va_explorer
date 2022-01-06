@@ -15,24 +15,18 @@ register = template.Library()
 @register.filter
 def replace(value):
     value = value.strip()
-    if("dk" == value or "DK" == value):
+    value_lowercase = value.lower()
+    if "dk" == value_lowercase:
         return "Don't know"
-    elif("nan" == value):
-        return "n/a"
-    elif("veryl" == value):
+    elif "nan" == value_lowercase:
+        return "N/A"
+    elif "veryl" == value_lowercase:
         return "Very Low"
-    elif("ref" == value):
-        return "refuse to answer"
+    elif "ref" == value_lowercase:
+        return "Refuse to Answer"
     else:
         return value
 
-@register.filter
-def upper(value):
-    return value.upper()
-
-@register.filter
-def capitalize_every_first_letter(value):
-    return ' '.join(s[:1].upper() + s[1:] for s in value.split(' '))
 
 @register.simple_tag(takes_context=True)
 def active(context, pattern_or_url):
