@@ -137,11 +137,9 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         all_warnings = [issue for issue in coding_issues if issue.severity == 'warning']
         all_warnings = self.filter_warnings(all_warnings)
         context['warnings'] = all_warnings[0]
-        context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
         context['algo_warnings'] = all_warnings[1]
-        context['warnings'] = context['warnings'] + [(context["algo_warnings"])]
-        #user warning
-        #algo warning
+        context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
+
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()

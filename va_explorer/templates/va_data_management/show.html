@@ -73,7 +73,7 @@
         <table class="table table-hover table-sm">
           <thead>
             <tr>
-              <th>{{ warnings|length }} Warning{{ warnings|pluralize }}</th>
+              <th>{{ warnings|length }} User Warning{{ warnings|pluralize }}</th>
             </tr>
           </thead>
           <tbody>
@@ -86,16 +86,16 @@
     {% endif %}
   </div>
 
-  {% if algo_warning %}
+  {% if algo_warnings %}
       <div class="row mt-4">
         <table class="table table-hover table-sm">
           <thead>
             <tr>
-              <th>{{ algo_warning|length }} Warning{{ algo_warning|pluralize }}</th>
+              <th>{{ algo_warnings|length }} Algorithm Warning{{ algo_warnings|pluralize }}</th>
             </tr>
           </thead>
           <tbody>
-            {% for warning in algo_warning %}
+            {% for warning in algo_warnings %}
               <tr><td>{{ warning }}</td></tr>
             {% endfor %}
           </tbody>
