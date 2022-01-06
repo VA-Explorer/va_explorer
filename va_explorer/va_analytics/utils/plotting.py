@@ -18,7 +18,7 @@ PLOTLY = px.colors.qualitative.Plotly
 
 
 # plotting properties defined below
-# ======= LOTTING PROPERTIES ==============#
+# ======= PLOTTING PROPERTIES ==============#
 def load_lookup_dicts():
     lookup = dict()
     # dictionary mapping time labels to days (or all)

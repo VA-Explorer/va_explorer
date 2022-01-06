@@ -22,8 +22,8 @@
   <tbody>
     {% for row in table_data %}
     <tr>
-      {% for value in row.values %}
-        <td>{{ value }}</td>
+      {% for key, value in row.items %}
+        <td>{% pii_filter key value|default:"Unkown" %}</td>
       {% endfor %}
     </tr>
     {% endfor %}

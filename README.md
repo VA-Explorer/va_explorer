@@ -56,6 +56,9 @@ To work with the application, you will need to install some prerequisites:
 * [Postgres](http://www.postgresql.org/)
 * [Docker](https://www.docker.com/)
 
+*Note:* If this is your first time using Postgres, you may be requested to create a user and password for the first time during setup. Take note of this user and password as it will be used later for our setup, as well as your future other projects setups. \
+Instructions can be found online to change your postgres user's password.
+
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
 ### Setup
@@ -80,7 +83,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `pip install -r requirements/base.txt`
 
-* Create the va_explorer database
+* Create the va_explorer database using your postgres user made during postgres download. It may be `postgres` for example.
 
     `createdb va_explorer -U <name of Postgres user> --password`
 
@@ -113,9 +116,9 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
   * Bulk-create users from a csv file.
 
-    `./manage.py bulk_load_users <CSV_FILE> --email-confirmation <True/False>`
+    `./manage.py bulk_load_users <CSV_FILE> --email_confirmation <True/False>`
 
-    You can specify user emails, roles, location restrictions, and any other restrictions that are currently exposed in the User Creation Form. If `--email-confirmation` is set to `True`, a confirmation email will be sent out to each new user. Otherwise, their credentials (with temporary password) will be printed to the console. To get a starting template for user csv file, you can run the following command:
+    You can specify user emails, roles, location restrictions, and any other restrictions that are currently exposed in the User Creation Form. If `--email_confirmation` is set to `True`, a confirmation email will be sent out to each new user. Otherwise, their credentials (with temporary password) will be printed to the console. To get a starting template for user csv file, you can run the following command:
 
     `./manage.py get_user_form_template --output_file <FILENAME>`
 
@@ -125,7 +128,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
       
 
   * Link Field Workers to VAs
-  `./manage.py link_fieldworkeres_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
+  `./manage.py link_fieldworkers_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
     This command links a group of field workers to their corresponding VAs in the system. Linking is done by searching a VA's interviewer name (field `Id10010`) against names of field workers in the system. If there's a match, a link is created by setting the VA's username to the matching field worker's username. By default, all field workers in the system are considered for matching, but you can specify a subset with the `--emails` argument (comma-separated, no spaces). To account for typos and slight variations in name spelling, a fuzzy-matching algorithm is used. You can specify how stringent the algorithm is with `--matching_threshold` (higher is stricter, with 100 being a perfect match). 
   
 * Load location data
@@ -191,7 +194,8 @@ va_explorer/django
 
 ### Deploying with a reverse proxy
 
-Set the following environment variables:
+Set the following environment variables to an appropriate place for the
+host such as `/etc/env` or preferred location.
 
 ```
 export EMAIL_URL=smtp://localhost:25 <or> consolemail://
@@ -212,24 +216,58 @@ Run docker-compose in daemon mode:
 docker-compose up -d django
 ```
 
-If using Apache, set the following configuration in your apache configuration:
-
+If using Apache, ensure the following modules are enabled:
+- proxy proxy_http proxy_wstunnel
+- headers rewrite
+- ssl
+- deflate
+and set the following configuration in your apache configuration:
 ```
 LoadModule rewrite_module modules/mod_rewrite.so
 LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_http_module modules/mod_proxy_http.so
 LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 
-<Location />
-    ProxyPreserveHost on
-    ProxyPass http://localhost:5000/
-    ProxyPassReverse http://localhost:5000/
+<VirtualHost *:80>
+        ServerAdmin verbal-autopsy@mitre.org
+        ServerName va-explorer.mitre.org
+        ServerAlias www.va-explorer.mitre.org
 
-    RewriteEngine on
-    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
-    RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
-    RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
-</Location>
+        Redirect permanent / https://va-explorer.mitre.org
+
+        ErrorLog ${APACHE_LOG_DIR}/va_error.log
+        CustomLog ${APACHE_LOG_DIR}/va_access.log combined
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+  <VirtualHost _default_:443>
+        SSLEngine on
+        ServerAdmin verbal-autopsy@mitre.org
+        ServerName va-explorer.mitre.org
+        ServerAlias www.va-explorer.mitre.org
+
+        AddOutputFilterByType DEFLATE text/plain text/html text/css text/javascript application/javascript application/json text/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+        <Location />
+                ProxyPreserveHost on
+                ProxyPass http://localhost:5000/
+                ProxyPassReverse http://localhost:5000/
+
+                SetOutputFilter INFLATE;DEFLATE
+
+                RewriteEngine on
+                RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+                RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+                RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
+        </Location>
+
+        SSLCertificateFile /etc/ssl/certs/va-explorer.pem
+        SSLCertificateKeyFile /etc/ssl/private/va-explorer.key
+
+        ErrorLog ${APACHE_LOG_DIR}/va_error.log
+        CustomLog ${APACHE_LOG_DIR}/va_access.log combined
+  </VirtualHost>
+</IfModule>
 ```
 
 ### Creating first user
@@ -303,6 +341,9 @@ Alternatively, you can specify email and pasword as command line arguments:
 ```
 ./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
 ```
+
+## Troubleshooting
+* If experiencing trouble installing the `pyscopg2` application requirement. It is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
 
 ## Version History
 

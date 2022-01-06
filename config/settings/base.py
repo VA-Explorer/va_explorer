@@ -74,7 +74,7 @@ THIRD_PARTY_APPS = [
     "bootstrap4",
     "django_filters",
     "dpd_static_support", 
-    "django_pivot"
+    "django_pivot", 
 ]
 
 LOCAL_APPS = [
@@ -83,6 +83,7 @@ LOCAL_APPS = [
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
+    "va_explorer.va_export.apps.VaExportConfig"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

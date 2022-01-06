@@ -185,24 +185,28 @@ def deduplicate_columns(record_df, drop_duplicates=True):
         record_df = record_df.drop(columns=other_cols)
     return record_df
 
-# calculate key summary statistics about a VA queryset
-def get_va_summary_stats(vas):
-    # filter down to only relevant fields
-    vas = vas.only("created", "id", "location", "Id10023")
-    stats = vas.aggregate(last_update=Max("created"),\
-                        last_submission=Max("submissiondate"),\
-                        total_vas=Count("id"))
+def get_va_summary_stats(vas, filter_fields=False):
+    # calculate stats
+    if vas.count() > 0:
+       
+        # if filter_fields=True, filter down to only relevant fields
+        if filter_fields:
+            vas = vas.only("created", "id", "location", "Id10023")
 
-    stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
-     Q(location__isnull=True)).count()
+        stats = vas.aggregate(last_update=Max("created"),\
+                            last_submission=Max("submissiondate"),\
+                            total_vas=Count("id"))
 
-    # clean up dates if non-null
-    if stats["last_update"] and type(stats["last_update"]) is not str:
-        stats["last_update"] = stats["last_update"].strftime('%Y-%m-%d')
+        stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
+         Q(location__isnull=True)).count()
 
-    if stats["last_submission"] and type(stats["last_update"]) is not str:
-        stats["last_submission"] = stats["last_submission"].strftime('%Y-%m-%d')
+        # clean up dates if non-null
+        if stats["last_update"] and type(stats["last_update"]) is not str:
+            stats["last_update"] = stats["last_update"].strftime('%Y-%m-%d')
 
-    return stats
-
-
+        if stats["last_submission"] and type(stats["last_update"]) is not str:
+            stats["last_submission"] = stats["last_submission"].strftime('%Y-%m-%d')
+        return stats
+    # no VAs - return empty stats
+    else:
+        return {"last_update": None, "last_submission": None, "total_vas": None, "ineligible_vas": None}

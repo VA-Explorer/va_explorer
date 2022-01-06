@@ -21,6 +21,8 @@ import pandas as pd
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
+from django.urls import reverse
+
 
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.models import Location
@@ -538,11 +540,13 @@ def init_va_data(hidden_trigger=None, **kwargs):
 
     # Download button logic.
     # Only show the Download Data button if user has access to it.
-    download_div = html.Div(id="download_data_button")
-    if kwargs["user"].can_download_data:
-        download_div.children = [
-            dbc.Button("Download Data", href="/va_analytics/download", color="primary", external_link=True),
-        ]
+    download_div = html.Div(id="download_data_div")
+    download_div.children = [
+        dbc.Button("Download Data", id="download_button", href=reverse("va_export:va_api"), color="primary",
+            external_link=True) 
+    ]
+    # hide download data button if user doesn't have permission to download
+    download_div.hidden = (not kwargs["user"].can_download_data)
 
     return valid_va_data, invalid_va_data, locations, location_types, search_options, ts_options, download_div, update_div
 
@@ -565,6 +569,7 @@ def log_tab_value(tab_value, **kwargs):
     [
         Output(component_id="filter_dict", component_property="data"),
         Output(component_id="dashboard-title", component_property="children"),
+        Output(component_id="download_button", component_property="href")
     ],
     [
         Input(component_id="va_data", component_property="data"),
@@ -646,10 +651,20 @@ def filter_data(
                 "invalid": invalid_filter["plot_ids"],
             },
         }
+
+        # build download url based on params above
+        if type(combined_filter_dict["chosen_region"]) is dict:
+            chosen_region = combined_filter_dict["chosen_region"]["name"]
+        else:
+            chosen_region = combined_filter_dict["chosen_region"]
+
+        download_url = rendering.build_download_url(chosen_region=chosen_region, timeframe=timeframe,\
+                                                    cod=cod_type, time_mapper=LOOKUP["time_dict"])
             
         log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
 
-        return combined_filter_dict , dashboard_title
+        return combined_filter_dict , dashboard_title, download_url
+
 
 def log_callback_trigger(logger, context, request):
     if context:
@@ -772,6 +787,7 @@ def _get_filter_dict(
     filter_dict["granularity"] = granularity
 
     return filter_dict
+
 
 
 # try to move one level up or down in the geographical hierarchy. If not possible,
