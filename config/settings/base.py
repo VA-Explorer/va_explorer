@@ -57,7 +57,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "django.contrib.humanize", # Handy template tags
-    "django.forms",
+    "django.forms"
 ]
 
 THIRD_PARTY_APPS = [
@@ -83,6 +83,7 @@ LOCAL_APPS = [
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
+    "va_explorer.dhis_manager.apps.DhisManagerConfig",
     "va_explorer.va_export.apps.VaExportConfig"
 ]
 

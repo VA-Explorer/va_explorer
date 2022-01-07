@@ -17,7 +17,7 @@ PYCROSS_HOST = os.environ.get('PYCROSS_HOST', 'http://127.0.0.1:5001')
 INTERVA_HOST = os.environ.get('INTERVA_HOST', 'http://127.0.0.1:5002')
 
 # TODO: settings need to be configurable
-ALGORITHM_SETTINGS = {'HIV': 'l', 'Malaria': 'l'}
+ALGORITHM_SETTINGS = {'HIV': 'l', 'Malaria': 'l', 'groupcode': 'True'}
 
 
 def _run_pycross_and_interva5(verbal_autopsies):

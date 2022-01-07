@@ -319,6 +319,7 @@ def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), N=10):
         # definition from 2016 WHO VA form
         va_filtered = va_df[va_df[age_col] < 1]
     else:
+
         # don't filter if group starts with 'all'
         if group.startswith('all'):
             top_cods = va_df['cause'].value_counts().sort_values(ascending=False).head(N).index
