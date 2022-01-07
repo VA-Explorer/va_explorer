@@ -343,8 +343,8 @@ Alternatively, you can specify email and pasword as command line arguments:
 ```
 
 ## Troubleshooting
-* If experiencing trouble installing the `pyscopg2` application requirement. It is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
-
+* If experiencing trouble installing the `pyscopg2` application requirement, it is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
+* If experiencing trouble installing `scipy` application requirement, specifically with this error message:  <br> `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.     ---------------------------------------- ERROR: Command errored out with exit status 1:` <br> [This thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) can be helpful. Please make sure to upgrade pip, such as by running the command `pip install --upgrade pip`. This issue has especially come up for users on Mac OS Big Sur users.
 ## Version History
 
 This project adheres to [Semantic Versioning](http://semver.org/).
