@@ -43,7 +43,9 @@
             <tr>
               <td><b>{{ field.name }}</b></td>
               <td>{{ field.label }}</td>
-              <td>{% pii_filter field.name field.value %}</td>
+              <td>
+                {% pii_filter field.name field.value|replace %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>
