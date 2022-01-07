@@ -134,10 +134,7 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
-        all_warnings = [issue for issue in coding_issues if issue.severity == 'warning']
-        all_warnings = self.filter_warnings(all_warnings)
-        context['warnings'] = all_warnings[0]
-        context['algo_warnings'] = all_warnings[1]
+        context['warnings'], context['algo_warnings'] = self.filter_warnings([issue for issue in coding_issues if issue.severity == 'warning'])
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
 
 
@@ -157,11 +154,11 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         user_warnings = []
         algo_warnings = []
         for warning in warnings:
-            if(re.search("^W\d{6}[-]",str(warning))):
+            if re.search("^W\d{6}[-]",str(warning)):
                 algo_warnings.append(warning)
             else:
                 user_warnings.append(warning)
-        return [user_warnings, algo_warnings]
+        return user_warnings, algo_warnings
 
 
 
