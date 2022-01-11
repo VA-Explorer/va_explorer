@@ -5,6 +5,9 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
+from django.db.models import F, Q, Count, Value as V
+from django.db.models.functions import Concat
+
 import logging
 
 from config.celery_app import app
@@ -16,6 +19,10 @@ from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
+
+import time
+import re
 
 
 LOGGER = logging.getLogger("event_logger")
@@ -26,18 +33,53 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self):
-        # Restrict to VAs this user can access and prefetch related for performance
-        queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
-        # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
-        # since many do not apply to them. This prevents data passed through the params from being
-        # passed to the VAFilter
-        # Also hide filter if the user cannot view PII since the filterable fields contain PII.
-        if self.request.user.is_fieldworker() or not self.request.user.can_view_pii:
-            self.filterset = VAFilter(data=None, queryset=queryset)
 
-        # do the filtering thing
-        else:
-            self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+        # Restrict to VAs this user can access and prefetch related for performance
+        ti=time.time(); queryset = (self.request.user.verbal_autopsies()\
+                    .select_related("location")\
+                    .select_related("causes")\
+                    .select_related("coding_issues")\
+                    .annotate(deceased = Concat('Id10017', V(' '), 'Id10018'))
+                    .values("id",
+                            "location__name",
+                            "causes__cause",
+                            "Id10023",
+                            "Id10010",
+                            "submissiondate",
+                            "deceased",
+                            errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
+                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
+
+        # sort by chosen field (default is VA ID)
+        # get raw sort key (includes direction)
+        sort_key_raw = self.request.GET.get("order_by", "id")
+        # strip out direction and map to va field
+        sort_key = sort_key_raw.lstrip("-")
+        sort_key_to_field = {
+            'id': 'id',
+            'interviewer': 'Id10010',
+            'dod': 'Id10023',
+            'facility': 'location__name',
+            'cause': 'causes__cause',
+            'submitted': 'submissiondate',
+            'deceased': 'deceased'
+        }
+        sort_field = sort_key_to_field.get(sort_key, sort_key)
+        # add sort direction
+        if sort_key_raw.startswith("-") and not sort_field.startswith("-"):
+            sort_field = "-" + sort_field
+        queryset = queryset.order_by(sort_field)
+
+        self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
+        if self.request.user.is_fieldworker():
+            del self.filterset.form.fields['interviewer']
+
+        # Don't allow search based on fields the user can't see anyway
+        if not self.request.user.can_view_pii:
+            del self.filterset.form.fields['deceased']
+            del self.filterset.form.fields['start_date']
+            del self.filterset.form.fields['end_date']
+
         query_dict = self.request.GET.dict()
         query_keys = [k for k in query_dict if k != 'csrfmiddlewaretoken']
         if len(query_keys) > 0:
@@ -50,20 +92,25 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context["filterset"] = self.filterset
-        #parse_date(va.Id10023)
+
+        ti = time.time()
         context['object_list'] = [{
-            "id": va.id,
-            "interviewer": va.Id10010,
-            "date":  va.Id10023 if (va.Id10023 != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
-            "facility": va.location.name if va.location else "",
-            "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-            "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-            "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            "id": va["id"],
+            "deceased": va["deceased"],
+            "interviewer": va["Id10010"],
+            "submitted":  va["submissiondate"], #get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
+            "dod":  parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
+            "facility": va["location__name"], #va.location.name if va.location else "",
+            "cause": va["causes__cause"],  #va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+            "warnings": va["warnings"], #len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+            "errors": va["errors"]# len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
         } for va in context['object_list']]
 
         context.update(get_va_summary_stats(self.filterset.qs))
+        print(f"total time to format display VAs: {time.time() - ti} secs")
 
         return context
+
 
 
 
@@ -87,8 +134,9 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
-        context['warnings'] = [issue for issue in coding_issues if issue.severity == 'warning']
+        context['warnings'], context['algo_warnings'] = self.filter_warnings([issue for issue in coding_issues if issue.severity == 'warning'])
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
+
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
@@ -99,6 +147,19 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
 
         return context
+    
+    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern 
+    @staticmethod
+    def filter_warnings(warnings):
+        user_warnings = []
+        algo_warnings = []
+        for warning in warnings:
+            if re.search("^W\d{6}[-]",str(warning)):
+                algo_warnings.append(warning)
+            else:
+                user_warnings.append(warning)
+        return user_warnings, algo_warnings
+
 
 
 class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):

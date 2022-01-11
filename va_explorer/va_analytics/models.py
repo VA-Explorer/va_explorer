@@ -13,4 +13,5 @@ class Dashboard(models.Model):
         permissions = (
             ('download_data', 'Can download data'),
             ('view_pii', 'Can view PII in data'),
+            ('supervise_users', 'Can supervise other users'),
         )

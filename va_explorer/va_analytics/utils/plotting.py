@@ -18,7 +18,7 @@ PLOTLY = px.colors.qualitative.Plotly
 
 
 # plotting properties defined below
-# ======= LOTTING PROPERTIES ==============#
+# ======= PLOTTING PROPERTIES ==============#
 def load_lookup_dicts():
     lookup = dict()
     # dictionary mapping time labels to days (or all)
@@ -315,9 +315,11 @@ def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), N=10):
     group = group.lower()
     if group == 'neonatal':
         age_col = 'ageInYears' if 'ageInYears' in va_df.columns else 'ageinyears'
+        va_df[age_col] = va_df[age_col].astype(float, errors='ignore')
         # definition from 2016 WHO VA form
         va_filtered = va_df[va_df[age_col] < 1]
     else:
+
         # don't filter if group starts with 'all'
         if group.startswith('all'):
             top_cods = va_df['cause'].value_counts().sort_values(ascending=False).head(N).index
@@ -346,6 +348,7 @@ def get_pivot_counts(va_df, index_col, factor_col):
             margins=True,
         )
     return counts
+
 
 def cod_group_plot(va_df, cod_groups=[], demographic="overall", N=10, height=None, vertical_spacing=.15,\
                    chosen_cod="all"):
@@ -734,3 +737,23 @@ def va_trend_plot(va_df, group_period, factor="All", title=None, search_term_ids
     figure.update_layout(height=height)
     
     return figure
+
+# load options for VA trends time series
+def load_ts_options(va_data, cod_groups=pd.DataFrame()):
+    if cod_groups.empty:
+        data_dir = "va_explorer/va_analytics/dash_apps/dashboard_data" 
+        cod_groups = load_cod_groupings(data_dir=data_dir)
+
+     # load cod groups
+    all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
+        
+    # load unique cods in selected data
+    va_data = pd.DataFrame(va_data)
+    if va_data.size > 0:
+        unique_cods = va_data["cause"].unique().tolist()
+        all_options += [(cod_name, "cod") for cod_name in unique_cods]
+        
+    # always load all-cause option
+    all_options.append(("All Causes", "All causes.all"))
+
+    return all_options

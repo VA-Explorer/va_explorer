@@ -2,7 +2,7 @@ from django import forms
 from datetime import datetime
 from .models import VerbalAutopsy
 from .models import PII_FIELDS
-from va_explorer.va_data_management.utils.validate import parse_date
+from va_explorer.va_data_management.utils.date_parsing import parse_date
 from config.settings.base import DATE_FORMATS
 
 

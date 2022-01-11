@@ -110,6 +110,18 @@ class User(AbstractUser):
         else:
             self.user_permissions.remove(permission)
 
+    @property
+    def can_supervise_users(self):
+        return self.has_perm('va_analytics.supervise_users')
+
+    @can_supervise_users.setter
+    def can_supervise_users(self, value):
+        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='supervise_users')
+        if value:
+            self.user_permissions.add(permission)
+        else:
+            self.user_permissions.remove(permission)
+
     # TODO: Update this if we are supporting more than one username; for now, allow only one
     def set_va_username(self, new_va_username):
         # If None or blank string, delete existing username.

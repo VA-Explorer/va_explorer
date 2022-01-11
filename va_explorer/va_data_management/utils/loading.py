@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
-from simple_history.utils import bulk_create_with_history
+import time
 import logging
-from django.contrib.auth import get_user_model
 
+from pandas import to_datetime as to_dt
+from simple_history.utils import bulk_create_with_history
+from django.contrib.auth import get_user_model
+from django.db.models import Max, Count, Q
 
 from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername, Location
-from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from va_explorer.va_data_management.utils.date_parsing import parse_date, to_dt, get_submissiondates
 from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
 from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
 from va_explorer.users.utils.field_worker_linking import assign_va_usernames, normalize_name
@@ -98,7 +102,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         va = VerbalAutopsy(**row)
         # only import VA if its instanceId doesn't already exist
         if row['instanceid']:
-            #existing_va = VerbalAutopsy.objects.filter(instanceid=row['instanceid']).first()
             va_exists = (row['instanceid'] in va_instance_ids)
             if va_exists:
                 ignored_vas.append(va)
@@ -117,7 +120,11 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             logger.info(f"va_id: {va_id} - Parsed {parsed_date} for Date of Death from {va.Id10023}") 
         va.Id10023 = parsed_date
 
-        # Try mapping va location to known db location. If not possible, set to null location
+        # Try to parse submission date as as datetime. Otherwise, record string and add record issue during validation
+        parsed_sub_date = parse_date(va.submissiondate, strict=False)
+        if logger:
+            logger.info(f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}") 
+        va.submissiondate = parsed_sub_date
         
         # if random_locations, assign random field worker to VA which can be used to determine location.
         # Otherwise, try assigning location based on hospital field. 
@@ -251,20 +258,27 @@ def deduplicate_columns(record_df, drop_duplicates=True):
         record_df = record_df.drop(columns=other_cols)
     return record_df
 
-def get_va_summary_stats(vas):
-    # track last data update and submission date
-    stats = {'last_submission': None, 'last_update': None, 'total_vas': vas.count()}
-    if stats['total_vas'] > 0:
-        # Track last time VAs were updated. Again, using last import date so may need to change.
-        date_df = pd.DataFrame(vas.values('created', 'submissiondate'))
-        last_update = date_df['created'].max()
-        if not pd.isnull(last_update):
-            stats['last_update'] =  last_update.strftime('%d %b, %Y')
-        # Record latest submission date (from ODK). Column may/may not be available depending on source
-        raw_submissions =  date_df['submissiondate']
-        last_submission = pd.to_datetime(raw_submissions).max()
-        if not pd.isnull(last_submission):
-            stats['last_submission'] = last_submission.strftime('%d %b, %Y')
-    return stats
+def get_va_summary_stats(vas, filter_fields=False):
+    # calculate stats
+    if vas.count() > 0:
+        # if filter_fields=True, filter down to only relevant fields
+        if filter_fields:
+            vas = vas.only("created", "id", "location", "Id10023")
 
+        stats = vas.aggregate(last_update=Max("created"),\
+                            last_submission=Max("submissiondate"),\
+                            total_vas=Count("id"))
 
+        stats['ineligible_vas'] = vas.filter(Q(Id10023__in=['DK','dk']) | Q(Id10023__isnull=True)|\
+         Q(location__isnull=True)).count()
+
+        # clean up dates if non-null
+        if stats["last_update"] and type(stats["last_update"]) is not str:
+            stats["last_update"] = stats["last_update"].strftime('%Y-%m-%d')
+
+        if stats["last_submission"] and type(stats["last_update"]) is not str:
+            stats["last_submission"] = stats["last_submission"].strftime('%Y-%m-%d')
+        return stats
+    # no VAs - return empty stats
+    else:
+        return {"last_update": None, "last_submission": None, "total_vas": None, "ineligible_vas": None}

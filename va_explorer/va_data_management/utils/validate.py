@@ -1,14 +1,8 @@
-import pandas as pd
-from simple_history.utils import bulk_create_with_history
-from datetime import datetime
-import re
-
-from va_explorer.va_data_management.models import Location
-from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import VaUsername
 from va_explorer.va_data_management.utils.location_assignment import assign_va_location
-from config.settings.base import DATE_FORMATS
+from va_explorer.va_data_management.utils.date_parsing import parse_date
+
 
 
 def validate_vas_for_dashboard(verbal_autopsies):
@@ -86,35 +80,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
                 issue_text = "Warning: location field (parsed from hospital): provided location was not a known facility. Set location to 'Unknown'"
                 issue = CauseCodingIssue(verbalautopsy_id=va.id, text=issue_text, severity="warning", algorithm='', settings='')
                 issues.append(issue) 
-            
-
-                
 
     CauseCodingIssue.objects.bulk_create(issues)
 
-# helper method to parse dates in a variety of formats
-def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False, return_format='%Y-%m-%d'):
-    if type(date_str) is str:
-        if len(date_str) == 0 or date_str.lower() in ['dk',"nan"]:
-            return 'dk'
-        else:                
-            # try parsing using a variety of date formats
-            for fmt in formats:
-                try:
-                    # remove any excessive decimals at end of string
-                    date_str = date_str.split(".")[0]
-                    return datetime.strptime(date_str, fmt).date().strftime(return_format)
-                except ValueError:
-                    pass
-            # if we get here, all hardcoded patterns failed - try timestamp regex as last resort
-            # if time time separator T present, strip out time and pull solely date
-            if len(re.findall("\dT\d", date_str)) > 0:
-                return re.split("T\d", date_str)[0]
-            else:
-                # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
-                if strict:
-                    raise ValueError(f'no valid date format found for date string {date_str}')
-                else:
-                    return str(date_str)
-    return 'dk'
-        
+
+

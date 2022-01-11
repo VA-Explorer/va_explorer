@@ -1,0 +1,31 @@
+{% load va_explorer_tags %}
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      {% for column in table_data.0.keys %}
+        <th>
+          <a href="?{% sort_url column direction='-' %}"> {{ column|capfirst }}</a>
+          {% if column in request.GET.order_by %}
+            {% if "-" in request.GET.order_by %}
+              <i class="fas fa-caret-down"></i>
+            {% else %}
+              <i class="fas fa-caret-up"></i>
+            {% endif %}
+          {% endif %}
+        </th>
+      {% empty %}
+        <h3>No results to show</h3>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in table_data %}
+    <tr>
+      {% for key, value in row.items %}
+        <td>{% pii_filter key value|default:"Unkown" %}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

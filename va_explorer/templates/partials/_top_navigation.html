@@ -20,11 +20,28 @@
         <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
       </li>
       {% endif %}
+      {% if perms.va_analytics.supervise_users %}
+      <li class="nav-item">
+        <a class="{% active '\/(.*)supervision' %} nav-link" href="{% url 'va_analytics:supervision' %}">Supervision</a>
+      </li>
+      {% endif %}
       {% if perms.va_analytics.view_dashboard %}
       <li class="nav-item">
           <a class="{% active '\/(.*)dashboard' %} nav-link" href="{% url 'va_analytics:dashboard' %}">Dashboard</a>
+        </li>
+      {% endif %}
+     {% if perms.dhis_manager.change_dhisstatus %}
+       <li class="nav-item">
+          <a class="{% active 'dhis' %} nav-link" href="{% url 'dhis_manager:dhishome' %}">DHIS2</a>
+        </li>
+      </li>
+        {% endif %}
+      {% if perms.va_analytics.download_data %}
+      <li class="nav-item">
+          <a class="{% active '\/(.*)download' %} nav-link" href="{% url 'va_export:download_form' %}">Export</a>
       </li>
       {% endif %}
+
       {% if perms.va_data_management.view_verbalautopsy %}
       <li class="nav-item">
         <a class="{% active '\/(.*)data_management' %} nav-link" href="{% url 'va_data_management:index' %}">Data Management</a>
