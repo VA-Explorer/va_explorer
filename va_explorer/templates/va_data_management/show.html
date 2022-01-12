@@ -75,7 +75,7 @@
         <table class="table table-hover table-sm">
           <thead>
             <tr>
-              <th>{{ warnings|length }} Warning{{ warnings|pluralize }}</th>
+              <th>{{ warnings|length }} User Warning{{ warnings|pluralize }}</th>
             </tr>
           </thead>
           <tbody>
@@ -87,6 +87,25 @@
       </div>
     {% endif %}
   </div>
+
+  {% if algo_warnings %}
+      <div class="row mt-4">
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>{{ algo_warnings|length }} Algorithm Warning{{ algo_warnings|pluralize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for warning in algo_warnings %}
+              <tr><td>{{ warning }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+  
 
   {% if diffs and not user.is_fieldworker  %}
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
