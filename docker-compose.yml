@@ -5,6 +5,14 @@ volumes:
   production_postgres_data_backups: {}
   
 services:
+  ofelia:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - django
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
   pycrossva:
     image: va_explorer/pycrossva
     build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
@@ -43,9 +51,18 @@ services:
       DJANGO_DEFAULT_FROM_EMAIL: ${DJANGO_DEFAULT_FROM_EMAIL:-VA Explorer <noreply@vaexplorer.org>} 
       PYCROSS_HOST: ${PYCROSS_HOST:-http://pycrossva:80}
       INTERVA_HOST: ${INTERVA_HOST:-http://interva5:5002}
+      ODK_HOST: ${ODK_HOST:-http://localhost:81}
+      ODK_SSL_VERIFY: ${ODK_SSL_VERIFY}
+      ODK_EMAIL: ${ODK_EMAIL}
+      ODK_PASSWORD: ${ODK_PASSWORD}
     volumes:
       - ./va_explorer_logs:/app/va_explorer/va_logs/logfiles
     command: /start
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.odk-import.schedule: "0 0 3 * * *"  # Every night at 3am
+      ofelia.job-exec.odk-import.command: "./manage.py import_from_odk --project-id=${ODK_PROJECT_ID} --form-id=${ODK_FORM_ID}"
+
 
   celeryworker:
     <<: *django
