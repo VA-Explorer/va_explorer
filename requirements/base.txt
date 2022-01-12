@@ -20,7 +20,7 @@ django-allauth==0.44.0
 django-celery-beat==2.0.0
 django-crispy-forms==1.9.1
 django-debug-toolbar==3.1.1
-django-environ==0.4.5
+django-environ==0.8.1
 django-extensions==3.0.9
 django-redis==4.12.1
 django-simple-history==2.12.0
@@ -53,11 +53,11 @@ dpd-static-support==0.0.5
 pytest==6.2.1
 pytest-django==4.1.0
 factory-boy==2.12.0
-selenium==3.141.0
+selenium==4.1.0
 requests-mock==1.8.0
 
 # Database
 psycopg2==2.8.5 --no-binary psycopg2
 
-#openva pipeline
+# openva pipeline
 git+https://github.com/VA-Explorer/openva_pipeline.git@master
