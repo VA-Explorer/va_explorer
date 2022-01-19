@@ -12,12 +12,20 @@ from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import CauseOfDeath
 from va_explorer.va_data_management.models import VerbalAutopsy
 
+# NOTE: By default, VA Explorer runs InterVA5 (settings found in .env file)
+# To change coding algorithm, will need to update settings below and point
+# to that algorithm's service
 
 PYCROSS_HOST = os.environ.get('PYCROSS_HOST', 'http://127.0.0.1:5001')
 INTERVA_HOST = os.environ.get('INTERVA_HOST', 'http://127.0.0.1:5002')
 
-# TODO: settings need to be configurable
-ALGORITHM_SETTINGS = {'HIV': 'l', 'Malaria': 'l', 'groupcode': 'True'}
+# InterVA5 
+ALGORITHM_SETTINGS = {
+    # default HIV set to high in Zambia
+    'HIV': os.environ.get('INTERVA_HIV', 'h'),
+    'Malaria': os.environ.get('INTERVA_MALARIA', 'l'),
+    'groupcode': os.environ.get('INTERVA_GROUPCODE', 'True')
+}
 
 
 def _run_pycross_and_interva5(verbal_autopsies):
@@ -37,6 +45,7 @@ def _run_pycross_and_interva5(verbal_autopsies):
     rows = [
         {'ID' if key == '' else key: value for key, value in row.items()} for row in transform_response_reader
     ]
+
     result_json = json.dumps({'Input': rows, **ALGORITHM_SETTINGS})
 
     # This is to get to the data into required algorithm format for interva5
@@ -52,6 +61,7 @@ def run_coding_algorithms():
     # TODO: This should eventually check to see that there's a cause coding for every supported algorithm
     verbal_autopsies_without_causes = list(VerbalAutopsy.objects.filter(causes__isnull=True))
 
+    print(f"ALGORITHM SETTINGS: {ALGORITHM_SETTINGS}")
     interva_response_data = _run_pycross_and_interva5(verbal_autopsies_without_causes)
 
     # The ID that comes back is the index in the data that was passed in.
