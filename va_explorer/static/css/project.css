@@ -10,8 +10,8 @@
   color: #b94a48;
 }
 
-.hidden {
-  display: none;
+body {
+   padding-bottom: 70px;
 }
 
 .checkbox-div {
@@ -19,6 +19,9 @@
   margin-top: 10px;
 }
 
+.hidden {
+  display: none;
+}
 .location-tree-depth-1 {
   padding-left: 0;
   text-transform: uppercase;
@@ -41,17 +44,21 @@
 }
 
 .filter-button {
-  margin-left: 1%;
-  margin-bottom: 1.5%;
-  margin-top: 2.5%;
+  margin-left:  5px;
 }
-body {
-   padding-bottom: 70px;
+
+.form-text {
+  width: 120px;
+}
+
+.form-date{
+  width:  160px;
 }
 
 .btn-light:focus {
   background-color:#bdc0c3;
 }
+
 
 .copyright-text {
   color: #656565;
@@ -74,6 +81,10 @@ body {
   font-weight: 450;
   margin-left: 20px;
   margin-top: 5px;
+}
+
+.form-button {
+  padding:  5px;
 }
 
 .radio-group-labels {
