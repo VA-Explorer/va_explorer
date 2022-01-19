@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from django import forms
 from django_filters import FilterSet, DateFilter, CharFilter, DateRangeFilter, BooleanFilter
+from django.core.exceptions import ValidationError
 
 from .models import VerbalAutopsy
 from django.db.models import Q
@@ -10,13 +11,18 @@ TRUE_FALSE_CHOICES = (
     (True, 'Yes'),
 )
 
+def validate_integer(value):
+        if not value.isdigit():
+            raise ValidationError(('%(value)s is invalid or negative. Please enter only numbers'),
+            params={'value': value},)
+
 
 class DateInput(forms.DateInput):
     input_type = 'date'
 
 
 class VAFilter(FilterSet):
-    id = CharFilter(field_name="id", label="ID")
+    id = CharFilter(field_name="id", label="ID", validators=[validate_integer])
     interviewer = CharFilter(field_name="Id10010", lookup_expr="icontains", label="Interviewer")
     deceased = CharFilter(method="filter_deceased", label="Deceased")
     start_date = DateFilter(field_name="Id10023", lookup_expr="gte", label="Earliest Date", widget=DateInput(attrs={'class': 'datepicker'}))
