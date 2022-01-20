@@ -44,6 +44,7 @@ class LocationFactory(DjangoModelFactory):
 class LocationFacilityFactory(DjangoModelFactory):
     class Meta:
         model = Location
+        django_get_or_create = ('path',)
 
     # Create a root node by default
     name = Faker("city")

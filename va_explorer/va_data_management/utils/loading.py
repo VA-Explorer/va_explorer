@@ -1,9 +1,9 @@
 import pandas as pd
+
 from simple_history.utils import bulk_create_with_history
 
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.models import VaUsername
-
 
 
 from va_explorer.va_data_management.utils.validate import parse_date, validate_vas_for_dashboard
@@ -28,7 +28,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
     model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
 
     # But first, account for case differences in csv columns (i.e. ensure id10041 maps to Id10041)
-    fieldCaseMapper = {field.lower(): field for field in model_field_names} 
+    fieldCaseMapper = {field.lower(): field for field in model_field_names}
     record_df.rename(columns=lambda c: fieldCaseMapper.get(c.lower(), c), inplace=True)
 
     # Lowercase the instanceID column that can come from ODK as "instanceID".
@@ -39,7 +39,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # populate instanceid field with key value.
     if 'instanceid' not in record_df.columns and 'key' in record_df.columns:
         record_df = record_df.rename(columns={'key': 'instanceid'})
-            
+
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
 
@@ -56,11 +56,11 @@ def load_records_from_dataframe(record_df, random_locations=False):
     ignored_vas = []
     created_vas = []
     location_map = {}
-    
+
     # build location mapper to map csv locations to known db locations
     if "hospital" in record_df.columns:
         location_map = build_location_mapper(record_df["hospital"].unique().tolist())
-        
+
     # if random locations, assign random locations via a random field worker.
     if random_locations:
         valid_usernames = VaUsername.objects.exclude(va_username__exact='')
@@ -69,7 +69,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
             print('WARNING: no field workers w/ usernames in system. Generating random ones now...')
             make_field_workers_for_facilities()
             valid_usernames = VaUsername.objects.exclude(va_username__exact='')
-            
+
     # build location matching index for location assignment
     for i, row in enumerate(record_df.to_dict(orient='records')):
         if row['instanceid']:
@@ -80,15 +80,14 @@ def load_records_from_dataframe(record_df, random_locations=False):
 
         # If we got here, we need to create a new VA.
         va = VerbalAutopsy(**row)
-        
+
 
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
-        va.Id10023 = parse_date(va.Id10023, strict=False)
+        va.Id10023 = parse_date(va.Id10023, strict=False)\
 
         # Try mapping va location to known db location. If not possible, set to null location
-        
         # if random_locations, assign random field worker to VA which can be used to determine location.
-        # Otherwise, try assigning location based on hospital field. 
+        # Otherwise, try assigning location based on hospital field.
         if random_locations:
             username = valid_usernames.order_by('?').first()
             user = User.objects.get(pk=username.user_id)
@@ -96,22 +95,19 @@ def load_records_from_dataframe(record_df, random_locations=False):
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
-            
+
         created_vas.append(va)
 
 
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
-    
+
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
+
+    # Mark duplicate VAs
+    VerbalAutopsy.mark_duplicates()
 
     return {
         'ignored': ignored_vas,
         'created': created_vas,
     }
-  
-
-      
-
-        
-

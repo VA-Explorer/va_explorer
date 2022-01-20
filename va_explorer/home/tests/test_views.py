@@ -1,12 +1,11 @@
 import pytest
 from django.test import Client
 from va_explorer.users.models import User
-from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import VerbalAutopsyFactory, LocationFactory
 
 pytestmark = pytest.mark.django_db
 
-# Get the index and make sure 
+# Get the index and make sure
 def test_index(user: User):
     client = Client()
     client.force_login(user=user)
