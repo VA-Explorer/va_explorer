@@ -1,10 +1,13 @@
 from django.db import models
 from django.conf import settings
 from simple_history.models import HistoricalRecords
-from django.db.models import JSONField
-#from django.contrib.auth import get_user_model
+from django.db.models import JSONField, Count
+from django.db.models.signals import pre_save, post_init
+# from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
+
+import hashlib
 
 REDACTED_STRING = '** redacted **'
 
@@ -32,6 +35,7 @@ PII_FIELDS = [
     'narrat_image',
 ]
 
+
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
     # ability to constrain access control by region; we use django-treabeard's materialized path
@@ -41,7 +45,7 @@ class Location(MP_Node):
     node_order_by = ['name']
 
     # A user can have their access scoped by one or more locations
-    #users = models.ManyToManyField(get_user_model(), related_name='locations')
+    # users = models.ManyToManyField(get_user_model(), related_name='locations')
 
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
@@ -55,7 +59,7 @@ class Location(MP_Node):
 
     def parent_id(self):
         return self.get_parent().id
-            
+
 
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
@@ -613,6 +617,19 @@ class VerbalAutopsy(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    # Supports soft delete of duplicate records
+    unique_va_identifiers_hash = models.TextField("Hash of the unique_va_identifiers", blank=True)
+    duplicate = models.BooleanField("Marks the record as duplicate", blank=True, default=False)
+    deleted = models.BooleanField("Marks the record as deleted", blank=True, default=False)
+
+    __original_Id10017 = None
+    __original_Id10018 = None
+    __original_Id10019 = None
+    __original_Id10020 = None
+    __original_Id10021 = None
+    __original_Id10022 = None
+    __original_Id10023 = None
+
     # function to tell if VA had any coding errors
     def any_errors(self):
         return self.coding_issues.filter(severity='error').exists()
@@ -620,11 +637,15 @@ class VerbalAutopsy(models.Model):
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
+    # def clean(self):
+    # TODO: fill this out with cleaning operations we actually want to do
+    #       return
+
     def set_null_location(self, null_name="Unknown"):
         # to handle passing null_name=None
         if not null_name:
             null_name = "Unknown"
-        # first, check if null location exists. If not, create one. 
+        # first, check if null location exists. If not, create one.
         null_location = Location.objects.filter(name=null_name).first()
         if not null_location:
             # if no locations, make null location root. Otherwise, add child to root
@@ -635,7 +656,7 @@ class VerbalAutopsy(models.Model):
             # find new location we just created
             null_location = Location.objects.get(name=null_name)
         self.location = null_location
-        
+
 class dhisStatus(models.Model):
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
     vaid = models.TextField(blank=False)
@@ -653,6 +674,41 @@ class cod_codes_dhis(models.Model):
 
     def __str__(self):
         return self.codname
+
+    def unique_identifiers(self):
+        return str(self.Id10017) + str(self.Id10018) + str(self.Id10019) + str(self.Id10020) + str(self.Id10021) + \
+               str(self.Id10022) + str(self.Id10023)
+
+    @staticmethod
+    def pre_save(sender, instance, **kwargs):
+        if not instance.id or instance.__original_Id10017 != instance.Id10017:
+            md5 = hashlib.md5()
+            md5.update(instance.unique_identifiers().encode())
+            instance.unique_va_identifiers_hash = md5.hexdigest()
+
+    @staticmethod
+    def remember_state(sender, instance, **kwargs):
+        instance.__original_Id10017 = instance.Id10017
+
+    @classmethod
+    def mark_duplicates(cls):
+        duplicate_vas = cls.objects.values('unique_va_identifiers_hash'). \
+            annotate(unique_va_identifiers_hash_count=Count('unique_va_identifiers_hash')).filter(
+            unique_va_identifiers_hash_count__gt=1)
+
+        if duplicate_vas.exists():
+            for identifiers_hash in duplicate_vas:
+                vas = VerbalAutopsy.objects.filter(
+                    unique_va_identifiers_hash=identifiers_hash['unique_va_identifiers_hash']) \
+                    .order_by('created')
+                # Skip the first record: this is the oldest record one and the one we will not mark as duplicate
+                for va in vas[1:]:
+                    va.duplicate = True
+                    va.save()
+
+
+post_init.connect(VerbalAutopsy.remember_state, sender=VerbalAutopsy)
+pre_save.connect(VerbalAutopsy.pre_save, sender=VerbalAutopsy)
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)

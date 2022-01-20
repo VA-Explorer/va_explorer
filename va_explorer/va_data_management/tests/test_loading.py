@@ -10,6 +10,7 @@ from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.models import VerbalAutopsy
 
 from va_explorer.va_data_management.utils.loading import load_records_from_dataframe
+from va_explorer.tests.factories import VerbalAutopsyFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -115,8 +116,8 @@ def test_load_va_csv_command():
 
     output = StringIO()
     call_command(
-        "load_va_csv", 
-        str(test_data.absolute()), 
+        "load_va_csv",
+        str(test_data.absolute()),
         stdout=output,
         stderr=output,
     )
@@ -126,6 +127,30 @@ def test_load_va_csv_command():
     assert VerbalAutopsy.objects.get(instanceid='instance2').Id10007 == 'name2'
     assert VerbalAutopsy.objects.get(instanceid='instance3').Id10007 == 'name3'
 
-# TODO add tests for date of death, location, and age_group
+def test_loading_duplicate_vas():
+    today = datetime.datetime.now()
+    # Create VAs that are duplicates of those in 'test-duplicate-input-data.csv'
+    va = VerbalAutopsyFactory.create(
+        created=today-datetime.timedelta(days=50),
+        Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60", Id10022="Yes",
+        Id10023="1/5/21", instanceid="00",
+        unique_va_identifiers_hash="840ba941ac6e608962f86eb05659bad1"
+    )
 
+    loc = Location.add_root(name='test location', location_type='facility')
+
+    # Find path to data file
+    test_data = Path(__file__).parent / 'test-duplicate-input-data.csv'
+
+    output = StringIO()
+    call_command(
+        "load_va_csv",
+        str(test_data.absolute()),
+        stdout=output,
+        stderr=output,
+    )
+
+
+
+# TODO add tests for date of death, location, and age_group
 
