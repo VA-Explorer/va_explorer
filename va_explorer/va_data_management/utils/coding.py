@@ -38,11 +38,12 @@ ALGORITHM_SETTINGS = {
     'groupcode': os.environ.get('INTERVA_GROUPCODE', 'True')
 }
 
-# validates provided interva settings against interva5 param value sets
+# validates provided algorithm settings against algorithm param value sets. Currently only works
+# with interva5 but set up to generalize to other algorithms once supported
 def validate_algorithm_settings(settings=ALGORITHM_SETTINGS):
-    # TODO: make this optional parameter once we support other algorithms
-    algo_key = "INTERVA"
-    param_opts = ALGORITHM_PARAM_OPTIONS[algo_key]
+
+    # TODO: turn algorithm keyname into parameter once we support other algorithms
+    param_opts = ALGORITHM_PARAM_OPTIONS["INTERVA"]
     setting_keys = set(settings.keys())
     common_keys = setting_keys.intersection(param_opts.keys())
     

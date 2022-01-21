@@ -19,8 +19,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         ti = time.time()
         # validate algorithm settings first. Only proceed if settings are valid. 
-        settings_valid = validate_algorithm_settings(ALGORITHM_SETTINGS)
-        if settings_valid:
+        if validate_algorithm_settings(ALGORITHM_SETTINGS):
             if options['overwrite']:
                 self.clear_and_save_old_cods(options['cod_fname'])
 
@@ -32,13 +31,12 @@ class Command(BaseCommand):
             self.stdout.write(f'DONE. Total time: {time.time() - ti} secs')
             self.stdout.write(f'Coded {num_coded} verbal autopsies (out of {num_total}) [{num_issues} issues]')
         else:
-            raise ValueError(f"At least one invalid algorithm setting in: \n {ALGORITHM_SETTINGS}. See va_data_management.utils.coding.py for valid setting values." )
+            print(f"At least one invalid algorithm setting in: \n {ALGORITHM_SETTINGS}. See va_data_management.utils.coding.py for valid setting values. \n Exiting...")
+            exit()
 
-    def clear_and_save_old_cods(self, cod_fname=None):
+    def clear_and_save_old_cods(self, cod_fname):
         
         print('clearing old CODs...')
-        if not cod_fname:
-            cod_fname = 'old_cod_mapping.csv'
         # export original CODs (and corersponding VA IDs) to flat file
         va_cod_df = pd.DataFrame(CauseOfDeath.objects.all().values())
         # only export if VAs have been coded
