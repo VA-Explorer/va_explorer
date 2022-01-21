@@ -2,7 +2,8 @@ from django.db import models
 from django.conf import settings
 from simple_history.models import HistoricalRecords
 from django.db.models import JSONField, Count
-from django.db.models.signals import pre_save, post_init
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
 # from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
@@ -621,14 +622,6 @@ class VerbalAutopsy(models.Model):
     duplicate = models.BooleanField("Marks the record as duplicate", blank=True, default=False)
     deleted = models.BooleanField("Marks the record as deleted", blank=True, default=False)
 
-    __original_Id10017 = None
-    __original_Id10018 = None
-    __original_Id10019 = None
-    __original_Id10020 = None
-    __original_Id10021 = None
-    __original_Id10022 = None
-    __original_Id10023 = None
-
     # function to tell if VA had any coding errors
     def any_errors(self):
         return self.coding_issues.filter(severity='error').exists()
@@ -662,15 +655,10 @@ class VerbalAutopsy(models.Model):
                str(self.Id10022) + str(self.Id10023)
 
     @staticmethod
-    def pre_save(sender, instance, **kwargs):
-        if not instance.id or instance.__original_Id10017 != instance.Id10017:
-            md5 = hashlib.md5()
-            md5.update(instance.unique_identifiers().encode())
-            instance.unique_va_identifiers_hash = md5.hexdigest()
-
-    @staticmethod
-    def remember_state(sender, instance, **kwargs):
-        instance.__original_Id10017 = instance.Id10017
+    def generate_md5_unique_va_identifiers_hash(instance):
+        md5 = hashlib.md5()
+        md5.update(instance.unique_identifiers().encode())
+        instance.unique_va_identifiers_hash = md5.hexdigest()
 
     @classmethod
     def mark_duplicates(cls):
@@ -689,8 +677,25 @@ class VerbalAutopsy(models.Model):
                     va.save()
 
 
-post_init.connect(VerbalAutopsy.remember_state, sender=VerbalAutopsy)
-pre_save.connect(VerbalAutopsy.pre_save, sender=VerbalAutopsy)
+@receiver(pre_save, sender=VerbalAutopsy)
+def do_something_if_changed(sender, instance, **kwargs):
+    try:
+        obj = sender.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        VerbalAutopsy.generate_md5_unique_va_identifiers_hash(instance)
+        VerbalAutopsy.mark_duplicates()
+        # NOTE: This is called when a VerbalAutopsy is created. Currently, we only use bulk_create_with_history
+        # in loading.py to create VerbalAutopsies. The pre_save signal is not called with bulk_create.
+        # If VerbalAutopsies can be created through some other mechanism in the futre, we want to
+        # generate_md5_unique_va_identifiers_hash and mark_duplicates here
+    else:
+        if obj.Id10017 != instance.Id10017 or obj.Id10018 != instance.Id10018 or obj.Id10019 != instance.Id10019 or \
+                obj.Id10020 != instance.Id10020 or obj.Id10021 != instance.Id10021 or \
+                obj.Id10022 != instance.Id10022 or obj.Id10023 != instance.Id10023:
+
+            VerbalAutopsy.generate_md5_unique_va_identifiers_hash(instance)
+            VerbalAutopsy.mark_duplicates()
+
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)

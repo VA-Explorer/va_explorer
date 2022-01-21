@@ -81,7 +81,6 @@ def load_records_from_dataframe(record_df, random_locations=False):
         # If we got here, we need to create a new VA.
         va = VerbalAutopsy(**row)
 
-
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
         va.Id10023 = parse_date(va.Id10023, strict=False)\
 
@@ -96,8 +95,8 @@ def load_records_from_dataframe(record_df, random_locations=False):
         else:
             assign_va_location(va, location_map)
 
+        VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va)
         created_vas.append(va)
-
 
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
 
