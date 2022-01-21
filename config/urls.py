@@ -21,7 +21,7 @@ urlpatterns = [
     path("dhis/",include("va_explorer.dhis_manager.urls", namespace="dhis_manager")),
     path("va_logs/", include("va_explorer.va_logs.urls", namespace="va_logs")),
     path("va_export/", include("va_explorer.va_export.urls", namespace="va_export"))
-
+    path("va_data_cleanup/", include("va_explorer.va_data_cleanup.urls", namespace="va_data_cleanup"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

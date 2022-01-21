@@ -20,7 +20,7 @@ DATE_FORMATS = {"%Y-%m-%d": "yyyy-mm-dd",
                 "%m/%d/%Y": "mm/dd/yyyy",
                 "%m/%d/%y": "mm/dd/yy",
                 "%d/%m/%Y": "dd/mm/yyyy",
-                "%d/%m/%y": "dd/mm/yy", 
+                "%d/%m/%y": "dd/mm/yy",
                 "%Y-%m-%d %H:%M:%S": "yyyy-mm-dd HH:MM:SS"}
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
@@ -73,8 +73,8 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
-    "dpd_static_support", 
-    "django_pivot", 
+    "dpd_static_support",
+    "django_pivot",
 ]
 
 LOCAL_APPS = [
@@ -84,7 +84,8 @@ LOCAL_APPS = [
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
     "va_explorer.dhis_manager.apps.DhisManagerConfig",
-    "va_explorer.va_export.apps.VaExportConfig"
+    "va_explorer.va_export.apps.VaExportConfig",
+    "va_explorer.va_data_cleanup.apps.VaDataCleanupConfig"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -233,7 +234,7 @@ LOGGING = {
         },
         "debug": {
             "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
-        }, 
+        },
         "event": {
             "format": "%(asctime)s - %(message)s"
         }

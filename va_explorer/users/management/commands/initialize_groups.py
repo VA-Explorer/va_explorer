@@ -7,6 +7,7 @@ from django.core.management import BaseCommand
 from va_explorer.users.models import User
 from va_explorer.va_analytics.models import Dashboard
 from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_cleanup.models import DataCleanup
 
 
 GROUPS_PERMISSIONS = {
@@ -14,21 +15,25 @@ GROUPS_PERMISSIONS = {
         Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["add_user", "change_user", "delete_user", "view_user"],
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
+        DataCleanup: ["view_datacleanup", "bulk_delete"]
     },
     "Data Managers": {
         Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["view_user"],
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
+        DataCleanup: [],
     },
     "Data Viewers": {
         Dashboard: ["view_dashboard"],
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"],
+        DataCleanup: [],
     },
     "Field Workers": {
         Dashboard: ["view_dashboard"],
         User: [],
-        VerbalAutopsy: ["view_verbalautopsy"]
+        VerbalAutopsy: ["view_verbalautopsy"],
+        DataCleanup: [],
     },
 }
 
