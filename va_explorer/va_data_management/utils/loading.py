@@ -129,7 +129,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         va.submissiondate = parsed_sub_date
 
 
-
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
         va.Id10023 = parse_date(va.Id10023, strict=False)\
 
@@ -143,6 +142,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
+
             if "hospital" in row and logger:
                 logger.info(f"va_id: {va_id} - Matched hospital {row['hospital']} to {va.location} location in DB")
 
@@ -150,6 +150,9 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
 
     print('populating DB...')
+    VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va)
+    created_vas.append(va)
+
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
 
 
