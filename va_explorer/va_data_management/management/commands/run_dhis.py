@@ -10,6 +10,13 @@ import openva_pipeline.dhis as dhis
 import pandas as pd
 import numpy as np
 
+if os.environ.get("DHIS2_URL").startswith('https://localhost'):
+    # Don't verify localhost (self-signed cert or test).
+    SSL_VERIFY = False
+else:
+    # Support multiple user-provided boolean representations from .env
+    SSL_VERIFY = os.environ.get('DHIS2_SSL_VERIFY', 'TRUE').lower() in ('true', '1', 't')
+
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
 
@@ -77,7 +84,7 @@ class Command(BaseCommand):
 
             # Transform to algorithm format using the pyCrossVA web service
             transform_url = 'http://127.0.0.1:5001/transform?input=2016WHOv151&output=InterVA5'
-            transform_response = requests.post(transform_url, data=va_data_csv)
+            transform_response = requests.post(transform_url, data=va_data_csv, verify=SSL_VERIFY)
 
             # We need to convert the resulting CSV to JSON
             transform_response_reader = csv.DictReader(StringIO(transform_response.text))
@@ -212,7 +219,7 @@ class Command(BaseCommand):
         DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
         url = DHIS2_URL+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
-        response = requests.get(url, auth=auth)
+        response = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = response.json()
         return jn['pager']['total']
 
@@ -226,7 +233,7 @@ class Command(BaseCommand):
 
         eventsnum = self.getEventsValues(prg, auth)
         url = DHIS2_URL+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
-        r = requests.get(url, auth=auth)
+        r = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = r.json()
         list1 = list()
         for i in range(eventsnum):
