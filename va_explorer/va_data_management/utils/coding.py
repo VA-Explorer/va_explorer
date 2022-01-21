@@ -40,11 +40,10 @@ ALGORITHM_SETTINGS = {
 
 # validates provided algorithm settings against algorithm param value sets. Currently only works
 # with interva5 but set up to generalize to other algorithms once supported
-def validate_algorithm_settings(settings=ALGORITHM_SETTINGS):
-
+def validate_algorithm_settings():
     # TODO: turn algorithm keyname into parameter once we support other algorithms
     param_opts = ALGORITHM_PARAM_OPTIONS["INTERVA"]
-    setting_keys = set(settings.keys())
+    setting_keys = set(ALGORITHM_SETTINGS.keys())
     common_keys = setting_keys.intersection(param_opts.keys())
     
     if len(common_keys) != len(setting_keys):
@@ -53,8 +52,8 @@ def validate_algorithm_settings(settings=ALGORITHM_SETTINGS):
     
     # ensure all common settings are valid
     for key in common_keys:
-        if not settings[key] in param_opts[key]:
-            print(f"ERROR: provided {key} value {settings[key]} not found. Expecting one of {param_opts[key]}")
+        if not ALGORITHM_SETTINGS[key] in param_opts[key]:
+            print(f"ERROR: provided {key} value {ALGORITHM_SETTINGS[key]} not found. Expecting one of {param_opts[key]}")
             return False
 
     return True
