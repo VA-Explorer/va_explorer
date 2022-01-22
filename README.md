@@ -125,12 +125,14 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
   * Export anynymous info for all users in system
 
     `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
+      
       This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
       
 
-  * Link Field Workers to VAs
+* Link Field Workers to VAs
 
   `./manage.py link_fieldworkers_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
+
     This command links a group of field workers to their corresponding VAs in the system. Linking is done by searching a VA's interviewer name (field `Id10010`) against names of field workers in the system. If there's a match, a link is created by setting the VA's username to the matching field worker's username. By default, all field workers in the system are considered for matching, but you can specify a subset with the `--emails` argument (comma-separated, no spaces). To account for typos and slight variations in name spelling, a fuzzy-matching algorithm is used. You can specify how stringent the algorithm is with `--matching_threshold` (higher is stricter, with 100 being a perfect match). 
   
 * Load location data
@@ -308,7 +310,7 @@ This will list a brief report of results in the following format:
 Coded 24 verbal autopsies (out of 30) [6 issues]
 ```
 
-If you'd like to re-code all existing VAs in the system (overwriting previous COD assignments) you can do so by passing `overwrite True` to the command-line call. This will save a backup table of old COD assignments, clear all CODs in the database, and re-run the coding algorithm on all eligible VAs.
+If you'd like to re-code all existing VAs in the system (overwriting previous COD assignments) you can do so by passing `overwrite True` to the command-line call. This will save a backup table of old COD assignments, clear all CODs in the database, and re-run the coding algorithm on all eligible VAs. By default, old COD assignments will be saved to a .csv file named `old_cod_mapping.csv`. You can customize the name of this file by passing `--cod_fname <filename>` as an optional parameter.
 
 You can also configure certain algorithm settings as environmental variables. For InterVA5, you can set HIV prevalence `(very low (v), low (l) or high (h))`, Malaria prevalance (same options as HIV), and whether or not to export group codes to COD assignments `(True/False)` in your `.env` file like so:  
 ```

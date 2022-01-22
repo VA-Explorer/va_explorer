@@ -19,7 +19,7 @@ class Command(BaseCommand):
     def handle(self, **options):
         ti = time.time()
         # validate algorithm settings first. Only proceed if settings are valid. 
-        if validate_algorithm_settings(ALGORITHM_SETTINGS):
+        if validate_algorithm_settings():
             if options['overwrite']:
                 self.clear_and_save_old_cods(options['cod_fname'])
 
