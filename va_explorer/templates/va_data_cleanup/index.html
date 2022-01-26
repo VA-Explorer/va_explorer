@@ -1,1 +1,32 @@
 {% extends "base.html" %}
+
+{% block title %}Duplicate Verbal Autopsies{% endblock %}
+
+{% block heading %}Duplicate Verbal Autopsies{% endblock %}
+
+{% block content %}
+  <div class="row mt-4">
+    <p>Verbal autopsies marked as duplicates by VA Explorer are shown below. Duplicate verbal autopsies are not shown in the
+      Data Management view and can be cleaned up here.</p>
+  </div>
+  <div class="row mt-4">
+    <h4>Bulk Actions</h4>
+    <table class="table table-sm">
+      <tbody>
+        <tr>
+          <td>400 duplicate verbal autopsies</td>
+          <td><a class="btn btn-info">Download All</a></td>
+          <td><a class="btn btn-danger">Delete All</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<div class="row mt-4">
+  <h4>Individual Actions</h4>
+  {% include 'partials/_va_cleanup_table.html' with va_list=object_list %}
+  {% if page_obj.has_other_pages %}
+  {% include "partials/_pagination.html" %}
+  {% endif %}
+</div>
+{% endblock %}
