@@ -8,8 +8,9 @@ class DataCleanup(models.Model):
 
         # disable "add", "change", "delete"
         # comma here necessary
-        default_permissions = ("view")
+        default_permissions = ("view",)
 
         permissions = (
-            ('bulk_delete', 'Can bulk delete'),
+            ('download', 'Can download'),
+            ('bulk_download', 'Can bulk download'),
         )
