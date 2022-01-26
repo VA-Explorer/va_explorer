@@ -11,7 +11,7 @@ class VerbalAutopsyForm(forms.ModelForm):
 
     class Meta:
         model = VerbalAutopsy
-        exclude = ('id', 'location')
+        exclude = ('id', 'location', 'deleted_at', 'unique_va_identifiers_hash', 'duplicate',)
 
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop('include_pii', True)
@@ -19,7 +19,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         if not include_pii:
             for field in PII_FIELDS:
                 del self.fields[field]
-    
+
     # TODO: to display the error msgs properly, we need to use crispy forms in the template
     # for now we will just display the errors at the top of the page
     def clean(self, *args, **kwargs):
@@ -41,7 +41,7 @@ def validate_date_format(form, Id10023):
     """
     # TODO add a date picker to the form so we don't have to check the string format
     if Id10023 != "dk":
-        try: 
+        try:
             parse_date(Id10023, strict=True)
         except ValueError:
             form._errors["Id10023"] = form.error_class(
