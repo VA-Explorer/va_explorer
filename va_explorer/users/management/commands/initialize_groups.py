@@ -14,8 +14,8 @@ GROUPS_PERMISSIONS = {
     "Admins": {
         Dashboard: ["view_dashboard", "download_data", "view_pii"],
         User: ["add_user", "change_user", "delete_user", "view_user"],
-        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
-        DataCleanup: ["view_datacleanup", "bulk_delete"]
+        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy", "delete_verbalautopsy", "bulk_delete"],
+        DataCleanup: ["view_datacleanup", "download", "bulk_download"]
     },
     "Data Managers": {
         Dashboard: ["view_dashboard", "download_data", "view_pii"],
