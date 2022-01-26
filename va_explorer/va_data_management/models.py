@@ -5,6 +5,7 @@ from django.db.models import JSONField, Count
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 # from django.contrib.auth import get_user_model
+from va_explorer.models import SoftDeletionModel
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
 
@@ -61,7 +62,15 @@ class Location(MP_Node):
         return self.get_parent().id
 
 
-class VerbalAutopsy(models.Model):
+class VerbalAutopsy(SoftDeletionModel):
+    class Meta:
+        permissions = (
+            ('bulk_delete', 'Can bulk delete'),
+        )
+        indexes = [
+            models.Index(fields=['unique_va_identifiers_hash'])
+        ]
+
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
     location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE, null=True)
 
@@ -613,14 +622,14 @@ class VerbalAutopsy(models.Model):
     geopoint = models.TextField("geopoint", blank=True)
     comment = models.TextField("Comment", blank=True)
     # Track the history of changes to each verbal autopsy
-    history = HistoricalRecords()
+    history = HistoricalRecords(excluded_fields=['unique_va_identifiers_hash', 'duplicate'])
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     # Supports soft delete of duplicate records
-    unique_va_identifiers_hash = models.TextField("Hash of the unique_va_identifiers", blank=True)
+    # deleted_at inherited from SoftDeletionModel
+    unique_va_identifiers_hash = models.TextField("md5 hash of the unique_va_identifiers", blank=True)
     duplicate = models.BooleanField("Marks the record as duplicate", blank=True, default=False)
-    deleted = models.BooleanField("Marks the record as deleted", blank=True, default=False)
 
     # function to tell if VA had any coding errors
     def any_errors(self):
@@ -665,7 +674,6 @@ class VerbalAutopsy(models.Model):
         duplicate_vas = cls.objects.values('unique_va_identifiers_hash'). \
             annotate(unique_va_identifiers_hash_count=Count('unique_va_identifiers_hash')).filter(
             unique_va_identifiers_hash_count__gt=1)
-
         if duplicate_vas.exists():
             for identifiers_hash in duplicate_vas:
                 vas = VerbalAutopsy.objects.filter(
@@ -678,23 +686,51 @@ class VerbalAutopsy(models.Model):
 
 
 @receiver(pre_save, sender=VerbalAutopsy)
-def do_something_if_changed(sender, instance, **kwargs):
+def regenerate_unique_va_identifier_pre_va_update(sender, instance, **kwargs):
     try:
         obj = sender.objects.get(pk=instance.pk)
     except sender.DoesNotExist:
-        VerbalAutopsy.generate_md5_unique_va_identifiers_hash(instance)
-        VerbalAutopsy.mark_duplicates()
+        pass
         # NOTE: This is called when a VerbalAutopsy is created. Currently, we only use bulk_create_with_history
         # in loading.py to create VerbalAutopsies. The pre_save signal is not called with bulk_create.
-        # If VerbalAutopsies can be created through some other mechanism in the futre, we want to
-        # generate_md5_unique_va_identifiers_hash and mark_duplicates here
+        # If VerbalAutopsies can be created through some other mechanism in the future (i.e., through the UI), we will
+        # want to both generate_md5_unique_va_identifiers_hash and mark_duplicates here
     else:
         if obj.Id10017 != instance.Id10017 or obj.Id10018 != instance.Id10018 or obj.Id10019 != instance.Id10019 or \
                 obj.Id10020 != instance.Id10020 or obj.Id10021 != instance.Id10021 or \
                 obj.Id10022 != instance.Id10022 or obj.Id10023 != instance.Id10023:
 
+            # Store the records previous unique_va_identifiers_hash in a variable
+            previous_unique_va_identifiers_hash = instance.unique_va_identifiers_hash
+
+            # Re-check/mark as duplicate records that matched the previous unique_va_identifiers_hash.
+            # Recall, given a set of duplicate VAs, we designate the oldest one as the non-duplicate record.
+            # If the record that we just edited was the oldest amongst all of the records with the same
+            # hash, it would have been the only record in the query set where duplicate = False.
+            # We now need to determine what record is the oldest amongst the remaining records that share the
+            # previous unique_va_identifiers_hash and mark that as duplicate = False.
+            vas_with_previous_unique_va_identifiers_hash = VerbalAutopsy.objects. \
+                filter(unique_va_identifiers_hash=previous_unique_va_identifiers_hash). \
+                exclude(id=instance.id).order_by('created')
+
+            vas_with_previous_unique_va_identifiers_hash[0:].duplicate = False
+            # Skip the first record: this is the oldest record one and the one we will not mark as duplicate
+            for va in vas_with_previous_unique_va_identifiers_hash[1:]:
+                va.duplicate = True
+
+            # Calculate the new md5 unique_va_identifiers_hash since one of the constituent fields has changed
             VerbalAutopsy.generate_md5_unique_va_identifiers_hash(instance)
-            VerbalAutopsy.mark_duplicates()
+            # Mark the recently edited VA as non-duplicate since we just updated it
+            instance.duplicate = False
+            # Get the pre-existing VAs that match this hash and mark them as duplicate
+            vas_with_new_unique_va_identifiers_hash = VerbalAutopsy.objects. \
+                filter(unique_va_identifiers_hash=instance.unique_va_identifiers_hash)
+            for va in vas_with_new_unique_va_identifiers_hash:
+                va.duplicate = True
+            VerbalAutopsy.objects.bulk_update(
+                vas_with_previous_unique_va_identifiers_hash | vas_with_new_unique_va_identifiers_hash, ['duplicate']
+            )
+
 
 
 class CauseOfDeath(models.Model):
