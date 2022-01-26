@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import DetailView, UpdateView, ListView, RedirectView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import DeleteView, DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from datetime import datetime
 
@@ -23,7 +23,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         # Restrict to VAs this user can access and prefetch related for performance
-        queryset = self.request.user.verbal_autopsies().prefetch_related("location", "causes", "coding_issues").order_by("id")
+        queryset = self.request.user.verbal_autopsies().\
+            prefetch_related("location", "causes", "coding_issues").order_by("id").filter(duplicate=False)
 
         # TODO: For now, we are not displaying the filters for the Field Worker on the VA index page,
         # since many do not apply to them. This prevents data passed through the params from being
@@ -55,7 +56,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         } for va in context['object_list']]
 
         return context
-
 
 
 # Mixin just for the individual verbal autopsy data management views to restrict access based on user
@@ -158,3 +158,13 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         run_coding_algorithms.apply_async()
         messages.success(request, f"Coding algorithm process has started in the background.")
         return super().post(request, *args, **kwargs)
+
+
+class Delete(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = "va_data_management.delete_verbalautopsy"
+    model = VerbalAutopsy
+    success_url = reverse_lazy('va_data_cleanup:index')
+    success_message = "Verbal Autopsy successfully deleted!"
+
+
+delete = Delete.as_view()
