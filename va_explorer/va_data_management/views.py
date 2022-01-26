@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import DetailView, UpdateView, ListView, RedirectView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import DeleteView, DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import F, Q, Count, Value as V
 from django.db.models.functions import Concat
@@ -49,6 +49,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                             "deceased",
                             errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
                             warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
+        queryset = self.request.user.verbal_autopsies().\
+            prefetch_related("location", "causes", "coding_issues").order_by("id").filter(duplicate=False)
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -96,7 +98,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # ids for va download
         download_ids = [str(i) for i in self.filterset.qs.values_list("id", flat=True)]
         if len(download_ids) > 0:
-            context["download_url"] = reverse('va_export:va_api') + '?ids=' + ','.join(download_ids) # self.request.get_host() + 
+            context["download_url"] = reverse('va_export:va_api') + '?ids=' + ','.join(download_ids) # self.request.get_host() +
         else:
             # filter returned no results - render button useless
             context["download_url"] = ""
@@ -118,8 +120,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         print(f"total time to format display VAs: {time.time() - ti} secs")
 
         return context
-
-
 
 
 # Mixin just for the individual verbal autopsy data management views to restrict access based on user
@@ -150,13 +150,13 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
-        
+
         # log view record event
         write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
 
         return context
-    
-    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern 
+
+    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern
     @staticmethod
     def filter_warnings(warnings):
         user_warnings = []
@@ -247,3 +247,13 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         messages.success(request, f"Coding algorithm process has started in the background.")
         write_va_log(LOGGER, "ran coding algorithm", self.request)
         return super().post(request, *args, **kwargs)
+
+
+class Delete(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = "va_data_management.delete_verbalautopsy"
+    model = VerbalAutopsy
+    success_url = reverse_lazy('va_data_cleanup:index')
+    success_message = "Verbal Autopsy successfully deleted!"
+
+
+delete = Delete.as_view()
