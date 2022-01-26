@@ -1,6 +1,4 @@
 import pytest
-import pdb
-import datetime
 
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import VerbalAutopsyFactory
@@ -9,8 +7,6 @@ pytestmark = pytest.mark.django_db
 
 
 def test_mark_duplicates():
-    today = datetime.datetime.now()
-
     va1 = VerbalAutopsyFactory.create(Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60",
                                       Id10022="Yes", Id10023="1/5/21", instanceid="00")
     va2 = VerbalAutopsyFactory.create(Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60",
@@ -18,13 +14,15 @@ def test_mark_duplicates():
     va3 = VerbalAutopsyFactory.create(Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60",
                                       Id10022="Yes", Id10023="1/5/21", instanceid="02")
     va4 = VerbalAutopsyFactory.create(Id10017="Barb", Id10018="Jones", Id10019="Female", Id10020="Yes",
-                                      Id10021="1/1/60",
-                                      Id10022="Yes", Id10023="1/5/21", instanceid="03")
+                                      Id10021="1/1/60", Id10022="Yes", Id10023="1/5/21", instanceid="03")
     va5 = VerbalAutopsyFactory.create(Id10017="Barb", Id10018="Jones", Id10019="Female", Id10020="Yes",
-                                      Id10021="1/1/60",
-                                      Id10022="Yes", Id10023="1/5/21", instanceid="04")
+                                      Id10021="1/1/60", Id10022="Yes", Id10023="1/5/21", instanceid="04")
     va6 = VerbalAutopsyFactory.create(Id10017="Tom", Id10018="Jones", Id10019="Male", Id10020="No", Id10021="",
                                       Id10022="No", Id10023="", instanceid="05")
+
+    for va in VerbalAutopsy.objects.all():
+        VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va)
+        va.save()
 
     VerbalAutopsy.mark_duplicates()
 
@@ -49,6 +47,7 @@ def test_before_save_updates_unique_va_identifiers_hash():
     va1 = VerbalAutopsyFactory.create(Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60",
                                Id10022="Yes", Id10023="1/5/21", instanceid="00"
                                )
+    VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va1)
     assert va1.unique_va_identifiers_hash == "840ba941ac6e608962f86eb05659bad1"
 
     va1.Id10017 = "Robert"
