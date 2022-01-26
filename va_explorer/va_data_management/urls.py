@@ -11,4 +11,5 @@ urlpatterns = [
     path("reset/<int:id>", view=views.Reset.as_view(), name="reset"),
     path("revert_latest/<int:id>", view=views.RevertLatest.as_view(), name="revert_latest"),
     path("run_coding_algorithms", view=views.RunCodingAlgorithm.as_view(), name="run_coding_algorithms"),
+    path("delete/<int:pk>", view=views.Delete.as_view(), name="delete")
 ]
