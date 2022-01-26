@@ -153,6 +153,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va)
     created_vas.append(va)
 
+    print('Creating new VAs...')
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
 
 
@@ -171,6 +172,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     print(f"total time: {time.time() - t0}")
 
+    print('Marking VAs as duplicate...')
     # Mark duplicate VAs
     VerbalAutopsy.mark_duplicates()
 
