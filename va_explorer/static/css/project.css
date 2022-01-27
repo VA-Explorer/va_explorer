@@ -11,7 +11,7 @@
 }
 
 body {
-   padding-bottom: 70px;
+  padding-bottom: 70px;
 }
 
 .checkbox-div {
@@ -22,6 +22,7 @@ body {
 .hidden {
   display: none;
 }
+
 .location-tree-depth-1 {
   padding-left: 0;
   text-transform: uppercase;
@@ -44,25 +45,25 @@ body {
 }
 
 .filter-button {
-  margin-left:  5px;
+  margin-left: 5px;
 }
 
 .form-text {
   width: 120px;
 }
 
-.form-date{
-  width:  160px;
+.form-date {
+  width: 160px;
 }
 
 .btn-light:focus {
-  background-color:#bdc0c3;
+  background-color: #bdc0c3;
 }
-
 
 .copyright-text {
   color: #656565;
-  font-size: 12px;
+  line-height: 40px;
+  font-size: 0.7em;
 }
 
 .input-label {
@@ -84,7 +85,7 @@ body {
 }
 
 .form-button {
-  padding:  5px;
+  padding: 5px;
 }
 
 .radio-group-labels {
@@ -215,15 +216,15 @@ a.auth-title-link:active {
 }
 
 .msg-header {
-  margin-left:  10px;
+  margin-left: 10px;
 }
 
 table.home-page-statistics td {
-    font-size: 2.0em;
-    font-weight: 300;
-    vertical-align: middle;
+  font-size: 2.0em;
+  font-weight: 300;
+  vertical-align: middle;
 }
 
 table.home-page-statistics th {
-    vertical-align: middle;
+  vertical-align: middle;
 }
