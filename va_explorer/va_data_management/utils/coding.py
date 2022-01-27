@@ -12,13 +12,51 @@ from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.models import CauseOfDeath
 from va_explorer.va_data_management.models import VerbalAutopsy
 
+# NOTE: By default, VA Explorer runs InterVA5 (settings found in .env file)
+# To change coding algorithm, will need to update settings below and point
+# to that algorithm's service
 
 PYCROSS_HOST = os.environ.get('PYCROSS_HOST', 'http://127.0.0.1:5001')
 INTERVA_HOST = os.environ.get('INTERVA_HOST', 'http://127.0.0.1:5002')
 
-# TODO: settings need to be configurable
-ALGORITHM_SETTINGS = {'HIV': 'l', 'Malaria': 'l', 'groupcode': 'True'}
+# Param Setting value sets (used for validation)
+# TODO: add other algorithms' settings as we add support for them
+ALGORITHM_PARAM_OPTIONS = {
+    'INTERVA': {'HIV': ['h', 'l', 'v'],
+                'Malaria': ['h', 'l', 'v'],  
+                'groupcode': ['True', 'False']
+                }
+}
 
+# InterVA5 
+ALGORITHM_SETTINGS = {
+    # describes prevalence of HIV. Should be "h"(high),"l"(low), or "v"(very low).
+    'HIV': os.environ.get('INTERVA_HIV', 'h'),
+    # describes prevalence of Malaria. Should be "h"(high),"l"(low), or "v"(very low).
+    'Malaria': os.environ.get('INTERVA_MALARIA', 'l'),
+    # Whether to include group code in the output causes
+    'groupcode': os.environ.get('INTERVA_GROUPCODE', 'True')
+}
+
+# validates provided algorithm settings against algorithm param value sets. Currently only works
+# with interva5 but set up to generalize to other algorithms once supported
+def validate_algorithm_settings():
+    # TODO: turn algorithm keyname into parameter once we support other algorithms
+    param_opts = ALGORITHM_PARAM_OPTIONS["INTERVA"]
+    setting_keys = set(ALGORITHM_SETTINGS.keys())
+    common_keys = setting_keys.intersection(param_opts.keys())
+    
+    if len(common_keys) != len(setting_keys):
+        unrecognized = setting_keys.difference(common_keys)
+        print(f'WARNING: options {unrecognized} not recognized (expected any of {list(param_opts.keys())}). Skipping...')
+    
+    # ensure all common settings are valid
+    for key in common_keys:
+        if not ALGORITHM_SETTINGS[key] in param_opts[key]:
+            print(f"ERROR: provided {key} value {ALGORITHM_SETTINGS[key]} not found. Expecting one of {param_opts[key]}")
+            return False
+
+    return True
 
 def _run_pycross_and_interva5(verbal_autopsies):
     # Get into CSV format, also prefixing keys with - as expected by pyCrossVA (e.g. Id10424 becomes -Id10424)
@@ -37,6 +75,7 @@ def _run_pycross_and_interva5(verbal_autopsies):
     rows = [
         {'ID' if key == '' else key: value for key, value in row.items()} for row in transform_response_reader
     ]
+
     result_json = json.dumps({'Input': rows, **ALGORITHM_SETTINGS})
 
     # This is to get to the data into required algorithm format for interva5
@@ -52,6 +91,7 @@ def run_coding_algorithms():
     # TODO: This should eventually check to see that there's a cause coding for every supported algorithm
     verbal_autopsies_without_causes = list(VerbalAutopsy.objects.filter(causes__isnull=True))
 
+    print(f"ALGORITHM SETTINGS: {ALGORITHM_SETTINGS}")
     interva_response_data = _run_pycross_and_interva5(verbal_autopsies_without_causes)
 
     # The ID that comes back is the index in the data that was passed in.
