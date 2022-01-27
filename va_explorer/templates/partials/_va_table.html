@@ -3,6 +3,7 @@
 <table class="table table-sm">
   <thead>
     <tr>
+      <th><a href="?{% sort_url 'id' direction='-' %}">ID</a></th>
       <th><a href="?{% sort_url 'submissiondate' direction='-' %}">Submitted</a></th>
       {% if not user.is_fieldworker %}
         <th><a href="?{% sort_url 'submissiondate' direction='-' %}">Interviewer</a></th>
@@ -17,20 +18,25 @@
     </tr>
   </thead>
   <tbody>
-    {% for va in va_list %}
-      <tr>
-        <td>{% pii_filter "submissiondate" va.submitted|default:"Date Unknown" %}</td>
-        {% if not user.is_fieldworker %}
-          <td>{% pii_filter "Id10010" va.interviewer|default:"Not Listed" %}</td>
-        {% endif %}
-        <td>{{ va.facility|default:"Location Unknown" }}</td>
-        <td>{% pii_filter "Id10017" va.deceased|default:"Subject Unknown" %}</td>
-        <td>{% pii_filter "Id10023" va.dod|default:"Date Unknown" %}</td>
-        <td>{{ va.cause|default:"Not Coded" }}</td>
-        <td>{{ va.warnings }}</td>
-        <td>{{ va.errors }}</td>
-        <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
-      </tr>
-    {% endfor %}
+    {% if va_list|length != 0 %}
+      {% for va in va_list %}
+        <tr>
+          <td>{{ va.id }}</td>
+          <td>{% pii_filter "submissiondate" va.submitted|default:"Date Unknown" %}</td>
+          {% if not user.is_fieldworker %}
+            <td>{% pii_filter "Id10010" va.interviewer|default:"Not Listed" %}</td>
+          {% endif %}
+          <td>{{ va.facility|default:"Location Unknown" }}</td>
+          <td>{% pii_filter "Id10017" va.deceased|default:"Subject Unknown" %}</td>
+          <td>{% pii_filter "Id10023" va.dod|default:"Date Unknown" %}</td>
+          <td>{{ va.cause|default:"Not Coded" }}</td>
+          <td>{{ va.warnings }}</td>
+          <td>{{ va.errors }}</td>
+          <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+        </tr>
+      {% endfor %}
+    {% else %}
+        There are no results.
+    {% endif %}
   </tbody>
 </table>
