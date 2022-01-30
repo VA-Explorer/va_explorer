@@ -1,3 +1,4 @@
+from random import choice
 from django import forms
 from datetime import datetime
 from .models import VerbalAutopsy
@@ -5,17 +6,33 @@ from .models import PII_FIELDS
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from config.settings.base import DATE_FORMATS
 
+from va_explorer.va_data_management.models import RADIO_CHOICES
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit, Row, Column
 
 class VerbalAutopsyForm(forms.ModelForm):
 
     class Meta:
         model = VerbalAutopsy
         exclude = ('id', 'location', 'instanceid')
+        widgets = {
+            }
+        for item in RADIO_CHOICES:
+            widgets[item] = forms.RadioSelect(choices=RADIO_CHOICES[item], attrs={'class':''})
 
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop('include_pii', True)
         super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        # self.helper.layout = Layout(
+        #     'deviceid',
+        #     'phonenumber'
+        #     'Id10002',
+        #     'Id10003',
+        #     'Id10009',
+        #     Submit('submit', 'Sign in')
+        # )
         if not include_pii:
             for field in PII_FIELDS:
                 del self.fields[field]
