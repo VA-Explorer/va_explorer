@@ -6,12 +6,13 @@ Created on Thu Apr 29 13:36:15 2021
 @author: babraham
 """
 
-import pandas as pd
 import re
+
+import pandas as pd
 from fuzzywuzzy import fuzz
 
-from va_explorer.va_data_management.models import Location
-from va_explorer.va_data_management.models import VaUsername
+from va_explorer.va_data_management.models import Location, VaUsername
+
 
 def build_location_mapper(va_locations, db_locations=None, loc_type="facility", drop_terms=None, similarity_thresh=75, prnt=False):
     if va_locations and len(va_locations) > 0:

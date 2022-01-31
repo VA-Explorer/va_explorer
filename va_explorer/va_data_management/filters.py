@@ -1,11 +1,17 @@
 from crispy_forms.helper import FormHelper
 from django import forms
-from django.forms import Select, TextInput
-from django_filters import FilterSet, DateFilter, CharFilter, DateRangeFilter, BooleanFilter
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.forms import Select, TextInput
+from django_filters import (
+    BooleanFilter,
+    CharFilter,
+    DateFilter,
+    DateRangeFilter,
+    FilterSet,
+)
 
 from .models import VerbalAutopsy
-from django.db.models import Q
 
 TRUE_FALSE_CHOICES = (
     (False, 'No'),

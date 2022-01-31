@@ -1,29 +1,31 @@
-import pytest
+import json
 from datetime import date, timedelta
+from io import BytesIO
+from urllib.parse import urlencode
+
+import pandas as pd
+import pytest
 from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 from django.urls import reverse
-from urllib.parse import urlencode
 
-
-import pandas as pd
-import json
-
-from va_explorer.tests.factories import GroupFactory
-from va_explorer.tests.factories import LocationFactory
-from va_explorer.tests.factories import UserFactory
-from va_explorer.tests.factories import VerbalAutopsyFactory
-
-
-from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, Location
-from va_explorer.va_data_management.models import REDACTED_STRING
+from va_explorer.tests.factories import (
+    GroupFactory,
+    LocationFactory,
+    UserFactory,
+    VerbalAutopsyFactory,
+)
 from va_explorer.users.models import User
-from va_explorer.va_analytics.views import dashboard_view
-from va_explorer.va_analytics.views import user_supervision_view
-from va_explorer.va_export.views import va_api_view
+from va_explorer.va_analytics.views import dashboard_view, user_supervision_view
+from va_explorer.va_data_management.models import (
+    REDACTED_STRING,
+    CauseOfDeath,
+    Location,
+    VerbalAutopsy,
+)
 from va_explorer.va_export.forms import VADownloadForm
-from io import BytesIO
+from va_explorer.va_export.views import va_api_view
 
 pytestmark = pytest.mark.django_db
 

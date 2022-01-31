@@ -1,7 +1,9 @@
-from os import environ
-from django.core.management.base import BaseCommand
-from va_explorer.va_data_management.models import VerbalAutopsy
 from datetime import date, datetime
+from os import environ
+
+from django.core.management.base import BaseCommand
+
+from va_explorer.va_data_management.models import VerbalAutopsy
 
 # Demo only: script to update all VA dates in the system to allow an
 # older data set to be used for demonstration purposes

@@ -2,8 +2,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 from django.views import defaults as default_views
-from django.views.generic import TemplateView
-
 
 urlpatterns = [
     path("", include("va_explorer.home.urls")),

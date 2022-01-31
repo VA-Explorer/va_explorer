@@ -1,18 +1,18 @@
+import uuid
+from functools import reduce
+
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import AbstractUser, Permission
 from django.db import models
 from django.db.models import ManyToManyField
 from django.urls import reverse
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
-from functools import reduce
-import uuid
 
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
-from va_explorer.va_data_management.models import VerbalAutopsy, Location, VaUsername
+from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
 
 
 class CustomUserManager(BaseUserManager):

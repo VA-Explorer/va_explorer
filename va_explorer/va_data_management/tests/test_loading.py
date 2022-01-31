@@ -1,14 +1,12 @@
+import datetime
 from io import StringIO
 from pathlib import Path
 
 import pandas
 import pytest
-import datetime
 from django.core.management import call_command
 
-from va_explorer.va_data_management.models import Location
-from va_explorer.va_data_management.models import VerbalAutopsy
-
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from va_explorer.va_data_management.utils.loading import load_records_from_dataframe
 
 pytestmark = pytest.mark.django_db

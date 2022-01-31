@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 from va_explorer.users.models import User
 from va_explorer.va_data_management.models import Location
 
+
 def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
     if not facilities:
         facilities = Location.objects.filter(location_type='facility').exclude(name='Unknown')

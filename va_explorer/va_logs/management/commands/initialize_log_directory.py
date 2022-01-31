@@ -1,6 +1,9 @@
-from config.settings.base import LOGGING, LOG_DIR
 import os
+
 from django.core.management import BaseCommand
+
+from config.settings.base import LOG_DIR, LOGGING
+
 
 class Command(BaseCommand):
     def __init__(self, *args, **kwargs):

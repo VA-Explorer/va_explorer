@@ -1,4 +1,5 @@
 import pandas as pd
+
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 

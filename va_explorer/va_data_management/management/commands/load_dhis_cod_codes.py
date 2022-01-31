@@ -1,7 +1,10 @@
-from va_explorer.va_data_management.models import dhisStatus, cod_codes_dhis
-from django.core.management.base import BaseCommand
 import argparse
+
 import pandas as pd
+from django.core.management.base import BaseCommand
+
+from va_explorer.va_data_management.models import cod_codes_dhis, dhisStatus
+
 
 class Command(BaseCommand):
 

@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
-
-from selenium.webdriver.support.select import Select
-from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver import FirefoxOptions
-
+from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.support.select import Select
 
 User = get_user_model()
 

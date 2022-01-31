@@ -1,9 +1,6 @@
 from django.urls import path
 
-from va_explorer.dhis_manager.views import (
-index_view,
-push_DHISView
-)
+from va_explorer.dhis_manager.views import index_view, push_DHISView
 
 app_name = "dhis_manager"
 

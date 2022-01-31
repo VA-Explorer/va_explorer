@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand
 import argparse
 
-from va_explorer.users.utils.user_form_backend import create_users_from_file
+from django.core.management.base import BaseCommand
 
+from va_explorer.users.utils.user_form_backend import create_users_from_file
 
 
 class Command(BaseCommand):

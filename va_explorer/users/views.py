@@ -1,9 +1,11 @@
+import logging
+
+from allauth.account.signals import user_logged_in, user_logged_out
 from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.dispatch import receiver
-from allauth.account.signals import user_logged_in, user_logged_out
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -16,10 +18,14 @@ from django.views.generic import (
 )
 
 from ..utils.mixins import CustomAuthMixin, UserDetailViewMixin
-from .forms import ExtendedUserCreationForm, UserChangePasswordForm, UserSetPasswordForm, UserUpdateForm
 from ..va_data_management.models import VaUsername
 from ..va_logs.logging_utils import write_va_log
-import logging
+from .forms import (
+    ExtendedUserCreationForm,
+    UserChangePasswordForm,
+    UserSetPasswordForm,
+    UserUpdateForm,
+)
 
 User = get_user_model()
 LOGGER = logging.getLogger("event_logger")

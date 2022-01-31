@@ -6,17 +6,18 @@ Created on Tue Apr 13 10:08:05 2021
 @author: babraham
 """
 
-from django.db.models import IntegerField
-from django.db.models.functions import Cast
-from django.db.models import F
-import pandas as pd
-import numpy as np
 import json
 import os
 import time
 
+import numpy as np
+import pandas as pd
+from django.db.models import F, IntegerField
+from django.db.models.functions import Cast
+
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
+
 
 # ============ GEOJSON Data (for map) =================
 # load geojson data from flat file (will likely migrate to a database later)

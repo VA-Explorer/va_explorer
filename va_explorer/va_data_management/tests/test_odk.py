@@ -6,12 +6,13 @@ import pytest
 from django.core.management import call_command
 from requests.exceptions import HTTPError
 
-from va_explorer.va_data_management.models import Location
-from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.va_data_management.utils.odk import get_odk_login_token
-from va_explorer.va_data_management.utils.odk import get_odk_form
-from va_explorer.va_data_management.utils.odk import get_odk_project_id
-from va_explorer.va_data_management.utils.odk import download_responses
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.utils.odk import (
+    download_responses,
+    get_odk_form,
+    get_odk_login_token,
+    get_odk_project_id,
+)
 
 pytestmark = pytest.mark.django_db
 

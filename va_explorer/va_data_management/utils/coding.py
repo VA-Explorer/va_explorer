@@ -8,9 +8,11 @@ import pandas as pd
 import requests
 from django.forms import model_to_dict
 
-from va_explorer.va_data_management.models import CauseCodingIssue
-from va_explorer.va_data_management.models import CauseOfDeath
-from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import (
+    CauseCodingIssue,
+    CauseOfDeath,
+    VerbalAutopsy,
+)
 
 # NOTE: By default, VA Explorer runs InterVA5 (settings found in .env file)
 # To change coding algorithm, will need to update settings below and point

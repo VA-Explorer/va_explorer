@@ -1,11 +1,12 @@
 
 # Create your views here.
-from django.views.generic import TemplateView
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.http import HttpResponse
-
 import logging
+
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
+
 from .logging_utils import write_va_log
 
 

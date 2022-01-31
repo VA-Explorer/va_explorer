@@ -1,23 +1,26 @@
+import datetime
 from io import StringIO
 from pathlib import Path
 
 import pandas as pd
 import pytest
-import datetime
+from django.contrib.auth.models import Group
 from django.core.management import call_command
 
-from va_explorer.va_data_management.models import Location
-from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.va_data_management.models import VaUsername
-
-from va_explorer.users.models import User
-
-from va_explorer.va_data_management.utils.loading import load_records_from_dataframe
-from va_explorer.tests.factories import UserFactory, LocationFactory, VerbalAutopsyFactory
-from django.contrib.auth.models import Group
+from va_explorer.tests.factories import (
+    LocationFactory,
+    UserFactory,
+    VerbalAutopsyFactory,
+)
 from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
-from va_explorer.users.tests.user_test_utils import setup_test_db, get_fake_user_data
-from va_explorer.users.utils.field_worker_linking import link_fieldworkers_to_vas, assign_va_usernames
+from va_explorer.users.models import User
+from va_explorer.users.tests.user_test_utils import get_fake_user_data, setup_test_db
+from va_explorer.users.utils.field_worker_linking import (
+    assign_va_usernames,
+    link_fieldworkers_to_vas,
+)
+from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
+from va_explorer.va_data_management.utils.loading import load_records_from_dataframe
 
 pytestmark = pytest.mark.django_db
 

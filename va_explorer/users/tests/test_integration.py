@@ -4,17 +4,17 @@ from django.core import mail
 from django.test import Client, RequestFactory
 from django.urls import reverse
 
-from va_explorer.users.forms import ExtendedUserCreationForm, UserUpdateForm
 from va_explorer.tests.factories import (
+    FacilityFactory,
+    FieldWorkerFactory,
+    FieldWorkerGroupFactory,
     GroupFactory,
     LocationFactory,
     NewUserFactory,
     UserFactory,
-    FieldWorkerFactory,
-    FacilityFactory,
-    FieldWorkerGroupFactory,
     VaUsernameFactory,
 )
+from va_explorer.users.forms import ExtendedUserCreationForm, UserUpdateForm
 from va_explorer.va_data_management.models import VaUsername
 
 pytestmark = pytest.mark.django_db

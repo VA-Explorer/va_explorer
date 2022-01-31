@@ -8,14 +8,21 @@ from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
-from django.forms import ModelChoiceField, ModelMultipleChoiceField, RadioSelect, SelectMultiple
+from django.forms import (
+    ModelChoiceField,
+    ModelMultipleChoiceField,
+    RadioSelect,
+    SelectMultiple,
+)
 from django.utils.crypto import get_random_string
 
+from va_explorer.users.utils.field_worker_linking import (
+    assign_va_usernames,
+    get_va_worker_names,
+    link_fieldworkers_to_vas,
+)
 from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
-from va_explorer.users.utils.field_worker_linking import get_va_worker_names 
-from va_explorer.users.utils.field_worker_linking import assign_va_usernames
-from va_explorer.users.utils.field_worker_linking import link_fieldworkers_to_vas
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 

@@ -1,7 +1,8 @@
+import pytest
+from numpy import nan
+
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.utils.date_parsing import get_submissiondate
-from numpy import nan
-import pytest
 
 pytestmark = pytest.mark.django_db
 

@@ -1,8 +1,6 @@
-from va_explorer.va_data_management.models import CauseCodingIssue
-from va_explorer.va_data_management.models import VaUsername
-from va_explorer.va_data_management.utils.location_assignment import assign_va_location
+from va_explorer.va_data_management.models import CauseCodingIssue, VaUsername
 from va_explorer.va_data_management.utils.date_parsing import parse_date
-
+from va_explorer.va_data_management.utils.location_assignment import assign_va_location
 
 
 def validate_vas_for_dashboard(verbal_autopsies):

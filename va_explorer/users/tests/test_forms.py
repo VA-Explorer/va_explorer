@@ -1,22 +1,22 @@
 import pytest
 from django.test import RequestFactory
 
-from va_explorer.users.forms import (
-    ExtendedUserCreationForm,
-    UserSetPasswordForm,
-    UserUpdateForm,
-    UserChangePasswordForm,
-)
 from va_explorer.tests.factories import (
+    AdminGroupFactory,
+    FacilityFactory,
+    FieldWorkerFactory,
+    FieldWorkerGroupFactory,
     GroupFactory,
     LocationFactory,
     NewUserFactory,
     UserFactory,
-    FieldWorkerGroupFactory,
-    FacilityFactory,
-    AdminGroupFactory,
     VaUsernameFactory,
-    FieldWorkerFactory
+)
+from va_explorer.users.forms import (
+    ExtendedUserCreationForm,
+    UserChangePasswordForm,
+    UserSetPasswordForm,
+    UserUpdateForm,
 )
 
 pytestmark = pytest.mark.django_db

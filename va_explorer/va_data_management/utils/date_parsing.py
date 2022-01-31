@@ -1,9 +1,11 @@
-import pandas as pd
-import numpy as np
-from datetime import datetime
 import re
+from datetime import datetime
+
+import numpy as np
+import pandas as pd
 
 from config.settings.base import DATE_FORMATS
+
 
 # helper method to parse dates in a variety of formats
 def parse_date(date_str, formats=DATE_FORMATS.keys(), strict=False, return_format='%Y-%m-%d'):

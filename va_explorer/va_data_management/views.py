@@ -1,29 +1,29 @@
+import logging
+import re
+import time
+
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Count, F, Q
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import DetailView, UpdateView, ListView, RedirectView
+from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
-from django.db.models import F, Q, Count, Value as V
-from django.db.models.functions import Concat
 
-import logging
-
-from config.celery_app import app
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
+from va_explorer.va_data_management.utils.date_parsing import (
+    parse_date,
+)
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
-from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
-from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
-
-import time
-import re
-
+from va_explorer.va_logs.logging_utils import write_va_log
 
 LOGGER = logging.getLogger("event_logger")
 
@@ -205,6 +205,7 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, De
     success_message = "Verbal Autopsy changes successfully reverted to original!"
 
     def render_to_response(self, context):
+        _ = (context)   # unused
         earliest = self.object.history.earliest()
         latest = self.object.history.latest()
         if earliest and len(latest.diff_against(earliest).changes) > 0:
@@ -224,6 +225,7 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
     success_message = "Verbal Autopsy changes successfully reverted to previous!"
 
     def render_to_response(self, context):
+        _ = (context)   # unused
         # TODO: Should record automatically be recoded?
         if self.object.history.count() > 1:
             previous = self.object.history.all()[1]

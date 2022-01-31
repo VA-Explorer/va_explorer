@@ -1,10 +1,7 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
-from va_explorer.tests.factories import (
-    LocationFactory,
-    VerbalAutopsyFactory,
-)
+from va_explorer.tests.factories import LocationFactory, VerbalAutopsyFactory
 from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
 
 

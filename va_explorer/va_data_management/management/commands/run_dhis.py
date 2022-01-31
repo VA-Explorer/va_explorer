@@ -1,14 +1,24 @@
-from django.core.management.base import BaseCommand
-from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, dhisStatus,cod_codes_dhis
-from django.forms.models import model_to_dict
-from io import StringIO
+import collections
+import csv
+import os
 from collections import OrderedDict
-import dateutil.parser,os,requests,collections
-import csv, environ
+from io import StringIO
 
+import dateutil.parser
+import environ
+import numpy as np
 import openva_pipeline.dhis as dhis
 import pandas as pd
-import numpy as np
+import requests
+from django.core.management.base import BaseCommand
+from django.forms.models import model_to_dict
+
+from va_explorer.va_data_management.models import (
+    CauseOfDeath,
+    VerbalAutopsy,
+    cod_codes_dhis,
+    dhisStatus,
+)
 
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
@@ -22,7 +32,6 @@ class Command(BaseCommand):
         dmain["ID"] = str(dmain[0][0])
         dmain = dmain.rename(columns={0: "Value"})
         for i in range(1, dataT.shape[1] - 1):
-            uuid = dataT[i][0]
             dg = dataT[{"Attribute", i}]
             dg["ID"] = dg[i][0]
             dg = dg.rename(columns={i: "Value"})
@@ -37,6 +46,7 @@ class Command(BaseCommand):
             os.remove(file.path)
 
     def handle(self, *args, **options):
+        _ = (args, options) # unused
         env = environ.Env()
         # DHIS2 VARIABLES
         DHIS2_URL = env("DHIS2_URL")

@@ -1,9 +1,9 @@
-from django.db import models
 from django.conf import settings
-from simple_history.models import HistoricalRecords
-from django.db.models import JSONField
 #from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models import JSONField
+from simple_history.models import HistoricalRecords
 from treebeard.mp_tree import MP_Node
 
 REDACTED_STRING = '** redacted **'

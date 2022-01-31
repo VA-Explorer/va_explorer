@@ -1,36 +1,34 @@
-import logging
-import pandas as pd
-from pandas import to_datetime as to_dt
-from numpy import round
 import json
+import logging
 from urllib.parse import urlencode
 
-from django.shortcuts import render
+import pandas as pd
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
+from django.core import serializers
 from django.db.models import Count, F, Q
-from django.core import serializers
 from django.http import HttpResponse, JsonResponse
-from django.views.generic import ListView, TemplateView, View
-from django.views.generic.edit import FormView
-from django.core import serializers
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, redirect
-from django.urls import reverse
-
+from django.views.generic import ListView, TemplateView, View
+from django.views.generic.edit import FormView
+from numpy import round
+from pandas import to_datetime as to_dt
 
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_analytics.filters import SupervisionFilter
 from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING, Location
-from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondates
-from va_explorer.va_logs.logging_utils import write_va_log
+from va_explorer.va_data_management.utils.date_parsing import (
+    get_submissiondates,
+    parse_date,
+)
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 from va_explorer.va_export.forms import VADownloadForm
 from va_explorer.va_export.utils import get_loc_ids_for_filter
-
-
+from va_explorer.va_logs.logging_utils import write_va_log
 
 LOGGER = logging.getLogger("event_logger")
 

@@ -1,15 +1,17 @@
-import pytest
 from datetime import date, timedelta
+
+import pytest
 from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 
-from va_explorer.tests.factories import GroupFactory
-from va_explorer.tests.factories import LocationFactory
-from va_explorer.tests.factories import UserFactory
-from va_explorer.tests.factories import VerbalAutopsyFactory
-from va_explorer.va_analytics.views import dashboard_view
-from va_explorer.va_analytics.views import user_supervision_view
+from va_explorer.tests.factories import (
+    GroupFactory,
+    LocationFactory,
+    UserFactory,
+    VerbalAutopsyFactory,
+)
+from va_explorer.va_analytics.views import dashboard_view, user_supervision_view
 from va_explorer.va_data_management.models import CauseOfDeath
 
 pytestmark = pytest.mark.django_db

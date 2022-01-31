@@ -1,8 +1,9 @@
+import os
+
 from allauth.account.adapter import DefaultAccountAdapter
 from django.conf import settings
 from django.http import HttpRequest
 from django.urls import reverse
-import os
 
 EMAIL_URL = os.environ.get('EMAIL_URL', 'consolemail://')
 

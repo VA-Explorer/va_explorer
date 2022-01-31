@@ -1,11 +1,19 @@
 import pytest
-from django.test import Client
 from django.contrib.auth.models import Permission
+from django.test import Client
+
+from va_explorer.tests.factories import (
+    FacilityFactory,
+    FieldWorkerFactory,
+    FieldWorkerGroupFactory,
+    GroupFactory,
+    LocationFactory,
+    UserFactory,
+    VaUsernameFactory,
+    VerbalAutopsyFactory,
+)
 from va_explorer.users.models import User
-from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory, LocationFactory, \
-    FieldWorkerFactory, FieldWorkerGroupFactory, FacilityFactory, VaUsernameFactory
-from va_explorer.va_data_management.models import REDACTED_STRING
+from va_explorer.va_data_management.models import REDACTED_STRING, VerbalAutopsy
 
 pytestmark = pytest.mark.django_db
 

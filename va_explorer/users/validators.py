@@ -1,9 +1,10 @@
 import re
+
+from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.hashers import check_password
-from va_explorer.users.models import UserPasswordHistory
-from va_explorer.users.models import User
+
+from va_explorer.users.models import User, UserPasswordHistory
 
 
 class PasswordComplexityValidator:

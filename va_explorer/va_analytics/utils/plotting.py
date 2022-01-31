@@ -5,12 +5,13 @@ Created on Wed Feb 10 23:56:26 2021
 
 @author: babraham
 """
+import os
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
-import os
 
 # ===========PLOTTING PROPERTIES/VARIABLES=====================#
 D3 = px.colors.qualitative.D3

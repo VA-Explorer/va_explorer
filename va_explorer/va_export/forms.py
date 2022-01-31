@@ -1,8 +1,16 @@
 from django import forms
-from django.forms import ModelChoiceField, ModelMultipleChoiceField, MultipleChoiceField, DateField
-from django.forms import SelectMultiple, RadioSelect, Select, DateField
-from va_explorer.va_data_management.models import Location, CauseOfDeath
+from django.forms import (
+    DateField,
+    ModelChoiceField,
+    ModelMultipleChoiceField,
+    MultipleChoiceField,
+    RadioSelect,
+    Select,
+    SelectMultiple,
+)
+
 from va_explorer.users.forms import LocationRestrictionsSelectMultiple
+from va_explorer.va_data_management.models import CauseOfDeath, Location
 
 
 # load COD options for export form

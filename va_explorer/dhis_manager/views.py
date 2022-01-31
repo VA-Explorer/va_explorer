@@ -1,9 +1,11 @@
-from va_explorer.va_data_management.management.commands.run_dhis import Command
-from va_explorer.va_data_management.models import dhisStatus,VerbalAutopsy
 import environ
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView
+
 from va_explorer.utils.mixins import CustomAuthMixin
+from va_explorer.va_data_management.management.commands.run_dhis import Command
+from va_explorer.va_data_management.models import VerbalAutopsy, dhisStatus
+
 
 # Create your views here.
 class IndexView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):

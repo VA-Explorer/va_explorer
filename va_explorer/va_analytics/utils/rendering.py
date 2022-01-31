@@ -1,10 +1,13 @@
-import dash_html_components as html
+import datetime as dt
+from urllib.parse import urlencode
+
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 from django.shortcuts import redirect
 from django.urls import reverse
-from urllib.parse import urlencode
-import datetime as dt
+
 from va_explorer.va_analytics.utils.plotting import load_lookup_dicts
+
 
 def render_update_header(va_stats):
     header = html.Div(className="row", id="va_stats_header", children=[])

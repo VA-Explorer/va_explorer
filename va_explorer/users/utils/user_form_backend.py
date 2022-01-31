@@ -1,18 +1,18 @@
-from django.db.models import F
-
-from django.forms import BooleanField
-from django.forms.models import ModelMultipleChoiceField as mmc_field
-from django.db.models.query import QuerySet
-
-from va_explorer.users.models import User
-from va_explorer.users.forms import ExtendedUserCreationForm
-from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
-from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
-
-import pandas as pd
-from pandas.core.frame import DataFrame
 import os
 import re
+
+import pandas as pd
+from django.db.models import F
+from django.db.models.query import QuerySet
+from django.forms import BooleanField
+from django.forms.models import ModelMultipleChoiceField as mmc_field
+from pandas.core.frame import DataFrame
+
+from va_explorer.users.forms import ExtendedUserCreationForm
+from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMISSIONS
+from va_explorer.users.models import User
+from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
+
 
 # get table with basic info for a list of users. By default, exports results for all users but admin. 
 # No PII included in result

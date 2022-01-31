@@ -5,12 +5,12 @@ Created on Mon Apr 12 14:33:57 2021
 
 @author: babraham
 """
-from va_explorer.users.models import User
-from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
-from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
-
 import pandas as pd
 from numpy import nan
+
+from va_explorer.users.models import User
+from va_explorer.va_data_management.models import VaUsername, VerbalAutopsy
+from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 
 
 # update field worker usernames by matching names against all known interviewer names from VAs

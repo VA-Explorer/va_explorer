@@ -8,9 +8,9 @@ Created on Wed Jul 29 15:25:20 2020
 
 import datetime as dt
 import json
+import logging
 import os
 import re
-import logging
 
 import dash
 import dash_bootstrap_components as dbc
@@ -20,13 +20,12 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
-from django_plotly_dash import DjangoDash
 from django.urls import reverse
+from django_plotly_dash import DjangoDash
 
-
-from va_explorer.va_logs.logging_utils import write_va_log
+from va_explorer.va_analytics.utils import loading, plotting, rendering
 from va_explorer.va_data_management.models import Location
-from va_explorer.va_analytics.utils import plotting, loading, rendering
+from va_explorer.va_logs.logging_utils import write_va_log
 
 # ================APP DEFINITION===============#
 # NOTE: to include external stylesheets, set external_stylesheets parameter in constructor

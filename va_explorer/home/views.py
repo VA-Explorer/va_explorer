@@ -1,17 +1,22 @@
-from django.views.generic import TemplateView
-from django.db.models import Count
-from django.db.models.functions import TruncMonth
-from va_explorer.utils.mixins import CustomAuthMixin
 from datetime import date, timedelta
-from dateutil.relativedelta import relativedelta
+
 import numpy as np
 import pandas as pd
-from django.db.models import F
+import plotly.graph_objs as go
 # TODO: We're using plotly here since it's already included in the project, but there may be slimmer options
 import plotly.offline as opy
-import plotly.graph_objs as go
+from dateutil.relativedelta import relativedelta
+from django.db.models import F
+from django.views.generic import TemplateView
+
+from va_explorer.utils.mixins import CustomAuthMixin
+from va_explorer.va_data_management.utils.date_parsing import (
+    get_submissiondates,
+    parse_date,
+    to_dt,
+)
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
-from va_explorer.va_data_management.utils.date_parsing import parse_date, to_dt, get_submissiondates
+
 
 # Simple helper function for creating the plotly graphs used on the home page
 def graph(x, y):

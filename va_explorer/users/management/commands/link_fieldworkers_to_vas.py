@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand
 import argparse
 
-from va_explorer.users.utils.field_worker_linking import link_fieldworkers_to_vas
+from django.core.management.base import BaseCommand
 
+from va_explorer.users.utils.field_worker_linking import link_fieldworkers_to_vas
 
 
 class Command(BaseCommand):

@@ -1,10 +1,14 @@
 from unittest import TestCase
+
 import pytest
 from django.core.exceptions import ValidationError
+
 from va_explorer.tests.factories import UserFactory
 from va_explorer.users.models import UserPasswordHistory
-from va_explorer.users.validators import PasswordComplexityValidator, PasswordHistoryValidator
-
+from va_explorer.users.validators import (
+    PasswordComplexityValidator,
+    PasswordHistoryValidator,
+)
 
 pytestmark = pytest.mark.django_db
 
