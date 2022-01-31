@@ -16,7 +16,6 @@ class DateInput(forms.DateInput):
 
 
 class VAFilter(FilterSet):
-    id = CharFilter(field_name="id", label="ID")
     interviewer = CharFilter(field_name="Id10010", lookup_expr="icontains", label="Interviewer")
     deceased = CharFilter(method="filter_deceased", label="Deceased")
     start_date = DateFilter(field_name="Id10023", lookup_expr="gte", label="Earliest Date", widget=DateInput(attrs={'class': 'datepicker'}))
