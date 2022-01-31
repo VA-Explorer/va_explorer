@@ -6,7 +6,6 @@ from django.db.models import JSONField
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
 
-from django import forms
 
 HIGH_LOW_VERY = [
     ('HIGH', 'high'),
@@ -367,7 +366,6 @@ class Location(MP_Node):
 
 class VerbalAutopsy(models.Model):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
-    
     location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE, null=True)
 
     # The VA fields collected as part of the WHO VA form or local versions

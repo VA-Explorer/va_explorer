@@ -1,4 +1,3 @@
-from random import choice
 from django import forms
 from datetime import datetime
 from .models import VerbalAutopsy
