@@ -15,22 +15,17 @@ HIGH_LOW_VERY = [
     ('VERYL', 'very low')
 ]
 
-YES_NO_DK_REF = [
-    ('YES', 'Yes'),
-    ('NO', 'No'),
-    ('DK', 'Don\'t know'),
-    ('REF', 'Refuse to Answer')
-]
-
-YES_NO_REF = [
-    ('YES', 'Yes'),
-    ('NO', 'No'),
-    ('REF', 'Refuse to Answer')
-]
-
 YES_NO = [
     ('YES', 'Yes'),
     ('NO', 'No'),
+]
+
+YES_NO_REF = YES_NO + [
+    ('REF', 'Refuse to Answer')
+]
+
+YES_NO_DK_REF = YES_NO_REF + [
+    ('DK', 'Don\'t know'),
 ]
 
 MALE_FEMALE = [

@@ -20,8 +20,6 @@
 
       {% endfor %}
   {% endif %}
-
-  {% comment %} {{ form|crispy }} {% endcomment %}
   
   {% for field in form %}
     <div class="form-group row">
@@ -32,8 +30,6 @@
         <div class="col-form-label">{{ field.label }}</div>
       </div>
       <div class="col-sm-4">
-        {% comment %} <input type="text" class="form-control" id="{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}"> {% endcomment %}
-        {% comment %} {% render_field field class="form-control" %} {% endcomment %}
         {{ field }}
       </div>
     </div>
