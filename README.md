@@ -370,7 +370,7 @@ Releases are documented in the [CHANGELOG]().
 
 ## License
 
-Copyright 2020-2021 The MITRE Corporation
+Copyright 2020-2022 The MITRE Corporation
 
 The source of this information is the Data for Health Initiative, a joint project of the CDC Foundation and Bloomberg Philanthropies.
 
