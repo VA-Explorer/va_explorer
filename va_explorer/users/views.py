@@ -18,7 +18,6 @@ from django.views.generic import (
 )
 
 from ..utils.mixins import CustomAuthMixin, UserDetailViewMixin
-from ..va_data_management.models import VaUsername
 from ..va_logs.logging_utils import write_va_log
 from .forms import (
     ExtendedUserCreationForm,

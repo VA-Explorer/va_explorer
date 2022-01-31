@@ -1,6 +1,4 @@
 import re
-from collections import OrderedDict
-from urllib.parse import urlencode
 
 from django import template
 from django.urls import NoReverseMatch, reverse

@@ -4,10 +4,9 @@ from django.views.generic import TemplateView
 
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.management.commands.run_dhis import Command
-from va_explorer.va_data_management.models import VerbalAutopsy, dhisStatus
+from va_explorer.va_data_management.models import VerbalAutopsy
 
 
-# Create your views here.
 class IndexView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "pages/dhis.html"
     permission_required = "dhis_manager.change_dhisstatus"

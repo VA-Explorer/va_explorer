@@ -1,19 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 13 10:08:05 2021
-
-@author: babraham
-"""
-
 import json
 import os
-import time
 
-import numpy as np
 import pandas as pd
-from django.db.models import F, IntegerField
-from django.db.models.functions import Cast
+from django.db.models import F
 
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats

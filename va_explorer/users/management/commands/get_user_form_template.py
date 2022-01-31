@@ -1,10 +1,5 @@
-import argparse
-
-import pandas as pd
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from va_explorer.users.forms import ExtendedUserCreationForm
 from va_explorer.users.utils.user_form_backend import get_form_fields
 
 

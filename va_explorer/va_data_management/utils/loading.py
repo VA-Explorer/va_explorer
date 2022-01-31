@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Max, Q
-from pandas import to_datetime as to_dt
 from simple_history.utils import bulk_create_with_history
 
 from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
@@ -14,11 +13,7 @@ from va_explorer.users.utils.field_worker_linking import (
     normalize_name,
 )
 from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
-from va_explorer.va_data_management.utils.date_parsing import (
-    get_submissiondates,
-    parse_date,
-    to_dt,
-)
+from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.location_assignment import (
     assign_va_location,
     build_location_mapper,

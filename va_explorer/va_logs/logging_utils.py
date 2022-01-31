@@ -1,15 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May  6 14:01:55 2021
-
-@author: babraham
-"""
-import logging
-
-from config.settings.base import LOG_DIR, LOGGING
-
-
 def write_va_log(logger, msg, request=None, logtype="info", session_key=None):
     log_fns = {"info": logger.info, "debug": logger.debug}
     if not request and not session_key:

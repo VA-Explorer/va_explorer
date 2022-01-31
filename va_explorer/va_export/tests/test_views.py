@@ -1,12 +1,10 @@
 import json
-from datetime import date, timedelta
 from io import BytesIO
 from urllib.parse import urlencode
 
 import pandas as pd
 import pytest
 from django.contrib.auth.models import Permission
-from django.core.exceptions import PermissionDenied
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -17,7 +15,6 @@ from va_explorer.tests.factories import (
     VerbalAutopsyFactory,
 )
 from va_explorer.users.models import User
-from va_explorer.va_analytics.views import dashboard_view, user_supervision_view
 from va_explorer.va_data_management.models import (
     REDACTED_STRING,
     CauseOfDeath,

@@ -1,6 +1,5 @@
 import os
 
-import pandas as pd
 from django.core.management.base import BaseCommand
 
 from va_explorer.va_data_management.utils.loading import load_records_from_dataframe

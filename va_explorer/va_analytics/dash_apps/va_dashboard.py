@@ -1,15 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 29 15:25:20 2020
-
-@author: babraham
-"""
-
 import datetime as dt
-import json
 import logging
-import os
 import re
 
 import dash

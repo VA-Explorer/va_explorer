@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 from django.core.management.base import BaseCommand
 
-from va_explorer.va_data_management.models import cod_codes_dhis, dhisStatus
+from va_explorer.va_data_management.models import cod_codes_dhis
 
 
 class Command(BaseCommand):

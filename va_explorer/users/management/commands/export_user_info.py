@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May 28 12:00:36 2021
-
-@author: babraham
-"""
-
-
 from django.core.management.base import BaseCommand
 
 from va_explorer.users.utils.user_form_backend import get_anonymized_user_info

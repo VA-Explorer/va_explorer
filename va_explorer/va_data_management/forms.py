@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django import forms
 
 from config.settings.base import DATE_FORMATS

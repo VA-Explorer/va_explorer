@@ -1,9 +1,7 @@
 import argparse
 
-import pandas as pd
 from django.core.management.base import BaseCommand
 
-from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.utils.loading import load_locations_from_file
 
 

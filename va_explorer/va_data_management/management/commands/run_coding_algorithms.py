@@ -1,11 +1,9 @@
-import argparse
 import time
 
 import pandas as pd
 from django.core.management.base import BaseCommand
-from django.db.models import F
 
-from va_explorer.va_data_management.models import CauseOfDeath, VerbalAutopsy
+from va_explorer.va_data_management.models import CauseOfDeath
 from va_explorer.va_data_management.utils.coding import (
     ALGORITHM_SETTINGS,
     run_coding_algorithms,

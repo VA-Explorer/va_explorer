@@ -12,7 +12,6 @@ from va_explorer.tests.factories import (
     VerbalAutopsyFactory,
 )
 from va_explorer.va_analytics.views import dashboard_view, user_supervision_view
-from va_explorer.va_data_management.models import CauseOfDeath
 
 pytestmark = pytest.mark.django_db
 

@@ -2,17 +2,14 @@ import logging
 
 import pandas as pd
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
 from django.db.models import Count, F, Q
-from django.http import HttpResponse
-from django.views.generic import ListView, TemplateView, View
+from django.views.generic import ListView, TemplateView
 from numpy import round
 from pandas import to_datetime as to_dt
 
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_analytics.filters import SupervisionFilter
-from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING, Location
 from va_explorer.va_data_management.utils.date_parsing import (
     get_submissiondates,
     parse_date,

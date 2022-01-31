@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 29 13:36:15 2021
-
-@author: babraham
-"""
-
 import re
 
 import pandas as pd

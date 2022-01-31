@@ -1,12 +1,10 @@
 from datetime import date
 
 import pytest
-from dateutil.relativedelta import relativedelta
 from django.test import Client
 
-from va_explorer.tests.factories import LocationFactory, VerbalAutopsyFactory
+from va_explorer.tests.factories import VerbalAutopsyFactory
 from va_explorer.users.models import User
-from va_explorer.va_data_management.models import VerbalAutopsy
 
 pytestmark = pytest.mark.django_db
 
