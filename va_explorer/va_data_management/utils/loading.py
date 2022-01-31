@@ -8,7 +8,7 @@ from simple_history.utils import bulk_create_with_history
 from django.contrib.auth import get_user_model
 from django.db.models import Max, Count, Q
 
-from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername
+from va_explorer.va_data_management.models import VerbalAutopsy, VaUsername, Location
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.date_parsing import parse_date, to_dt, get_submissiondates
 from va_explorer.va_data_management.utils.location_assignment import build_location_mapper, assign_va_location
@@ -18,6 +18,7 @@ from va_explorer.users.utils.field_worker_linking import assign_va_usernames, no
 
 User = get_user_model()
 
+# load VA records into django database
 def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     ti = t0 = time.time()
     logger = None if not debug else logging.getLogger("event_logger")
@@ -161,7 +162,75 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         'ignored': ignored_vas,
         'created': created_vas,
     }
-  
+
+
+# load locations from a csv file into the django database. If delete_previous is true, will clear location db before laoding. 
+def load_locations_from_file(csv_file, delete_previous=False):
+    # Delete existing locations ONLY IF DELETE_PREVIOUS IS TRUE. 
+    if delete_previous:
+        # Clear out any existing locations (this is for initialization only)
+        Location.objects.all().delete()
+
+    # Load the CSV file
+    csv_data = pd.read_csv(csv_file, keep_default_na=False).rename(columns=lambda c: c.lower())
+
+    # rename type column to match model field name
+    if 'type' in csv_data.columns:
+        csv_data = csv_data.rename(columns={'type': 'location_type'})
+
+    # only consider fields in both csv and Location schema
+    db_fields = set([field.name for field in Location._meta.get_fields()])
+    common_fields = csv_data.columns.intersection(db_fields).tolist()
+
+    # track number of new locations added to system
+    location_ct = update_ct = 0
+    db_locations = {l.name: l for l in Location.objects.all()}
+    # Store it into the database in a tree structure
+    # *** assumes locations have following fields: name, parent, location_type
+    for _, row in csv_data.iterrows():
+        model_data = row.loc[common_fields].dropna()
+        if row['parent']:
+            # first, check that parent exists. If not, skip location due to integrity issues
+            parent_node = db_locations.get(row['parent'], None)
+            if parent_node:
+                # update parent to get latest state
+                parent_node.refresh_from_db()
+                # next, check for current node in db. If not, create new child. If so, ensure parent matches parent_node
+                row_location = db_locations.get(row['name'], None)
+                if row_location:
+                    # if child node points to right parent
+                    if row_location.get_parent().name != parent_node.name:
+                        print(f"WARNING: Updating {row_location.name}'s parent to {parent_node.name}")
+                        row_location.move(parent_node, pos='sorted-child')
+                    # update existing location fields with data from csv
+                    for field, value in model_data.items():
+                        if value not in [np.nan, '', None]:
+                            setattr(row_location, field, value)
+                    row_location.save()
+                    update_ct += 1
+                else:
+                    print(f"Adding {row['name']} as child node of {row['parent']}")
+                    db_locations[row["name"]] = parent_node.add_child(**model_data)
+                    location_ct += 1
+            else:
+                print(f"Couldn't find location {row['name']}'s parent ({row['parent']}) in system. Skipping..")
+        else:
+            # add root node if it doesn't already exist
+            if not db_locations.get(row["name"], None):
+                print(f"Adding root node for {row['name']}")
+                db_locations[row["name"]] = Location.add_root(**model_data)
+                location_ct += 1
+
+    # if non existent, add 'Null' location to database to account for VAs with unknown locations
+    if not Location.objects.filter(name='Unknown').exists():
+        print(f'Adding NULL location to handle unknowns')
+        Location.add_root(name='Unknown', location_type='facility')
+        location_ct += 1
+
+    print(f"added {location_ct} new locations to system")
+    print(f"updated {update_ct} locations with new data")
+
+
 # combine fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010). 
 # in Zambia data, often either the normal or _other field has a value but not both.
 # NOTE: currently using 'cleaned' version of other field (called filtered_<field>_other) and discarding <field>-other values
@@ -184,6 +253,7 @@ def deduplicate_columns(record_df, drop_duplicates=True):
     if drop_duplicates:
         record_df = record_df.drop(columns=other_cols)
     return record_df
+
 
 def get_va_summary_stats(vas, filter_fields=False):
     # calculate stats
