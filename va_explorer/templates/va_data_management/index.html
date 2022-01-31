@@ -20,8 +20,13 @@
       </div>
     {% endif %}
     <div class="form-group filter-button">
+    {% if download_url == "" %}
+      <button class="btn btn-primary form-control" disabled>
+        <i class="fas fa-download"></i> Data</button>
+    {% else %}
       <a class="btn btn-primary form-control" href={{download_url}}>
         <i class="fas fa-download"></i> Data</a>
+    {% endif %}
     </div>
   </div>
 </form>
