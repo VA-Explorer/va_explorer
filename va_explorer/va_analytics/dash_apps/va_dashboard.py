@@ -546,8 +546,11 @@ def init_va_data(hidden_trigger=None, **kwargs):
     # Only show the Download Data button if user has access to it.
     download_div = html.Div(id="download_data_div")
     download_div.children = [
-        dbc.Button("Download Data", id="download_button", href=reverse("va_export:va_api"), color="primary",
-            external_link=True) 
+        dbc.Button(children=[html.I(className="fas fa-download"),
+                    html.Span(" Data", style={"margin-left": "2px"})],
+                    id="download_button", href=reverse("va_export:va_api"), color="primary",
+                    external_link=True) 
+
     ]
     # hide download data button if user doesn't have permission to download
     download_div.hidden = (not kwargs["user"].can_download_data)

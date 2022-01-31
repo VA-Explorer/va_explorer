@@ -11,14 +11,23 @@
 <form method="get">
   <div class="form-row align-items-end">
     {% crispy filterset.form %}
-    <div class="form-group">
-      <button class="form-control btn btn-primary filter-button" type="submit">Search</button>
+    <div class="form-group filter-button">
+      <button class="form-control btn btn-primary" type="submit">Search</button>
     </div>
     {% if filterset.is_valid %}
-      <div class="form-group">
-        <a class="btn btn-secondary form-control filter-button" href="{% url 'data_management:index' %}">Reset</a>
+      <div class="form-group filter-button">
+        <a class="btn btn-secondary form-control" href="{% url 'data_management:index' %}">Reset</a>
       </div>
     {% endif %}
+    <div class="form-group filter-button">
+    {% if download_url == "" %}
+      <button class="btn btn-primary form-control" disabled>
+        <i class="fas fa-download"></i> Data</button>
+    {% else %}
+      <a class="btn btn-primary form-control" href={{download_url}}>
+        <i class="fas fa-download"></i> Data</a>
+    {% endif %}
+    </div>
   </div>
 </form>
 
