@@ -80,7 +80,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         all_vas = (
             context["object_list"]
-            .only("id", "submissiondate","Id10011", "Id10010")
+            .only("id", "submissiondate", "Id10011", "Id10010")
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
@@ -100,12 +100,12 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             )
         )
         va_df = pd.DataFrame(all_vas)
-        
+
         if not va_df.empty:
             va_df["date"] = get_submissiondates(va_df)
             context["supervision_stats"] = (
                 va_df.assign(date=lambda df: df["date"].apply(parse_date))
-                .assign(date = lambda df: to_dt(df["date"], errors="coerce"))
+                .assign(date=lambda df: to_dt(df["date"], errors="coerce"))
                 # only analyze vas with valid submission dates
                 .query("date == date")
                 .assign(
@@ -138,7 +138,6 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             ).to_dict(orient="records")
 
         return context
-
 
 
 user_supervision_view = UserSupervisionView.as_view()

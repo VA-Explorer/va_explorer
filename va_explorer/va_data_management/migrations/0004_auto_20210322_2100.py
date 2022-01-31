@@ -6,33 +6,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0003_auto_20210312_1905'),
+        ("va_data_management", "0003_auto_20210312_1905"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalverbalautopsy',
-            name='submissiondate',
-            field=models.TextField(blank=True, verbose_name='Submission Date'),
+            model_name="historicalverbalautopsy",
+            name="submissiondate",
+            field=models.TextField(blank=True, verbose_name="Submission Date"),
         ),
         migrations.AddField(
-            model_name='verbalautopsy',
-            name='submissiondate',
-            field=models.TextField(blank=True, verbose_name='Submission Date'),
+            model_name="verbalautopsy",
+            name="submissiondate",
+            field=models.TextField(blank=True, verbose_name="Submission Date"),
         ),
         migrations.AlterField(
-            model_name='causecodingissue',
-            name='settings',
+            model_name="causecodingissue",
+            name="settings",
             field=models.JSONField(),
         ),
         migrations.AlterField(
-            model_name='causeofdeath',
-            name='settings',
+            model_name="causeofdeath",
+            name="settings",
             field=models.JSONField(),
         ),
         migrations.AlterField(
-            model_name='historicalcauseofdeath',
-            name='settings',
+            model_name="historicalcauseofdeath",
+            name="settings",
             field=models.JSONField(),
         ),
     ]

@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0006_auto_20210430_2258'),
+        ("va_data_management", "0006_auto_20210430_2258"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='instanceid',
-            field=models.TextField(blank=True, editable=False, verbose_name='Instance ID'),
+            model_name="historicalverbalautopsy",
+            name="instanceid",
+            field=models.TextField(
+                blank=True, editable=False, verbose_name="Instance ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='instanceid',
-            field=models.TextField(blank=True, editable=False, verbose_name='Instance ID'),
+            model_name="verbalautopsy",
+            name="instanceid",
+            field=models.TextField(
+                blank=True, editable=False, verbose_name="Instance ID"
+            ),
         ),
     ]

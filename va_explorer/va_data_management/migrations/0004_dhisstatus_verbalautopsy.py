@@ -7,14 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0003_dhisstatus'),
+        ("va_data_management", "0003_dhisstatus"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='dhisstatus',
-            name='verbalautopsy',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='dhisva', to='va_data_management.VerbalAutopsy'),
+            model_name="dhisstatus",
+            name="verbalautopsy",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="dhisva",
+                to="va_data_management.VerbalAutopsy",
+            ),
             preserve_default=False,
         ),
     ]

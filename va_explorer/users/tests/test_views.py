@@ -51,7 +51,9 @@ class TestUserDetailView:
         assert response.status_code == 200
 
     # NOTE: All users can view their own profile (detail page), regardless of permission
-    def test_can_view_own_profile_without_view_permission(self, user: User, rf: RequestFactory):
+    def test_can_view_own_profile_without_view_permission(
+        self, user: User, rf: RequestFactory
+    ):
         no_permissions_group = GroupFactory.create(permissions=[])
         user = UserFactory.create(groups=[no_permissions_group])
 
@@ -62,7 +64,9 @@ class TestUserDetailView:
 
         assert response.status_code == 200
 
-    def test_cannot_view_other_profile_without_view_permission(self, user: User, rf: RequestFactory):
+    def test_cannot_view_other_profile_without_view_permission(
+        self, user: User, rf: RequestFactory
+    ):
         no_permissions_group = GroupFactory.create(permissions=[])
         user = UserFactory.create(groups=[no_permissions_group])
         other_user = UserFactory.create()
@@ -197,6 +201,7 @@ class TestUserSetPasswordView:
     required for the view to function properly. So, for these tests we could add the
     middleware manually if that seems like a better approach.
     """
+
     def test_set_password_without_valid_pw(self, user: User):
         client = Client()
 
@@ -234,7 +239,4 @@ class TestUserSetPasswordView:
         response = client.get(url, follow=True)
 
         assert response.status_code == 200
-        assert (
-            b"User has already set password"
-            in response.content
-        )
+        assert b"User has already set password" in response.content

@@ -27,28 +27,39 @@ from va_explorer.va_logs.logging_utils import write_va_log
 
 LOGGER = logging.getLogger("event_logger")
 
+
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     permission_required = "va_data_management.view_verbalautopsy"
-    template_name = 'va_data_management/index.html'
+    template_name = "va_data_management/index.html"
     paginate_by = 15
 
     def get_queryset(self):
 
         # Restrict to VAs this user can access and prefetch related for performance
-        ti=time.time(); queryset = (self.request.user.verbal_autopsies()\
-                    .select_related("location")\
-                    .select_related("causes")\
-                    .select_related("coding_issues")\
-                    .annotate(deceased = Concat('Id10017', V(' '), 'Id10018'))
-                    .values("id",
-                            "location__name",
-                            "causes__cause",
-                            "Id10023",
-                            "Id10010",
-                            "submissiondate",
-                            "deceased",
-                            errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
-                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
+        ti = time.time()
+        queryset = (
+            self.request.user.verbal_autopsies()
+            .select_related("location")
+            .select_related("causes")
+            .select_related("coding_issues")
+            .annotate(deceased=Concat("Id10017", V(" "), "Id10018"))
+            .values(
+                "id",
+                "location__name",
+                "causes__cause",
+                "Id10023",
+                "Id10010",
+                "submissiondate",
+                "deceased",
+                errors=Count(
+                    F("coding_issues"), filter=Q(coding_issues__severity="error")
+                ),
+                warnings=Count(
+                    F("coding_issues"), filter=Q(coding_issues__severity="warning")
+                ),
+            )
+        )
+        print(f"total time: {time.time()-ti} secs")
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -56,13 +67,13 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # strip out direction and map to va field
         sort_key = sort_key_raw.lstrip("-")
         sort_key_to_field = {
-            'id': 'id',
-            'interviewer': 'Id10010',
-            'dod': 'Id10023',
-            'facility': 'location__name',
-            'cause': 'causes__cause',
-            'submitted': 'submissiondate',
-            'deceased': 'deceased'
+            "id": "id",
+            "interviewer": "Id10010",
+            "dod": "Id10023",
+            "facility": "location__name",
+            "cause": "causes__cause",
+            "submitted": "submissiondate",
+            "deceased": "deceased",
         }
         sort_field = sort_key_to_field.get(sort_key, sort_key)
         # add sort direction
@@ -72,18 +83,20 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         self.filterset = VAFilter(data=self.request.GET or None, queryset=queryset)
         if self.request.user.is_fieldworker():
-            del self.filterset.form.fields['interviewer']
+            del self.filterset.form.fields["interviewer"]
 
         # Don't allow search based on fields the user can't see anyway
         if not self.request.user.can_view_pii:
-            del self.filterset.form.fields['deceased']
-            del self.filterset.form.fields['start_date']
-            del self.filterset.form.fields['end_date']
+            del self.filterset.form.fields["deceased"]
+            del self.filterset.form.fields["start_date"]
+            del self.filterset.form.fields["end_date"]
 
         query_dict = self.request.GET.dict()
-        query_keys = [k for k in query_dict if k != 'csrfmiddlewaretoken']
+        query_keys = [k for k in query_dict if k != "csrfmiddlewaretoken"]
         if len(query_keys) > 0:
-            query = ', '.join([f"{k}: {query_dict[k]}" for k in query_keys if query_dict[k] != ""])
+            query = ", ".join(
+                [f"{k}: {query_dict[k]}" for k in query_keys if query_dict[k] != ""]
+            )
             write_va_log(LOGGER, f"[data_mgnt] Queried VAs for: {query}", self.request)
 
         return self.filterset.qs
@@ -96,30 +109,45 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # ids for va download
         download_ids = [str(i) for i in self.filterset.qs.values_list("id", flat=True)]
         if len(download_ids) > 0:
-            context["download_url"] = reverse('va_export:va_api') + '?ids=' + ','.join(download_ids) # self.request.get_host() + 
+            context["download_url"] = (
+                reverse("va_export:va_api") + "?ids=" + ",".join(download_ids)
+            )  # self.request.get_host() +
         else:
             # filter returned no results - render button useless
             context["download_url"] = ""
 
         ti = time.time()
-        context['object_list'] = [{
-            "id": va["id"],
-            "deceased": va["deceased"],
-            "interviewer": va["Id10010"],
-            "submitted":  va["submissiondate"], #get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
-            "dod":  parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
-            "facility": va["location__name"], #va.location.name if va.location else "",
-            "cause": va["causes__cause"],  #va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-            "warnings": va["warnings"], #len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-            "errors": va["errors"]# len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
-        } for va in context['object_list']]
+        context["object_list"] = [
+            {
+                "id": va["id"],
+                "deceased": va["deceased"],
+                "interviewer": va["Id10010"],
+                "submitted": va[
+                    "submissiondate"
+                ],  # get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
+                "dod": parse_date(va["Id10023"])
+                if (va["Id10023"] != "dk")
+                else "Unknown",
+                "facility": va[
+                    "location__name"
+                ],  # va.location.name if va.location else "",
+                "cause": va[
+                    "causes__cause"
+                ],  # va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+                "warnings": va[
+                    "warnings"
+                ],  # len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+                "errors": va[
+                    "errors"
+                ],  # len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            }
+            for va in context["object_list"]
+        ]
 
         context.update(get_va_summary_stats(self.filterset.qs))
         print(f"total time to format display VAs: {time.time() - ti} secs")
 
         return context
-
-
 
 
 # Mixin just for the individual verbal autopsy data management views to restrict access based on user
@@ -129,83 +157,107 @@ class AccessRestrictionMixin(SingleObjectMixin):
         return self.request.user.verbal_autopsies()
 
 
-class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, DetailView):
+class Show(
+    CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, DetailView
+):
     permission_required = "va_data_management.view_verbalautopsy"
-    template_name = 'va_data_management/show.html'
+    template_name = "va_data_management/show.html"
     model = VerbalAutopsy
-    pk_url_kwarg = 'id'
+    pk_url_kwarg = "id"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['id'] = self.object.id
-        context['form'] = VerbalAutopsyForm(None, instance=self.object)
+        context["id"] = self.object.id
+        context["form"] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
-        context['warnings'], context['algo_warnings'] = self.filter_warnings([issue for issue in coding_issues if issue.severity == 'warning'])
-        context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
-
+        context["warnings"], context["algo_warnings"] = self.filter_warnings(
+            [issue for issue in coding_issues if issue.severity == "warning"]
+        )
+        context["errors"] = [
+            issue for issue in coding_issues if issue.severity == "error"
+        ]
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
-        context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
-        
+        context["diffs"] = [new.diff_against(old) for (old, new) in history_pairs]
+
         # log view record event
-        write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
+        write_va_log(
+            LOGGER,
+            f"[data_mgnt] Clicked view record for va {self.object.id}",
+            self.request,
+        )
 
         return context
-    
-    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern 
+
+    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern
     @staticmethod
     def filter_warnings(warnings):
         user_warnings = []
         algo_warnings = []
         for warning in warnings:
-            if re.search("^W\d{6}[-]",str(warning)):
+            if re.search("^W\d{6}[-]", str(warning)):
                 algo_warnings.append(warning)
             else:
                 user_warnings.append(warning)
         return user_warnings, algo_warnings
 
 
-
-class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):
+class Edit(
+    CustomAuthMixin,
+    PermissionRequiredMixin,
+    AccessRestrictionMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     permission_required = "va_data_management.change_verbalautopsy"
-    template_name = 'va_data_management/edit.html'
+    template_name = "va_data_management/edit.html"
     form_class = VerbalAutopsyForm
     model = VerbalAutopsy
-    pk_url_kwarg = 'id'
+    pk_url_kwarg = "id"
     success_message = "Verbal Autopsy successfully updated!"
 
     def get_success_url(self):
         # update the validation errors
         validate_vas_for_dashboard([self.object])
-        write_va_log(LOGGER, f"[data_mgnt] successfully saved changes to VA {self.object.id}", self.request)
-        return reverse('va_data_management:show', kwargs={'id': self.object.id})
+        write_va_log(
+            LOGGER,
+            f"[data_mgnt] successfully saved changes to VA {self.object.id}",
+            self.request,
+        )
+        return reverse("va_data_management:show", kwargs={"id": self.object.id})
 
     def get_form_kwargs(self):
         # Tell form to include PII fields if user is able.
         kwargs = super().get_form_kwargs()
-        kwargs['include_pii'] = self.request.user.can_view_pii
+        kwargs["include_pii"] = self.request.user.can_view_pii
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['id'] = self.object.id
+        context["id"] = self.object.id
         # log edit event
-        write_va_log(LOGGER, f"[data_mgnt] Clicked edit record for va {context['id']}", self.request)
+        write_va_log(
+            LOGGER,
+            f"[data_mgnt] Clicked edit record for va {context['id']}",
+            self.request,
+        )
         return context
 
 
-class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView):
+class Reset(
+    CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView
+):
     permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
-    pk_url_kwarg = 'id'
+    pk_url_kwarg = "id"
     success_message = "Verbal Autopsy changes successfully reverted to original!"
 
     def render_to_response(self, context):
-        _ = (context)   # unused
+        _ = context  # unused
         earliest = self.object.history.earliest()
         latest = self.object.history.latest()
         if earliest and len(latest.diff_against(earliest).changes) > 0:
@@ -214,18 +266,22 @@ class Reset(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, De
             validate_vas_for_dashboard([earliest])
         # log reset action
         messages.success(self.request, self.success_message)
-        write_va_log(LOGGER, f"[data_mgnt] Reset data for va {self.object.id}", self.request)
-        return redirect('va_data_management:show', id=self.object.id)
+        write_va_log(
+            LOGGER, f"[data_mgnt] Reset data for va {self.object.id}", self.request
+        )
+        return redirect("va_data_management:show", id=self.object.id)
 
 
-class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView):
+class RevertLatest(
+    CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, DetailView
+):
     permission_required = "va_data_management.change_verbalautopsy"
     model = VerbalAutopsy
-    pk_url_kwarg = 'id'
+    pk_url_kwarg = "id"
     success_message = "Verbal Autopsy changes successfully reverted to previous!"
 
     def render_to_response(self, context):
-        _ = (context)   # unused
+        _ = context  # unused
         # TODO: Should record automatically be recoded?
         if self.object.history.count() > 1:
             previous = self.object.history.all()[1]
@@ -236,16 +292,22 @@ class RevertLatest(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMi
                 validate_vas_for_dashboard([previous])
         messages.success(self.request, self.success_message)
         # log revert changes action
-        write_va_log(LOGGER, f"[data_mgnt] Reverted changes for va {self.object.id}", self.request)
-        return redirect('va_data_management:show', id=self.object.id)
+        write_va_log(
+            LOGGER,
+            f"[data_mgnt] Reverted changes for va {self.object.id}",
+            self.request,
+        )
+        return redirect("va_data_management:show", id=self.object.id)
 
 
 class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
     permission_required = "va_data_management.change_verbalautopsy"
-    pattern_name = 'home:index'
+    pattern_name = "home:index"
 
     def post(self, request, *args, **kwargs):
         run_coding_algorithms.apply_async()
-        messages.success(request, f"Coding algorithm process has started in the background.")
+        messages.success(
+            request, f"Coding algorithm process has started in the background."
+        )
         write_va_log(LOGGER, "ran coding algorithm", self.request)
         return super().post(request, *args, **kwargs)

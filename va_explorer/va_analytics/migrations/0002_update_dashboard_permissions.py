@@ -6,12 +6,19 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_analytics', '0001_initial'),
+        ("va_analytics", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='dashboard',
-            options={'default_permissions': ('view',), 'managed': False, 'permissions': (('download_data', 'Can download data'), ('view_pii', 'Can view PII in data'))},
+            name="dashboard",
+            options={
+                "default_permissions": ("view",),
+                "managed": False,
+                "permissions": (
+                    ("download_data", "Can download data"),
+                    ("view_pii", "Can view PII in data"),
+                ),
+            },
         ),
     ]

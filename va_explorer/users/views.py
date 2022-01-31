@@ -35,10 +35,12 @@ LOGGER = logging.getLogger("event_logger")
 def login_logger(request, user, **kwargs):
     write_va_log(LOGGER, f"[login] User {user.uuid} logged in", request)
 
+
 # track logout
 @receiver(user_logged_out)
 def logout_logger(request, user, **kwargs):
     write_va_log(LOGGER, f"[logout] User {user.uuid} logged out", request)
+
 
 class UserIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/urls.py
@@ -97,7 +99,7 @@ class UserUpdateView(
         return User.objects.get(pk=self.kwargs["pk"])
 
     def form_valid(self, form):
-        #refresh the updated users session to apply their new role permissions
+        # refresh the updated users session to apply their new role permissions
         user = User.objects.get(pk=self.kwargs["pk"])
         update_session_auth_hash(self.request, user)
         return super().form_valid(form)
@@ -122,11 +124,13 @@ class UserUpdateView(
 
         initial["group"] = self.get_object().groups.first()
         initial["geographic_access"] = (
-            "location-specific" if self.get_object().location_restrictions.exists() else "national"
+            "location-specific"
+            if self.get_object().location_restrictions.exists()
+            else "national"
         )
-        initial["facility_restrictions"] = (
-                self.get_object().location_restrictions.filter(location_type="facility")
-        )
+        initial[
+            "facility_restrictions"
+        ] = self.get_object().location_restrictions.filter(location_type="facility")
 
         initial["view_pii"] = self.get_object().can_view_pii
         initial["download_data"] = self.get_object().can_download_data
@@ -171,6 +175,7 @@ class UserSetPasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
     if they do not have a valid password via the CustomAuthMixin. The redirect in the dispatch is
     set up in case the user types the URL in manually
     """
+
     login_url = reverse_lazy("account_login")
     form_class = UserSetPasswordForm
     template_name = "users/user_set_password.html"
@@ -178,11 +183,12 @@ class UserSetPasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.has_valid_password:
-            messages.add_message(request, messages.INFO, 'User has already set password.')
-            #TODO: change redirect to something like a "home" page
+            messages.add_message(
+                request, messages.INFO, "User has already set password."
+            )
+            # TODO: change redirect to something like a "home" page
             return redirect("/about")
         return super().dispatch(request, *args, **kwargs)
-
 
     def form_valid(self, form):
         form.save(self.request.user)
@@ -200,6 +206,7 @@ class UserChangePasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
     """
     Allows the user to change their password if they already have a valid (i.e., non-temporary) password.
     """
+
     login_url = reverse_lazy("account_login")
     form_class = UserChangePasswordForm
     template_name = "users/user_change_password.html"
@@ -211,7 +218,7 @@ class UserChangePasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
     # Sending user object to the form
     def get_form_kwargs(self):
         kwargs = super(UserChangePasswordView, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
+        kwargs.update({"user": self.request.user})
         return kwargs
 
     def form_valid(self, form):
@@ -219,7 +226,7 @@ class UserChangePasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
         # See django docs:
         # https://docs.djangoproject.com/en/dev/topics/auth/default/#django.contrib.auth.update_session_auth_hash
         update_session_auth_hash(self.request, self.request.user)
-        messages.success(self.request, 'Password successfully changed!')
+        messages.success(self.request, "Password successfully changed!")
         return super().form_valid(form)
 
 

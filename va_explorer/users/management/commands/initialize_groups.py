@@ -26,7 +26,7 @@ GROUPS_PERMISSIONS = {
     "Field Workers": {
         Dashboard: ["view_dashboard"],
         User: [],
-        VerbalAutopsy: ["view_verbalautopsy"]
+        VerbalAutopsy: ["view_verbalautopsy"],
     },
 }
 
@@ -38,10 +38,10 @@ class Command(BaseCommand):
     help = "Create default groups and permissions"
 
     def add_arguments(self, parser):
-        parser.add_argument('--debug', type=bool, nargs='?', default=False)
+        parser.add_argument("--debug", type=bool, nargs="?", default=False)
 
     def handle(self, *args, **options):
-        debug = options.get('debug', False)
+        debug = options.get("debug", False)
         # Loop through groups and permissions; add permissions, as applicable, to related group objects
         for group_name, group_permissions in GROUPS_PERMISSIONS.items():
             group, created = Group.objects.get_or_create(name=group_name)
@@ -64,11 +64,15 @@ class Command(BaseCommand):
 
                     # Lookup permission based on content type and codename.
                     try:
-                        permission = Permission.objects.get(content_type=content_type, codename=codename)
+                        permission = Permission.objects.get(
+                            content_type=content_type, codename=codename
+                        )
                         group.permissions.add(permission)
                         self.stdout.write(f"Adding {codename} to group {group}")
 
                     except Exception as instance:
                         if debug:
-                            print(f'{type(instance)} error:\nargs:{instance.args}\n{instance}')
+                            print(
+                                f"{type(instance)} error:\nargs:{instance.args}\n{instance}"
+                            )
                         self.stderr.write(f"{codename} not found")

@@ -35,9 +35,15 @@ def get_location_restrictions(cleaned_data):
     Utility method to determine if the user locations are from the location_restrictions
     dropdown or facility restrictions dropdown (Field Worker role only)
     """
-    if "location_restrictions" in cleaned_data  and len(cleaned_data.get("facility_restrictions", [])) == 0:
+    if (
+        "location_restrictions" in cleaned_data
+        and len(cleaned_data.get("facility_restrictions", [])) == 0
+    ):
         return cleaned_data["location_restrictions"]
-    elif "facility_restrictions" in cleaned_data and len(cleaned_data.get("location_restrictions", [])) == 0:
+    elif (
+        "facility_restrictions" in cleaned_data
+        and len(cleaned_data.get("location_restrictions", [])) == 0
+    ):
         return cleaned_data["facility_restrictions"]
     else:
         return []
@@ -72,14 +78,21 @@ def validate_username(form, va_username, group, user):
             ["Only Field Workers can be assigned a username."]
         )
     else:
-        if va_username and VaUsername.objects.filter(va_username=va_username).exclude(user_id=user.id).exists():
+        if (
+            va_username
+            and VaUsername.objects.filter(va_username=va_username)
+            .exclude(user_id=user.id)
+            .exists()
+        ):
             form.errors["va_username"] = form.error_class(
                 ["This username is already assigned to another Field Worker."]
             )
+
+
 # core logic/steps to set user fields based on form data. Used in both UserCreation and ExtendedUserCreation forms
 def process_user_data(user, cleaned_data, run_matching_logic=True):
 
-    # set user location restrictions 
+    # set user location restrictions
     location_restrictions = get_location_restrictions(cleaned_data)
     user.location_restrictions.set(location_restrictions)
 
@@ -90,18 +103,18 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
     # set username
     user.set_va_username(cleaned_data.get("va_username"))
 
-    #=======Fieldworker-VA linking logic===================#
+    # =======Fieldworker-VA linking logic===================#
     # if run_linking_logic and field worker, go through series of steps to ensure they're properly linked to the right VAs
     if run_matching_logic and group.name.lower().startswith("field worker"):
-        
-        # first, match provided username against VAs. # If matching va field worker name, link all 
+
+        # first, match provided username against VAs. # If matching va field worker name, link all
         # VAs referencing this fieldworker to current username.
         va_worker_keys = get_va_worker_names()
 
         # only run if field workers in the system!
         if len(va_worker_keys) > 0:
             va_worker_names = list(va_worker_keys.keys())
-        
+
             # match current username against va worker names
             match = fuzzy_match(user.get_va_username(), va_worker_names)
             if match:
@@ -113,27 +126,32 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
                 # if no match, try setting username if User's name fuzzy matches with a va field worker name
                 link_fieldworkers_to_vas(emails=user.email)
 
-
     # if View PII permission specified in form, override user group's default permission
-    if 'view_pii' in cleaned_data:
-        user.can_view_pii = cleaned_data['view_pii']
+    if "view_pii" in cleaned_data:
+        user.can_view_pii = cleaned_data["view_pii"]
 
     # if download data permission specified in form, override user group's default permission
-    if 'download_data' in cleaned_data:
-        user.can_download_data = cleaned_data['download_data']
+    if "download_data" in cleaned_data:
+        user.can_download_data = cleaned_data["download_data"]
 
     user.save()
     return user
 
 
 class LocationRestrictionsSelectMultiple(SelectMultiple):
-    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
-        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name, value, label, selected, index, subindex, attrs
+        )
         if value:
-            option['attrs']['data-depth'] = value.instance.depth
+            option["attrs"]["data-depth"] = value.instance.depth
             # Only query for descendants if there are any
             if value.instance.numchild > 0:
-                option['attrs']['data-descendants'] = value.instance.get_descendant_ids()
+                option["attrs"][
+                    "data-descendants"
+                ] = value.instance.get_descendant_ids()
         return option
 
 
@@ -143,29 +161,37 @@ class GroupSelect(forms.Select):
     We can use this attribute in the HTML to determine whether or not to enable the 'Can View PII' checkbox.
     """
 
-    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
-        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name, value, label, selected, index, subindex, attrs
+        )
         if value:
-            if value.instance.permissions.filter(codename='view_pii').first():
-                option['attrs']['data-view-pii'] = 1
-            if value.instance.permissions.filter(codename='download_data').first():
-                option['attrs']['data-download-data'] = 1
+            if value.instance.permissions.filter(codename="view_pii").first():
+                option["attrs"]["data-view-pii"] = 1
+            if value.instance.permissions.filter(codename="download_data").first():
+                option["attrs"]["data-download-data"] = 1
         return option
 
 
 class UserCommonFields(forms.ModelForm):
     name = forms.CharField(required=True, max_length=100)
-    group = ModelChoiceField(queryset=Group.objects.all(), required=True, widget=GroupSelect)
+    group = ModelChoiceField(
+        queryset=Group.objects.all(), required=True, widget=GroupSelect
+    )
     location_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.all().order_by("path"),
-        widget=LocationRestrictionsSelectMultiple(attrs={"class": "location-restrictions-select"}),
+        widget=LocationRestrictionsSelectMultiple(
+            attrs={"class": "location-restrictions-select"}
+        ),
         required=False,
     )
     facility_restrictions = ModelMultipleChoiceField(
         queryset=Location.objects.filter(location_type="facility").order_by("name"),
         widget=forms.SelectMultiple(attrs={"class": "facility-restrictions-select"}),
         required=False,
-        help_text="Field Workers must be assigned to at least one facility."
+        help_text="Field Workers must be assigned to at least one facility.",
     )
     geographic_access = forms.ChoiceField(
         choices=(("national", "National"), ("location-specific", "Location-specific")),
@@ -175,7 +201,7 @@ class UserCommonFields(forms.ModelForm):
     )
     va_username = forms.CharField(
         required=False,
-        help_text="Username is the interviewer username collected in the Verbal Autopsy."
+        help_text="Username is the interviewer username collected in the Verbal Autopsy.",
     )
     view_pii = forms.BooleanField(
         label="Can View PII",
@@ -214,7 +240,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
-            "va_username"
+            "va_username",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -234,20 +260,20 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         Normal cleanup
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
-        
+
         if "geographic_access" and "group" in cleaned_data:
             location_restrictions = get_location_restrictions(cleaned_data)
 
             validate_location_access(
-                self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
+                self,
+                cleaned_data["geographic_access"],
+                location_restrictions,
+                cleaned_data["group"],
             )
-            
-            
 
             validate_username(
                 self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
-            
 
         return cleaned_data
 
@@ -273,23 +299,27 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             if commit:
                 # Need to save again after setting password.
                 user.save()
-                user = process_user_data(user, self.cleaned_data, run_matching_logic=True)
-
+                user = process_user_data(
+                    user, self.cleaned_data, run_matching_logic=True
+                )
 
             # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
             # setup_user_email(self.request, user, [])
-            # A workaround to run this script without a mail server. If True, it will send email like nomal. 
+            # A workaround to run this script without a mail server. If True, it will send email like nomal.
             # If False, user credentials will just be printed to console.
-            console_msg = ""*20 + f"Created user with email {user.email} and temp. password {password}"
+            console_msg = (
+                "" * 20
+                + f"Created user with email {user.email} and temp. password {password}"
+            )
             if email_confirmation:
                 try:
                     get_adapter().send_new_user_mail(self.request, user, password)
                 except:
                     print("WARNING: failed to send email. Printing credentials instead")
                     print(console_msg)
-                    
+
             else:
                 print(console_msg)
 
@@ -314,7 +344,7 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
-            "va_username"
+            "va_username",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -334,7 +364,10 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             location_restrictions = get_location_restrictions(cleaned_data)
 
             validate_location_access(
-                self, cleaned_data["geographic_access"], location_restrictions, cleaned_data["group"]
+                self,
+                cleaned_data["geographic_access"],
+                location_restrictions,
+                cleaned_data["group"],
             )
 
             validate_username(
@@ -388,6 +421,7 @@ class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
         If we do not want this dependency, we can write our own clean method to ensure the
         2 typed-in passwords match.
     """
+
     current_password = PasswordField(label="Current Password")
 
     password1 = SetPasswordField(
@@ -401,7 +435,7 @@ class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
         Set the current user on the form
         We need this to call user.check_password in clean_current_password
         """
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop("user", None)
         super(UserChangePasswordForm, self).__init__(*args, **kwargs)
 
     def clean_current_password(self):

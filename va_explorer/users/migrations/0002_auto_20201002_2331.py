@@ -8,20 +8,29 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0001_initial'),
-        ('auth', '0011_update_proxy_permissions'),
-        ('va_data_management', '0001_initial'),
+        ("users", "0001_initial"),
+        ("auth", "0011_update_proxy_permissions"),
+        ("va_data_management", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='locations',
-            field=models.ManyToManyField(related_name='users', to='va_data_management.Location'),
+            model_name="user",
+            name="locations",
+            field=models.ManyToManyField(
+                related_name="users", to="va_data_management.Location"
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='user_permissions',
-            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions'),
+            model_name="user",
+            name="user_permissions",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Specific permissions for this user.",
+                related_name="user_set",
+                related_query_name="user",
+                to="auth.Permission",
+                verbose_name="user permissions",
+            ),
         ),
     ]

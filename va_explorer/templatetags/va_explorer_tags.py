@@ -9,6 +9,7 @@ from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING
 
 register = template.Library()
 
+
 @register.filter
 def replace(value):
     value = value.strip()
@@ -41,9 +42,10 @@ def active(context, pattern_or_url):
 
 @register.simple_tag(takes_context=True)
 def pii_filter(context, field, value):
-    if field in PII_FIELDS and not context['user'].can_view_pii:
+    if field in PII_FIELDS and not context["user"].can_view_pii:
         return REDACTED_STRING
     return value
+
 
 @register.simple_tag(takes_context=True)
 def param_replace(context, **kwargs):
@@ -60,15 +62,15 @@ def param_replace(context, **kwargs):
     Based on
     https://stackoverflow.com/questions/22734695/next-and-before-links-for-a-django-paginated-query/22735278#22735278
     """
-    d = context['request'].GET.copy()
+    d = context["request"].GET.copy()
     for k, v in kwargs.items():
         # check for order_by key for sorting and flip direction
-        if k == 'order_by':
+        if k == "order_by":
             existing_value = d.get(k, "")
-            if existing_value.startswith('-'):
-                v = v.lstrip('-')
-            else: 
-                v = '-' + v if not v.startswith('-') else v
+            if existing_value.startswith("-"):
+                v = v.lstrip("-")
+            else:
+                v = "-" + v if not v.startswith("-") else v
             d[k] = v
 
         # for all other fields, just override previous value
@@ -78,7 +80,8 @@ def param_replace(context, **kwargs):
         del d[k]
     return d.urlencode()
 
+
 @register.simple_tag(takes_context=True)
-def sort_url(context, value, direction=''):
+def sort_url(context, value, direction=""):
     sort_value = direction + value
     return param_replace(context, order_by=sort_value)

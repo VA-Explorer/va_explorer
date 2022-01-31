@@ -16,12 +16,14 @@ env.read_env(str(ROOT_DIR / ".env"))
 
 TIME_ZONE = "UTC"
 # accepted date formats for VA records
-DATE_FORMATS = {"%Y-%m-%d": "yyyy-mm-dd",
-                "%m/%d/%Y": "mm/dd/yyyy",
-                "%m/%d/%y": "mm/dd/yy",
-                "%d/%m/%Y": "dd/mm/yyyy",
-                "%d/%m/%y": "dd/mm/yy", 
-                "%Y-%m-%d %H:%M:%S": "yyyy-mm-dd HH:MM:SS"}
+DATE_FORMATS = {
+    "%Y-%m-%d": "yyyy-mm-dd",
+    "%m/%d/%Y": "mm/dd/yyyy",
+    "%m/%d/%y": "mm/dd/yy",
+    "%d/%m/%Y": "dd/mm/yyyy",
+    "%d/%m/%y": "dd/mm/yy",
+    "%Y-%m-%d %H:%M:%S": "yyyy-mm-dd HH:MM:SS",
+}
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
 USE_I18N = True
@@ -32,13 +34,18 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 
 # Databases
 
-db_user = os.environ.get('POSTGRES_USER', 'postgres')
-db_password = os.environ.get('POSTGRES_PASSWORD', 'postgres')
-db_host = os.environ.get('POSTGRES_HOST', 'localhost')
-db_port = os.environ.get('POSTGRES_PORT', '5432')
-db_db = os.environ.get('POSTGRES_DB', 'va_explorer')
+db_user = os.environ.get("POSTGRES_USER", "postgres")
+db_password = os.environ.get("POSTGRES_PASSWORD", "postgres")
+db_host = os.environ.get("POSTGRES_HOST", "localhost")
+db_port = os.environ.get("POSTGRES_PORT", "5432")
+db_db = os.environ.get("POSTGRES_DB", "va_explorer")
 
-DATABASES = {"default": env.db("DATABASE_URL", default=f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_db}")}
+DATABASES = {
+    "default": env.db(
+        "DATABASE_URL",
+        default=f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_db}",
+    )
+}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
 
@@ -57,7 +64,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "django.contrib.humanize", # Handy template tags
-    "django.forms"
+    "django.forms",
 ]
 
 THIRD_PARTY_APPS = [
@@ -73,8 +80,8 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
-    "dpd_static_support", 
-    "django_pivot", 
+    "dpd_static_support",
+    "django_pivot",
 ]
 
 LOCAL_APPS = [
@@ -84,7 +91,7 @@ LOCAL_APPS = [
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
     "va_explorer.dhis_manager.apps.DhisManagerConfig",
-    "va_explorer.va_export.apps.VaExportConfig"
+    "va_explorer.va_export.apps.VaExportConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -110,7 +117,9 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
 ]
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -133,8 +142,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_plotly_dash.middleware.BaseMiddleware",
     "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
-    "simple_history.middleware.HistoryRequestMiddleware", # Track which user makes VA data edits
-    "debug_toolbar.middleware.DebugToolbarMiddleware"
+    "simple_history.middleware.HistoryRequestMiddleware",  # Track which user makes VA data edits
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 DEBUG_TOOLBAR_CONFIG = {
@@ -208,16 +217,18 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 # Email
 
-email_config = env.email_url('EMAIL_URL', default='consolemail://')
-EMAIL_BACKEND = email_config['EMAIL_BACKEND']
-EMAIL_HOST_USER = email_config['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = email_config['EMAIL_HOST_PASSWORD']
-EMAIL_HOST = email_config['EMAIL_HOST']
-EMAIL_PORT = email_config['EMAIL_PORT']
-EMAIL_FILE_PATH = email_config['EMAIL_FILE_PATH']
+email_config = env.email_url("EMAIL_URL", default="consolemail://")
+EMAIL_BACKEND = email_config["EMAIL_BACKEND"]
+EMAIL_HOST_USER = email_config["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = email_config["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST = email_config["EMAIL_HOST"]
+EMAIL_PORT = email_config["EMAIL_PORT"]
+EMAIL_FILE_PATH = email_config["EMAIL_FILE_PATH"]
 EMAIL_TIMEOUT = 5
 
-DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", default="VA Explorer <noreply@vaexplorer.org>")
+DEFAULT_FROM_EMAIL = env(
+    "DJANGO_DEFAULT_FROM_EMAIL", default="VA Explorer <noreply@vaexplorer.org>"
+)
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
@@ -233,10 +244,8 @@ LOGGING = {
         },
         "debug": {
             "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
-        }, 
-        "event": {
-            "format": "%(asctime)s - %(message)s"
-        }
+        },
+        "event": {"format": "%(asctime)s - %(message)s"},
     },
     "handlers": {
         "console": {
@@ -248,21 +257,28 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": f"{LOG_DIR}/logfiles/data_ingest.log",
-            "formatter": "debug"
+            "formatter": "debug",
         },
         "event_file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": f"{LOG_DIR}/logfiles/events.log",
-            "formatter": "event"
-
-        }
+            "formatter": "event",
+        },
     },
     "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
-        "ingest_logger": {"level": "DEBUG", "handlers": ["ingest_file"], "propagate": False},
-        "event_logger": {"level": "INFO", "handlers": ["event_file"], "propagate": False}
-    }
+        "ingest_logger": {
+            "level": "DEBUG",
+            "handlers": ["ingest_file"],
+            "propagate": False,
+        },
+        "event_logger": {
+            "level": "INFO",
+            "handlers": ["event_file"],
+            "propagate": False,
+        },
+    },
 }
 
 # Caches
@@ -299,34 +315,36 @@ ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731
 
 # Plotly Dash
 
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = "SAMEORIGIN"
 
 PLOTLY_COMPONENTS = [
-    'dash_core_components',
-    'dash_html_components',
-    'dash_renderer',
-    'dpd_components',
-    'dash_bootstrap_components',
+    "dash_core_components",
+    "dash_html_components",
+    "dash_renderer",
+    "dpd_components",
+    "dash_bootstrap_components",
 ]
 
 PLOTLY_DASH = {
     "ws_route": "ws/channel",
     "insert_demo_migrations": True,  # Insert model instances used by the demo
-    "http_poke_enabled": True, # Flag controlling availability of direct-to-messaging http endpoint
-    "cache_arguments": True, # True for cache, False for session-based argument propagation
-    #"serve_locally":True, # True to serve assets locally, False to use their unadulterated urls (eg a CDN)
+    "http_poke_enabled": True,  # Flag controlling availability of direct-to-messaging http endpoint
+    "cache_arguments": True,  # True for cache, False for session-based argument propagation
+    # "serve_locally":True, # True to serve assets locally, False to use their unadulterated urls (eg a CDN)
     "stateless_loader": "demo.scaffold.stateless_app_loader",
 }
 
 # Channels
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('redis', 6379),],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                ("redis", 6379),
+            ],
         },
     },
 }
 
-ASGI_APPLICATION = 'va_explorer.va_analytics.routing.applications'
+ASGI_APPLICATION = "va_explorer.va_analytics.routing.applications"

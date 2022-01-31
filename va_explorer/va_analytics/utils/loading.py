@@ -71,6 +71,7 @@ def load_geojson_data(json_file):
         )
     return geojson
 
+
 # ============ VA Data =================
 def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     # the dashboard requires date of death, exclude if the date is unknown
@@ -78,8 +79,8 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
     # get stats on last update and last va submission date
     update_stats = get_va_summary_stats(user_vas)
-    all_vas = user_vas\
-        .only(
+    all_vas = (
+        user_vas.only(
             "id",
             "Id10019",
             "Id10058",
@@ -90,11 +91,11 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
             "isChild1",
             "isAdult1",
             "location",
-        ) \
-        .exclude(Id10023__in=["dk", "DK"]) \
-        .exclude(location__isnull=True) \
-        .select_related("location") \
-        .select_related("causes") \
+        )
+        .exclude(Id10023__in=["dk", "DK"])
+        .exclude(location__isnull=True)
+        .select_related("location")
+        .select_related("causes")
         .values(
             "id",
             "Id10019",
@@ -103,19 +104,28 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
             "isNeonatal1",
             "isChild1",
             "isAdult1",
-            'location__id',
-            'location__name',
-            'ageInYears',
+            "location__id",
+            "location__name",
+            "ageInYears",
             date=F("Id10023"),
             cause=F("causes__cause"),
         )
-    
+    )
+
     if not all_vas:
-        return json.dumps({"data": {"valid": pd.DataFrame().to_json(), "invalid": pd.DataFrame().to_json()}, "update_stats": {update_stats}})
+        return json.dumps(
+            {
+                "data": {
+                    "valid": pd.DataFrame().to_json(),
+                    "invalid": pd.DataFrame().to_json(),
+                },
+                "update_stats": {update_stats},
+            }
+        )
 
     # Build a dictionary of location ancestors for each facility
     # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
-    # TODO: This assumes that all VAs will occur in a facility, ok? 
+    # TODO: This assumes that all VAs will occur in a facility, ok?
     # TODO: if there is no location data, we could use the location associated with the interviewer
     location_types = dict()
     locations = {}
@@ -126,9 +136,9 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
 
     for va in all_vas:
         # Find parents (likely district and province).
-        for ancestor in location_ancestors[va['location__id']]:
+        for ancestor in location_ancestors[va["location__id"]]:
             va[ancestor.location_type] = ancestor.name
-            #location_types.add(ancestor.location_type)
+            # location_types.add(ancestor.location_type)
             location_types[ancestor.depth] = ancestor.location_type
             locations[ancestor.name] = ancestor.location_type
 
@@ -143,12 +153,10 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     va_df["date"] = pd.to_datetime(va_df["date"])
     va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
     va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
-    
+
     # need this becasue location types need to be sorted by depth
-    location_types = [
-        l for _, l in sorted(location_types.items(), key=lambda x: x[0])
-    ]
-    
+    location_types = [l for _, l in sorted(location_types.items(), key=lambda x: x[0])]
+
     return {
         "data": {
             "valid": va_df[~pd.isnull(va_df["cause"])].reset_index(),
@@ -157,7 +165,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         "location_types": location_types,
         "max_depth": len(location_types) - 1,
         "locations": locations,
-        "update_stats": update_stats
+        "update_stats": update_stats,
     }
 
 
@@ -165,7 +173,7 @@ def assign_age_group(va):
     # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
     # TODO determine if this is a valid check for empty or unknown values
 
-    if va["age_group"] in ["adult", "neonate", "child"]: 
+    if va["age_group"] in ["adult", "neonate", "child"]:
         return va["age_group"]
 
     if va["isNeonatal1"] == 1:
@@ -173,10 +181,10 @@ def assign_age_group(va):
 
     if va["isChild1"] == 1:
         return "child"
-    
+
     if va["isAdult1"] == 1:
         return "adult"
-    
+
     # try determine group by the age in years
     try:
         age = int(float(va["age"]))
@@ -187,4 +195,3 @@ def assign_age_group(va):
         return "adult"
     except:
         return "Unknown"
-

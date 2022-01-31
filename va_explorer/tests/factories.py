@@ -42,6 +42,7 @@ class LocationFactory(DjangoModelFactory):
     location_type = "province"
     path = "0001"
 
+
 class LocationFacilityFactory(DjangoModelFactory):
     class Meta:
         model = Location
@@ -53,14 +54,17 @@ class LocationFacilityFactory(DjangoModelFactory):
     location_type = "facility"
     path = "0001"
 
+
 class VerbalAutopsyFactory(DjangoModelFactory):
     class Meta:
         model = VerbalAutopsy
+
     Id10007 = "Example Name"
     Id10023 = "dk"
     Id10058 = "hospital"
     location = factory.SubFactory(LocationFacilityFactory)
     username = ""
+
 
 class UserFactory(DjangoModelFactory):
     class Meta:
@@ -124,6 +128,7 @@ class AdminGroupFactory(GroupFactory):
 
 class FacilityFactory(LocationFactory):
     location_type = "facility"
+
 
 class VaUsernameFactory(DjangoModelFactory):
     class Meta:

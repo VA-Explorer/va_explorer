@@ -6,17 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0002_auto_20201116_2152'),
+        ("va_data_management", "0002_auto_20201116_2152"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='dhisStatus',
+            name="dhisStatus",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('vaid', models.TextField()),
-                ('edate', models.DateTimeField(auto_now_add=True)),
-                ('status', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("vaid", models.TextField()),
+                ("edate", models.DateTimeField(auto_now_add=True)),
+                ("status", models.TextField()),
             ],
         ),
     ]

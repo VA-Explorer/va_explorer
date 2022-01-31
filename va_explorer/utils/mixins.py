@@ -22,5 +22,6 @@ class CustomAuthMixin(AccessMixin):
 
 class UserDetailViewMixin(UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.has_perm('users.view_user') or self.request.user.pk == self.kwargs.get('pk')
-
+        return self.request.user.has_perm(
+            "users.view_user"
+        ) or self.request.user.pk == self.kwargs.get("pk")

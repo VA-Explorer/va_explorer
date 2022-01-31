@@ -22,14 +22,15 @@ def test_user_password_history_exists():
     password_history = UserPasswordHistory.objects.filter(user_id=user)
     assert password_history.count() == 1
 
+
 def test_user_scoped_verbal_autopsies():
     # Set up a small tree of locations; top level province, two districts, three facilities
     province = LocationFactory.create()
-    district1 = province.add_child(name='District1', location_type='district')
-    facility1 = district1.add_child(name='Facility1', location_type='facility')
-    district2 = province.add_child(name='District2', location_type='district')
-    facility2 = district2.add_child(name='Facility2', location_type='facility')
-    facility3 = district2.add_child(name='Facility3', location_type='facility')
+    district1 = province.add_child(name="District1", location_type="district")
+    facility1 = district1.add_child(name="Facility1", location_type="facility")
+    district2 = province.add_child(name="District2", location_type="district")
+    facility2 = district2.add_child(name="Facility2", location_type="facility")
+    facility3 = district2.add_child(name="Facility3", location_type="facility")
     # Each facility with one VA
     va1 = VerbalAutopsyFactory.create(location=facility1)
     va2 = VerbalAutopsyFactory.create(location=facility2)

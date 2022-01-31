@@ -63,7 +63,7 @@ def update_and_return_a_field_worker(rf, field_worker, group, va_username, facil
             "group": group,
             "geographic_access": "location-specific",
             "location_restrictions": [facility],
-            "va_username": va_username
+            "va_username": va_username,
         }
     )
 
@@ -200,7 +200,7 @@ def test_user_change_password():
         {
             "current_password": "AReallyGreatPassword1!",
             "password1": "MyNewPassword123!",
-            "password2": "MyNewPassword123!"
+            "password2": "MyNewPassword123!",
         },
         follow=True,
     )

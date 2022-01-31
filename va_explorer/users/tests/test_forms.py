@@ -78,7 +78,7 @@ class TestUserCreationForm:
                 "group": group,
                 "geographic_access": "location-specific",
                 "location_restrictions": [],
-                "facility_restrictions": [location]
+                "facility_restrictions": [location],
             }
         )
 
@@ -101,7 +101,7 @@ class TestUserCreationForm:
                 "geographic_access": "location-specific",
                 "location_restrictions": [],
                 "facility_restrictions": [location],
-                "va_username": "user1234"
+                "va_username": "user1234",
             }
         )
 
@@ -127,7 +127,7 @@ class TestUserCreationForm:
                 "geographic_access": "location-specific",
                 "location_restrictions": [],
                 "facility_restrictions": [location],
-                "va_username": existing_va_username.va_username
+                "va_username": existing_va_username.va_username,
             }
         )
 
@@ -151,7 +151,7 @@ class TestUserCreationForm:
                 "geographic_access": "national",
                 "location_restrictions": [],
                 "facility_restrictions": [],
-                "va_username": "user1234"
+                "va_username": "user1234",
             }
         )
 
@@ -254,7 +254,7 @@ class TestUserCreationForm:
                 "group": group,
                 "geographic_access": "location-specific",
                 "location_restrictions": [],
-                "facility_restrictions": []
+                "facility_restrictions": [],
             }
         )
 
@@ -292,7 +292,7 @@ class TestUserUpdateForm:
                 "is_active": True,
                 "geographic_access": "location-specific",
                 "location_restrictions": [],
-                "va_username": "Should not have username"
+                "va_username": "Should not have username",
             }
         )
 
@@ -312,7 +312,7 @@ class TestUserUpdateForm:
                 "is_active": True,
                 "geographic_access": "location-specific",
                 "location_restrictions": [facility],
-                "va_username": "user1234"
+                "va_username": "user1234",
             }
         )
 
@@ -331,7 +331,7 @@ class TestUserUpdateForm:
                 "is_active": True,
                 "geographic_access": "national",
                 "location_restrictions": [],
-                "va_username": another_user_va_username.va_username
+                "va_username": another_user_va_username.va_username,
             }
         )
 
@@ -364,13 +364,13 @@ class TestUserUpdateForm:
         # This means that the below would fail since it's a unique field and 2 users
         # cannot have the same "blank" username.
         # So I added this test and then fixed the code to verify.
-   
+
         field_worker_group = FieldWorkerGroupFactory.create()
         location = LocationFactory.create()
 
         user1 = NewUserFactory.build()
         user2 = NewUserFactory.build()
-   
+
         form = UserUpdateForm(
             {
                 "name": user1.name,
@@ -396,7 +396,6 @@ class TestUserUpdateForm:
         )
 
         assert form.save()
-
 
 
 class TestUserSetPasswordForm:
@@ -433,9 +432,9 @@ class TestUserChangePasswordForm:
             data={
                 "current_password": "Password124!",
                 "password1": "MyNewPassword123!",
-                "password2": "MyNewPassword123!"
+                "password2": "MyNewPassword123!",
             },
-            user=existing_user
+            user=existing_user,
         )
 
         assert form.is_valid()
@@ -445,11 +444,11 @@ class TestUserChangePasswordForm:
             {
                 "current_password": "",
                 "password1": "MyNewPassword123!",
-                "password2": "MyNewPassword456!"
+                "password2": "MyNewPassword456!",
             }
         )
 
         assert not form.is_valid()
-        assert "You must type the same password each time." in form.errors['password2']
-        assert "This field is required" in form.errors['current_password'][0]
+        assert "You must type the same password each time." in form.errors["password2"]
+        assert "This field is required" in form.errors["current_password"][0]
         assert len(form.errors) == 2

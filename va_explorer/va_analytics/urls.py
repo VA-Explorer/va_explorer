@@ -7,5 +7,5 @@ from va_explorer.va_analytics.views import dashboard_view, user_supervision_view
 app_name = "va_analytics"
 urlpatterns = [
     path("dashboard/", view=dashboard_view, name="dashboard"),
-    path("supervision/", view=user_supervision_view, name="supervision")
+    path("supervision/", view=user_supervision_view, name="supervision"),
 ]

@@ -23,11 +23,13 @@ class IndexView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
 
         cmd = Command()
         auth = (DHIS2_USER, DHIS2_PASS)
-        eventsnum = cmd.getEventsValues('sv91bCroFFx', auth)
+        eventsnum = cmd.getEventsValues("sv91bCroFFx", auth)
         cmd.syncDHISStatus()
-        events = cmd.getPushedVA('sv91bCroFFx', auth)
+        events = cmd.getPushedVA("sv91bCroFFx", auth)
 
-        valist = VerbalAutopsy.objects.filter(causes__isnull=False, dhisva__isnull=True).values_list('id', flat=True)
+        valist = VerbalAutopsy.objects.filter(
+            causes__isnull=False, dhisva__isnull=True
+        ).values_list("id", flat=True)
         list1 = list(valist)
         list1 = [str(i) for i in list1]
 
@@ -36,15 +38,17 @@ class IndexView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
             if x not in events:
                 list3.append(x)
 
-        context['object_list'] = {
+        context["object_list"] = {
             "vanum": str(len(list3)),
             "total": str(eventsnum),
-            "push": push
+            "push": push,
         }
 
         return context
 
+
 index_view = IndexView.as_view()
+
 
 class pushDHISView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "pages/dhis.html"
@@ -60,31 +64,41 @@ class pushDHISView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
         cmd = Command()
         auth = (DHIS2_USER, DHIS2_PASS)
 
-        va_in_dhis2 = cmd.getPushedVA('sv91bCroFFx', auth)
+        va_in_dhis2 = cmd.getPushedVA("sv91bCroFFx", auth)
         eventsnum = len(va_in_dhis2)
         dhisdata = [int(i) for i in va_in_dhis2]
 
-        vadata = VerbalAutopsy.objects.filter(causes__isnull=False, dhisva__isnull=True).exclude(
-            id__in=dhisdata).count()
+        vadata = (
+            VerbalAutopsy.objects.filter(causes__isnull=False, dhisva__isnull=True)
+            .exclude(id__in=dhisdata)
+            .count()
+        )
         if vadata > 0:
             numPushed, numTotal, status = cmd.handle()
         else:
             cmd.syncDHISStatus()
-            status = 'Nothing to push'
-        btnpush = 'OK'
+            status = "Nothing to push"
+        btnpush = "OK"
 
-        if status == 'SUCCESS':
-            txt = "successfully posted " + str(numPushed) + " out of " + str(numTotal) + " records"
+        if status == "SUCCESS":
+            txt = (
+                "successfully posted "
+                + str(numPushed)
+                + " out of "
+                + str(numTotal)
+                + " records"
+            )
         else:
             txt = "Nothing to Post!"
 
-        context['object_list'] = {
+        context["object_list"] = {
             "txt": txt,
             "vanum": str(vadata),
             "btnpush": btnpush,
-            'total': eventsnum
+            "total": eventsnum,
         }
 
         return context
+
 
 push_DHISView = pushDHISView.as_view()

@@ -6,4 +6,3 @@ from pathlib import Path
 p = Path(__file__).absolute().parent.parent
 
 print(p)
-

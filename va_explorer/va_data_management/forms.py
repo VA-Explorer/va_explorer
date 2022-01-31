@@ -9,18 +9,17 @@ from .models import PII_FIELDS, VerbalAutopsy
 
 
 class VerbalAutopsyForm(forms.ModelForm):
-
     class Meta:
         model = VerbalAutopsy
-        exclude = ('id', 'location', 'instanceid')
+        exclude = ("id", "location", "instanceid")
 
     def __init__(self, *args, **kwargs):
-        include_pii = kwargs.pop('include_pii', True)
+        include_pii = kwargs.pop("include_pii", True)
         super().__init__(*args, **kwargs)
         if not include_pii:
             for field in PII_FIELDS:
                 del self.fields[field]
-    
+
     # TODO: to display the error msgs properly, we need to use crispy forms in the template
     # for now we will just display the errors at the top of the page
     def clean(self, *args, **kwargs):
@@ -30,11 +29,10 @@ class VerbalAutopsyForm(forms.ModelForm):
         cleaned_data = super(VerbalAutopsyForm, self).clean(*args, **kwargs)
 
         if "Id10023" in cleaned_data:
-            validate_date_format(
-                self, cleaned_data["Id10023"]
-            )
+            validate_date_format(self, cleaned_data["Id10023"])
 
         return cleaned_data
+
 
 def validate_date_format(form, Id10023):
     """
@@ -42,9 +40,11 @@ def validate_date_format(form, Id10023):
     """
     # TODO add a date picker to the form so we don't have to check the string format
     if Id10023 != "dk":
-        try: 
+        try:
             parse_date(Id10023, strict=True)
         except ValueError:
             form._errors["Id10023"] = form.error_class(
-                [f"Field Id10023 must be in \"dk\" if unknown or in one of following date formats: {list(DATE_FORMATS.values())}"]
+                [
+                    f'Field Id10023 must be in "dk" if unknown or in one of following date formats: {list(DATE_FORMATS.values())}'
+                ]
             )
