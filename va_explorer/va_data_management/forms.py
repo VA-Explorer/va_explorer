@@ -8,9 +8,6 @@ from config.settings.base import DATE_FORMATS
 
 from va_explorer.va_data_management.models import RADIO_CHOICES
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column
-
 class VerbalAutopsyForm(forms.ModelForm):
 
     class Meta:
@@ -19,20 +16,21 @@ class VerbalAutopsyForm(forms.ModelForm):
         widgets = {
             }
         for item in RADIO_CHOICES:
-            widgets[item] = forms.RadioSelect(choices=RADIO_CHOICES[item], attrs={'class':''})
+            widgets[item] = forms.RadioSelect(choices=RADIO_CHOICES[item], attrs={'class':''}) 
+            # because all fields in our model is textfield, we are overriding some of the field's field type to radio field here
 
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop('include_pii', True)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
-        # self.helper.layout = Layout(
-        #     'deviceid',
-        #     'phonenumber'
-        #     'Id10002',
-        #     'Id10003',
-        #     'Id10009',
-        #     Submit('submit', 'Sign in')
-        # )
+        for field_name, field in self.fields.items():
+             # this only works assuming the two field types we have are radio and textfields
+             # this if statements makes changes to all textfield inputs we have by checking to see if that field isn't in our radiochoices
+            if field_name not in RADIO_CHOICES:
+                field.widget.attrs['rows'] = '1' 
+                if field.widget.attrs.get('class'):
+                    field.widget.attrs['class'] += 'form-control'
+                else:
+                    field.widget.attrs['class']='form-control'
         if not include_pii:
             for field in PII_FIELDS:
                 del self.fields[field]

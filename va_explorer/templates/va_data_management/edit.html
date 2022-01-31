@@ -8,13 +8,6 @@
 
 {% block content %}
 
-<style>
-  textarea {
-    height: 3em;
-    width: 20em;
-}
-</style>
-
 <div class="row mt-4">
 <form method="POST" action="{% url 'data_management:edit' id=id %}">
   {% csrf_token %}
@@ -39,13 +32,14 @@
         <div class="col-form-label">{{ field.label }}</div>
       </div>
       <div class="col-sm-4">
-        {% comment %} <input class="form-control" id="{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}"> {% endcomment %}
+        {% comment %} <input type="text" class="form-control" id="{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}"> {% endcomment %}
+        {% comment %} {% render_field field class="form-control" %} {% endcomment %}
         {{ field }}
       </div>
     </div>
   {% endfor %}
   <button type="submit" class="btn btn-primary">Save</button>
-</form>}
+</form>
 
 <div class="flt-action-backdrop"></div>
 <div class="flt-action-btn child to-top" data-subitem="3"><i class="fas fa-caret-up"></i></div>
