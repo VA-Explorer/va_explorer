@@ -6,23 +6,28 @@ volumes:
 
 services:
   pycrossva:
+    image: va_explorer/pycrossva
     ports:
       - "5001:80"
 
   interva5:
+    image: va_explorer/interva5
     ports:
       - "5002:5002"
 
   redis:
+    image: redis:5.0
     ports:
       - "6379:6379"
 
   django:
+    image: va_explorer/django
     environment:
       DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
       EMAIL_URL: consolemail://
       
   vapostgres:
+    image: va_explorer/postgres
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups

@@ -235,7 +235,11 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
     pattern_name = 'home:index'
 
     def post(self, request, *args, **kwargs):
-        run_coding_algorithms.apply_async()
-        messages.success(request, f"Coding algorithm process has started in the background.")
-        write_va_log(LOGGER, "ran coding algorithm", self.request)
-        return super().post(request, *args, **kwargs)
+        try:
+            run_coding_algorithms.apply_async()
+            messages.success(request, "Successfully started background coding process")
+            write_va_log(LOGGER, "ran coding algorithm", self.request)
+            return super().post(request, *args, **kwargs)
+        except Exception as error:
+            messages.error(request, f"Unable to start background process: {str(error)}")
+            return super().post(request, *args, **kwargs)
