@@ -10,7 +10,7 @@ from django.db.models.functions import Concat
 
 import logging
 
-from config.celery_app import app
+from va_explorer.utils.file_io import download_csv
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
@@ -20,6 +20,7 @@ from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 import time
 import re

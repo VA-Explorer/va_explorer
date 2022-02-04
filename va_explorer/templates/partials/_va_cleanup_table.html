@@ -26,8 +26,8 @@
       <td>{{ va.dod_known }}</td>
       <td>{{ va.dod }}</td>
       <th><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></th>
-      <td><a class="btn btn-primary"><i class="fas fa-download" style="color: white;"></i></a></td>
-      <td><a class="btn btn-danger" href="{% url 'data_management:delete' va.id %}"><i class="fas fa-trash-alt" style="color: white;"></i></a></td>
+      <td><a class="btn btn-primary" href="{% url 'data_cleanup:download' va.id %}"><i class="fas fa-download" style="color: white;"></i> Download</a></td>
+      <td><a class="btn btn-danger" href="{% url 'data_management:delete' va.id %}"><i class="fas fa-trash-alt" style="color: white;"></i> Delete</a></td>
     </tr>
     {% endfor %}
   </tbody>

@@ -97,11 +97,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         print(f"# of VAs: {record_df.shape[0]}, # of instanceIDs: {record_df.instanceid.nunique()}")
 
     print("creating new VAs...")
-
-    # build location matching index for location assignment
     for i, row in enumerate(record_df.to_dict(orient='records')):
         va = VerbalAutopsy(**row)
-
         # only import VA if its instanceId doesn't already exist
         if row['instanceid']:
             va_exists = (row['instanceid'] in va_instance_ids)
@@ -128,11 +125,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             logger.info(f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}")
         va.submissiondate = parsed_sub_date
 
-
-        # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
-        va.Id10023 = parse_date(va.Id10023, strict=False)\
-
-        # Try mapping va location to known db location. If not possible, set to null location
         # if random_locations, assign random field worker to VA which can be used to determine location.
         # Otherwise, try assigning location based on hospital field.
         if random_locations:
@@ -142,20 +134,16 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
-
             if "hospital" in row and logger:
                 logger.info(f"va_id: {va_id} - Matched hospital {row['hospital']} to {va.location} location in DB")
 
+        va.generate_unique_identifier_hash()
+        created_vas.append(va)
 
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
 
     print('populating DB...')
-    VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va)
-    created_vas.append(va)
-
-    print('Creating new VAs...')
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
-
 
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
 
@@ -165,7 +153,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
 
     print("Validating VAs...")
-
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
