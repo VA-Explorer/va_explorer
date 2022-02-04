@@ -5,15 +5,14 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DeleteView, DetailView, UpdateView, ListView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
-from datetime import datetime
 
-from config.celery_app import app
+from va_explorer.utils.file_io import download_csv
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard, parse_date
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):

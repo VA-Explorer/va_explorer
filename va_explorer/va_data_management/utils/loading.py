@@ -95,7 +95,7 @@ def load_records_from_dataframe(record_df, random_locations=False):
         else:
             assign_va_location(va, location_map)
 
-        VerbalAutopsy.generate_md5_unique_va_identifiers_hash(va)
+        va.generate_unique_identifier_hash()
         created_vas.append(va)
 
     print('Creating new VAs...')

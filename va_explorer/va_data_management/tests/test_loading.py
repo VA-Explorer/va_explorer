@@ -133,7 +133,7 @@ def test_loading_duplicate_vas():
         created=today-datetime.timedelta(days=50),
         Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60", Id10022="Yes",
         Id10023="1/5/21", instanceid="00",
-        unique_va_identifiers_hash="840ba941ac6e608962f86eb05659bad1"
+        unique_va_identifier="840ba941ac6e608962f86eb05659bad1"
     )
 
     loc = Location.add_root(name='test location', location_type='facility')
