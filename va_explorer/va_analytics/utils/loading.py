@@ -143,7 +143,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
     va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
 
-    # need this becasue location types need to be sorted by depth
+    # need this because location types need to be sorted by depth
     location_types = [l for _, l in sorted(location_types.items(), key=lambda x: x[0])]
 
     return {
@@ -182,5 +182,6 @@ def assign_age_group(va):
         if age <= 16:
             return "child"
         return "adult"
-    except:
+    # Intent is to assign unknown
+    except: # noqa E722
         return "Unknown"

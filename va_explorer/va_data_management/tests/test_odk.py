@@ -292,7 +292,8 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --email and --password arguments or ODK_EMAIL and ODK_PASSWORD environment variables."
+            == "Must specify either --email and --password arguments or \
+                ODK_EMAIL and ODK_PASSWORD environment variables."
         )
 
     def test_missing_project(self):

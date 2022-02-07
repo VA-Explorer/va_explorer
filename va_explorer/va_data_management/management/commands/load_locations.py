@@ -7,7 +7,7 @@ from va_explorer.va_data_management.utils.loading import load_locations_from_fil
 
 class Command(BaseCommand):
 
-    # TODO: Need an approach that supports loading of country-specfic location information
+    # TODO: Need an approach that supports loading of country-specific location information
 
     help = "Loads initial location data into the database from a CSV file with Name, Type, and Parent columns"
 

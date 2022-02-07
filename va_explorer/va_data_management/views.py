@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, F, Q
-from django.db.models import Value as V
+from django.db.models import Value as V     # noqa: N817 - not acronym
 from django.db.models.functions import Concat
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -18,9 +18,7 @@ from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
-from va_explorer.va_data_management.utils.date_parsing import (
-    parse_date,
-)
+from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 from va_explorer.va_logs.logging_utils import write_va_log
@@ -199,7 +197,7 @@ class Show(
         user_warnings = []
         algo_warnings = []
         for warning in warnings:
-            if re.search("^W\d{6}[-]", str(warning)):
+            if re.search(r"^W\d{6}[-]", str(warning)):
                 algo_warnings.append(warning)
             else:
                 user_warnings.append(warning)
@@ -307,7 +305,7 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
     def post(self, request, *args, **kwargs):
         run_coding_algorithms.apply_async()
         messages.success(
-            request, f"Coding algorithm process has started in the background."
+            request, "Coding algorithm process has started in the background."
         )
         write_va_log(LOGGER, "ran coding algorithm", self.request)
         return super().post(request, *args, **kwargs)

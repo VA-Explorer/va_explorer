@@ -8,6 +8,7 @@ from va_explorer.users.models import User
 
 pytestmark = pytest.mark.django_db
 
+
 # Get the index and make sure
 def test_index(user: User):
     client = Client()
@@ -37,6 +38,5 @@ def test_index(user: User):
 def test_about(user: User):
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create()
-    response = client.get(f"/about/")
+    response = client.get("/about/")
     assert response.status_code == 200

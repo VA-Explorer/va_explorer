@@ -29,7 +29,8 @@ class PasswordComplexityValidator:
             validation_errors.append(
                 ValidationError(
                     _(
-                        "Password requires at least one uppercase letter from Latin alphabet (A–Z)"
+                        "Password requires at least one uppercase letter from \
+                         the Latin alphabet (A–Z)"
                     ),
                     code="password_no_uppercase",
                 )
@@ -39,7 +40,8 @@ class PasswordComplexityValidator:
             validation_errors.append(
                 ValidationError(
                     _(
-                        "Password requires at least one lowercase letter from Latin alphabet (a-z)"
+                        "Password requires at least one lowercase letter from \
+                         the Latin alphabet (a-z)"
                     ),
                     code="password_no_lowercase",
                 )
@@ -49,7 +51,8 @@ class PasswordComplexityValidator:
             validation_errors.append(
                 ValidationError(
                     _(
-                        "Password requires at least one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '"
+                        "Password requires at least one nonalphanumeric \
+                         character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '"
                     ),
                     code="password_no_special",
                 )
@@ -59,7 +62,9 @@ class PasswordComplexityValidator:
 
     def get_help_text(self):
         return _(
-            "Your password requires at least one number, one lowercase letter, one uppercase letter, and one nonalphanumeric character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '"
+            "Your password requires at least one number, one lowercase letter, \
+             one uppercase letter, and one nonalphanumeric \
+             character ! @ # $ % ^ & * ( ) _ + - = [ ] { } | '"
         )
 
 
@@ -112,8 +117,10 @@ def validate_user_object(user_data, user_object=None):
     assert user_object.name == user_data["name"]
     assert user_object.email == user_data["email"]
 
-    # Only validate permissions that aren't set by group. If you create new permissions types, need to add them below.
-    # Assumes each permission X maps to a user getter starting with 'can' (e.g. view_pii -> user.can_view_pii)
+    # Only validate permissions that aren't set by group. If you create new
+    # permissions types, need to add them below.
+    # Assumes each permission X maps to a user getter starting with
+    # 'can' (e.g. view_pii -> user.can_view_pii)
     for permission in ["view_pii", "download_data"]:
         is_group_permission = (
             user_object.groups.first().permissions.filter(codename=permission).first()
@@ -121,7 +128,8 @@ def validate_user_object(user_data, user_object=None):
         if not is_group_permission:
             assert getattr(user_object, f"can_{permission}") == user_data[permission]
 
-    # if location restrictions for user, ensure all verbal autopsies fall within their jurisdiction
+    # if location restrictions for user, ensure all verbal autopsies fall
+    # within their jurisdiction
     if "location_restrictions" in user_data:
         if len(user_data["location_restrictions"]) > 0:
             jurisdiction = set(

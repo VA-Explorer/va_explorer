@@ -7,8 +7,8 @@ def write_va_log(logger, msg, request=None, logtype="info", session_key=None):
     if not session_key:
         try:
             session_key = request.session.session_key
-        except:
-            print("WARNING: couldn't find session key in request object.")
+        except Exception as err:
+            print("WARNING: couldn't find session key in request object: %s", err)
             session_key = None
 
     msg = f"SID: {session_key} - " + msg

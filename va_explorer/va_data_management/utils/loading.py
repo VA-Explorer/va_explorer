@@ -22,12 +22,14 @@ from va_explorer.va_data_management.utils.validate import validate_vas_for_dashb
 
 User = get_user_model()
 
+
 # load VA records into django database
 def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     ti = t0 = time.time()
     logger = None if not debug else logging.getLogger("event_logger")
     if logger:
-        logger.info("=" * 10 + "DATA INGEST" + "=" * 10)
+        header = "=" * 10 + "DATA INGEST" + "=" * 10
+        logger.info(header)
 
     # CSV can prefix column names with a strings and a dash or more. Examples:
     #     presets-Id10004
@@ -40,11 +42,11 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
 
     # But first, account for case differences in csv columns (i.e. ensure id10041 maps to Id10041)
-    fieldCaseMapper = {field.lower(): field for field in model_field_names}
-    record_df.rename(columns=lambda c: fieldCaseMapper.get(c.lower(), c), inplace=True)
+    field_case_mapper = {field.lower(): field for field in model_field_names}
+    record_df.rename(columns=lambda c: field_case_mapper.get(c.lower(), c), inplace=True)
 
     # Lowercase the instanceID column that can come from ODK as "instanceID".
-    if "intanceID" in record_df.columns:
+    if "instanceID" in record_df.columns:
         record_df = record_df.rename(columns={"instanceID": "instanceid"})
 
     # If there is not an instanceid column but there is a key column,
@@ -52,7 +54,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     if "instanceid" not in record_df.columns and "key" in record_df.columns:
         record_df = record_df.rename(columns={"key": "instanceid"})
 
-    print("deduplicating fields...")
+    print("de-duplicating fields...")
     # collapse fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010)
     record_df = deduplicate_columns(record_df)
 
@@ -70,9 +72,11 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     common_field_names = csv_field_names.intersection(model_field_names)
 
     # Just keep the fields in the CSV that we have columns for in our VerbalAutopsy model
-    # Also track extras or missing fields for eventual debugging display
-    missing_field_names = model_field_names.difference(common_field_names)
-    extra_field_names = csv_field_names.difference(common_field_names)
+    if logger:
+        missing_field_names = model_field_names.difference(common_field_names)
+        logger.debug("Missing fields: %s", missing_field_names)
+        extra_field_names = csv_field_names.difference(common_field_names)
+        logger.debug("Extra fields: %s", extra_field_names)
     record_df = record_df[common_field_names]
 
     # For each row, check to see if there is an instanceid.
@@ -98,7 +102,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             make_field_workers_for_facilities()
             valid_usernames = VaUsername.objects.exclude(va_username__exact="")
 
-    # pull in all existing VA instanceIDs from db for deduping purposes
+    # pull in all existing VA instanceIDs from db for de-duping purposes
     print("pulling in instance ids...")
     va_instance_ids = set(VerbalAutopsy.objects.values_list("instanceid", flat=True))
     tf = time.time()
@@ -125,7 +129,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         # If we got here, we have a new, legit VA on our hands.
         va_id = row.get("instanceid", f"{i} of {record_df.shape[0]}")
 
-        # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
+        # Try to parse date of death as as datetime. Otherwise, record string and
+        # add record issue during validation
         parsed_date = parse_date(va.Id10023, strict=False)
         if logger:
             logger.info(
@@ -133,7 +138,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             )
         va.Id10023 = parsed_date
 
-        # Try to parse submission date as as datetime. Otherwise, record string and add record issue during validation
+        # Try to parse submission date as as datetime. Otherwise, record string and
+        # add record issue during validation
         parsed_sub_date = parse_date(va.submissiondate, strict=False)
         if logger:
             logger.info(
@@ -141,7 +147,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             )
         va.submissiondate = parsed_sub_date
 
-        # if random_locations, assign random field worker to VA which can be used to determine location.
+        # if random_locations, assign random field worker to VA which can be used
+        # to determine location.
         # Otherwise, try assigning location based on hospital field.
         if random_locations:
             username = valid_usernames.order_by("?").first()
@@ -152,7 +159,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             assign_va_location(va, location_map)
             if "hospital" in row and logger:
                 logger.info(
-                    f"va_id: {va_id} - Matched hospital {row['hospital']} to {va.location} location in DB"
+                    f"va_id: {va_id} - Matched hospital {row['hospital']} \
+                      to {va.location} location in DB"
                 )
 
         created_vas.append(va)
@@ -190,7 +198,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     }
 
 
-# load locations from a csv file into the django database. If delete_previous is true, will clear location db before laoding.
+# load locations from a csv file into the django database. If delete_previous
+# is true, will clear location db before laoding.
 def load_locations_from_file(csv_file, delete_previous=False):
     # Delete existing locations ONLY IF DELETE_PREVIOUS IS TRUE.
     if delete_previous:
@@ -212,7 +221,7 @@ def load_locations_from_file(csv_file, delete_previous=False):
 
     # track number of new locations added to system
     location_ct = update_ct = 0
-    db_locations = {l.name: l for l in Location.objects.all()}
+    db_locations = {location.name: location for location in Location.objects.all()}
     # Store it into the database in a tree structure
     # *** assumes locations have following fields: name, parent, location_type
     for _, row in csv_data.iterrows():
@@ -223,7 +232,8 @@ def load_locations_from_file(csv_file, delete_previous=False):
             if parent_node:
                 # update parent to get latest state
                 parent_node.refresh_from_db()
-                # next, check for current node in db. If not, create new child. If so, ensure parent matches parent_node
+                # next, check for current node in db. If not, create new child.
+                # If so, ensure parent matches parent_node
                 row_location = db_locations.get(row["name"], None)
                 if row_location:
                     # if child node points to right parent
@@ -255,7 +265,7 @@ def load_locations_from_file(csv_file, delete_previous=False):
 
     # if non existent, add 'Null' location to database to account for VAs with unknown locations
     if not Location.objects.filter(name="Unknown").exists():
-        print(f"Adding NULL location to handle unknowns")
+        print("Adding NULL location to handle unknowns")
         Location.add_root(name="Unknown", location_type="facility")
         location_ct += 1
 
@@ -265,14 +275,14 @@ def load_locations_from_file(csv_file, delete_previous=False):
 
 # combine fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010).
 # in Zambia data, often either the normal or _other field has a value but not both.
-# NOTE: currently using 'cleaned' version of other field (called filtered_<field>_other) and discarding <field>-other values
-# verify that this is kosher.
+# NOTE: currently using 'cleaned' version of other field (called filtered_<field>_other)
+# and discarding <field>-other values. verify that this is kosher.
 def deduplicate_columns(record_df, drop_duplicates=True):
-    other_cols = record_df.filter(regex="\_other$", axis=1).columns
+    other_cols = record_df.filter(regex=r"\_other$", axis=1).columns
     # get original columns that other columns are derived from
     original_cols = list(
         set(
-            other_cols.str.replace("^filtered\_", "")
+            other_cols.str.replace(r"^filtered\_", "")
             .str.replace("_other$", "")
             .tolist()
         )
@@ -287,7 +297,8 @@ def deduplicate_columns(record_df, drop_duplicates=True):
                 .bfill(axis=1)
                 .iloc[:, 0]
             )
-            # record_df[original_col] = record_df.apply(lambda row: row[other_col] if pd.isnull(row[original_col]) else row[original_col], axis=1)
+            # record_df[original_col] = record_df.apply(lambda row: row[other_col]
+            # f pd.isnull(row[original_col]) else row[original_col], axis=1)
         else:
             print(
                 f"WARNING: couldn't find {original_col} but {original_col}_other in columns"

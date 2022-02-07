@@ -27,6 +27,7 @@ class VaApi(CustomAuthMixin, View):
     permission_required = "va_analytics.download_data"
 
     def get(self, request, *args, **kwargs):
+        _ = (args, kwargs)  # unused
         # params = super(VaApi, self).get(self, request, *args, **kwargs)
         # get all query params
         params = request.GET
@@ -137,8 +138,6 @@ class VaApi(CustomAuthMixin, View):
         # =========DATA FORMAT LOGIC===================#
         # convert VAs to proper format. Currently supports .csv (default) and .json
         fmt = params.get("format", "csv").lower().replace("/", "")
-        # determine whether to download as attachment or return raw data (default: return raw)
-        download = params.get("download", False)
 
         # download only for csv
         if fmt.endswith("csv"):

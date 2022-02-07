@@ -5,7 +5,7 @@ import pandas as pd
 from django.db.models import F
 from django.db.models.query import QuerySet
 from django.forms import BooleanField
-from django.forms.models import ModelMultipleChoiceField as mmc_field
+from django.forms.models import ModelMultipleChoiceField as MMCField
 from pandas.core.frame import DataFrame
 
 from va_explorer.users.forms import ExtendedUserCreationForm
@@ -14,8 +14,8 @@ from va_explorer.users.models import User
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 
 
-# get table with basic info for a list of users. By default, exports results for all users but admin.
-# No PII included in result
+# get table with basic info for a list of users. By default, exports results
+# for all users but admin. No PII included in result
 def get_anonymized_user_info(user_list_file=None):
     # By default, include all users but admins.
     user_objects = User.objects.exclude(groups__name="Admins").exclude(
@@ -24,7 +24,7 @@ def get_anonymized_user_info(user_list_file=None):
     # If user_list provided, filter list down to users w matching emails
     if user_list_file:
         if not os.path.isfile(user_list_file):
-            raise FileNotFoundError(f"Couldnt find user file {user_list_file}")
+            raise FileNotFoundError(f"Couldn't find user file {user_list_file}")
         with open(user_list_file, "r") as f:
             emails = list(
                 map(
@@ -46,14 +46,10 @@ def get_anonymized_user_info(user_list_file=None):
                 user_objects = filtered_users
         else:
             print(
-                f"WARNING no valid emails found in file. Exporting info for all users"
+                "WARNING no valid emails found in file. Exporting info for all users"
             )
 
     # export user data in way that is consistent with user form
-    # get user form fields
-    form_fields = get_form_fields(orient="h")
-    # figure out which fields are permissions. Assumes that all boolean fields are permissions
-    permissions = form_fields.query("type=='BooleanField'").index.tolist()
     user_data = (
         user_objects.select_related("location_restrictions")
         .select_related("groups")
@@ -89,7 +85,8 @@ def get_anonymized_user_info(user_list_file=None):
     return user_df
 
 
-# function to create a list of users from a csv file. Hooks up to front-end user form to validate fields upon creation.
+# function to create a list of users from a csv file. Hooks up to front-end user
+# form to validate fields upon creation.
 def create_users_from_file(user_list_file, email_confirmation=False, debug=False):
     user_df = pd.read_csv(user_list_file).fillna("")
     user_ct = error_ct = 0
@@ -108,7 +105,8 @@ def create_users_from_file(user_list_file, email_confirmation=False, debug=False
         else:
             error_ct += 1
             print(
-                f"WARNING: user fm for {user_data.get('email', 'Unknown email')} had following errors: {user_form.errors}"
+                f"WARNING: user fm for {user_data.get('email', 'Unknown email')} \
+                  had following errors: {user_form.errors}"
             )
 
     if user_ct > 0:
@@ -133,7 +131,7 @@ def fill_user_form_data(user_data, debug=False):
 
     # initialize all form data values to their defaults
     form_data = {
-        name: [field.initial] if type(field) is mmc_field else field.initial
+        name: [field.initial] if type(field) is MMCField else field.initial
         for name, field in form.fields.items()
     }
 
@@ -146,7 +144,8 @@ def fill_user_form_data(user_data, debug=False):
         value = user_data[field_name]
         # pointer to form field object
         form_field = form.fields.get(field_name)
-        # initialize form_value to form_field's default value. If match found below, will be overridden
+        # initialize form_value to form_field's default value.
+        # If match found below, will be overridden
         form_value = form_field.initial
         # multiple choice field
         if hasattr(form_field, "choices"):
@@ -155,7 +154,8 @@ def fill_user_form_data(user_data, debug=False):
                 # NOTE: this assumes queryset objects have 'name' field and are indexed as such.
                 # If not the case, need to use new field in query below
                 qs = form_field.choices.queryset
-                # first, try (case insensive) exact matching. If no match, then try consevative fuzzy matching
+                # first, try (case insensitive) exact matching.
+                # If no match, then try conservative fuzzy matching
                 try:
                     match = qs.filter(name__iexact=value)
                     if not match.exists():
@@ -164,7 +164,8 @@ def fill_user_form_data(user_data, debug=False):
                         )
                         if match_name:
                             match = qs.filter(name__iexact=match_name)
-                except:
+                except Exception as err:
+                    print(f"WARN: Unable to match due to error: {err}\n Assigning none queryset.")
                     match = qs.none()
 
                 if debug:
@@ -173,7 +174,8 @@ def fill_user_form_data(user_data, debug=False):
                     )
                     print(f"match: {match}")
 
-                # if matching option, set form value to its primary key. Otherwise, use form field's default value
+                # if matching option, set form value to its primary key.
+                # Otherwise, use form field's default value
                 if match.exists():
                     form_value = match
                 # if group field, try adding s if any groups are plural and rerun query
@@ -202,8 +204,8 @@ def fill_user_form_data(user_data, debug=False):
                     # First, assume field is string. If not, fall back to non-string matching
                     try:
                         value, choice = value.lower(), choice.lower()
-                    except:
-                        pass
+                    except Exception as err:
+                        print(f"Error: {err}")
                     if choice == value:
                         form_value = choice
                         break
@@ -248,8 +250,8 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
         try:
             # strip plural from group name
             group_name = re.sub("s$", "", user_data["group"].lower())
-        except:
-            pass
+        except Exception as err:
+            print(f"Error: {err}")
 
         # check group name against known groups. Update group_name to match if found, otherwise default to data viewer
         group_match = fuzzy_match(group_name, list(GROUPS_PERMISSIONS.keys()))
@@ -297,7 +299,8 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
     return user_data
 
 
-# get schema information of a django form including field types, descriptions, whether they're required, and deafult values
+# get schema information of a django form including field types, descriptions,
+# whether they're required, and deafult values
 def get_form_fields(form_type=ExtendedUserCreationForm, orient="v"):
     form = form_type()
     field_dict = {

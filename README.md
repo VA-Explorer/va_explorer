@@ -122,7 +122,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `./manage.py get_user_form_template --output_file <FILENAME>`
 
-  * Export anynymous info for all users in system
+  * Export anonymous info for all users in system
 
     `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
       

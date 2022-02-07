@@ -1,10 +1,5 @@
 from django import forms
-from django_filters import (
-    BooleanFilter,
-    CharFilter,
-    DateFilter,
-    FilterSet,
-)
+from django_filters import BooleanFilter, CharFilter, DateFilter, FilterSet
 
 from va_explorer.va_data_management.models import VerbalAutopsy
 

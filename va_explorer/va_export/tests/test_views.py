@@ -44,10 +44,10 @@ def build_test_db():
     va4 = VerbalAutopsyFactory.create(location=facility_a, Id10023="2020-04-01")
 
     # Create CODs and assign to VAs
-    cod1 = CauseOfDeath.objects.create(cause="cod_b", settings={}, verbalautopsy=va1)
-    cod2 = CauseOfDeath.objects.create(cause="cod_a", settings={}, verbalautopsy=va2)
-    cod3 = CauseOfDeath.objects.create(cause="cod_b", settings={}, verbalautopsy=va3)
-    cod4 = CauseOfDeath.objects.create(cause="cod_a", settings={}, verbalautopsy=va4)
+    CauseOfDeath.objects.create(cause="cod_b", settings={}, verbalautopsy=va1)
+    CauseOfDeath.objects.create(cause="cod_a", settings={}, verbalautopsy=va2)
+    CauseOfDeath.objects.create(cause="cod_b", settings={}, verbalautopsy=va3)
+    CauseOfDeath.objects.create(cause="cod_a", settings={}, verbalautopsy=va4)
 
     # Build admin that can download data without location or PII restrictions
     can_download_data = Permission.objects.filter(codename="download_data").first()
@@ -55,10 +55,10 @@ def build_test_db():
 
     admin_group = GroupFactory.create(permissions=[can_download_data, can_view_pii])
     non_admin_group = GroupFactory.create(permissions=[can_download_data])
-    user = UserFactory.create(name="admin", groups=[admin_group])
+    UserFactory.create(name="admin", groups=[admin_group])
 
     # build a non-admin user that can download but can't view pii
-    user_no_pii = UserFactory.create(name="no_pii", groups=[non_admin_group])
+    UserFactory.create(name="no_pii", groups=[non_admin_group])
 
 
 class TestAPIView:
@@ -107,7 +107,7 @@ class TestAPIView:
         assert response.status_code == 200
         # confirm response content has some data
         assert len(response.content) > 0
-        # confirm only 2/4 vas were downoaded
+        # confirm only 2/4 vas were downloaded
         df = pd.read_csv(BytesIO(response.content))
         download_ct = df.shape[0]
         db_ct = VerbalAutopsy.objects.filter(location__id=loc_a.pk).count()

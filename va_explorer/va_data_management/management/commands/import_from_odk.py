@@ -25,6 +25,7 @@ class Command(BaseCommand):
         parser.add_argument("--form-name", type=str, required=False)
 
     def handle(self, *args, **options):
+        _ = args    # unused
         email = options["email"]
         password = options["password"]
         project_id = options["project_id"]
@@ -34,7 +35,8 @@ class Command(BaseCommand):
 
         if not email or not password:
             self.stderr.write(
-                "Must specify either --email and --password arguments or ODK_EMAIL and ODK_PASSWORD environment variables."
+                "Must specify either --email and --password arguments or \
+                ODK_EMAIL and ODK_PASSWORD environment variables."
             )
             return
 

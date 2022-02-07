@@ -12,27 +12,26 @@ class Command(BaseCommand):
     help = "Initialize log directories for event loggig and debugging"
 
     def handle(self, *args, **options):
+        _ = (args, options)  # unused
         if not os.path.isdir(LOG_DIR):
             try:
                 os.mkdir(LOG_DIR)
                 try:
                     os.chown(LOG_DIR, gid=101, uid=101)
-                except:
-                    print(f"failed to change ownership of {LOG_DIR}")
+                except Exception as err:
+                    print(f"failed to change ownership of {LOG_DIR}: {str(err)}")
                 print(f"Made log directory at {LOG_DIR}")
 
-            except:
-                raise FileNotFoundError(f"Couldnt create log directory {LOG_DIR}")
+            except Exception as err:
+                raise FileNotFoundError(f"Couldn't create log directory {LOG_DIR}: {str(err)}")
 
         handlers = LOGGING["handlers"]
-        for handler_name, cfg in handlers.items():
+        for _, cfg in handlers.items():
             logfile = cfg.get("filename", None)
             if logfile:
                 if not os.path.isfile(logfile):
                     try:
-                        with open(logfile, "w") as out:
-                            pass
+                        open(logfile, "w")
                         print(f"Made new logfile {logfile}")
-
-                    except:
-                        raise FileNotFoundError(f"Couldnt create log file {logfile}")
+                    except Exception as err:
+                        raise FileNotFoundError(f"Couldn't create log file {logfile}: {str(err)}")

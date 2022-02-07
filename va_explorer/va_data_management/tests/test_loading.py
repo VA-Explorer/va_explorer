@@ -50,7 +50,7 @@ def test_loading_from_dataframe():
 def test_loading_from_dataframe_with_ignored():
     # Location gets assigned automatically/randomly.
     # If that changes in loading.py we'll need to change that here too.
-    loc = Location.add_root(name="test location", location_type="facility")
+    Location.add_root(name="test location", location_type="facility")
 
     data = [
         {"instanceid": "instance1", "testing-dashes-Id10007": "name 1"},
@@ -116,7 +116,7 @@ def test_loading_from_dataframe_with_key():
 def test_load_va_csv_command():
     # Location gets assigned automatically/randomly if hospital is not a facility
     # If that changes in loading.py it needs to change here too
-    loc = Location.add_root(name="test location", location_type="facility")
+    Location.add_root(name="test location", location_type="facility")
 
     # Find path to data file
     test_data = Path(__file__).parent / "test-input-data.csv"

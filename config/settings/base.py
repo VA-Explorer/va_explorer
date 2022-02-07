@@ -47,7 +47,7 @@ DATABASES = {
     )
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
-DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
 
 # URLs
 
@@ -311,7 +311,7 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_ADAPTER = "va_explorer.users.adapters.AccountAdapter"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731
+ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731 - allow this limited use
 
 # Plotly Dash
 

@@ -32,7 +32,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         return cleaned_data
 
 
-def validate_date_format(form, Id10023):
+def validate_date_format(form, Id10023):    # noqa N803 - more readable as actual name
     """
     Custom form validation for field Id10023, date of death
     """
@@ -43,6 +43,7 @@ def validate_date_format(form, Id10023):
         except ValueError:
             form._errors["Id10023"] = form.error_class(
                 [
-                    f'Field Id10023 must be in "dk" if unknown or in one of following date formats: {list(DATE_FORMATS.values())}'
+                    f'Field Id10023 must be in "dk" if unknown or in one of \
+                      following date formats: {list(DATE_FORMATS.values())}'
                 ]
             )

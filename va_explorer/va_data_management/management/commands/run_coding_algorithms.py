@@ -40,7 +40,8 @@ class Command(BaseCommand):
             )
         else:
             print(
-                f"At least one invalid algorithm setting in: \n {ALGORITHM_SETTINGS}. See va_data_management.utils.coding.py for valid setting values. \n Exiting..."
+                f"At least one invalid algorithm setting in: \n {ALGORITHM_SETTINGS}. \
+                  See va_data_management.utils.coding.py for valid setting values. \n Exiting..."
             )
             exit()
 

@@ -163,7 +163,8 @@ def test_save_with_valid_permissions(user: User):
     assert bytes(va.history.first().history_user.name, "utf-8") in response.content
 
 
-# Update a VA and make sure there is no redirect, TODO check form.errors or create separate form test to make this more accurate
+# Update a VA and make sure there is no redirect
+# TODO check form.errors or create separate form test to make this more accurate
 def test_save_with_invalid_date_format(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
@@ -192,12 +193,13 @@ def test_save_without_valid_permissions(user: User):
     va = VerbalAutopsyFactory.create(Id10017="Victim name", Id10010="Interviewer name")
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    location = va.location
     response = client.post(f"/va_data_management/edit/{va.id}", {"Id10010": new_name})
     assert response.status_code == 403
 
 
-# Reset an updated VA and make sure 1) the data is reset to original values and 2) the history is tracked
+# Reset an updated VA and make sure
+# 1) the data is reset to original values
+# 2) the history is tracked
 def test_reset_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_pii = Permission.objects.filter(codename="view_pii").first()
@@ -251,7 +253,6 @@ def test_revert_latest_with_valid_permissions(user: User):
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create(Id10017="Victim name", Id10010="Interviewer name")
-    original_name = va.Id10010
     second_name = "Second Name"
     third_name = "Third Name"
     client.post(

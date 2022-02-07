@@ -41,8 +41,9 @@ ALGORITHM_SETTINGS = {
     "groupcode": os.environ.get("INTERVA_GROUPCODE", "True"),
 }
 
-# validates provided algorithm settings against algorithm param value sets. Currently only works
-# with interva5 but set up to generalize to other algorithms once supported
+
+# validates provided algorithm settings against algorithm param value sets. Currently
+# only works with interva5 but set up to generalize to other algorithms once supported
 def validate_algorithm_settings():
     # TODO: turn algorithm keyname into parameter once we support other algorithms
     param_opts = ALGORITHM_PARAM_OPTIONS["INTERVA"]
@@ -52,14 +53,16 @@ def validate_algorithm_settings():
     if len(common_keys) != len(setting_keys):
         unrecognized = setting_keys.difference(common_keys)
         print(
-            f"WARNING: options {unrecognized} not recognized (expected any of {list(param_opts.keys())}). Skipping..."
+            f"WARNING: options {unrecognized} not recognized (expected any of \
+             {list(param_opts.keys())}). Skipping..."
         )
 
     # ensure all common settings are valid
     for key in common_keys:
         if not ALGORITHM_SETTINGS[key] in param_opts[key]:
             print(
-                f"ERROR: provided {key} value {ALGORITHM_SETTINGS[key]} not found. Expecting one of {param_opts[key]}"
+                f"ERROR: provided {key} value {ALGORITHM_SETTINGS[key]} not \
+                 found. Expecting one of {param_opts[key]}"
             )
             return False
 
@@ -67,7 +70,8 @@ def validate_algorithm_settings():
 
 
 def _run_pycross_and_interva5(verbal_autopsies):
-    # Get into CSV format, also prefixing keys with - as expected by pyCrossVA (e.g. Id10424 becomes -Id10424)
+    # Get into CSV format, also prefixing keys with - as expected by
+    # pyCrossVA (e.g. Id10424 becomes -Id10424)
     va_data = [model_to_dict(va) for va in verbal_autopsies]
     va_data = [dict([(f"-{k}", v) for k, v in d.items()]) for d in va_data]
     va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
@@ -97,7 +101,8 @@ def _run_pycross_and_interva5(verbal_autopsies):
 
 def run_coding_algorithms():
     # Load all verbal autopsies that don't have a cause coding
-    # TODO: This should eventually check to see that there's a cause coding for every supported algorithm
+    # TODO: This should eventually check to see that there's a cause coding for
+    # every supported algorithm
     verbal_autopsies_without_causes = list(
         VerbalAutopsy.objects.filter(causes__isnull=True)
     )
@@ -132,7 +137,8 @@ def run_coding_algorithms():
                 issue = issue[0]
             va_offset, issue_text = re.split("  +", issue, maxsplit=1)
             va_id = verbal_autopsies_without_causes[int(va_offset)].id
-            # TODO: For now, clear old issues for records that are newly coded; if we associate errors with runs we may perhaps prefer not to do this
+            # TODO: For now, clear old issues for records that are newly coded;
+            #       if we associate errors with runs we may perhaps prefer not to do this
             # use exclude to keep errors related to the raw data
             # TODO: build out the issue model to capture non coding errors
             CauseCodingIssue.objects.filter(verbalautopsy_id=va_id).exclude(

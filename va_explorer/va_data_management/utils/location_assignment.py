@@ -31,7 +31,7 @@ def build_location_mapper(
         mapper = pd.DataFrame({"va_name": va_locations}).dropna()
         if not mapper.empty:
             mapper["va_key"] = (
-                mapper["va_name"].str.lower().replace("\_", " ", regex=True)
+                mapper["va_name"].str.lower().replace(r"\_", " ", regex=True)
             )
 
             # preprocess dataframes
@@ -132,7 +132,7 @@ def fuzzy_match(
             if not drop_terms:
                 drop_terms = ["general", "central", "teaching"]
 
-            search_term = re.sub("\_", " ", search.lower())
+            search_term = re.sub(r"\_", " ", search.lower())
             for term in drop_terms:
                 search_term = search_term.replace(f" {term}", "")
                 option_df["key"] = option_df["key"].replace(f" {term}", "", regex=True)

@@ -29,6 +29,7 @@ from .forms import (
 User = get_user_model()
 LOGGER = logging.getLogger("event_logger")
 
+
 # track login
 @receiver(user_logged_in)
 def login_logger(request, user, **kwargs):

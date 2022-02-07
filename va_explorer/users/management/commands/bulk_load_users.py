@@ -7,8 +7,11 @@ from va_explorer.users.utils.user_form_backend import create_users_from_file
 
 class Command(BaseCommand):
 
-    help = "Create user accounts, assigning a temporary password, given a csv file that has at a minimum email, user group, and location restriction information\
-     but can also add any permission information that apears in the user creation form. Run ./manage.py get_user_template to see all such options."
+    help = "Create user accounts, assigning a temporary password, given a csv \
+            file that has at a minimum email, user group, and location \
+            restriction information but can also add any permission information \
+            that apears in the user creation form. \
+            Run ./manage.py get_user_template to see all such options."
 
     def add_arguments(self, parser):
         parser.add_argument("user_list_file", type=argparse.FileType("r"))

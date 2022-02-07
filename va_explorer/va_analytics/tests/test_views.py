@@ -85,13 +85,13 @@ class TestSupervisionView:
         field_worker = UserFactory.create(location_restrictions=[facility1])
         username = "field_worker"
         field_worker.set_va_username(username)
-        va1 = VerbalAutopsyFactory.create(
+        VerbalAutopsyFactory.create(
             location=facility1,
             username=username,
             Id10010=username,
             submissiondate=str(date.today() - timedelta(days=8)),
         )
-        va2 = VerbalAutopsyFactory.create(
+        VerbalAutopsyFactory.create(
             location=facility1,
             username=username,
             Id10010=username,

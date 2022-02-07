@@ -1,10 +1,7 @@
 import pytest
 from django.contrib.auth.models import Group
 
-from va_explorer.tests.factories import (
-    UserFactory,
-    VerbalAutopsyFactory,
-)
+from va_explorer.tests.factories import UserFactory, VerbalAutopsyFactory
 from va_explorer.users.models import User
 from va_explorer.users.tests.user_test_utils import setup_test_db
 from va_explorer.users.utils.field_worker_linking import (
@@ -21,16 +18,10 @@ def test_link_fieldworkers_to_vas():
     # Location gets assigned automatically/randomly.
     # If that changes in loading.py we'll need to change that here too.
     # create users before VAs are added to system
-    group, created = Group.objects.get_or_create(name="Field Workers")
-    u1 = UserFactory(
-        name="Johnny", email="field_worker_1@example.com", groups=[group]
-    ).save()
-    u2 = UserFactory(
-        name="Apple", email="field_worker_2@example.com", groups=[group]
-    ).save()
-    u1 = UserFactory(
-        name="Seed", email="field_worker_3@example.com", groups=[group]
-    ).save()
+    group, _ = Group.objects.get_or_create(name="Field Workers")
+    UserFactory(name="Johnny", email="field_worker_1@example.com", groups=[group]).save()
+    UserFactory(name="Apple", email="field_worker_2@example.com", groups=[group]).save()
+    UserFactory(name="Seed", email="field_worker_3@example.com", groups=[group]).save()
 
     worker_emails = list(User.objects.values_list("email", flat=True))
 
@@ -38,10 +29,10 @@ def test_link_fieldworkers_to_vas():
     loc2 = Location.objects.filter(name="Facility2").first()
 
     # add VA data to system
-    va1 = VerbalAutopsyFactory.create(Id10010="unknown_user", location=loc1).save()
-    va2 = VerbalAutopsyFactory.create(Id10010="Johnny", location=loc2).save()
-    va3 = VerbalAutopsyFactory.create(Id10010="appLe", location=loc1).save()
-    va4 = VerbalAutopsyFactory.create(Id10010="SEED", location=loc2).save()
+    VerbalAutopsyFactory.create(Id10010="unknown_user", location=loc1).save()
+    VerbalAutopsyFactory.create(Id10010="Johnny", location=loc2).save()
+    VerbalAutopsyFactory.create(Id10010="appLe", location=loc1).save()
+    VerbalAutopsyFactory.create(Id10010="SEED", location=loc2).save()
 
     res = link_fieldworkers_to_vas(emails=worker_emails)
     res = set(res)
@@ -68,24 +59,14 @@ def test_assign_va_usernames():
     loc2 = Location.objects.filter(name="Facility2").first()
 
     # first, create VAs
-    va1 = VerbalAutopsyFactory.create(
-        instanceid="instance1", Id10010="johnny", location=loc1
-    ).save()
-    va2 = VerbalAutopsyFactory.create(
-        instanceid="instance2", Id10010="Johnny", location=loc2
-    ).save()
-    va3 = VerbalAutopsyFactory.create(
-        instanceid="instance3", Id10010="appLe", location=loc1
-    ).save()
-    va4 = VerbalAutopsyFactory.create(
-        instanceid="instance4", Id10010="SEED", location=loc2
-    ).save()
-    va4 = VerbalAutopsyFactory.create(
-        instanceid="instance5", Id10010="JOHNNY", location=loc2
-    ).save()
+    VerbalAutopsyFactory.create(instanceid="instance1", Id10010="johnny", location=loc1).save()
+    VerbalAutopsyFactory.create(instanceid="instance2", Id10010="Johnny", location=loc2).save()
+    VerbalAutopsyFactory.create(instanceid="instance3", Id10010="appLe", location=loc1).save()
+    VerbalAutopsyFactory.create(instanceid="instance4", Id10010="SEED", location=loc2).save()
+    VerbalAutopsyFactory.create(instanceid="instance5", Id10010="JOHNNY", location=loc2).save()
 
     # then, create a field worker johnny
-    group, created = Group.objects.get_or_create(name="Field Workers")
+    group, _ = Group.objects.get_or_create(name="Field Workers")
     u1 = UserFactory(name="Johnny", email="field_worker_1@example.com", groups=[group])
     u1.set_va_username("johnny")
     u1.save()

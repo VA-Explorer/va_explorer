@@ -71,7 +71,7 @@ def validate_location_access(form, geographic_access, location_restrictions, gro
 
 def validate_username(form, va_username, group, user):
     """
-    Custom form validations related to the Field Worker va_username asssignment
+    Custom form validations related to the Field Worker va_username assignment
     """
     if group.name != "Field Workers" and va_username:
         form.errors["va_username"] = form.error_class(
@@ -104,7 +104,8 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
     user.set_va_username(cleaned_data.get("va_username"))
 
     # =======Fieldworker-VA linking logic===================#
-    # if run_linking_logic and field worker, go through series of steps to ensure they're properly linked to the right VAs
+    # if run_linking_logic and field worker, go through series of steps to ensure
+    # they're properly linked to the right VAs
     if run_matching_logic and group.name.lower().startswith("field worker"):
 
         # first, match provided username against VAs. # If matching va field worker name, link all
@@ -157,8 +158,10 @@ class LocationRestrictionsSelectMultiple(SelectMultiple):
 
 class GroupSelect(forms.Select):
     """
-    Custom widget for group select that will have a 'data-view-pii' and 'data-download-data' attributes.
-    We can use this attribute in the HTML to determine whether or not to enable the 'Can View PII' checkbox.
+    Custom widget for group select that will have a 'data-view-pii' and
+    'data-download-data' attributes.
+    We can use this attribute in the HTML to determine whether or not to
+    enable the 'Can View PII' checkbox.
     """
 
     def create_option(
@@ -205,12 +208,14 @@ class UserCommonFields(forms.ModelForm):
     )
     view_pii = forms.BooleanField(
         label="Can View PII",
-        help_text="Determines whether user can view PII. Only applies if group does not already grant access to view PII.",
+        help_text="Determines whether user can view PII. Only applies if group \
+                   does not already grant access to view PII.",
         required=False,
     )
     download_data = forms.BooleanField(
         label="Can Download Data",
-        help_text="Determines whether user can download data. Only applies if group does not already grant access to download data.",
+        help_text="Determines whether user can download data. Only applies if \
+                   group does not already grant access to download data.",
         required=False,
     )
 
@@ -222,7 +227,8 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
     * The username is not visible.
     * Name field is added.
     * Group model from django.contrib.auth.models is represented as a ModelChoiceField
-    * Non-model field geographic_access added to toggle between national and location-specific access
+    * Non-model field geographic_access added to toggle between national and
+      location-specific access
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
 
@@ -245,8 +251,8 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         """
-        Set the request on the form class so that we can access the request when calling
-        send_new_user_mail() in the save method below
+        Set the request on the form class so that we can access the request when
+        calling send_new_user_mail() in the save method below
         """
         self.request = kwargs.pop("request", None)
 
@@ -307,7 +313,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             # See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
             # setup_user_email(self.request, user, [])
-            # A workaround to run this script without a mail server. If True, it will send email like nomal.
+            # A workaround to run this script without a mail server. If True, it will send email like normal.
             # If False, user credentials will just be printed to console.
             console_msg = (
                 "" * 20
@@ -316,9 +322,10 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             if email_confirmation:
                 try:
                     get_adapter().send_new_user_mail(self.request, user, password)
-                except:
+                except Exception as err:
                     print("WARNING: failed to send email. Printing credentials instead")
                     print(console_msg)
+                    print(f"Failure source: {err}")
 
             else:
                 print(console_msg)
@@ -348,7 +355,8 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+        # TODO: Remove if we do not require email confirmation; we will no longer
+        # need the lines below
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
         self.fields["group"].label = "Role"
@@ -388,8 +396,8 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
 
 class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
     """
-    Allows the user to set a password of their choosing after logging in with a system-defined
-    random password.
+    Allows the user to set a password of their choosing after logging in with a
+    system-defined random password.
 
     See allauth:
         https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
@@ -413,7 +421,8 @@ class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
 
 class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
     """
-    Allows the user to change their password if they already have a valid (i.e., non-temporary) password.
+    Allows the user to change their password if they already have a valid
+    (i.e., non-temporary) password.
     Requires the user to re-type their old password and type in their new password twice.
 
     See allauth:

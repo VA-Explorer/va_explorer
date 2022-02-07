@@ -53,7 +53,7 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
             # update Username
             user = name_to_user[name]
             user.username = new_username
-            # only set va username if current username doesnt match
+            # only set va username if current username doesn't match
             if new_username != user.get_va_username():
                 user.set_va_username(new_username)
                 # user.save()
@@ -74,7 +74,7 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
         )
         return matches
     else:
-        print(f"failed to find any field worker tags that matched User names.")
+        print("failed to find any field worker tags that matched User names.")
         return None
 
 
@@ -125,7 +125,7 @@ def assign_va_usernames(
             f"Successfully linked {success_count} VAs to {len(tagged_users)} users ({tagged_users})"
         )
     else:
-        print(f"WARNING: no field worker Usernames in system - failed to tag any VAs")
+        print("WARNING: no field worker Usernames in system - failed to tag any VAs")
     return success_count
 
 

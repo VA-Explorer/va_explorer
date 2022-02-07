@@ -1,5 +1,5 @@
+# flake8: noqa: N815 - We want the model fields to exactly reflect the VA instrument's fields
 from django.conf import settings
-
 # from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import JSONField
@@ -35,7 +35,7 @@ PII_FIELDS = [
 
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
-    # ability to constrain access control by region; we use django-treabeard's materialized path
+    # ability to constrain access control by region; we use django-treebeard's materialized path
     # implementation for efficiency of tree operations
     name = models.TextField()
     location_type = models.TextField()
@@ -160,7 +160,9 @@ class VerbalAutopsy(models.Model):
         "Calculated Field: ageInDaysNeonate", blank=True
     )
     Id10008_check = models.TextField(
-        "It is not possible to select that the respondent is the child of the deceased and enter that the deceased is a neonate or child. Please go back and correct the selection.",
+        "It is not possible to select that the respondent is the child of the \
+        deceased and enter that the deceased is a neonate or child. Please go \
+        back and correct the selection.",
         blank=True,
     )
     Id10058 = models.TextField("Where did the deceased die?", blank=True)
@@ -172,7 +174,8 @@ class VerbalAutopsy(models.Model):
     Id10053 = models.TextField("What was her/his ethnicity?", blank=True)
     Id10054 = models.TextField("What was her/his place of birth?", blank=True)
     Id10055 = models.TextField(
-        "What was her/his place of usual residence? (the place where the person lived most of the year)",
+        "What was her/his place of usual residence? (the place where the person \
+        lived most of the year)",
         blank=True,
     )
     Id10057 = models.TextField(
@@ -210,7 +213,8 @@ class VerbalAutopsy(models.Model):
     Id10072 = models.TextField("Place of registration", blank=True)
     Id10073 = models.TextField("National identification number of deceased", blank=True)
     Id10476 = models.TextField(
-        "Thank you for your information. Now can you please tell me in your own words about the events that led to the death?",
+        "Thank you for your information. Now can you please tell me in your own \
+        words about the events that led to the death?",
         blank=True,
     )
     narrat_image = models.TextField("narrat_image", blank=True)
@@ -227,15 +231,18 @@ class VerbalAutopsy(models.Model):
         blank=True,
     )
     id10477_check = models.TextField(
-        'It is not possible to select "Don\'t know" or "None of the above" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "Don\'t know" or "None of the above" \
+        together with other options. Please go back and correct the selection.',
         blank=True,
     )
     id10478_check = models.TextField(
-        'It is not possible to select "Don\'t know" or "None of the above" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "Don\'t know" or "None of the above" \
+        together with other options. Please go back and correct the selection.',
         blank=True,
     )
     id10479_check = models.TextField(
-        'It is not possible to select "Don\'t know" or "None of the above" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "Don\'t know" or "None of the above" \
+        together with other options. Please go back and correct the selection.',
         blank=True,
     )
     Id10104 = models.TextField("Did the baby ever cry?", blank=True)
@@ -372,7 +379,8 @@ class VerbalAutopsy(models.Model):
         "Was there any diagnosis by a health professional of cancer?", blank=True
     )
     Id10138 = models.TextField(
-        "Was there any diagnosis by a health professional of Chronic Obstructive Pulmonary Disease (COPD)?",
+        "Was there any diagnosis by a health professional of Chronic \
+        Obstructive Pulmonary Disease (COPD)?",
         blank=True,
     )
     Id10139 = models.TextField(
@@ -493,7 +501,8 @@ class VerbalAutopsy(models.Model):
         blank=True,
     )
     Id10173_nc = models.TextField(
-        "During the illness that led to death did his/her breathing sound like any of the following:",
+        "During the illness that led to death did his/her breathing sound like \
+        any of the following:",
         blank=True,
     )
     id10173_check = models.TextField("id10173_check", blank=True)
@@ -501,7 +510,8 @@ class VerbalAutopsy(models.Model):
         "During the illness that led to death did (s)he have wheezing?", blank=True
     )
     Id10173 = models.TextField(
-        "Calculated Field: During the illness that led to death did his/her breathing sound like any of the following:",
+        "Calculated Field: During the illness that led to death did his/her \
+        breathing sound like any of the following:",
         blank=True,
     )
     Id10174 = models.TextField("Did (s)he have chest pain?", blank=True)
@@ -537,7 +547,8 @@ class VerbalAutopsy(models.Model):
         blank=True,
     )
     Id10183 = models.TextField(
-        "How many stools did the baby or child have on the day that loose liquid stools were most frequent?",
+        "How many stools did the baby or child have on the day that loose \
+        liquid stools were most frequent?",
         blank=True,
     )
     Id10184_a = models.TextField(
@@ -608,15 +619,18 @@ class VerbalAutopsy(models.Model):
         "Did (s)he have a more than usually protruding belly (abdomen)?", blank=True
     )
     Id10201_unit = models.TextField(
-        "For how long before death did (s)he have a more than usually protruding belly (abdomen)?",
+        "For how long before death did (s)he have a more than usually \
+        protruding belly (abdomen)?",
         blank=True,
     )
     Id10201_a = models.TextField(
-        "Enter how long before death (s)he had a more than usually protruding belly (abdomen) in days:",
+        "Enter how long before death (s)he had a more than usually protruding \
+        belly (abdomen) in days:",
         blank=True,
     )
     Id10202 = models.TextField(
-        "Enter how long before death (s)he had a more than usually protruding belly (abdomen) in months:",
+        "Enter how long before death (s)he had a more than usually protruding \
+        belly (abdomen) in months:",
         blank=True,
     )
     Id10201 = models.TextField(
@@ -718,7 +732,8 @@ class VerbalAutopsy(models.Model):
     )
     Id10219 = models.TextField("Did (s)he have convulsions?", blank=True)
     Id10220 = models.TextField(
-        "Did (s)he experience any generalized convulsions or fits during the illness that led to death?",
+        "Did (s)he experience any generalized convulsions or fits during the \
+        illness that led to death?",
         blank=True,
     )
     Id10221 = models.TextField(
@@ -764,7 +779,8 @@ class VerbalAutopsy(models.Model):
     )
     Id10235 = models.TextField("Where was the rash?", blank=True)
     id10235_check = models.TextField(
-        'It is not possible to select "Doesn\'t Know" or "Refused to answer" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "Doesn\'t Know" or "Refused to answer" \
+        together with other options. Please go back and correct the selection.',
         blank=True,
     )
     Id10236 = models.TextField(
@@ -778,11 +794,13 @@ class VerbalAutopsy(models.Model):
         blank=True,
     )
     Id10239 = models.TextField(
-        "During the illness that led to death, did he/she have areas of the skin that turned black?",
+        "During the illness that led to death, did he/she have areas of the \
+        skin that turned black?",
         blank=True,
     )
     Id10240 = models.TextField(
-        "During the illness that led to death, did he/she have areas of the skin with redness and swelling?",
+        "During the illness that led to death, did he/she have areas of the \
+        skin with redness and swelling?",
         blank=True,
     )
     Id10241 = models.TextField(
@@ -795,7 +813,8 @@ class VerbalAutopsy(models.Model):
     Id10243 = models.TextField("Did (s)he have noticeable weight loss?", blank=True)
     Id10244 = models.TextField("Was (s)he severely thin or wasted?", blank=True)
     Id10245 = models.TextField(
-        "During the illness that led to death, did s/he have a whitish rash inside the mouth or on the tongue?",
+        "During the illness that led to death, did s/he have a whitish rash \
+        inside the mouth or on the tongue?",
         blank=True,
     )
     Id10246 = models.TextField(
@@ -849,11 +868,13 @@ class VerbalAutopsy(models.Model):
         "Which were the limbs or body parts paralysed?", blank=True
     )
     id10260_check = models.TextField(
-        'It is not possible to select "only one side paralysed" and "left and right side" or "whole body" together. Please go back and correct the selection.',
+        'It is not possible to select "only one side paralysed" and "left and \
+        right side" or "whole body" together. Please go back and correct the selection.',
         blank=True,
     )
     id10260_check2 = models.TextField(
-        'It is not possible to select "Doesn\'t Know" or "Refused to answer" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "Doesn\'t Know" or "Refused to answer" \
+        together with other options. Please go back and correct the selection.',
         blank=True,
     )
     Id10261 = models.TextField("Did (s)he have difficulty swallowing?", blank=True)
@@ -1032,11 +1053,17 @@ class VerbalAutopsy(models.Model):
     )
     Id10309 = models.TextField("For how many months was she pregnant?", blank=True)
     Id10310 = models.TextField(
-        "Please confirm, when she died, she was NEITHER pregnant NOR had delivered, had an abortion, or miscarried within 12 months of when she died--is that right?",
+        "Please confirm, when she died, she was NEITHER pregnant NOR had delivered, \
+        had an abortion, or miscarried within 12 months of when she died--is that right?",
         blank=True,
     )
     Id10310_check = models.TextField(
-        'If the response is NO, DON\'T KNOW, OR REFUSED, it indicates some uncertainty as to whether the cause of death could have been a maternal or pregnancy-related cause. Go back to the question "Did she ever have a period or menstruate?" and follow the process again. If it is confirmed that the death was related to pregnancy, proceed with the next question ‚ÄúDid she die during labour or delivery?‚Äù',
+        'If the response is NO, DON\'T KNOW, OR REFUSED, it indicates some \
+        uncertainty as to whether the cause of death could have been a maternal \
+        or pregnancy-related cause. Go back to the question "Did she ever have \
+        a period or menstruate?" and follow the process again. If it is confirmed \
+        that the death was related to pregnancy, proceed with the next question \
+        ‚ÄúDid she die during labour or delivery?‚Äù',
         blank=True,
     )
     Id10312 = models.TextField("Did she die during labour or delivery?", blank=True)
@@ -1086,7 +1113,8 @@ class VerbalAutopsy(models.Model):
         "Was there vaginal bleeding during the first 6 months of pregnancy?", blank=True
     )
     Id10327 = models.TextField(
-        "Was there vaginal bleeding during the last 3 months of pregnancy but before labour started?",
+        "Was there vaginal bleeding during the last 3 months of pregnancy but \
+        before labour started?",
         blank=True,
     )
     Id10328 = models.TextField(
@@ -1104,7 +1132,8 @@ class VerbalAutopsy(models.Model):
         "Did she attempt to terminate the pregnancy?", blank=True
     )
     Id10334 = models.TextField(
-        "Did she recently have a pregnancy that ended in an abortion (spontaneous or induced)?",
+        "Did she recently have a pregnancy that ended in an abortion \
+        (spontaneous or induced)?",
         blank=True,
     )
     Id10335 = models.TextField("Did she die during an abortion?", blank=True)
@@ -1189,7 +1218,9 @@ class VerbalAutopsy(models.Model):
         "At birth, was the baby larger than usual, (weighing over 4.5 kg)?", blank=True
     )
     id1036X_check = models.TextField(
-        'It is not possible to select "No usual size at Birth", "No weighing under 2.5 kg" and "No weighing over 4.5 kg" together. Please go back and correct the selection.',
+        'It is not possible to select "No usual size at Birth", "No weighing \
+        under 2.5 kg" and "No weighing over 4.5 kg" together. Please go back \
+        and correct the selection.',
         blank=True,
     )
     Id10366_unit = models.TextField("Id10366_unit", blank=True)
@@ -1202,14 +1233,16 @@ class VerbalAutopsy(models.Model):
         "How many months long was the pregnancy before the child was born?", blank=True
     )
     Id10368 = models.TextField(
-        "Were there any complications in the late part of the pregnancy (defined as the last 3 months, before labour)?",
+        "Were there any complications in the late part of the pregnancy \
+        (defined as the last 3 months, before labour)?",
         blank=True,
     )
     Id10369 = models.TextField(
         "Were there any complications during labour or delivery?", blank=True
     )
     Id10370 = models.TextField(
-        "Was any part of the baby physically abnormal at time of delivery? (for example: body part too large or too small, additional growth on body)?",
+        "Was any part of the baby physically abnormal at time of delivery? \
+        (for example: body part too large or too small, additional growth on body)?",
         blank=True,
     )
     Id10371 = models.TextField(
@@ -1261,11 +1294,13 @@ class VerbalAutopsy(models.Model):
     )
     Id10389 = models.TextField("Was the delivery a Caesarean section?", blank=True)
     id10389_check = models.TextField(
-        'It is not possible to select "No" to all three previous questions. Please go back and review the answers.',
+        'It is not possible to select "No" to all three previous questions. \
+        Please go back and review the answers.',
         blank=True,
     )
     Id10391 = models.TextField(
-        "Did you/the mother receive any vaccinations since reaching adulthood including during this pregnancy?",
+        "Did you/the mother receive any vaccinations since reaching adulthood \
+        including during this pregnancy?",
         blank=True,
     )
     Id10392 = models.TextField("How many doses?", blank=True)
@@ -1276,29 +1311,34 @@ class VerbalAutopsy(models.Model):
         "During labour, did the baby's mother suffer from fever?", blank=True
     )
     Id10396 = models.TextField(
-        "During the last 3 months of pregnancy, labour or delivery, did you/the baby's mother suffer from high blood pressure?",
+        "During the last 3 months of pregnancy, labour or delivery, did \
+        you/the baby's mother suffer from high blood pressure?",
         blank=True,
     )
     Id10397 = models.TextField(
         "Did you/the baby's mother have diabetes mellitus?", blank=True
     )
     Id10398 = models.TextField(
-        "Did you/the baby's mother have foul smelling vaginal discharge during pregnancy or after delivery?",
+        "Did you/the baby's mother have foul smelling vaginal discharge during \
+        pregnancy or after delivery?",
         blank=True,
     )
     Id10399 = models.TextField(
-        "During the last 3 months of pregnancy, labour or delivery, did you/the baby's mother suffer from convulsions?",
+        "During the last 3 months of pregnancy, labour or delivery, did \
+        you/the baby's mother suffer from convulsions?",
         blank=True,
     )
     Id10400 = models.TextField(
-        "During the last 3 months of pregnancy did you/the baby's mother suffer from blurred vision?",
+        "During the last 3 months of pregnancy did you/the baby's mother \
+        suffer from blurred vision?",
         blank=True,
     )
     Id10401 = models.TextField(
         "Did you/the baby's mother have severe anemia?", blank=True
     )
     Id10402 = models.TextField(
-        "Did you/the baby's mother have vaginal bleeding during the last 3 months of pregnancy but before labour started?",
+        "Did you/the baby's mother have vaginal bleeding during the last 3 \
+        months of pregnancy but before labour started?",
         blank=True,
     )
     Id10403 = models.TextField(
@@ -1318,7 +1358,8 @@ class VerbalAutopsy(models.Model):
     )
     Id10414 = models.TextField("What kind of tobacco did (s)he use ?", blank=True)
     id10414_check = models.TextField(
-        'It is not possible to select cigarettes or pipe and "no" to "Did (s)he smoke tobacco?". Please go back and correct the selections.',
+        'It is not possible to select cigarettes or pipe and "no" to \
+        "Did (s)he smoke tobacco?". Please go back and correct the selections.',
         blank=True,
     )
     Id10415 = models.TextField("How many cigarettes did (s)he smoke daily?", blank=True)
@@ -1362,7 +1403,8 @@ class VerbalAutopsy(models.Model):
     )
     Id10431 = models.TextField("Select EPI vaccines done", blank=True)
     id10431_check = models.TextField(
-        'It is not possible to select "No vaccines", "Don\'t know" or "refuse" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "No vaccines", "Don\'t know" or "refuse" \
+        together with other options. Please go back and correct the selection.',
         blank=True,
     )
     Id10432 = models.TextField(
@@ -1370,11 +1412,13 @@ class VerbalAutopsy(models.Model):
     )
     Id10433 = models.TextField("Where or from whom did you seek care?", blank=True)
     id10433_check = models.TextField(
-        'It is not possible to select "Don\'t know" or "refuse" together with other options. Please go back and correct the selection.',
+        'It is not possible to select "Don\'t know" or "refuse" together with \
+        other options. Please go back and correct the selection.',
         blank=True,
     )
     Id10434 = models.TextField(
-        "What was the name and address of any hospital, health center or clinic where care was sought",
+        "What was the name and address of any hospital, health center or \
+        clinic where care was sought",
         blank=True,
     )
     Id10435 = models.TextField(
@@ -1418,7 +1462,8 @@ class VerbalAutopsy(models.Model):
         "Has the deceased's (biological) mother ever been tested for HIV?", blank=True
     )
     Id10446 = models.TextField(
-        "Has the deceased's (biological) mother ever been told she had HIV/AIDS by a health worker?",
+        "Has the deceased's (biological) mother ever been told she had \
+        HIV/AIDS by a health worker?",
         blank=True,
     )
     Id10450 = models.TextField(
@@ -1426,7 +1471,7 @@ class VerbalAutopsy(models.Model):
         blank=True,
     )
     Id10451 = models.TextField(
-        "Did (s)he use motorised transport to get to the hospital or health facility?",
+        "Did (s)he use motorized transport to get to the hospital or health facility?",
         blank=True,
     )
     Id10452 = models.TextField(
@@ -1434,30 +1479,36 @@ class VerbalAutopsy(models.Model):
         blank=True,
     )
     Id10453 = models.TextField(
-        "Were there any problems with the way (s)he was treated (medical treatment, procedures, interpersonal attitudes, respect, dignity) in the hospital or health facility?",
+        "Were there any problems with the way (s)he was treated (medical treatment, \
+        procedures, interpersonal attitudes, respect, dignity) in the hospital or health facility?",
         blank=True,
     )
     Id10454 = models.TextField(
-        "Were there any problems getting medications or diagnostic tests in the hospital or health facility?",
+        "Were there any problems getting medications or diagnostic tests in \
+        the hospital or health facility?",
         blank=True,
     )
     Id10455 = models.TextField(
-        "Does it take more than 2 hours to get to the nearest hospital or health facility from the deceased's household?",
+        "Does it take more than 2 hours to get to the nearest hospital or \
+        health facility from the deceased's household?",
         blank=True,
     )
     Id10456 = models.TextField(
-        "In the final days before death, were there any doubts about whether medical care was needed?",
+        "In the final days before death, were there any doubts about whether \
+        medical care was needed?",
         blank=True,
     )
     Id10457 = models.TextField(
         "In the final days before death, was traditional medicine used?", blank=True
     )
     Id10458 = models.TextField(
-        "In the final days before death, did anyone use a telephone or cell phone to call for help?",
+        "In the final days before death, did anyone use a telephone or cell \
+        phone to call for help?",
         blank=True,
     )
     Id10459 = models.TextField(
-        "Over the course of illness, did the total costs of care and treatment prohibit other household payments?",
+        "Over the course of illness, did the total costs of care and treatment \
+        prohibit other household payments?",
         blank=True,
     )
     Id10462 = models.TextField(
@@ -1498,6 +1549,7 @@ class VerbalAutopsy(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
     # function to tell if VA had any coding errors
     def any_errors(self):
         return self.coding_issues.filter(severity="error").exists()
@@ -1525,7 +1577,7 @@ class VerbalAutopsy(models.Model):
         self.location = null_location
 
 
-class dhisStatus(models.Model):
+class DHISStatus(models.Model):
     verbalautopsy = models.ForeignKey(
         VerbalAutopsy, related_name="dhisva", on_delete=models.CASCADE
     )
@@ -1537,7 +1589,7 @@ class dhisStatus(models.Model):
         return self.vaid
 
 
-class cod_codes_dhis(models.Model):
+class CODCodesDHIS(models.Model):
     codsource = models.TextField(blank=False)
     codcode = models.TextField(blank=False)
     codname = models.TextField(blank=False)
@@ -1581,7 +1633,8 @@ class CauseCodingIssue(models.Model):
         max_length=7, choices=[(option, option) for option in SEVERITY_OPTIONS]
     )
     # We track which algorithm and the settings for that algorithm
-    # NOTE: this is a denormalized approach for convenience, which should still scale reasonably
+    # NOTE: this is a de-normalized approach for convenience, which should still
+    # scale reasonably
     algorithm = models.TextField()
     # NOTE: by using JSONField we tie ourselves to postgres
     settings = JSONField()

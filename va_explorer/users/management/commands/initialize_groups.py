@@ -43,7 +43,7 @@ class Command(BaseCommand):
         debug = options.get("debug", False)
         # Loop through groups and permissions; add permissions, as applicable, to related group objects
         for group_name, group_permissions in GROUPS_PERMISSIONS.items():
-            group, created = Group.objects.get_or_create(name=group_name)
+            group, _ = Group.objects.get_or_create(name=group_name)
 
             """
             Delete the permissions if they exist

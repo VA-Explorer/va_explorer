@@ -29,7 +29,8 @@ def render_update_header(va_stats):
                 )
                 header.children.append(submission_desc)
             if va_stats.get("ineligible_vas", None):
-                ineligible_tooltip = "VAs excluded from dashboard due to missing location, date of death (Id10023) or both."
+                ineligible_tooltip = "VAs excluded from dashboard due to missing \
+                                      location, date of death (Id10023) or both."
                 ineligible_desc = html.P(
                     id="inelig-tooltip-target",
                     children=[

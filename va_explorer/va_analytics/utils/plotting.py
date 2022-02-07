@@ -23,7 +23,7 @@ def load_lookup_dicts():
         "last 3 months": 30.4 * 3,
         "last 6 months": 30.4 * 6,  # last 182.5 days
         "last year": 365,
-        # assuming all VAs occured in last 30 years
+        # assuming all VAs occurred in last 30 years
         "all": "all",
     }
     # dictionary mapping demographic variable names to corresponding VA survey columns
@@ -36,14 +36,14 @@ def load_lookup_dicts():
     lookup["color_list"] = [
         "rgb(24,162,185)",  # turquoise
         "rgb(201,0,1)",  # burgandy
-        "rgb(8,201,0)",  #  green
+        "rgb(8,201,0)",  # green
         "rgb(240,205,21)",  # gold
         "rgb(187,21,240)",  # purple
         "rgb(162,162,162)",  # gray
         "rgb(239,86,59)",  # dark orange
         "rgb(20,72,123)",  # midnight blue,
         "rgb(9,112,13)",  # dark green
-        "rgb(239,49,255)",  # fuschia
+        "rgb(239,49,255)",  # fuchsia
     ]
     # colorscale used for map
     lookup["colorscales"] = {
@@ -101,7 +101,7 @@ def load_lookup_dicts():
         "other_health_facility": "Other Health Facility",
         "ref": "Refused to Answer",
     }
-    # formats for montly, weekly, and yearly dates
+    # formats for monthly, weekly, and yearly dates
     lookup["date_display_formats"] = {
         "week": "%d/%m/%Y",
         "month": "%m/%Y",
@@ -139,7 +139,8 @@ LOOKUP = load_lookup_dicts()
 
 
 # get counts of a categorical field from va data. Field name can either be a
-# column name in the dataframe or a demographic lookup key. Change final column name with display_name argument.
+# column name in the dataframe or a demographic lookup key. Change final column
+# name with display_name argument.
 def get_field_counts(va_df, field_name, full_labels=False, display_name=None):
     if field_name not in va_df.columns:
         # if no matching column in va_df for field name, try lookup in the demo_to_col dict.
@@ -312,13 +313,13 @@ def load_cod_groupings(data_dir=None, grouping_file="cod_groupings.csv"):
     if os.path.isfile(fname):
         group_data = pd.read_csv(fname)
     else:
-        print(f"WARNING: couldnt find {fname}")
+        print(f"WARNING: couldn't find {fname}")
 
     return group_data
 
 
 # get all vas with cods in a certain cod group
-def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), N=10):
+def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), n=10):
     va_filtered = pd.DataFrame()
     if cod_groups.size == 0:
         data_dir = "va_explorer/va_analytics/dash_apps/dashboard_data"
@@ -334,7 +335,7 @@ def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), N=10):
         # don't filter if group starts with 'all'
         if group.startswith("all"):
             top_cods = (
-                va_df["cause"].value_counts().sort_values(ascending=False).head(N).index
+                va_df["cause"].value_counts().sort_values(ascending=False).head(n).index
             )
             va_filtered = va_df[va_df["cause"].isin(set(top_cods))]
         elif group in cod_groups.columns:
@@ -367,13 +368,14 @@ def cod_group_plot(
     va_df,
     cod_groups=[],
     demographic="overall",
-    N=10,
+    n=10,
     height=None,
     vertical_spacing=0.15,
     chosen_cod="all",
 ):
     figure = go.Figure()
-    # if no demographic chosen (i.e. overall), color-code by cause-of-death group. Otherwise, color-code by demographic
+    # if no demographic chosen (i.e. overall), color-code by cause-of-death
+    # group. Otherwise, color-code by demographic
     demographic = demographic.lower()
     if demographic in ["overall", "all"]:
         color_keys = cod_groups
@@ -396,7 +398,7 @@ def cod_group_plot(
             group_height, group_traces = 1, []
 
             # filter va data down to only group of interest
-            cod_data = cod_group_data(va_df, cod_group, N=N)
+            cod_data = cod_group_data(va_df, cod_group, n=n)
 
             # only proceed if any group data
             if cod_data.size > 0:
@@ -404,10 +406,11 @@ def cod_group_plot(
                 cod_pivot = get_pivot_counts(cod_data, "cause", demographic).query(
                     "cause != 'All'"
                 )
-                # get top N by total count (last column of pivot table) and flip order for plotting
+                # get top n by total count (last column of pivot table) and
+                # flip order for plotting
                 cod_pivot = (
                     cod_pivot.sort_values(by=cod_pivot.columns[-1], ascending=False)
-                    .head(N)
+                    .head(n)
                     .iloc[::-1]
                 )
                 cod_pivot.index = [
@@ -415,7 +418,7 @@ def cod_group_plot(
                 ]
                 cod_pivot["cod"] = cod_pivot.index
                 demo_groups = sorted(list(cod_pivot.columns.difference(["All", "cod"])))
-                # set relative group height to at most N
+                # set relative group height to at most n
                 group_height = cod_pivot.shape[0]
                 if cod_group.lower().startswith("all"):
                     group_title = "Top CODs Overall"
@@ -455,7 +458,8 @@ def cod_group_plot(
                     lines = [LOOKUP["line_colors"]["secondary"]] * counts.shape[0]
                     widths = np.repeat(1, len(counts["cod"]))
 
-                    # if a specific cod is chosen from global dropdown, highlight it if present in group CODs
+                    # if a specific cod is chosen from global dropdown, highlight
+                    # it if present in group CODs
                     if chosen_cod != "all":
                         chosen_cod = LOOKUP["display_names"].get(chosen_cod, chosen_cod)
                         # only highlight if chosen_cod present
@@ -504,7 +508,7 @@ def cod_group_plot(
         # sort subplots by height (i.e. amount of data)
         subplots = sorted(subplots, key=lambda subplot: subplot["height"])
 
-        ## Step 2: Combine info across groups to form plot layout, data, and annotation variables
+        # Step 2: Combine info across groups to form plot layout, data, and annotation variables
         data, axes, title_annotations = [], {}, []
         y_min, y_max = 0, 0
         total_height = sum(subplot["height"] for subplot in subplots)
@@ -570,8 +574,8 @@ def cod_group_plot(
     return figure
 
 
-# plot top N causes of death in va_data either overall or by factor/demographic
-def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all", title=None, height=None):
+# plot top n causes of death in va_data either overall or by factor/demographic
+def cause_of_death_plot(va_df, factor, n=10, chosen_cod="all", title=None, height=None):
 
     figure, factor, factor_title = go.Figure(), factor.lower(), "Overall"
 
@@ -590,7 +594,7 @@ def cause_of_death_plot(va_df, factor, N=10, chosen_cod="all", title=None, heigh
         counts = (
             counts[counts["cod"] != "All"]
             .sort_values(by="All", ascending=False)
-            .head(N)
+            .head(n)
         )
         groups = list(set(counts.columns).difference(set(["cod"])))
 
@@ -702,7 +706,8 @@ def create_percent_count_buttons(num_groups, x=1, y=1.2, traces=None):
             ]
         ),
     )
-    # if traces provided, add logic to figure out which traces to show in legend when toggling between counts and percents
+    # if traces provided, add logic to figure out which traces to show in
+    # legend when toggling between counts and percents
     if traces:
         # initial vector of which count traces to display in legend
         counts_show_legend = [trace.showlegend for trace in traces]
@@ -717,11 +722,10 @@ def create_percent_count_buttons(num_groups, x=1, y=1.2, traces=None):
     return buttons
 
 
-# ========TREND/TIMESERIES PLOT LOGI======================#
+# ========TREND/TIMESERIES PLOT LOGIC======================#
 def va_trend_plot(
     va_df, group_period, factor="All", title=None, search_term_ids=None, height=None
 ):
-    # figure = go.Figure()
     group_period = group_period.lower()
     aggregate_title = group_period.capitalize()
     factor = factor.lower()
@@ -817,6 +821,7 @@ def va_trend_plot(
                 figure.add_trace(trace, row=(i + 1), col=1)
 
     else:
+        figure = go.Figure()
         figure.update_xaxes(range=[0, 1])
         figure.update_yaxes(range=[0, 1])
         figure.update_layout(

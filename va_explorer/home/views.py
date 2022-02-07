@@ -3,7 +3,6 @@ from datetime import date, timedelta
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
-
 # TODO: We're using plotly here since it's already included in the project, but there may be slimmer options
 import plotly.offline as opy
 from dateutil.relativedelta import relativedelta

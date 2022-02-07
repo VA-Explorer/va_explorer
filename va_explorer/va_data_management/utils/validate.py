@@ -7,7 +7,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
     # This validator is used to determine whether there is sufficient data to include
     # the record in the dashboard. Any errors or warnings are collected and reported
     # in the data manager.
-    # The validation has to occur after the va's are created so we can reference the va_id in the CauseCodingIssue.
+    # The validation has to occur after the va's are created so we can reference
+    # the va_id in the CauseCodingIssue.
     # The validator runs after va's are loaded and after a va is edited or reset.
     # TODO: would it be possible to move this to the VA model clean function?
     issues = []
@@ -20,7 +21,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # the VA form guarantees this field is either "dk" or a valid datetime.date value
         try:
             va.Id10023 = parse_date(va.Id10023, strict=True)
-        except:
+        except: # noqa E722 - Intent is to save to db, not do anything with exception
             issue_text = f"Error: field Id10023, couldn't parse date from {va.Id10023}"
             issue = CauseCodingIssue(
                 verbalautopsy_id=va.id,
@@ -34,8 +35,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # Validate: ageInYears
         # ageInYears is required for calculating mean age of death
         try:
-            age = int(float(va.ageInYears))
-        except:
+            _ = int(float(va.ageInYears))
+        except: # noqa E722 - Intent is to save to db, not do anything with exception
             issue_text = (
                 "Warning: field ageInYears, age was not provided or not a number."
             )
@@ -49,7 +50,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
             issues.append(issue)
 
         # Validate: age
-        # age group can be determined from multiple fields, it's required for filtering demographics
+        # age group can be determined from multiple fields, it's required for
+        # filtering demographics
         if (
             va.age_group != "adult"
             and va.age_group != "neonate"
@@ -57,9 +59,10 @@ def validate_vas_for_dashboard(verbal_autopsies):
         ):
             if va.isNeonatal1 != 1 and va.isChild1 != 1 and va.isAdult1 != 1:
                 try:
-                    age = int(float(va.ageInYears))
-                except:
-                    issue_text = "Warning: field age_group, no relevant data was found in fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
+                    _ = int(float(va.ageInYears))
+                except: # noqa E722 - Intent is to save to db, not do anything with exception
+                    issue_text = "Warning: field age_group, no relevant data was found in fields; \
+                                  age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
                     issue = CauseCodingIssue(
                         verbalautopsy_id=va.id,
                         text=issue_text,
@@ -117,7 +120,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # if location is "Unknown" (couldn't find match for provided location) record a warning
         if va.location:
             if va.location.name == "Unknown":
-                issue_text = "Warning: location field (parsed from hospital): provided location was not a known facility. Set location to 'Unknown'"
+                issue_text = "Warning: location field (parsed from hospital): \
+                              provided location was not a known facility. Set location to 'Unknown'"
                 issue = CauseCodingIssue(
                     verbalautopsy_id=va.id,
                     text=issue_text,

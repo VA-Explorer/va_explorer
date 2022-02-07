@@ -7,8 +7,10 @@ from va_explorer.users.utils.field_worker_linking import link_fieldworkers_to_va
 
 class Command(BaseCommand):
 
-    help = "Create user accounts, assigning a temporary password, given a csv file that has at a minimum email, user group, and location restriction information\
-     but can also add any permission information that apears in the user creation form. Run ./manage.py get_user_template to see all such options."
+    help = "Create user accounts, assigning a temporary password, given a csv file \
+        that has at a minimum email, user group, and location restriction information \
+        but can also add any permission information that apears in the user creation \
+        form. Run ./manage.py get_user_template to see all such options."
 
     def add_arguments(self, parser):
         parser.add_argument(

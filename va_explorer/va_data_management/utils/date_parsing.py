@@ -27,13 +27,14 @@ def parse_date(
                     pass
             # if we get here, all hardcoded patterns failed - try timestamp regex
             # if time time separator T present, strip out time and pull solely date
-            if len(re.findall("\dT\d", date_str)) > 0:
-                return re.split("T\d", date_str)[0]
+            if len(re.findall(r"\dT\d", date_str)) > 0:
+                return re.split(r"T\d", date_str)[0]
             # if regex patterns not found, try pandas's to_datetime util as last resort
             else:
                 try:
                     return pd.to_datetime(date_str).date().strftime(return_format)
-                except:
+                # Intent is only to handle exception with custom error or pass-through
+                except: # noqa E722 
                     # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
                     if strict:
                         raise ValueError(
@@ -69,7 +70,7 @@ def get_submissiondates(va_data, empty_string=None):
                     va_data["Id10011"],
                 )
 
-    # va_data is a list of va objects. Iterate through and get indivudal submission dates
+    # va_data is a list of va objects. Iterate through and get individual submission dates
     else:
         return [get_submissiondate(va, empty_string=empty_string) for va in va_data]
 

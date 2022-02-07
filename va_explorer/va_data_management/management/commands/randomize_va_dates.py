@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from va_explorer.va_data_management.models import VerbalAutopsy
 
-# Demo only: script to ramdomize VA dates for demos of e.g. the metrics page
+# Demo only: script to randomize VA dates for demos of e.g. the metrics page
 
 
 class Command(BaseCommand):

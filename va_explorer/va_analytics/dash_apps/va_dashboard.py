@@ -170,7 +170,7 @@ app.layout = html.Div(
                                             style={"margin-top": "10px"},
                                         ),
                                         html.Div(
-                                            className="dashborad-comp-container",
+                                            className="dashboard-comp-container",
                                             id="search-container",
                                             children=[
                                                 dcc.Dropdown(
@@ -505,7 +505,7 @@ app.layout = html.Div(
     [Input(component_id="reset", component_property="n_clicks")],
 )
 def reset_dashboard(n_clicks=0, **kwargs):
-    write_va_log(LOGGER, f"[dashboard] Clicked Reset Button", kwargs["request"])
+    write_va_log(LOGGER, "[dashboard] Clicked Reset Button", kwargs["request"])
     return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 
@@ -835,7 +835,8 @@ def _get_filter_dict(
             filter_df = filter_df[filter_df[granularity].isin(set(chosen_regions))]
             filter_dict["chosen_region"] = {"name": chosen_regions[0]}
 
-        # get all adjacent regions (siblings) to chosen region(s) for plotting. Dont run when user has geo restrictions
+        # get all adjacent regions (siblings) to chosen region(s) for plotting.
+        # Don't run when user has geo restrictions
         if len(restrictions) == 0:
 
             # get parent location type from current granularity
@@ -892,7 +893,7 @@ def shift_granularity(current_granularity, levels, move_up=False):
         Input(component_id="filter_dict", component_property="data"),
     ],
 )
-def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
+def get_metrics(va_data, filter_dict=None, n=10, **kwargs):
     # by default, start with aggregate measures
     metrics = []
     metric_data = pd.DataFrame(va_data)
@@ -901,12 +902,12 @@ def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
             metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
             # only load options if remaining data after filter
             if metric_data.size > 0:
-                # add top N CODs by incidence to metric list
+                # add top n CODs by incidence to metric list
                 metrics = ["all"] + (
                     metric_data["cause"]
                     .value_counts()
                     .sort_values(ascending=False)
-                    .head(N)
+                    .head(n)
                     .index.tolist()
                 )
 
@@ -990,7 +991,6 @@ def update_choropleth(
         granularity = INITIAL_GRANULARITY
         location_types = location_types
         include_no_datas = True
-        ret_val = dict()
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
         data_value = (
@@ -1084,7 +1084,7 @@ def update_choropleth(
 
             highlight_region = map_df.shape[0] == 1
             if highlight_region:
-                # increse border thickness to highlight selcted region
+                # increse border thickness to highlight selected region
                 border_thickness = 3 * border_thickness
             figure.add_trace(
                 go.Choropleth(
@@ -1257,15 +1257,13 @@ def generate_map_data(
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="invalid_va_data", component_property="data"),
-        Input(component_id="timeframe", component_property="value"),
         Input(component_id="filter_dict", component_property="data"),
     ],
 )
 def update_callouts(
-    va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON, **kwargs
+    va_data, invalid_va_data, filter_dict=None, geojson=GEOJSON, **kwargs
 ):
-    coded_vas, uncoded_vas, active_facilities, num_field_workers, coverage = (
-        0,
+    coded_vas, uncoded_vas, active_facilities, coverage = (
         0,
         0,
         0,
@@ -1289,9 +1287,6 @@ def update_callouts(
 
             # active facilities
             active_facilities = plot_data["location"].nunique()
-
-            # TODO: get field worker data from ODK - this is just a janky hack
-            num_field_workers = int(1.25 * active_facilities)
 
             # region 'representation' (fraction of chosen regions that have VAs)
             total_regions = geojson[f"{granularity}_count"]
@@ -1325,11 +1320,13 @@ def update_callouts(
             tooltip="# of facilities that have submitted VAs in chosen region and time period",
         ),
         # TODO: uncomment this once field worker calculation is possible
-        # make_card(num_field_workers, header="Field Workers", tooltip="# of Field Workers that have submitted VAs in chosen region and time period"),
+        # make_card(num_field_workers, header="Field Workers", tooltip="# of
+        # Field Workers that have submitted VAs in chosen region and time period"),
         make_card(
             coverage,
             header="Region Representation",
-            tooltip="% of region type with data within surrounding geography type - ie. Facilities reporting data within District",
+            tooltip="% of region type with data within surrounding geography type - \
+                    ie. Facilities reporting data within District",
             style={"width": "225px"},
         ),
     ]
@@ -1430,7 +1427,7 @@ def cod_plot(
     timeframe,
     factor="Overall",
     cod_groups="All CODs",
-    N=10,
+    n=10,
     filter_dict=None,
     **kwargs,
 ):
@@ -1448,7 +1445,7 @@ def cod_plot(
                 plot_data,
                 cod_groups,
                 demographic=factor,
-                N=N,
+                n=n,
                 chosen_cod=cod,
                 height=560,
             )
@@ -1496,9 +1493,10 @@ def trend_plot(
                     for search_value in search_terms:
                         if search_value.lower().startswith("all"):
                             search_value = "All Causes.all"
-                        # search term convention: {kewyword.type}
+                        # search term convention: {keyword.type}
                         key, key_type = search_value.split(".")
-                        # if keyword is a cod group, filter to only CODs in that group and only vas meeting that group's criteria
+                        # if keyword is a cod group, filter to only CODs in that
+                        # group and only vas meeting that group's criteria
                         if key_type == "group":
                             # get ids of VAs meeting group criteria (e.g. if Neonate, subset to VAs with age < 1)
                             criteria_ids = plotting.cod_group_data(

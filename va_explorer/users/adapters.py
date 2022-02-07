@@ -30,7 +30,7 @@ class AccountAdapter(DefaultAccountAdapter):
         message = self.render_mail(email_template, user.email, ctx)
         self.send_and_print_message(message)
 
-    # trys to send email via email server but always prints message to console, regardless of if email went through
+    # tries to send email via email server but always prints message to console, regardless of if email went through
     def send_and_print_message(self, message):
         # ensure credentials get written to stdout, regardless of email backend
         if not (
@@ -41,7 +41,8 @@ class AccountAdapter(DefaultAccountAdapter):
             message.send()
         except ConnectionRefusedError:
             print(
-                "WARNING: could not send email because connection was refused. Ensure that EMAIL_URL environment variable and all Django email settings are correct."
+                "WARNING: could not send email because connection was refused. \
+                Ensure that EMAIL_URL environment variable and all Django email settings are correct."
             )
             print(
                 f"\t(see base or production files in config.settings). Current EMAIL_URL: {EMAIL_URL}"

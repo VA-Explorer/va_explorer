@@ -2,12 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import Select, TextInput
-from django_filters import (
-    BooleanFilter,
-    CharFilter,
-    DateFilter,
-    FilterSet,
-)
+from django_filters import BooleanFilter, CharFilter, DateFilter, FilterSet
 
 from .models import VerbalAutopsy
 

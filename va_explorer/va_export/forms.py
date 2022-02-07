@@ -1,10 +1,5 @@
 from django import forms
-from django.forms import (
-    DateField,
-    ModelMultipleChoiceField,
-    Select,
-    SelectMultiple,
-)
+from django.forms import DateField, ModelMultipleChoiceField, Select, SelectMultiple
 
 from va_explorer.users.forms import LocationRestrictionsSelectMultiple
 from va_explorer.va_data_management.models import CauseOfDeath, Location

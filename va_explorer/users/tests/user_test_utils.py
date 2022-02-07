@@ -7,21 +7,21 @@ from va_explorer.users.management.commands.initialize_groups import GROUPS_PERMI
 
 def setup_test_db(with_vas=True):
     province = LocationFactory.create(name="Province1")
-    districtX = province.add_child(name="DistrictX", location_type="district")
-    facility1 = districtX.add_child(name="Facility1", location_type="facility")
-    districtY = province.add_child(name="DistrictY", location_type="district")
-    facility2 = districtY.add_child(name="Facility2", location_type="facility")
-    facility3 = districtY.add_child(name="Facility3", location_type="facility")
+    district_x = province.add_child(name="DistrictX", location_type="district")
+    facility1 = district_x.add_child(name="Facility1", location_type="facility")
+    district_y = province.add_child(name="DistrictY", location_type="district")
+    facility2 = district_y.add_child(name="Facility2", location_type="facility")
+    facility3 = district_y.add_child(name="Facility3", location_type="facility")
 
     if with_vas:
         # Each facility with one VA
-        va1 = VerbalAutopsyFactory.create(location=facility1)
-        va2 = VerbalAutopsyFactory.create(location=facility2)
-        va3 = VerbalAutopsyFactory.create(location=facility3)
+        VerbalAutopsyFactory.create(location=facility1)
+        VerbalAutopsyFactory.create(location=facility2)
+        VerbalAutopsyFactory.create(location=facility3)
 
     # create user groups defined in initialize_groups.py
     for group_name, group_permissions in GROUPS_PERMISSIONS.items():
-        group, created = Group.objects.get_or_create(name=group_name)
+        group, _ = Group.objects.get_or_create(name=group_name)
         if group.permissions.exists():
             group.permissions.clear()
         for model_class, model_permissions in group_permissions.items():
@@ -35,8 +35,8 @@ def setup_test_db(with_vas=True):
                         content_type=content_type, codename=codename
                     )
                     group.permissions.add(permission)
-                except:
-                    pass
+                except Exception as err:
+                    print(f"Error: {err}")
 
 
 # create three dummy users for testing, each with different roles, location restrictions, and privacy privileges
