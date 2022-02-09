@@ -23,7 +23,9 @@ class Command(BaseCommand):
                 print(f"Made log directory at {LOG_DIR}")
 
             except Exception as err:
-                raise FileNotFoundError(f"Couldn't create log directory {LOG_DIR}: {str(err)}")
+                raise FileNotFoundError(
+                    f"Couldn't create log directory {LOG_DIR}: {str(err)}"
+                )
 
         handlers = LOGGING["handlers"]
         for _, cfg in handlers.items():
@@ -34,4 +36,6 @@ class Command(BaseCommand):
                         open(logfile, "w")
                         print(f"Made new logfile {logfile}")
                     except Exception as err:
-                        raise FileNotFoundError(f"Couldn't create log file {logfile}: {str(err)}")
+                        raise FileNotFoundError(
+                            f"Couldn't create log file {logfile}: {str(err)}"
+                        )

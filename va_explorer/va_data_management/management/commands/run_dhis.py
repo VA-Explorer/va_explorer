@@ -14,9 +14,9 @@ from django.forms.models import model_to_dict
 
 from va_explorer.va_data_management.models import (
     CauseOfDeath,
-    VerbalAutopsy,
     CODCodesDHIS,
     DHISStatus,
+    VerbalAutopsy,
 )
 
 DHIS_USER = os.environ.get("DHIS_USER", "admin")
@@ -125,10 +125,14 @@ class Command(BaseCommand):
             # producing KeyError trying to compare string/integer numbers
             entity_atr_data["ID"] = ["A" + str(i) for i in entity_atr_data["ID"]]
             if os.path.exists("OpenVAFiles"):
-                entity_atr_data.to_csv("OpenVAFiles/entityAttributeValue.csv", index=False)
+                entity_atr_data.to_csv(
+                    "OpenVAFiles/entityAttributeValue.csv", index=False
+                )
             else:
                 os.makedirs("OpenVAFiles")
-                entity_atr_data.to_csv("OpenVAFiles/entityAttributeValue.csv", index=False)
+                entity_atr_data.to_csv(
+                    "OpenVAFiles/entityAttributeValue.csv", index=False
+                )
 
             cod_va["metadataCode"] = metadatacode
             cod_va["odkMetaInstanceID"] = cod_va["id"]

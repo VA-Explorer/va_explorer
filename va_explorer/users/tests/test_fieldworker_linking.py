@@ -19,7 +19,9 @@ def test_link_fieldworkers_to_vas():
     # If that changes in loading.py we'll need to change that here too.
     # create users before VAs are added to system
     group, _ = Group.objects.get_or_create(name="Field Workers")
-    UserFactory(name="Johnny", email="field_worker_1@example.com", groups=[group]).save()
+    UserFactory(
+        name="Johnny", email="field_worker_1@example.com", groups=[group]
+    ).save()
     UserFactory(name="Apple", email="field_worker_2@example.com", groups=[group]).save()
     UserFactory(name="Seed", email="field_worker_3@example.com", groups=[group]).save()
 
@@ -59,11 +61,21 @@ def test_assign_va_usernames():
     loc2 = Location.objects.filter(name="Facility2").first()
 
     # first, create VAs
-    VerbalAutopsyFactory.create(instanceid="instance1", Id10010="johnny", location=loc1).save()
-    VerbalAutopsyFactory.create(instanceid="instance2", Id10010="Johnny", location=loc2).save()
-    VerbalAutopsyFactory.create(instanceid="instance3", Id10010="appLe", location=loc1).save()
-    VerbalAutopsyFactory.create(instanceid="instance4", Id10010="SEED", location=loc2).save()
-    VerbalAutopsyFactory.create(instanceid="instance5", Id10010="JOHNNY", location=loc2).save()
+    VerbalAutopsyFactory.create(
+        instanceid="instance1", Id10010="johnny", location=loc1
+    ).save()
+    VerbalAutopsyFactory.create(
+        instanceid="instance2", Id10010="Johnny", location=loc2
+    ).save()
+    VerbalAutopsyFactory.create(
+        instanceid="instance3", Id10010="appLe", location=loc1
+    ).save()
+    VerbalAutopsyFactory.create(
+        instanceid="instance4", Id10010="SEED", location=loc2
+    ).save()
+    VerbalAutopsyFactory.create(
+        instanceid="instance5", Id10010="JOHNNY", location=loc2
+    ).save()
 
     # then, create a field worker johnny
     group, _ = Group.objects.get_or_create(name="Field Workers")

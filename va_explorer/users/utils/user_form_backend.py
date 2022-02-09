@@ -45,9 +45,7 @@ def get_anonymized_user_info(user_list_file=None):
                     )
                 user_objects = filtered_users
         else:
-            print(
-                "WARNING no valid emails found in file. Exporting info for all users"
-            )
+            print("WARNING no valid emails found in file. Exporting info for all users")
 
     # export user data in way that is consistent with user form
     user_data = (
@@ -165,7 +163,9 @@ def fill_user_form_data(user_data, debug=False):
                         if match_name:
                             match = qs.filter(name__iexact=match_name)
                 except Exception as err:
-                    print(f"WARN: Unable to match due to error: {err}\n Assigning none queryset.")
+                    print(
+                        f"WARN: Unable to match due to error: {err}\n Assigning none queryset."
+                    )
                     match = qs.none()
 
                 if debug:

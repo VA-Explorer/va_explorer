@@ -34,7 +34,7 @@ def parse_date(
                 try:
                     return pd.to_datetime(date_str).date().strftime(return_format)
                 # Intent is only to handle exception with custom error or pass-through
-                except: # noqa E722 
+                except:  # noqa E722
                     # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
                     if strict:
                         raise ValueError(

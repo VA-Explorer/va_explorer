@@ -24,7 +24,7 @@ def get_loc_ids_for_filter(loc_query):
                 match_list += list(
                     loc_obj.get_descendants().values_list("id", flat=True)
                 )
-    except: # noqa E722 - Intent is to simply handle invalid location case
+    except:  # noqa E722 - Intent is to simply handle invalid location case
         # check query against all locations in db. If a match, get all location descendants if not already facility
         loc_df = pd.DataFrame(Location.objects.values("id", "name", "location_type"))
         for loc in locs:

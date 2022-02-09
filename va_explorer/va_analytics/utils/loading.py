@@ -183,5 +183,5 @@ def assign_age_group(va):
             return "child"
         return "adult"
     # Intent is to assign unknown
-    except: # noqa E722
+    except:  # noqa E722
         return "Unknown"

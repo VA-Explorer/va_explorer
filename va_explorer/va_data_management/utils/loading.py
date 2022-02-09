@@ -43,7 +43,9 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     # But first, account for case differences in csv columns (i.e. ensure id10041 maps to Id10041)
     field_case_mapper = {field.lower(): field for field in model_field_names}
-    record_df.rename(columns=lambda c: field_case_mapper.get(c.lower(), c), inplace=True)
+    record_df.rename(
+        columns=lambda c: field_case_mapper.get(c.lower(), c), inplace=True
+    )
 
     # Lowercase the instanceID column that can come from ODK as "instanceID".
     if "instanceID" in record_df.columns:

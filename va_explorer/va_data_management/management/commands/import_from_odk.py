@@ -25,7 +25,7 @@ class Command(BaseCommand):
         parser.add_argument("--form-name", type=str, required=False)
 
     def handle(self, *args, **options):
-        _ = args    # unused
+        _ = args  # unused
         email = options["email"]
         password = options["password"]
         project_id = options["project_id"]

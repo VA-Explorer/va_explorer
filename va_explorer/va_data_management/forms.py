@@ -32,7 +32,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         return cleaned_data
 
 
-def validate_date_format(form, Id10023):    # noqa N803 - more readable as actual name
+def validate_date_format(form, Id10023):  # noqa N803 - more readable as actual name
     """
     Custom form validation for field Id10023, date of death
     """

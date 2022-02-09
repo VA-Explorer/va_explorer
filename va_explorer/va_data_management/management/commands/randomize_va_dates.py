@@ -25,7 +25,7 @@ class Command(BaseCommand):
         # to be in the database in increasing date order so we first create a batch of
         # dates then assign them
         count = VerbalAutopsy.objects.count()
-        days_list = [183 - ceil(sqrt(randint(1, 183 ** 2))) for _ in range(count)]
+        days_list = [183 - ceil(sqrt(randint(1, 183**2))) for _ in range(count)]
         dates_list = [
             timezone.now() - timezone.timedelta(days=days) for days in days_list
         ]

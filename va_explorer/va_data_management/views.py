@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, F, Q
-from django.db.models import Value as V     # noqa: N817 - not acronym
+from django.db.models import Value as V  # noqa: N817 - not acronym
 from django.db.models.functions import Concat
 from django.shortcuts import redirect
 from django.urls import reverse

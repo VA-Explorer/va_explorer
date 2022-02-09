@@ -21,7 +21,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # the VA form guarantees this field is either "dk" or a valid datetime.date value
         try:
             va.Id10023 = parse_date(va.Id10023, strict=True)
-        except: # noqa E722 - Intent is to save to db, not do anything with exception
+        except:  # noqa E722 - Intent is to save to db, not do anything with exception
             issue_text = f"Error: field Id10023, couldn't parse date from {va.Id10023}"
             issue = CauseCodingIssue(
                 verbalautopsy_id=va.id,
@@ -36,7 +36,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # ageInYears is required for calculating mean age of death
         try:
             _ = int(float(va.ageInYears))
-        except: # noqa E722 - Intent is to save to db, not do anything with exception
+        except:  # noqa E722 - Intent is to save to db, not do anything with exception
             issue_text = (
                 "Warning: field ageInYears, age was not provided or not a number."
             )
@@ -60,7 +60,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
             if va.isNeonatal1 != 1 and va.isChild1 != 1 and va.isAdult1 != 1:
                 try:
                     _ = int(float(va.ageInYears))
-                except: # noqa E722 - Intent is to save to db, not do anything with exception
+                except:  # noqa E722 - Intent is to save to db, not do anything with exception
                     issue_text = "Warning: field age_group, no relevant data was found in fields; \
                                   age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
                     issue = CauseCodingIssue(
