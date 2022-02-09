@@ -68,7 +68,7 @@ class User(AbstractUser):
     def verbal_autopsies(self, date_cutoff=None):
 
         # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
-        date_cutoff = "1901-01-01" if not date_cutoff else date_cutoff
+        date_cutoff = date_cutoff if date_cutoff else "1901-01-01"
         va_objects = VerbalAutopsy.objects.filter(Id10023__gte=date_cutoff)
 
         if self.is_fieldworker():

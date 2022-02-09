@@ -573,9 +573,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
     ]
 
     # trend search options
-    raw_ts_options = plotting.load_ts_options(
-        res["data"]["valid"], cod_groups=COD_GROUPS
-    )
+    raw_ts_options = plotting.load_ts_options(res["data"]["valid"], COD_GROUPS)
     ts_options = [
         {
             "label": LOOKUP["display_names"].get(name, name.capitalize()),
@@ -644,9 +642,9 @@ def log_tab_value(tab_value, **kwargs):
         Input(component_id="va_data", component_property="data"),
         Input(component_id="invalid_va_data", component_property="data"),
         Input(component_id="choropleth", component_property="selectedData"),
+        Input(component_id="map_search", component_property="value"),
         Input(component_id="timeframe", component_property="value"),
         Input(component_id="cod_type", component_property="value"),
-        Input(component_id="map_search", component_property="value"),
         Input(component_id="locations", component_property="data"),
         Input(component_id="location_types", component_property="data"),
     ],
@@ -655,9 +653,9 @@ def filter_data(
     va_data,
     invalid_va_data,
     selected_json,
+    search_terms,
     timeframe="all",
     cod_type="all",
-    search_terms=[],
     locations=None,
     location_types=None,
     **kwargs,
@@ -667,7 +665,7 @@ def filter_data(
         valid_va_df["date"] = pd.to_datetime(valid_va_df["date"])
         invalid_va_df = pd.DataFrame(invalid_va_data)
         invalid_va_df["date"] = pd.to_datetime(invalid_va_df["date"])
-        search_terms = [] if search_terms is None else search_terms
+        search_terms if search_terms else []
 
         # get user location restrictions. If none, will return an empty queryset
         location_restrictions = list(
@@ -675,27 +673,27 @@ def filter_data(
         )
 
         # if no selected json, convert to empty dictionary for easier processing
-        selected_json = {} if not selected_json else selected_json
+        selected_json if selected_json else {}
 
         # filter valid vas (VAs with COD)
         valid_filter = _get_filter_dict(
             valid_va_df,
             selected_json,
+            search_terms,
+            location_restrictions,
             timeframe=timeframe,
             location_types=location_types,
-            search_terms=search_terms,
             locations=locations,
-            restrictions=location_restrictions,
         )
         # filter invalid vas (VAs without COD)
         invalid_filter = _get_filter_dict(
             invalid_va_df,
             selected_json,
+            search_terms,
+            location_restrictions,
             timeframe=timeframe,
             location_types=location_types,
-            search_terms=search_terms,
             locations=locations,
-            restrictions=location_restrictions,
         )
 
         # Dashboard title logic. If field worker, make clear it's just their VAs. Otherwise,
@@ -772,17 +770,19 @@ def log_callback_trigger(logger, context, request):
 # helper method to get filter ids given adjacent plot regions
 def _get_filter_dict(
     va_df,
-    selected_json={},
+    selected_json,
+    search_terms,
+    restrictions,
     timeframe="all",
-    search_terms=[],
     locations=None,
     location_types=None,
-    restrictions=[],
 ):
-
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
     plot_ids = plot_regions = list()
+    search_terms if search_terms else []
+    restrictions if restrictions else []
+    selected_json if selected_json else {}
 
     filter_dict = {
         "geo_filter": any(
@@ -818,14 +818,13 @@ def _get_filter_dict(
             filter_dict["chosen_region"] = chosen_region
 
         # next, check if user searched anything. If yes, use that as filter.
-        if search_terms is not None:
-            if filter_dict["search_filter"]:
-                search_terms = (
-                    [search_terms] if isinstance(search_terms, str) else search_terms
-                )
-                granularity = locations.get(search_terms[0], granularity)
-                filter_df = filter_df[filter_df[granularity].isin(set(search_terms))]
-                filter_dict["chosen_region"] = {"name": search_terms[0]}
+        if search_terms is not None and filter_dict["search_filter"]:
+            search_terms = (
+                [search_terms] if isinstance(search_terms, str) else search_terms
+            )
+            granularity = locations.get(search_terms[0], granularity)
+            filter_df = filter_df[filter_df[granularity].isin(set(search_terms))]
+            filter_dict["chosen_region"] = {"name": search_terms[0]}
 
         # finally, check for locations clicked on map.
         if len(selected_json) > 0:
@@ -897,19 +896,18 @@ def get_metrics(va_data, filter_dict=None, n=10, **kwargs):
     # by default, start with aggregate measures
     metrics = []
     metric_data = pd.DataFrame(va_data)
-    if metric_data.size > 0:
-        if filter_dict is not None:
-            metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
-            # only load options if remaining data after filter
-            if metric_data.size > 0:
-                # add top n CODs by incidence to metric list
-                metrics = ["all"] + (
-                    metric_data["cause"]
-                    .value_counts()
-                    .sort_values(ascending=False)
-                    .head(n)
-                    .index.tolist()
-                )
+    if metric_data.size > 0 and filter_dict is not None:
+        metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
+        # only load options if remaining data after filter
+        if metric_data.size > 0:
+            # add top n CODs by incidence to metric list
+            metrics = ["all"] + (
+                metric_data["cause"]
+                .value_counts()
+                .sort_values(ascending=False)
+                .head(n)
+                .index.tolist()
+            )
 
     return [{"label": LOOKUP["display_names"].get(m, m), "value": m} for m in metrics]
 
@@ -1016,49 +1014,49 @@ def update_choropleth(
 
                 plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                 # only proceed with filter if remaining data after filter
-                if plot_data.size > 0:
+                if plot_data.size > 0 and zoom_in:
                     # if zoom in necessary, filter geojson to only chosen region(s)
-                    if zoom_in:
-                        # if user has clicked on map, try to zoom into a finer granularity
-                        granularity = shift_granularity(
-                            granularity, location_types, move_up=False
-                        )
 
-                        plot_geos = [
-                            g
-                            for g in geojson["features"]
-                            if g["properties"]["area_name"] in plot_regions
+                    # if user has clicked on map, try to zoom into a finer granularity
+                    granularity = shift_granularity(
+                        granularity, location_types, move_up=False
+                    )
+
+                    plot_geos = [
+                        g
+                        for g in geojson["features"]
+                        if g["properties"]["area_name"] in plot_regions
+                    ]
+                    chosen_region = plot_data[granularity].unique()[0]
+
+                    # if adjacent_ids specified, and data exists for these regions, plot them on map first
+                    plot_ids = filter_dict["plot_ids"]["valid"]
+
+                    if len(plot_ids) > 0:
+                        adjacent_data = all_data.loc[plot_ids, :].loc[
+                            all_data[granularity] != chosen_region
                         ]
-                        chosen_region = plot_data[granularity].unique()[0]
 
-                        # if adjacent_ids specified, and data exists for these regions, plot them on map first
-                        plot_ids = filter_dict["plot_ids"]["valid"]
-
-                        if len(plot_ids) > 0:
-                            adjacent_data = all_data.loc[plot_ids, :].loc[
-                                all_data[granularity] != chosen_region
-                            ]
-
-                            if adjacent_data.size > 0:
-                                # background plotting - adjacent regions
-                                adjacent_map_df = generate_map_data(
-                                    adjacent_data,
-                                    plot_geos,
-                                    granularity,
-                                    zoom_in,
-                                    cod_type,
-                                )
-                                figure = add_trace_to_map(
-                                    figure,
-                                    adjacent_map_df,
-                                    geojson,
-                                    theme_name="secondary",
-                                    z_col=data_value,
-                                    location_col=granularity,
-                                )
-                                # only plot non-empty regions in main layer so as not to hide secondary layer
-                                include_no_datas = False
-                                border_thickness = 2 * border_thickness
+                        if adjacent_data.size > 0:
+                            # background plotting - adjacent regions
+                            adjacent_map_df = generate_map_data(
+                                adjacent_data,
+                                plot_geos,
+                                granularity,
+                                zoom_in,
+                                cod_type,
+                            )
+                            figure = add_trace_to_map(
+                                figure,
+                                adjacent_map_df,
+                                geojson,
+                                theme_name="secondary",
+                                z_col=data_value,
+                                location_col=granularity,
+                            )
+                            # only plot non-empty regions in main layer so as not to hide secondary layer
+                            include_no_datas = False
+                            border_thickness = 2 * border_thickness
 
             if cod_type != "all":
                 plot_data = plot_data[plot_data["cause"] == cod_type]
@@ -1162,11 +1160,11 @@ def add_trace_to_map(
     theme_name=None,
 ):
 
-    feature_id = "properties.area_name" if not feature_id else feature_id
-    location_col = "locations" if not location_col else location_col
-    z_col = "z_value" if not z_col else z_col
-    tooltip_col = "tooltip" if not tooltip_col else tooltip_col
-    theme_name = "secondary" if not theme_name else theme_name
+    feature_id if feature_id else "properties.area_name"
+    location_col if location_col else "locations"
+    z_col if z_col else "z_value"
+    tooltip_col if tooltip_col else "tooltip"
+    theme_name if theme_name else "secondary"
     trace = trace_type(
         locations=trace_data[location_col],
         z=trace_data[z_col].astype(float),
@@ -1291,13 +1289,12 @@ def update_callouts(
             # region 'representation' (fraction of chosen regions that have VAs)
             total_regions = geojson[f"{granularity}_count"]
 
-            if filter_dict is not None:
-                if len(filter_dict["plot_regions"]) > 0:
-                    total_regions = len(filter_dict["plot_regions"])
+            if filter_dict is not None and len(filter_dict["plot_regions"]) > 0:
+                total_regions = len(filter_dict["plot_regions"])
 
-                    # TODO: fix this to be more generic
-                    if granularity == "province":
-                        granularity = "district"
+                # TODO: fix this to be more generic
+                if granularity == "province":
+                    granularity = "district"
             regions_covered = (
                 plot_data[[granularity, "age"]].dropna()[granularity].nunique()
             )
@@ -1432,27 +1429,27 @@ def cod_plot(
     **kwargs,
 ):
     figure = go.Figure()
-    if len(cod_groups) > 0:
-        if va_data is not None:
-            plot_data = pd.DataFrame(va_data)
-            if filter_dict is not None:
-                cod = filter_dict["cod_type"]
-                plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
-
-                # if no cod group filter (default), call standard cod plotting function
-            cod_groups = [cod_groups] if type(cod_groups) is str else cod_groups
-            figure = plotting.cod_group_plot(
-                plot_data,
-                cod_groups,
-                demographic=factor,
-                n=n,
-                chosen_cod=cod,
-                height=560,
-            )
-            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
-        return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
-    else:
+    if len(cod_groups) <= 0 or va_data is None:
         raise dash.exceptions.PreventUpdate
+    else:
+        plot_data = pd.DataFrame(va_data)
+        if filter_dict is not None:
+            cod = filter_dict["cod_type"]
+            plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
+
+            # if no cod group filter (default), call standard cod plotting function
+        cod_groups = [cod_groups] if type(cod_groups) is str else cod_groups
+        figure = plotting.cod_group_plot(
+            plot_data,
+            cod_groups,
+            demographic=factor,
+            n=n,
+            chosen_cod=cod,
+            height=560,
+        )
+        log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
+
+    return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
 
 
 # ========= Time Series Plot Logic============================================#
@@ -1500,7 +1497,7 @@ def trend_plot(
                         if key_type == "group":
                             # get ids of VAs meeting group criteria (e.g. if Neonate, subset to VAs with age < 1)
                             criteria_ids = plotting.cod_group_data(
-                                plot_data, key, cod_groups=cod_groups
+                                plot_data, key, cod_groups
                             ).index
                             # get ids of VAs meeting cod criteria (i.e. VAs with Neonatal CODs)
                             group_cods = cod_groups[cod_groups[key] == 1][

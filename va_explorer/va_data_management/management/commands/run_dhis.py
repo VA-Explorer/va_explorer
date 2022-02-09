@@ -277,7 +277,7 @@ class Command(BaseCommand):
 
     def get_pushed_va(self, prg, auth):
         # default to hardcoded value used in VA DHIS program
-        prg = "sv91bCroFFx" if not prg else prg
+        prg = prg if prg else "sv91bCroFFx"
 
         events_num = self.get_events_values(prg, auth)
         url = (

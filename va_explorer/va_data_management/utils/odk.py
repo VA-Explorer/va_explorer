@@ -104,7 +104,7 @@ def download_responses(
         response = requests.get(url, headers=token, verify=SSL_VERIFY)
         response.raise_for_status()
         data = response.json()
-        if "value" in data.keys():
+        if "value" in data:
             forms = [flatten_dict(item) for item in data["value"]]
             return pd.DataFrame.from_records(forms)
         return []

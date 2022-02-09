@@ -117,7 +117,7 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
             va_worker_names = list(va_worker_keys.keys())
 
             # match current username against va worker names
-            match = fuzzy_match(user.get_va_username(), va_worker_names)
+            match = fuzzy_match(user.get_va_username(), None, options=va_worker_names)
             if match:
                 worker_name = va_worker_keys[match]
                 # VAs with matching fieldworker names

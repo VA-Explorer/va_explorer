@@ -56,21 +56,23 @@ def validate_vas_for_dashboard(verbal_autopsies):
             va.age_group != "adult"
             and va.age_group != "neonate"
             and va.age_group != "child"
+            and va.isNeonatal1 != 1
+            and va.isChild1 != 1
+            and va.isAdult1 != 1
         ):
-            if va.isNeonatal1 != 1 and va.isChild1 != 1 and va.isAdult1 != 1:
-                try:
-                    _ = int(float(va.ageInYears))
-                except:  # noqa E722 - Intent is to save to db, not do anything with exception
-                    issue_text = "Warning: field age_group, no relevant data was found in fields; \
-                                  age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
-                    issue = CauseCodingIssue(
-                        verbalautopsy_id=va.id,
-                        text=issue_text,
-                        severity="warning",
-                        algorithm="",
-                        settings="",
-                    )
-                    issues.append(issue)
+            try:
+                _ = int(float(va.ageInYears))
+            except:  # noqa E722 - Intent is to save to db, not do anything with exception
+                issue_text = "Warning: field age_group, no relevant data was found in fields; \
+                                age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
+                issue = CauseCodingIssue(
+                    verbalautopsy_id=va.id,
+                    text=issue_text,
+                    severity="warning",
+                    algorithm="",
+                    settings="",
+                )
+                issues.append(issue)
 
         # Validate: username
         # username associates the va record with a field worker
@@ -118,17 +120,16 @@ def validate_vas_for_dashboard(verbal_autopsies):
                 issues.append(issue)
 
         # if location is "Unknown" (couldn't find match for provided location) record a warning
-        if va.location:
-            if va.location.name == "Unknown":
-                issue_text = "Warning: location field (parsed from hospital): \
-                              provided location was not a known facility. Set location to 'Unknown'"
-                issue = CauseCodingIssue(
-                    verbalautopsy_id=va.id,
-                    text=issue_text,
-                    severity="warning",
-                    algorithm="",
-                    settings="",
-                )
-                issues.append(issue)
+        if va.location and va.location.name == "Unknown":
+            issue_text = "Warning: location field (parsed from hospital): \
+                            provided location was not a known facility. Set location to 'Unknown'"
+            issue = CauseCodingIssue(
+                verbalautopsy_id=va.id,
+                text=issue_text,
+                severity="warning",
+                algorithm="",
+                settings="",
+            )
+            issues.append(issue)
 
     CauseCodingIssue.objects.bulk_create(issues)

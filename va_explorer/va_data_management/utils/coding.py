@@ -59,7 +59,7 @@ def validate_algorithm_settings():
 
     # ensure all common settings are valid
     for key in common_keys:
-        if not ALGORITHM_SETTINGS[key] in param_opts[key]:
+        if ALGORITHM_SETTINGS[key] not in param_opts[key]:
             print(
                 f"ERROR: provided {key} value {ALGORITHM_SETTINGS[key]} not \
                  found. Expecting one of {param_opts[key]}"

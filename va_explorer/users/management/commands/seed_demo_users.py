@@ -14,7 +14,7 @@ class Command(BaseCommand):
     help = "Seeds data manager, data viewer, and field worker users in the local environment."
 
     def handle(self, *args, **options):
-        if not os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.local":
+        if os.environ.get("DJANGO_SETTINGS_MODULE") != "config.settings.local":
             self.stdout.write(
                 self.style.ERROR(
                     "This functionality is for demo purposes only in the local environment. Exiting."

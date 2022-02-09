@@ -158,7 +158,10 @@ def fill_user_form_data(user_data, debug=False):
                     match = qs.filter(name__iexact=value)
                     if not match.exists():
                         match_name = fuzzy_match(
-                            value, qs.values_list("name", flat=True), threshold=95
+                            value,
+                            None,
+                            options=qs.values_list("name", flat=True),
+                            threshold=95,
                         )
                         if match_name:
                             match = qs.filter(name__iexact=match_name)
@@ -254,7 +257,9 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
             print(f"Error: {err}")
 
         # check group name against known groups. Update group_name to match if found, otherwise default to data viewer
-        group_match = fuzzy_match(group_name, list(GROUPS_PERMISSIONS.keys()))
+        group_match = fuzzy_match(
+            group_name, None, options=list(GROUPS_PERMISSIONS.keys())
+        )
         if debug:
             print(f"group key for fuzzy match: {group_name}")
             print(f"group match: {group_match}")
@@ -277,10 +282,12 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
     # catch-all logic for groups in ["data viewer", "data manager", "dashboard viewer"]
     else:
         geo_access = "national"
-        if not pd.isnull(user_data["location_restrictions"]):
-            if len(user_data["location_restrictions"]) > 0:
-                if user_data["location_restrictions"][0] is not None:
-                    geo_access = "location-specific"
+        if (
+            not pd.isnull(user_data["location_restrictions"])
+            and len(user_data["location_restrictions"]) > 0
+            and user_data["location_restrictions"][0] is not None
+        ):
+            geo_access = "location-specific"
         if geo_access == "national":
             _ = user_data.pop("location_restrictions")
         # remove facility restriction data if it exists (only field workers should have this key)

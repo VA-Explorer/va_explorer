@@ -35,7 +35,12 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
     matches = [
         (
             user_name,
-            fuzzy_match(user_name.lower(), va_worker_names, threshold=match_threshold),
+            fuzzy_match(
+                user_name.lower(),
+                None,
+                options=va_worker_names,
+                threshold=match_threshold,
+            ),
         )
         for user_name in user_names
     ]
@@ -111,7 +116,10 @@ def assign_va_usernames(
             elif not pd.isnull(va.Id10010):
                 field_worker = va.Id10010
                 match = fuzzy_match(
-                    field_worker.lower(), usernames, threshold=match_threshold
+                    field_worker.lower(),
+                    None,
+                    options=usernames,
+                    threshold=match_threshold,
                 )
             if match:
                 if debug:

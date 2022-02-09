@@ -30,12 +30,11 @@ class Command(BaseCommand):
         handlers = LOGGING["handlers"]
         for _, cfg in handlers.items():
             logfile = cfg.get("filename", None)
-            if logfile:
-                if not os.path.isfile(logfile):
-                    try:
-                        open(logfile, "w")
-                        print(f"Made new logfile {logfile}")
-                    except Exception as err:
-                        raise FileNotFoundError(
-                            f"Couldn't create log file {logfile}: {str(err)}"
-                        )
+            if logfile and not os.path.isfile(logfile):
+                try:
+                    open(logfile, "w")  # noqa: SIM115 - just trying to create file
+                    print(f"Made new logfile {logfile}")
+                except Exception as err:
+                    raise FileNotFoundError(
+                        f"Couldn't create log file {logfile}: {str(err)}"
+                    )

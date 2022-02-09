@@ -130,15 +130,17 @@ def validate_user_object(user_data, user_object=None):
 
     # if location restrictions for user, ensure all verbal autopsies fall
     # within their jurisdiction
-    if "location_restrictions" in user_data:
-        if len(user_data["location_restrictions"]) > 0:
-            jurisdiction = set(
-                user_object.location_restrictions.first().get_descendant_ids()
-            )
-            va_locations = set(
-                user_object.verbal_autopsies().values_list("location", flat=True)
-            )
-            assert va_locations.issubset(jurisdiction)
+    if (
+        "location_restrictions" in user_data
+        and len(user_data["location_restrictions"]) > 0
+    ):
+        jurisdiction = set(
+            user_object.location_restrictions.first().get_descendant_ids()
+        )
+        va_locations = set(
+            user_object.verbal_autopsies().values_list("location", flat=True)
+        )
+        assert va_locations.issubset(jurisdiction)
 
 
 # validate raw user data (from csv) against user form output (before creating user)

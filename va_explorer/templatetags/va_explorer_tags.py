@@ -12,16 +12,12 @@ register = template.Library()
 def replace(value):
     value = value.strip()
     value_lowercase = value.lower()
-    if "dk" == value_lowercase:
-        return "Don't Know"
-    elif "nan" == value_lowercase:
-        return "N/A"
-    elif "veryl" == value_lowercase:
-        return "Very Low"
-    elif "ref" == value_lowercase:
-        return "Refuse to Answer"
-    else:
-        return value
+    return {
+        "dk": "Don't Know",
+        "nan": "N/A",
+        "veryl": "Very Low",
+        "ref": "Refuse to Answer",
+    }.get(value_lowercase, value)
 
 
 @register.simple_tag(takes_context=True)

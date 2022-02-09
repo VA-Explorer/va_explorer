@@ -6,11 +6,12 @@ import pandas as pd
 
 from config.settings.base import DATE_FORMATS
 
+DATE_FORMATS = DATE_FORMATS.keys()
+NULL_STRINGS = ["nan", "dk"]
+
 
 # helper method to parse dates in a variety of formats
-def parse_date(
-    date_str, formats=DATE_FORMATS.keys(), strict=False, return_format="%Y-%m-%d"
-):
+def parse_date(date_str, formats=DATE_FORMATS, strict=False, return_format="%Y-%m-%d"):
     if type(date_str) is str:
         if len(date_str) == 0 or date_str.lower() in ["dk", "nan"]:
             return "dk"
@@ -86,5 +87,5 @@ def get_submissiondate(va_data, empty_string=None, parse=False):
         return parse_date(va_data.submissiondate) if parse else va_data.submissiondate
 
 
-def empty_dates(va_df, date_col="submissiondate", null_strings=["nan", "dk"]):
+def empty_dates(va_df, date_col="submissiondate", null_strings=NULL_STRINGS):
     return (pd.isnull(va_df[date_col])) | (va_df[date_col].isin(null_strings))

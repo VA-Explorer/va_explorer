@@ -15,7 +15,7 @@ class Command(BaseCommand):
     help = "Randomize dates for demos, to be run only in development mode"
 
     def handle(self, *args, **options):
-        if not environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.local":
+        if environ.get("DJANGO_SETTINGS_MODULE") != "config.settings.local":
             message = "This functionality is for demo purposes only in the local environment. Exiting."
             self.stdout.write(self.style.ERROR(message))
             sys.exit()

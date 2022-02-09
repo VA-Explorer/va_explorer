@@ -46,9 +46,7 @@ def build_location_mapper(
 
             # matching
             mapper["db_name"] = mapper["va_key"].apply(
-                lambda x: fuzzy_match(
-                    x, option_df=location_df, threshold=similarity_thresh
-                )
+                lambda x: fuzzy_match(x, location_df, threshold=similarity_thresh)
             )
 
             return mapper.set_index("va_name")["db_name"].to_dict()
@@ -60,7 +58,7 @@ def build_location_mapper(
 def assign_va_location(va, location_mapper=None, location_fields=None):
     # check if the hospital or place of death fields are known locations
     location_fields = (
-        ["hospital", "hospital_other"] if not location_fields else location_fields
+        location_fields if location_fields else ["hospital", "hospital_other"]
     )
     raw_location, db_location = None, None
     for location_field in location_fields:
@@ -79,36 +77,38 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
             ).first()
 
     # if no db location found, and va username defined, try setting username's location
-    if not db_location:
-        if va.username:
-            if len(va.username) > 0:
-                va_user = VaUsername.objects.filter(va_username=va.username).first()
-                if va_user:
-                    user_locations = va_user.user.location_restrictions
-                    if user_locations:
-                        db_location = user_locations.first()
+    if not db_location and va.username and len(va.username) > 0:
+        va_user = VaUsername.objects.filter(va_username=va.username).first()
+        if va_user:
+            user_locations = va_user.user.location_restrictions
+            if user_locations:
+                db_location = user_locations.first()
 
     # if any db location found, update VA with found location
     if db_location:
         va.location = db_location
-    elif not pd.isnull(raw_location):
-        if len(raw_location) > 0 and raw_location.lower() not in ["dk", "nan"]:
-            # if raw location detected but no db match, set to "Unknown"
-            va.set_null_location()
+    elif (
+        not pd.isnull(raw_location)
+        and len(raw_location) > 0
+        and raw_location.lower() not in ["dk", "nan"]
+    ):
+        # if raw location detected but no db match, set to "Unknown"
+        va.set_null_location()
     # otherwise, va.location will just be blank
     return va
 
 
 def fuzzy_match(
     search,
+    option_df,
     options=None,
-    option_df=pd.DataFrame(),
     threshold=75,
     preprocess=False,
     drop_terms=None,
     prnt=False,
     return_str=True,
 ):
+    option_df = pd.DataFrame() if option_df is None else option_df
     match = None
     if not pd.isnull(search):
         if not options and option_df.size == 0:

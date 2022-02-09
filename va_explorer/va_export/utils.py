@@ -29,7 +29,7 @@ def get_loc_ids_for_filter(loc_query):
         loc_df = pd.DataFrame(Location.objects.values("id", "name", "location_type"))
         for loc in locs:
             # perform name-based matching
-            res = fuzzy_match(loc.lower(), option_df=loc_df, return_str=False)
+            res = fuzzy_match(loc.lower(), loc_df, return_str=False)
             if res:
                 if "id" in res:
                     match = Location.objects.get(pk=res["id"])

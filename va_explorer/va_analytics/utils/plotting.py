@@ -319,7 +319,8 @@ def load_cod_groupings(data_dir=None, grouping_file="cod_groupings.csv"):
 
 
 # get all vas with cods in a certain cod group
-def cod_group_data(va_df, group, cod_groups=pd.DataFrame(), n=10):
+def cod_group_data(va_df, group, cod_groups, n=10):
+    cod_groups = pd.DataFrame() if cod_groups is None else cod_groups
     va_filtered = pd.DataFrame()
     if cod_groups.size == 0:
         data_dir = "va_explorer/va_analytics/dash_apps/dashboard_data"
@@ -366,7 +367,7 @@ def get_pivot_counts(va_df, index_col, factor_col):
 
 def cod_group_plot(
     va_df,
-    cod_groups=[],
+    cod_groups,
     demographic="overall",
     n=10,
     height=None,
@@ -374,6 +375,8 @@ def cod_group_plot(
     chosen_cod="all",
 ):
     figure = go.Figure()
+    cod_groups if cod_groups else []
+
     # if no demographic chosen (i.e. overall), color-code by cause-of-death
     # group. Otherwise, color-code by demographic
     demographic = demographic.lower()
@@ -392,7 +395,7 @@ def cod_group_plot(
     if va_df.size > 0:
 
         # create 1 subplot per group and store data
-        for i, cod_group in enumerate(cod_groups):
+        for _, cod_group in enumerate(cod_groups):
 
             # default values for group's height and traces.
             group_height, group_traces = 1, []
@@ -428,7 +431,7 @@ def cod_group_plot(
                     )
 
                 # make a subplot trace for each demographic
-                for j, demo_group in enumerate(demo_groups):
+                for _, demo_group in enumerate(demo_groups):
                     if demographic not in ["overall", "all"]:
                         group_key = demo_group
 
@@ -582,7 +585,7 @@ def cause_of_death_plot(va_df, factor, n=10, chosen_cod="all", title=None, heigh
     if factor not in ["all", "overall"]:
         factor_title = "by " + factor.capitalize()
 
-    plot_title = "Top Causes of Death {}".format(factor_title) if not title else title
+    plot_title = title if title else """Top Causes of Death {}""".format(factor_title)
 
     # get cause counts by chosen factor (by default, overall counts)
     counts = get_pivot_counts(va_df, "cause", factor).rename(columns={"overall": "All"})
@@ -834,7 +837,8 @@ def va_trend_plot(
 
 
 # load options for VA trends time series
-def load_ts_options(va_data, cod_groups=pd.DataFrame()):
+def load_ts_options(va_data, cod_groups):
+    cod_groups = pd.DataFrame() if cod_groups is None else cod_groups
     if cod_groups.empty:
         data_dir = "va_explorer/va_analytics/dash_apps/dashboard_data"
         cod_groups = load_cod_groupings(data_dir=data_dir)

@@ -13,10 +13,9 @@ from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 def load_geojson_data(json_file):
     geojson = None
     if os.path.isfile(json_file):
+        with open(json_file, "r") as jf:
+            geojson = json.loads(jf.read())
 
-        raw_json = open(json_file, "r")
-        geojson = json.loads(raw_json.read())
-        raw_json.close()
         # add min and max coordinates for mapping
         for i, g in enumerate(geojson["features"]):
             coordinate_list = g["geometry"]["coordinates"]
