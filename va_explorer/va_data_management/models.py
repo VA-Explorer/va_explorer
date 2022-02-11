@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 from simple_history.models import HistoricalRecords
 from django.db.models import JSONField, Count
 from django.db.models.signals import pre_save, post_save
@@ -9,12 +8,12 @@ from django.db import transaction
 from va_explorer.models import SoftDeletionModel
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
+from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist
 
 import hashlib
 
 REDACTED_STRING = '** redacted **'
-
-UNIQUE_IDENTIFIERS = ['Id10017', 'Id10018', 'Id10019', 'Id10020', 'Id10021', 'Id10022', 'Id10023']
 
 PII_FIELDS = [
     'Id10007',
@@ -39,7 +38,6 @@ PII_FIELDS = [
     'date',
     'narrat_image',
 ]
-
 
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
@@ -668,16 +666,19 @@ class VerbalAutopsy(SoftDeletionModel):
     def unique_identifiers(self):
         return str(self.Id10017) + str(self.Id10018) + str(self.Id10019) + str(self.Id10020) + str(self.Id10021) + \
                str(self.Id10022) + str(self.Id10023)
+    @staticmethod
+    def auto_detect_duplicates():
+        return questions_to_autodetect_duplicates()
 
     def any_identifier_changed(self, saved_va):
-        for identifier in UNIQUE_IDENTIFIERS:
+        for identifier in questions_to_autodetect_duplicates():
             if getattr(self, identifier) != getattr(saved_va, identifier):
                 return True
         return False
 
     def generate_unique_identifier_hash(self):
         md5 = hashlib.md5()
-        unique_identifier_string = ''.join([str(getattr(self, identifier)) for identifier in UNIQUE_IDENTIFIERS])
+        unique_identifier_string = ''.join([str(getattr(self, identifier)) for identifier in questions_to_autodetect_duplicates()])
         md5.update(unique_identifier_string.encode())
         self.unique_va_identifier = md5.hexdigest()
 
@@ -699,7 +700,7 @@ class VerbalAutopsy(SoftDeletionModel):
 
                 VerbalAutopsy.objects.bulk_update(duplicate_vas, ['duplicate'])
 
-    def update_with_changed_unique_identifier(self, saved_va, *args, **kwargs):
+    def update_duplicates_with_changed_unique_identifier(self, saved_va):
         # Given a set of duplicate VAs, we designate the oldest one as the non-duplicate record.
         # If the record that we are updating is the oldest amongst all of the records with the same
         # unique_va_identifier, it is the only record in the query set with duplicate = False.
@@ -727,14 +728,16 @@ class VerbalAutopsy(SoftDeletionModel):
         else:
             self.duplicate = False
 
-    def save(self, *args, **kwargs):
+    def handle_update_duplicates(self):
+        # If the Verbal Autopsy already exists and we are updating it
         if self.pk:
             saved_va = VerbalAutopsy.objects.get(pk=self.pk)
 
             if self.any_identifier_changed(saved_va):
                 # Generate a new unique_identifier_hash since one of the constituent fields has changed
                 self.generate_unique_identifier_hash()
-                self.update_with_changed_unique_identifier(saved_va, *args, **kwargs)
+                self.update_duplicates_with_changed_unique_identifier(saved_va)
+        # If the Verbal Autopsy does not exist and we are creating it
         else:
             # Generate a unique_identifier_hash
             self.generate_unique_identifier_hash()
@@ -744,12 +747,17 @@ class VerbalAutopsy(SoftDeletionModel):
                 filter(unique_va_identifier=self.unique_va_identifier)
 
             # If any pre-existing VAs match self.unique_identifier_hash, they are guaranteed to be older
-            # than this record because we are just creating it. Thus, this record is a duplicate because
+            # than this record because we are creating it now. Thus, this record is a duplicate because
             # we always designate the oldest record as the non-duplicate
             if vas_with_new_unique_va_identifier.exists():
                 self.duplicate = True
             else:
                 self.duplicate = False
+
+
+    def save(self, *args, **kwargs):
+        if VerbalAutopsy.auto_detect_duplicates():
+            self.handle_update_duplicates()
 
         super(VerbalAutopsy, self).save(*args, **kwargs)
 
@@ -767,6 +775,25 @@ class dhisStatus(models.Model):
     vaid = models.TextField(blank=False)
     edate = models.DateTimeField(auto_now_add=True)
     status = models.TextField(blank=False, default="SUCCESS")
+
+def questions_to_autodetect_duplicates():
+    if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
+        return []
+
+    questions = [q.strip() for q in settings.QUESTIONS_TO_AUTODETECT_DUPLICATES.split(',')]
+    validated_questions = []
+    valid_field = None
+
+    for q in questions:
+        try:
+            valid_field = VerbalAutopsy._meta.get_field(q)
+        except FieldDoesNotExist:
+            pass
+        if valid_field:
+            validated_questions.append(q)
+
+    return validated_questions
+
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)

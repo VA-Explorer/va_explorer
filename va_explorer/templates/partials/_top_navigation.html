@@ -47,7 +47,7 @@
         <a class="{% active '\/(.*)data_management' %} nav-link" href="{% url 'va_data_management:index' %}">Data Management</a>
       </li>
       {% endif %}
-      {% if perms.va_data_cleanup.view_datacleanup %}
+      {% if AUTO_DETECT_DUPLICATES and perms.va_data_cleanup.view_datacleanup %}
       <li class="nav-item">
         <a class="{% active '\/(.*)data_cleanup' %} nav-link" href="{% url 'va_data_cleanup:index' %}">Data Cleanup</a>
       </li>

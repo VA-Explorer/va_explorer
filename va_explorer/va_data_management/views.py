@@ -10,7 +10,6 @@ from django.db.models.functions import Concat
 
 import logging
 
-from va_explorer.utils.file_io import download_csv
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
@@ -51,7 +50,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                             errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
                             warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
         queryset = self.request.user.verbal_autopsies().\
-            prefetch_related("location", "causes", "coding_issues").order_by("id").filter(duplicate=False)
+            prefetch_related("location", "causes", "coding_issues").order_by("id")
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -151,6 +150,7 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
+        context['duplicate'] = self.object.duplicate
 
         # log view record event
         write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
@@ -250,11 +250,31 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         return super().post(request, *args, **kwargs)
 
 
-class Delete(CustomAuthMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
     permission_required = "va_data_management.delete_verbalautopsy"
     model = VerbalAutopsy
     success_url = reverse_lazy('va_data_cleanup:index')
-    success_message = "Verbal Autopsy successfully deleted!"
+    success_message = "Verbal Autopsy %(id)s was deleted successfully"
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        messages.success(self.request, self.success_message % obj.__dict__)
+        return super(Delete, self).delete(request, *args, **kwargs)
 
 
 delete = Delete.as_view()
+
+
+class DeleteAll(CustomAuthMixin, PermissionRequiredMixin):
+    permission_required = "va_data_management.bulk_delete"
+    model = VerbalAutopsy
+    success_url = reverse_lazy('va_data_cleanup:index')
+    success_message = "Duplicate Verbal Autopsies successfully deleted!"
+    template_name = "va_data_management/verbalautopsy_confirm_delete_all.html"
+
+    def post(self, request, *args, **kwargs):
+        VerbalAutopsy.objects.filter(duplicate=True).delete()
+        messages.success(self.request, self.success_message)
+        return redirect(reverse('va_data_cleanup:index'))
+
+delete_all = DeleteAll.as_view()

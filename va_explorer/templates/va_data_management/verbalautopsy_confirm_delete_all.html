@@ -8,7 +8,7 @@
 <form method="post">{% csrf_token %}
    <div class="row mt-4">
      <div class="form-group">
-       <p>Are you sure you want to delete Verbal Autopsy {{ object.pk }}?</p>
+       <p>Are you sure you want to delete all duplicate Verbal Autopsies?</p>
         {{ form }}
        <input class="btn btn-primary" type="submit" value="Confirm">
        <a href="{% url 'va_data_cleanup:index' %}" class="btn btn-link">Cancel</a>

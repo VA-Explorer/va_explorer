@@ -127,30 +127,53 @@ def test_load_va_csv_command():
     assert VerbalAutopsy.objects.get(instanceid='instance2').Id10007 == 'name2'
     assert VerbalAutopsy.objects.get(instanceid='instance3').Id10007 == 'name3'
 
-def test_loading_duplicate_vas():
-    today = datetime.datetime.now()
-    # Create VAs that are duplicates of those in 'test-duplicate-input-data.csv'
-    va = VerbalAutopsyFactory.create(
-        created=today-datetime.timedelta(days=50),
-        Id10017="Bob", Id10018="Jones", Id10019="Male", Id10020="Yes", Id10021="1/1/60", Id10022="Yes",
-        Id10023="1/5/21", instanceid="00",
-        unique_va_identifier="840ba941ac6e608962f86eb05659bad1"
+def test_loading_duplicate_vas(settings):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10022, Id10023"
+
+    # va1 matches 2 records in 'test-duplicate-input-data.csv'
+    # This VA will not be marked as duplicate = True because it was created before loading 'test-duplicate-input-data.csv'
+    va1 = VerbalAutopsyFactory.create(
+        Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='dk', Id10022='Yes',
+        Id10023='dk', instanceid='00',
     )
 
-    loc = Location.add_root(name='test location', location_type='facility')
+    # va2 matches 0 records in 'test-duplicate-input-data.csv'
+    va2 = VerbalAutopsyFactory.create(
+        Id10017='Nate', Id10018='Grey', Id10019='Male', Id10020='Yes', Id10021='dk', Id10022='Yes',
+        Id10023='dk', instanceid='02',
+    )
 
     # Find path to data file
     test_data = Path(__file__).parent / 'test-duplicate-input-data.csv'
 
     output = StringIO()
     call_command(
-        "load_va_csv",
+        'load_va_csv',
         str(test_data.absolute()),
         stdout=output,
         stderr=output,
     )
 
+    va1.refresh_from_db()
+    va2.refresh_from_db()
 
+    assert not va1.duplicate
+    assert not va2.duplicate
+
+    # Query for the VAs that match va1
+    vas_duplicate_with_va1 = list(VerbalAutopsy.objects.filter(
+        unique_va_identifier=va1.unique_va_identifier).order_by('created'))
+
+    assert len(vas_duplicate_with_va1) == 3
+
+    # Assert that the oldest VA by created timestamp is not duplicate
+    assert not vas_duplicate_with_va1.pop(0).duplicate
+
+    # Assert that the rest are duplicate
+    for va in vas_duplicate_with_va1:
+        assert va.duplicate
+
+    assert VerbalAutopsy.objects.filter(unique_va_identifier=va2.unique_va_identifier).count() == 1
 
 # TODO add tests for date of death, location, and age_group
 
