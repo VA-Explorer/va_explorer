@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import DeleteView, DetailView, UpdateView, ListView, RedirectView
+from django.views.generic import DeleteView, DetailView, UpdateView, ListView, RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import F, Q, Count, Value as V
 from django.db.models.functions import Concat
@@ -24,8 +24,8 @@ from va_explorer.va_data_management.utils.validate import validate_vas_for_dashb
 import time
 import re
 
-
 LOGGER = logging.getLogger("event_logger")
+
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     permission_required = "va_data_management.view_verbalautopsy"
@@ -35,11 +35,12 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
 
         # Restrict to VAs this user can access and prefetch related for performance
-        ti=time.time(); queryset = (self.request.user.verbal_autopsies()\
-                    .select_related("location")\
-                    .select_related("causes")\
-                    .select_related("coding_issues")\
-                    .annotate(deceased = Concat('Id10017', V(' '), 'Id10018'))
+        ti = time.time();
+        queryset = (self.request.user.verbal_autopsies() \
+                    .select_related("location") \
+                    .select_related("causes") \
+                    .select_related("coding_issues") \
+                    .annotate(deceased=Concat('Id10017', V(' '), 'Id10018'))
                     .values("id",
                             "location__name",
                             "causes__cause",
@@ -48,9 +49,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                             "submissiondate",
                             "deceased",
                             errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
-                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
-        queryset = self.request.user.verbal_autopsies().\
-            prefetch_related("location", "causes", "coding_issues").order_by("id")
+                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning"))));
+        print(f"total time: {time.time() - ti} secs")
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -98,7 +98,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         # ids for va download
         download_ids = [str(i) for i in self.filterset.qs.values_list("id", flat=True)]
         if len(download_ids) > 0:
-            context["download_url"] = reverse('va_export:va_api') + '?ids=' + ','.join(download_ids) # self.request.get_host() +
+            context["download_url"] = reverse('va_export:va_api') + '?ids=' + ','.join(
+                download_ids)  # self.request.get_host() +
         else:
             # filter returned no results - render button useless
             context["download_url"] = ""
@@ -108,12 +109,14 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             "id": va["id"],
             "deceased": va["deceased"],
             "interviewer": va["Id10010"],
-            "submitted":  va["submissiondate"], #get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
-            "dod":  parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
-            "facility": va["location__name"], #va.location.name if va.location else "",
-            "cause": va["causes__cause"],  #va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-            "warnings": va["warnings"], #len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-            "errors": va["errors"]# len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            "submitted": va["submissiondate"],
+            # get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
+            "dod": parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
+            "facility": va["location__name"],  # va.location.name if va.location else "",
+            "cause": va["causes__cause"],  # va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+            "warnings": va["warnings"],
+            # len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+            "errors": va["errors"]  # len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
         } for va in context['object_list']]
 
         context.update(get_va_summary_stats(self.filterset.qs))
@@ -142,9 +145,9 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
-        context['warnings'], context['algo_warnings'] = self.filter_warnings([issue for issue in coding_issues if issue.severity == 'warning'])
+        context['warnings'], context['algo_warnings'] = self.filter_warnings(
+            [issue for issue in coding_issues if issue.severity == 'warning'])
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
-
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
@@ -163,12 +166,11 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         user_warnings = []
         algo_warnings = []
         for warning in warnings:
-            if re.search("^W\d{6}[-]",str(warning)):
+            if re.search("^W\d{6}[-]", str(warning)):
                 algo_warnings.append(warning)
             else:
                 user_warnings.append(warning)
         return user_warnings, algo_warnings
-
 
 
 class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):
@@ -265,7 +267,7 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
 delete = Delete.as_view()
 
 
-class DeleteAll(CustomAuthMixin, PermissionRequiredMixin):
+class DeleteAll(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     permission_required = "va_data_management.bulk_delete"
     model = VerbalAutopsy
     success_url = reverse_lazy('va_data_cleanup:index')

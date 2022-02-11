@@ -7,3 +7,4 @@ def settings_context(_request):
 
 def auto_detect_duplicates(_request):
     return {'AUTO_DETECT_DUPLICATES': len(questions_to_autodetect_duplicates()) > 0 }
+

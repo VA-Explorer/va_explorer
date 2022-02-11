@@ -7,7 +7,7 @@
 {% block heading %}Verbal Autopsy #{{ object.id }}{% endblock %}
 
 {% block content %}
-{% if duplicate and AUTO_DETECT_DUPLICATES and perms.va_data_cleanup.view_datacleanup %}
+{% if duplicate and AUTO_DETECT_DUPLICATES %}
 <div class="row mt-4">
   <div class="alert alert-warning" role="alert">
     Warning: This VA has been auto-detected as a duplicate.
@@ -112,7 +112,7 @@
       </div>
     {% endif %}
   </div>
-  
+
 
   {% if diffs and not user.is_fieldworker  %}
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
