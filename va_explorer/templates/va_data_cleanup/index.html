@@ -1,32 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Duplicate Verbal Autopsies{% endblock %}
+{% block title %}Manage Duplicate Verbal Autopsies{% endblock %}
 
-{% block heading %}Duplicate Verbal Autopsies{% endblock %}
+{% block heading %}Manage Duplicate Verbal Autopsies{% endblock %}
 
 {% block content %}
-  <div class="row mt-4">
-    <p>Verbal autopsies marked as duplicates by VA Explorer are shown below. Duplicate verbal autopsies are not shown in the
-      Data Management view and can be cleaned up here.</p>
-  </div>
-  <div class="row mt-4">
-    <h4>Bulk Actions</h4>
-    <table class="table table-sm">
-      <tbody>
-        <tr>
-          <td>{{total_duplicate_records}} duplicate verbal autopsies</td>
-          <td><a class="btn btn-primary" href="{% url 'data_cleanup:download_all' %}"><i class="fas fa-download" style="color: white;"></i> Download All</a></td>
-          <td><a class="btn btn-danger" href=""><i class="fas fa-trash-alt" style="color: white;"></i> Delete All</a></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-<div class="row mt-4">
-  <h4>Individual Actions</h4>
-  {% include 'partials/_va_cleanup_table.html' with va_list=object_list %}
-  {% if page_obj.has_other_pages %}
-  {% include "partials/_pagination.html" %}
+  {% if AUTO_DETECT_DUPLICATES %}
+    <div class="row mt-4">
+      <p>Verbal Autopsies auto-detected as duplicates by VA Explorer are shown below. </p>
+      <p>Your system is configured to automatically mark Verbal Autopsies as duplicates if they match
+        across <a href="{% url 'data_cleanup:download_questions' %}">these questions</a>. To manage duplicates,
+        you may delete them or edit the possible duplicate VAs to remove them from detection.
+      </p>
+    </div>
+    {% if total_duplicate_records == 0 %}
+    <div class="row mt-4">
+      <div class="alert alert-warning" role="alert">
+        There are currently no duplicate Verbal Autopsies in the system.
+      </div>
+    </div>
+    {% else %}
+      <div class="row mt-4">
+        <h4>Bulk Actions</h4>
+        <table class="table table-sm">
+          <tbody>
+            <tr>
+              <td style="width: 70%">{{total_duplicate_records}} duplicate Verbal Autopsies</td>
+              <td><a class="btn btn-secondary" href="{% url 'data_cleanup:download_all' %}"><i class="fas fa-download" style="color: white;"></i> Download All</a></td>
+              <td><a class="btn btn-secondary" href="{% url 'data_management:delete_all' %}"><i class="fas fa-trash-alt" style="color: white;"></i> Delete All</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row mt-4">
+        <h4>Individual Actions</h4>
+        {% include 'partials/_va_table.html' with va_list=object_list %}
+        {% if page_obj.has_other_pages %}
+        {% include "partials/_pagination.html" %}
+        {% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    {# Message shown if user happens upon the data_cleanup URL (it's hidden from the navbar) #}
+    <div class="row mt-4">
+      <p>Your system is currently not configured to automatically mark Verbal Autopsies as duplicates.</p>
+      <p>To turn this feature on, please contact your system administrator.</p>
+    </div>
   {% endif %}
-</div>
 {% endblock %}

@@ -1,13 +1,7 @@
-# from allauth.account.models import EmailAddress
-
-
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-from django.utils.crypto import get_random_string
 
+from django.conf import settings
 from va_explorer.va_data_management.models import VerbalAutopsy
-
-User = get_user_model()
 
 
 class Command(BaseCommand):
@@ -15,40 +9,35 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS("Marks existing VAs as duplicate..."))
+        if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
+            self.stdout.write(
+                self.style.ERROR(
+                    "Error: Configuration, QUESTIONS_TO_AUTODETECT_DUPLICATES, is an empty list. \n"
+                    "Please update you .env file with a list of questions by Id that will be used to autodetect "
+                    "duplicates."
+                )
+            )
+            exit()
 
         if not hasattr(VerbalAutopsy, 'duplicate'):
             self.stdout.write(
                 self.style.ERROR(
-                    "Missing required database fields in Verbal Autopsy model."
+                    "Missing required database fields in Verbal Autopsy model to mark Verbal Autopsies as duplicate."
                     "Please run latest migration to add fields."
                 )
             )
             exit()
 
-        admin, created = User.objects.get_or_create(
-            email=options["email"],
-            defaults={"name": "Admin User", "is_active": True, "is_superuser": True},
-        )
+        self.stdout.write(self.style.SUCCESS("Generating unique identifiers..."))
+        all_existing_vas = list(VerbalAutopsy.objects.all())
+        for va in all_existing_vas:
+            va.generate_unique_identifier_hash()
 
-        if created:
-            if options["password"] is None:
-                password = get_random_string(length=32)
-                admin.set_password(password)
-                admin.has_valid_password = False
+        self.stdout.write(self.style.SUCCESS("Unique identifiers generated!"))
+        VerbalAutopsy.objects.bulk_update(all_existing_vas, ["unique_va_identifier"])
 
-                self.stdout.write(
-                    self.style.SUCCESS(f"Your temporary password is: {password}")
-                )
-            else:
-                admin.set_password(options["password"])
-                admin.has_valid_password = True
+        self.stdout.write(self.style.SUCCESS("Marking existing VAs as duplicate..."))
+        VerbalAutopsy.mark_duplicates()
 
-            admin.save()
-
-            # If we do not require email confirmation, we no longer need the lines below
-            # EmailAddress.objects.create(
-            #     user=admin, email=admin.email, verified=True, primary=True
-            # )
-
-            self.stdout.write(self.style.SUCCESS("Successfully created an admin!"))
+        duplicate_count = VerbalAutopsy.objects.filter(duplicate=True).count()
+        self.stdout.write(self.style.SUCCESS(f'Successfully marked {duplicate_count} existing VAs as duplicate!'))

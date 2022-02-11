@@ -95,7 +95,9 @@ def load_records_from_dataframe(record_df, random_locations=False):
         else:
             assign_va_location(va, location_map)
 
-        va.generate_unique_identifier_hash()
+        # Generate a unique_identifier_hash for each VA if the application is configured to detect duplicate VAs
+        if VerbalAutopsy.auto_detect_duplicates():
+            va.generate_unique_identifier_hash()
         created_vas.append(va)
 
     print('Creating new VAs...')
@@ -104,9 +106,11 @@ def load_records_from_dataframe(record_df, random_locations=False):
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
 
-    print('Marking VAs as duplicate...')
-    # Mark duplicate VAs
-    VerbalAutopsy.mark_duplicates()
+
+    # Mark duplicate VAs if the application is configured to do so
+    if VerbalAutopsy.auto_detect_duplicates():
+        print('Marking VAs as duplicate...')
+        VerbalAutopsy.mark_duplicates()
 
     return {
         'ignored': ignored_vas,

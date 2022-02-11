@@ -29,6 +29,14 @@ USE_L10N = True
 USE_TZ = True
 LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 
+# App-specific Configuration
+
+# ==> Configuration for automatic duplicates detection
+# VA Explorer will automatically mark Verbal Autopsies as duplicates if QUESTIONS_TO_AUTODETECT_DUPLICATES is defined
+# Questions must be passed as a comma-separated list, for example, "Id10017, Id10018, Id10019, Id10020"
+# The question IDs passed into the list must match a field in the VerbalAutopsy model
+# By default, automatic duplicates detection is turned off
+QUESTIONS_TO_AUTODETECT_DUPLICATES = os.environ.get('QUESTIONS_TO_AUTODETECT_DUPLICATES', None)
 
 # Databases
 
@@ -182,6 +190,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "va_explorer.utils.context_processors.settings_context",
+                "va_explorer.utils.context_processors.auto_detect_duplicates",
             ],
             "libraries": {
                 "va_explorer_tags": "va_explorer.templatetags.va_explorer_tags"

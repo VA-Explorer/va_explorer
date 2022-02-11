@@ -7,6 +7,13 @@
 {% block heading %}Verbal Autopsy #{{ object.id }}{% endblock %}
 
 {% block content %}
+{% if duplicate and AUTO_DETECT_DUPLICATES and perms.va_data_cleanup.view_datacleanup %}
+<div class="row mt-4">
+  <div class="alert alert-warning" role="alert">
+    Warning: This VA has been auto-detected as a duplicate.
+  </div>
+</div>
+{% endif %}
 <ul class="nav nav-tabs tab-spacing" id="myTab" role="tablist">
   <li class="nav-item">
     <a class="nav-link active" id="record-tab" data-toggle="tab" href="#record" role="tab" aria-controls="record" aria-selected="true">Record</a>
