@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from simple_history.models import HistoricalRecords
 from django.db.models import JSONField, Count
 from django.db.models.signals import pre_save, post_save
@@ -8,7 +9,6 @@ from django.db import transaction
 from va_explorer.models import SoftDeletionModel
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
-from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 
 import hashlib
@@ -747,7 +747,6 @@ class VerbalAutopsy(SoftDeletionModel):
                 self.duplicate = True
             else:
                 self.duplicate = False
-
 
     def save(self, *args, **kwargs):
         if VerbalAutopsy.auto_detect_duplicates():
