@@ -33,7 +33,7 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['total_duplicate_records'] = context['object_list'].count()
+        context['total_duplicate_records'] = self.request.user.verbal_autopsies().filter(duplicate=True).count()
         context['va_data_cleanup'] = True
 
         context['object_list'] = [{
