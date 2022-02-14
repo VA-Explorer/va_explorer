@@ -11,7 +11,7 @@ class VerbalAutopsyForm(forms.ModelForm):
 
     class Meta:
         model = VerbalAutopsy
-        exclude = ('id', 'location', 'deleted_at', 'unique_va_identifier', 'duplicate',)
+        exclude = ('id', 'location', 'instanceid', 'deleted_at', 'unique_va_identifier', 'duplicate',)
 
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop('include_pii', True)
