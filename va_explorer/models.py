@@ -28,10 +28,6 @@ class SoftDeletionModel(models.Model):
         abstract = True
 
     def delete(self):
-        import pdb
-        pdb.set_trace()
-        links = [rel.get_accessor_name() for rel in self._meta.get_all_related_objects()]
-
         self.deleted_at = timezone.now()
         self.save()
 
