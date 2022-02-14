@@ -19,7 +19,9 @@ class Command(BaseCommand):
             )
             exit()
 
-        if not hasattr(VerbalAutopsy, 'duplicate'):
+        try: 
+            all_existing_vas = list(VerbalAutopsy.objects.all())
+        except:
             self.stdout.write(
                 self.style.ERROR(
                     "Missing required database fields in Verbal Autopsy model to mark Verbal Autopsies as duplicate."
@@ -29,7 +31,6 @@ class Command(BaseCommand):
             exit()
 
         self.stdout.write(self.style.SUCCESS("Generating unique identifiers..."))
-        all_existing_vas = list(VerbalAutopsy.objects.all())
         for va in all_existing_vas:
             va.generate_unique_identifier_hash()
 
