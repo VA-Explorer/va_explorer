@@ -663,9 +663,6 @@ class VerbalAutopsy(SoftDeletionModel):
     def __str__(self):
         return self.vaid
 
-    def unique_identifiers(self):
-        return str(self.Id10017) + str(self.Id10018) + str(self.Id10019) + str(self.Id10020) + str(self.Id10021) + \
-               str(self.Id10022) + str(self.Id10023)
     @staticmethod
     def auto_detect_duplicates():
         return questions_to_autodetect_duplicates()
@@ -760,21 +757,6 @@ class VerbalAutopsy(SoftDeletionModel):
 
         super(VerbalAutopsy, self).save(*args, **kwargs)
 
-class cod_codes_dhis(models.Model):
-    codsource = models.TextField(blank=False)
-    codcode = models.TextField(blank=False)
-    codname =models.TextField(blank=False)
-    codid =models.TextField(blank=False)
-
-    def __str__(self):
-        return self.codname
-
-class dhisStatus(models.Model):
-    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
-    vaid = models.TextField(blank=False)
-    edate = models.DateTimeField(auto_now_add=True)
-    status = models.TextField(blank=False, default="SUCCESS")
-
 def questions_to_autodetect_duplicates():
     if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
         return []
@@ -793,6 +775,20 @@ def questions_to_autodetect_duplicates():
 
     return validated_questions
 
+class cod_codes_dhis(models.Model):
+    codsource = models.TextField(blank=False)
+    codcode = models.TextField(blank=False)
+    codname =models.TextField(blank=False)
+    codid =models.TextField(blank=False)
+
+    def __str__(self):
+        return self.codname
+
+class dhisStatus(models.Model):
+    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
+    vaid = models.TextField(blank=False)
+    edate = models.DateTimeField(auto_now_add=True)
+    status = models.TextField(blank=False, default="SUCCESS")
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
