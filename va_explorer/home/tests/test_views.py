@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 pytestmark = pytest.mark.django_db
 
-# Get the index and make sure
+# Get the index and make sure 
 def test_index(user: User):
     client = Client()
     client.force_login(user=user)
