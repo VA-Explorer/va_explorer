@@ -1,6 +1,8 @@
 import pytest
 
-from va_explorer.tests.factories import VerbalAutopsyFactory
+from va_explorer.tests.factories import CauseOfDeathFactory, VerbalAutopsyFactory, CauseCodingIssueFactory, \
+    DhisStatusFactory
+from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, CauseCodingIssue, DhisStatus
 
 pytestmark = pytest.mark.django_db
 
@@ -141,3 +143,43 @@ def test_save_does_not_update_duplicates_without_autodetect_duplicates(settings)
 
     assert not va1.duplicate
     assert not va2.duplicate
+
+
+def test_soft_deletion_of_verbal_autopsy():
+    va = VerbalAutopsyFactory.create()
+    assert VerbalAutopsy.objects.all().count() == 1
+
+    # VA delete() is a soft delete in which the deleted_at timestamp is set
+    va.delete()
+    va.refresh_from_db()
+
+    # Returns only objects where deleted_at = None
+    assert VerbalAutopsy.objects.all().count() == 0
+    # Returns all objects
+    assert VerbalAutopsy.all_objects.count() == 1
+    assert va.deleted_at is not None
+
+    # VA hard_delete() removes the VA from the database
+    va.hard_delete()
+
+    assert VerbalAutopsy.objects.all().count() == 0
+    assert VerbalAutopsy.all_objects.count() == 0
+
+
+def test_related_model_managers():
+    va = VerbalAutopsyFactory.create()
+    CauseOfDeathFactory.create(verbalautopsy=va)
+    CauseCodingIssueFactory.create(verbalautopsy=va)
+    DhisStatusFactory.create(verbalautopsy=va)
+
+    assert VerbalAutopsy.objects.all().count() == 1
+    assert CauseOfDeath.objects.all().count() == 1
+    assert CauseCodingIssue.objects.all().count() == 1
+    assert DhisStatus.objects.all().count() == 1
+
+    va.delete()
+
+    assert VerbalAutopsy.objects.all().count() == 0
+    assert CauseOfDeath.objects.all().count() == 0
+    assert CauseCodingIssue.objects.all().count() == 0
+    assert DhisStatus.objects.all().count() == 0
