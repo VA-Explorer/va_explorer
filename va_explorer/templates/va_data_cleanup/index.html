@@ -25,9 +25,9 @@
         <table class="table table-sm">
           <tbody>
             <tr>
-              <td style="width: 70%">{{total_duplicate_records}} duplicate Verbal Autopsies</td>
-              <td><a class="btn btn-secondary" href="{% url 'data_cleanup:download_all' %}"><i class="fas fa-download" style="color: white;"></i> Download All</a></td>
-              <td><a class="btn btn-secondary" href="{% url 'data_management:delete_all' %}"><i class="fas fa-trash-alt" style="color: white;"></i> Delete All</a></td>
+              <td class="duplicates-table-text ">{{total_duplicate_records}} duplicate Verbal Autopsies</td>
+              <td><a class="btn btn-primary" href="{% url 'data_cleanup:download_all' %}"><i class="fas fa-download button-icon"></i> Download All</a></td>
+              <td><a class="btn btn-danger" href="{% url 'data_management:delete_all' %}"><i class="fas fa-trash-alt button-icon"></i> Delete All</a></td>
             </tr>
           </tbody>
         </table>
