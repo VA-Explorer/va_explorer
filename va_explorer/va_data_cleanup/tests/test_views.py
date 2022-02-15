@@ -44,8 +44,8 @@ def test_index_with_valid_permission(user: User, settings, view_datacleanup_grou
     response = client.get("/va_data_cleanup/")
 
     assert response.status_code == 200
-    assert not bytes(str(va1.id), "utf-8") in response.content
-    assert bytes(str(va2.id), "utf-8") in response.content
+    assert not bytes("% s" % va1.id, "utf-8") in response.content
+    assert bytes("% s" % va2.id, "utf-8") in response.content
 
 
 # A user must have the view_datacleanup permission to view the index
@@ -107,7 +107,7 @@ def test_download_with_invalid_permission(user: User, settings, view_datacleanup
     assert response.status_code == 403
     assert response._headers["content-type"][1] == "text/html; charset=utf-8"
 
-    
+
 # Test if a user arbitrarily passes in a non-duplicate VA, 403 raised
 def test_download_with_valid_permission_non_duplicate_va(user: User, settings, view_datacleanup_group,
                                         questions_to_autodetect_duplicates):
