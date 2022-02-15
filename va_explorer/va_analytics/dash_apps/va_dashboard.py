@@ -197,8 +197,8 @@ app.layout = html.Div(
                                             children=[
                                                 dcc.Dropdown(
                                                     id="view_level",
-                                                    # value="",
-                                                    value=INITIAL_GRANULARITY,
+                                                    value="",
+                                                    # value=INITIAL_GRANULARITY,
                                                     placeholder="View",
                                                     style={
                                                         "margin-bottom": "5px",
