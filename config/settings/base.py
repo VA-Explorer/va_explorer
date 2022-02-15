@@ -196,6 +196,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "va_explorer.utils.context_processors.settings_context",
                 "va_explorer.utils.context_processors.auto_detect_duplicates",
+                "va_explorer.utils.context_processors.duplicates_count",
             ],
             "libraries": {
                 "va_explorer_tags": "va_explorer.templatetags.va_explorer_tags"
