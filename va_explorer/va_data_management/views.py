@@ -257,11 +257,19 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
     model = VerbalAutopsy
     success_url = reverse_lazy('va_data_cleanup:index')
     success_message = "Verbal Autopsy %(id)s was deleted successfully"
+    error_message = "Verbal Autopsy %(id)s could not be deleted. This Verbal Autopsy doesn't exist or " \
+                    "you don't have access to delete it."
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
-        messages.success(self.request, self.success_message % obj.__dict__)
-        return super(Delete, self).delete(request, *args, **kwargs)
+        # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
+        # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
+        if self.request.user.verbal_autopsies().filter(id=obj.id, duplicate=True).exists():
+            messages.success(self.request, self.success_message % obj.__dict__)
+            return super(Delete, self).delete(request, *args, **kwargs)
+        else:
+            messages.error(self.request, self.error_message % obj.__dict__)
+            return redirect('va_data_cleanup:index')
 
 
 delete = Delete.as_view()
@@ -275,8 +283,9 @@ class DeleteAll(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "va_data_management/verbalautopsy_confirm_delete_all.html"
 
     def post(self, request, *args, **kwargs):
-        VerbalAutopsy.objects.filter(duplicate=True).delete()
+        self.request.user.verbal_autopsies().filter(duplicate=True).delete()
         messages.success(self.request, self.success_message)
         return redirect(reverse('va_data_cleanup:index'))
+
 
 delete_all = DeleteAll.as_view()

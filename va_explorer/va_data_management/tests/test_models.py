@@ -4,8 +4,14 @@ from va_explorer.tests.factories import VerbalAutopsyFactory
 
 pytestmark = pytest.mark.django_db
 
-def test_save_mark_duplicates_with_autodetect_duplicates(settings):
-    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10022, Id10023"
+
+@pytest.fixture
+def questions_to_autodetect_duplicates():
+    return "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
+
+
+def test_save_mark_duplicates_with_autodetect_duplicates(settings, questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
 
     va1 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='1/1/60',
                                       Id10022='Yes', Id10023='1/5/21', instanceid='00')
@@ -35,12 +41,11 @@ def test_save_mark_duplicates_with_autodetect_duplicates(settings):
     assert not va6.duplicate
 
 
-def test_save_updates_unique_va_identifier_with_autodetect_duplicates(settings):
-    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
+def test_save_updates_unique_va_identifier_with_autodetect_duplicates(settings, questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
 
     va1 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='1/1/60',
-                               Id10022='Yes', Id10023='1/5/21', instanceid='00'
-                               )
+                                      Id10022='Yes', Id10023='1/5/21', instanceid='00')
 
     assert va1.unique_va_identifier == '840ba941ac6e608962f86eb05659bad1'
 
@@ -76,6 +81,7 @@ def test_save_updates_unique_va_identifier_with_autodetect_duplicates(settings):
     va1.save()
     assert va1.unique_va_identifier == '3df591b678ea5e730966fc63ac77b687'
 
+
 def test_save_does_not_populate_unique_va_identifier_without_autodetect_duplicates(settings):
     settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = None
 
@@ -86,22 +92,17 @@ def test_save_does_not_populate_unique_va_identifier_without_autodetect_duplicat
     assert va1.unique_va_identifier == ''
 
 
-def test_save_updates_duplicates_with_autodetect_duplicates(settings):
-    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
-
+def test_save_updates_duplicates_with_autodetect_duplicates(settings, questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
 
     va1 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='1/1/60',
-                               Id10022='Yes', Id10023='1/5/21', instanceid='00'
-                               )
+                                      Id10022='Yes', Id10023='1/5/21', instanceid='00')
     va2 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='1/1/60',
-                               Id10022='Yes', Id10023='1/5/21', instanceid='00'
-                               )
+                                      Id10022='Yes', Id10023='1/5/21', instanceid='00')
     va3 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='1/1/60',
-                               Id10022='Yes', Id10023='1/5/21', instanceid='00'
-                               )
+                                      Id10022='Yes', Id10023='1/5/21', instanceid='00')
     va4 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='1/1/60',
-                               Id10022='No', Id10023='1/5/21', instanceid='00'
-                               )
+                                      Id10022='No', Id10023='1/5/21', instanceid='00')
 
     va1.refresh_from_db()
     va2.refresh_from_db()
@@ -126,17 +127,14 @@ def test_save_updates_duplicates_with_autodetect_duplicates(settings):
     assert va3.duplicate
     assert va4.duplicate
 
+
 def test_save_does_not_update_duplicates_without_autodetect_duplicates(settings):
     settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = None
 
     va1 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes',
-                                      Id10021='1/1/60',
-                                      Id10022='Yes', Id10023='1/5/21', instanceid='00'
-                                      )
+                                      Id10021='1/1/60', Id10022='Yes', Id10023='1/5/21', instanceid='00')
     va2 = VerbalAutopsyFactory.create(Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes',
-                                      Id10021='1/1/60',
-                                      Id10022='Yes', Id10023='1/5/21', instanceid='00'
-                                      )
+                                      Id10021='1/1/60', Id10022='Yes', Id10023='1/5/21', instanceid='00')
 
     va1.refresh_from_db()
     va2.refresh_from_db()

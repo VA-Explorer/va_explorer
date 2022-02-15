@@ -19,9 +19,11 @@ def test_mark_vas_as_duplicate_with_empty_configuration(settings):
             stderr=output
         )
 
-    assert output.getvalue().strip() == "Error: Configuration, QUESTIONS_TO_AUTODETECT_DUPLICATES, is an empty list. \n" \
-                    "Please update you .env file with a list of questions by Id that will be used to autodetect " \
-                    "duplicates."
+    assert output.getvalue().strip() == "Error: Configuration, QUESTIONS_TO_AUTODETECT_DUPLICATES, is an " \
+                                        "empty list. \n" \
+                                        "Please update you .env file with a list of questions by Id that will be " \
+                                        "used to autodetect duplicates."
+
 
 def test_mark_vas_as_duplicate(settings):
     settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = None
@@ -61,7 +63,7 @@ def test_mark_vas_as_duplicate(settings):
     assert not duplicate_of_va2.duplicate
 
     # Mimicking the setting where QUESTIONS_TO_AUTODETECT_DUPLICATES is defined
-    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10022, Id10023"
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
 
     # Run the mark_vas_as_duplicate command
     output = StringIO()

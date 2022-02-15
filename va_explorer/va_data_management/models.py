@@ -660,9 +660,6 @@ class VerbalAutopsy(SoftDeletionModel):
             null_location = Location.objects.get(name=null_name)
         self.location = null_location
 
-    def __str__(self):
-        return self.vaid
-
     @staticmethod
     def auto_detect_duplicates():
         return questions_to_autodetect_duplicates()
@@ -757,6 +754,10 @@ class VerbalAutopsy(SoftDeletionModel):
 
         super(VerbalAutopsy, self).save(*args, **kwargs)
 
+
+# Parses the comma-separated list string in settings.QUESTIONS_TO_AUTODETECT_DUPLICATES into a Python list
+# Validates that the question IDs passed into settings.QUESTIONS_TO_AUTODETECT_DUPLICATES match a field in the VA model
+# If a question ID that is not a field on the VA model is encountered, skip it
 def questions_to_autodetect_duplicates():
     if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
         return []
@@ -775,6 +776,7 @@ def questions_to_autodetect_duplicates():
 
     return validated_questions
 
+
 class cod_codes_dhis(models.Model):
     codsource = models.TextField(blank=False)
     codcode = models.TextField(blank=False)
@@ -784,11 +786,35 @@ class cod_codes_dhis(models.Model):
     def __str__(self):
         return self.codname
 
-class dhisStatus(models.Model):
+
+# Soft-deleting a Verbal Autopsy does not result in cascade deletion the way that true database-level deletes do
+# Add a manager for each of the models where on_delete=models.CASCADE
+# Adding an individual manager works if we only have a small number of related models, but is a brittle solution
+# TODO: Determine a way to handle cascading soft deletes globally/generically
+class DhisStatusManager(models.Manager):
+    def get_queryset(self):
+        return super(DhisStatusManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
+
+
+class CauseOfDeathManager(models.Manager):
+    def get_queryset(self):
+        return super(CauseOfDeathManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
+
+
+class CauseCodingIssueManager(models.Manager):
+    def get_queryset(self):
+        return super(CauseCodingIssueManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
+
+
+class DhisStatus(models.Model):
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
     vaid = models.TextField(blank=False)
     edate = models.DateTimeField(auto_now_add=True)
     status = models.TextField(blank=False, default="SUCCESS")
+    objects = DhisStatusManager()
+
+    def __str__(self):
+        return self.vaid
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
@@ -806,6 +832,7 @@ class CauseOfDeath(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = CauseOfDeathManager()
 
     def __str__(self):
         return self.cause
@@ -824,6 +851,7 @@ class CauseCodingIssue(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = CauseCodingIssueManager()
 
     def __str__(self):
         return self.text

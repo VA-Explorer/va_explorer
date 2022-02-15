@@ -77,7 +77,6 @@ def test_loading_from_dataframe_with_ignored():
     assert result['created'][0].instanceid == data[1]['instanceid']
 
 
-
 def test_loading_from_dataframe_with_key():
     # Location gets assigned automatically/randomly if hospital is not a facility
     # If that changes in loading.py it needs to change here too
@@ -127,20 +126,22 @@ def test_load_va_csv_command():
     assert VerbalAutopsy.objects.get(instanceid='instance2').Id10007 == 'name2'
     assert VerbalAutopsy.objects.get(instanceid='instance3').Id10007 == 'name3'
 
+
 def test_loading_duplicate_vas(settings):
-    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10022, Id10023"
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
 
     # va1 matches 2 records in 'test-duplicate-input-data.csv'
-    # This VA will not be marked as duplicate = True because it was created before loading 'test-duplicate-input-data.csv'
+    # This VA will not be marked as duplicate = True because it was created before loading
+    # 'test-duplicate-input-data.csv'
     va1 = VerbalAutopsyFactory.create(
         Id10017='Bob', Id10018='Jones', Id10019='Male', Id10020='Yes', Id10021='dk', Id10022='Yes',
-        Id10023='dk', instanceid='00',
+        Id10023='dk', instanceid='00'
     )
 
     # va2 matches 0 records in 'test-duplicate-input-data.csv'
     va2 = VerbalAutopsyFactory.create(
         Id10017='Nate', Id10018='Grey', Id10019='Male', Id10020='Yes', Id10021='dk', Id10022='Yes',
-        Id10023='dk', instanceid='02',
+        Id10023='dk', instanceid='02'
     )
 
     # Find path to data file

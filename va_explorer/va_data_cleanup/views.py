@@ -54,14 +54,18 @@ data_cleanup_index_view = DataCleanupIndexView.as_view()
 
 class DownloadIndividual(View):
     def get(self, request, **kwargs):
-        if not request.user.has_perm("va_data_cleanup.download"):
-            raise PermissionDenied
-
         pk = kwargs.pop("pk", None)
+
+        if not pk or not request.user.has_perm("va_data_cleanup.download"):
+            raise PermissionDenied
 
         if pk:
             try:
                 va = VerbalAutopsy.objects.get(pk=pk)
+                # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
+                # Guards against a user manually passing in an arbitrary VA ID to va_data_cleanup/download/:id
+                if not self.request.user.verbal_autopsies().filter(id=va.id, duplicate=True).exists():
+                    raise PermissionDenied
 
                 query_set = self.request.user.verbal_autopsies(). \
                     filter(unique_va_identifier=va.unique_va_identifier). \
@@ -94,10 +98,13 @@ class DownloadAll(View):
                                         "data_cleanup/"
                                         )
 
-        return HttpResponse(data , content_type='text/csv')
+        return HttpResponse(data, content_type='text/csv')
+
 
 download_all = DownloadAll.as_view()
 
+
+# Download the questions used to autodetect duplicate VAs as a csv
 class DownloadQuestions(View):
     def get(self, request, **kwargs):
         if not request.user.has_perm("va_data_cleanup.view_datacleanup"):
@@ -107,6 +114,7 @@ class DownloadQuestions(View):
                                     "questions_to_autodetect_duplicates",
                                     "data_cleanup/"
                                     )
-        return HttpResponse(data , content_type='text/csv')
+        return HttpResponse(data, content_type='text/csv')
+
 
 download_questions = DownloadQuestions.as_view()
