@@ -5,7 +5,7 @@ from .constants import PII_FIELDS
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from config.settings.base import DATE_FORMATS
 
-from va_explorer.va_data_management.constants import RADIO_CHOICES
+from va_explorer.va_data_management.constants import FORM_FIELDS
 
 class VerbalAutopsyForm(forms.ModelForm):
 
@@ -14,8 +14,8 @@ class VerbalAutopsyForm(forms.ModelForm):
         exclude = ('id', 'location', 'instanceid')
         widgets = {
             }
-        for item in RADIO_CHOICES:
-            widgets[item] = forms.RadioSelect(choices=RADIO_CHOICES[item], attrs={'class':''}) 
+        for item in FORM_FIELDS['radio']:
+            widgets[item] = forms.RadioSelect(choices=FORM_FIELDS['radio'][item], attrs={'class':''}) 
             # because all fields in our model is textfield, we are overriding some of the field's field type to radio field here
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +24,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         for field_name, field in self.fields.items():
              # this only works assuming the two field types we have are radio and textfields
              # this if statements makes changes to all textfield inputs we have by checking to see if that field isn't in our radiochoices
-            if field_name not in RADIO_CHOICES:
+            if field_name not in FORM_FIELDS['radio']:
                 field.widget.attrs['rows'] = '1' 
                 if field.widget.attrs.get('class'):
                     field.widget.attrs['class'] += 'form-control'
