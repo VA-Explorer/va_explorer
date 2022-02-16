@@ -304,6 +304,12 @@ RADIO_CHOICES = {
     'Id10463': YES_NO_DK_REF,
 }
 
+FORM_FIELDS = {
+    'radio' : 
+       RADIO_CHOICES
+    ,
+}
+
 REDACTED_STRING = '** redacted **'
 
 PII_FIELDS = [
