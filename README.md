@@ -359,6 +359,36 @@ Alternatively, you can specify email and pasword as command line arguments:
 ./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
 ```
 
+## Autodetecting Duplicates
+
+VA Explorer can be optionally configured to autodetect duplicate Verbal Autopsies and surface potential duplicates in the
+user interface. By default, this feature is turned off. 
+
+To use this feature, identify a subset of key Verbal Autopsy fields that will, in concert, uniquely identify a Verbal Autopsy. The fields are
+passed into the application as an environment variable:
+
+```
+QUESTIONS_TO_AUTODETECT_DUPLICATES="question1, question2, question3"
+```
+
+As per above, the value for this variable must be a comma-separated string. If any Verbal Autopsies match across these fields, they
+will be marked as potential duplicates. The oldest Verbal Autopsy (by created timestamp) amongst a set of matching Verbal Autopsies 
+is designated as the non-duplicate.
+
+### Marking Existing VAs as Duplicate
+To mark existing Verbal Autopsies in the database as potential duplicates, you may use the following command: 
+
+```
+./manage.py mark_vas_as_duplicate
+```
+
+This command should be run prior to using the feature in the user interface to avoid unexpected results.
+
+### Managing Duplicate VAs 
+Duplicate Verbal Autopsies will appear in the user interface under the "Data Cleanup" tab. The Data Cleanup tab is only present when
+the environmental variable `QUESTIONS_TO_AUTODETECT_DUPLICATE` is set. To manage duplicates, you may delete them or 
+edit the possible duplicate Verbal Autopsies to remove them from detection.
+
 ## Troubleshooting
 * If experiencing trouble installing the `pyscopg2` application requirement, it is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
 * If experiencing trouble installing `scipy` application requirement, specifically with this error message:  <br> `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.     ---------------------------------------- ERROR: Command errored out with exit status 1:` <br> [This thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) can be helpful. Please make sure to upgrade pip, such as by running the command `pip install --upgrade pip`. This issue has especially come up for users on Mac OS Big Sur users.
