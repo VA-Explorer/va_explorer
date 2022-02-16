@@ -5,7 +5,7 @@ from .models import PII_FIELDS
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from config.settings.base import DATE_FORMATS
 
-from va_explorer.va_data_management.models import RADIO_CHOICES
+from va_explorer.va_data_management.constants import RADIO_CHOICES
 
 class VerbalAutopsyForm(forms.ModelForm):
 

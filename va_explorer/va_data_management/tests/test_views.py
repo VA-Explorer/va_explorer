@@ -5,7 +5,7 @@ from va_explorer.users.models import User
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.tests.factories import GroupFactory, VerbalAutopsyFactory, UserFactory, LocationFactory, \
     FieldWorkerFactory, FieldWorkerGroupFactory, FacilityFactory, VaUsernameFactory
-from va_explorer.va_data_management.models import REDACTED_STRING
+from va_explorer.va_data_management.constants import REDACTED_STRING
 
 pytestmark = pytest.mark.django_db
 
