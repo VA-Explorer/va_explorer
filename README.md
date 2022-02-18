@@ -384,6 +384,12 @@ To mark existing Verbal Autopsies in the database as potential duplicates, you m
 
 This command should be run prior to using the feature in the user interface to avoid unexpected results.
 
+IMPORTANT NOTE: If the value of `QUESTIONS_TO_AUTODETECT_DUPLICATES` is changed, you must re-run the command 
+
+```
+./manage.py mark_vas_as_duplicate
+```
+
 ### Managing Duplicate VAs 
 Duplicate Verbal Autopsies will appear in the user interface under the "Data Cleanup" tab. The Data Cleanup tab is only present when
 the environmental variable `QUESTIONS_TO_AUTODETECT_DUPLICATE` is set. To manage duplicates, you may delete them or 
