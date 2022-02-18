@@ -279,7 +279,6 @@ _radio_choices = {
     "Id10002": _high_low_very,
     "Id10003": _high_low_very,
     "Id10004": _select_58,
-    "Id10008": _select_32,
     "Id10009": _yes_no_dk_ref,
     "Id10013": _yes_no,
     "Id10019": _select_2,
@@ -288,12 +287,8 @@ _radio_choices = {
     "age_group": _age_group,
     "Id10051": _yes_no,
     "Id10052": _select_500,
-    "Id10058": _select_18,
-    "Id10059": _select_19,
     "Id10060_check": _yes_no,
-    "Id10063": _select_23,
     "Id10064": _yes_no_dk_ref,
-    "Id10065": _select_25,
     "Id10069": _yes_no,
     "Id10069_a": _yes_no,
     "Id10071_check": _yes_no,
@@ -310,15 +305,12 @@ _radio_choices = {
     "Id10116": _yes_no_dk_ref,
     "Id10077": _yes_no_dk_ref,
     "Id10079": _yes_no_dk_ref,
-    "Id10080": _select_292,
-    "Id10081": _select_293,
     "Id10082": _yes_no_dk_ref,
     "Id10083": _yes_no_dk_ref,
     "Id10084": _yes_no_dk_ref,
     "Id10085": _yes_no_dk_ref,
     "Id10086": _yes_no_dk_ref,
     "Id10087": _yes_no_dk_ref,
-    "Id10088": _select_299,
     "Id10089": _yes_no_dk_ref,
     "Id10090": _yes_no_dk_ref,
     "Id10091": _yes_no_dk_ref,
@@ -493,9 +485,7 @@ _radio_choices = {
     "Id10334": _yes_no_dk_ref,
     "Id10335": _yes_no_dk_ref,
     "Id10336": _yes_no_dk_ref,
-    "Id10337": _select_208,
     "Id10338": _yes_no_dk_ref,
-    "Id10339": _select_530,
     "Id10342": _yes_no_dk_ref,
     "Id10343": _yes_no_dk_ref,
     "Id10344": _yes_no_dk_ref,
@@ -504,7 +494,6 @@ _radio_choices = {
     "Id10354": _yes_no_dk_ref,
     "Id10355": _select_219,
     "Id10356": _yes_no_dk_ref,
-    "Id10360": _select_223,
     "Id10361": _yes_no_dk_ref,
     "Id10362": _yes_no_dk_ref,
     "Id10363": _yes_no_dk_ref,
@@ -541,7 +530,6 @@ _radio_choices = {
     "Id10411": _yes_no_dk_ref,
     "Id10412": _yes_no_dk_ref,
     "Id10413": _yes_no_dk_ref,
-    "Id10414": _select_306,
     "Id10418": _yes_no_dk_ref,
     "Id10419": _yes_no_dk_ref,
     "Id10420": _yes_no_dk_ref,
@@ -590,11 +578,21 @@ _checkbox_choices = {
     "Id10479": _select_512
 }
 
-_dropdown_fields = [
-    "province",
-    "area",
-    "hospital"
-]
+# Generally >5 choices assigned here instead of radio buttons (if not checkbox)
+_dropdown_choices = {
+    "Id10008": _select_32,
+    "Id10058": _select_18,
+    "Id10059": _select_19,
+    "Id10063": _select_23,
+    "Id10065": _select_25,
+    "Id10080": _select_292,
+    "Id10081": _select_293,
+    "Id10088": _select_299,
+    "Id10337": _select_208,
+    "Id10339": _select_530,
+    "Id10360": _select_223,
+    "Id10414": _select_306,
+}
 
 _text_fields = [
     "deviceid",
@@ -602,6 +600,9 @@ _text_fields = [
     "simserial",
     "username",
     "bid",
+    "province",         # TODO: convert to dynamic dropdown
+    "area",             # TODO: convert to dynamic dropdown
+    "hospital"          # TODO: convert to dynamic dropdown
     "Id10007",
     "Id10010",
     "Id10010c",
@@ -632,7 +633,7 @@ _text_fields = [
     "Id10473",
     # "Id10476",        # textarea
     # "comment",        # textarea
-] + _dropdown_fields    # TODO: Put these in text for now until dropdown choices can be dynamically obtained
+]
 
 _number_fields = [
     "Id10010a",
@@ -716,7 +717,6 @@ _number_fields = [
     "Id10358",
     "Id10359",
     "Id10359_a",
-    "Id10366",
     "Id10367",
     "Id10394",
     "Id10379",
@@ -793,6 +793,7 @@ _display_fields = [
     "Id10274",
     "Id10315",
     "Id10352",
+    "Id10366",
 ]
 
 HIDDEN_FIELDS = (
@@ -825,6 +826,7 @@ FORM_FIELDS = {
     "text": _text_fields,
     "radio": _radio_choices,
     "checkbox": _checkbox_choices,
+    "dropdown": _dropdown_choices,
     "number": _number_fields,
     "date": _date_fields,
     "time": _time_fields,

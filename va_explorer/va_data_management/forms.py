@@ -24,6 +24,8 @@ class VerbalAutopsyForm(forms.ModelForm):
             widgets[form_field] = forms.CheckboxSelectMultiple(
                 choices=FORM_FIELDS["checkbox"][form_field], attrs={"class": "va-check"}
             )
+        for form_field in FORM_FIELDS["dropdown"]:
+            widgets[form_field] = forms.Select(choices=FORM_FIELDS["dropdown"][form_field])
         for form_field in FORM_FIELDS["number"]:
             widgets[form_field] = forms.NumberInput()
         for form_field in FORM_FIELDS["date"]:
