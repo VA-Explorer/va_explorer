@@ -198,7 +198,6 @@ app.layout = html.Div(
                                                 dcc.Dropdown(
                                                     id="view_level",
                                                     value="",
-                                                    # value=INITIAL_GRANULARITY,
                                                     placeholder="View",
                                                     style={
                                                         "margin-bottom": "5px",
@@ -477,24 +476,6 @@ app.layout = html.Div(
 
 
 # =============Reset logic (reset map to default)====================#
-# callback 1
-# @app.callback(
-#     [
-#         Output(component_id="map_search", component_property="value"),
-#         Output(component_id="cod_type", component_property="value"),
-#         Output(component_id="timeframe", component_property="value"),
-#     ],
-#     [Input(component_id="reset", component_property="n_clicks")],
-# )
-
-# def reset_dashboard(n_clicks=0, **kwargs):
-#     START_TIME = time.time()
-#     write_va_log(LOGGER, f"[dashboard] Clicked Reset Button", kwargs["request"])
-#     print("Hidden Callback", time.time() - START_TIME)
-#     return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
-
-### client-side conversions for reset_dashboard ###
-### (note we have 3 because only 1 output at a time with Django-plotly-dash) ###
 app.clientside_callback(
     """
     function(n_clicks){
@@ -544,7 +525,6 @@ ALL callbacks are passed the enhanced arguments
 Thus, we must add **kwargs to all callbacks in the app, even though they are not explicitly
 designated as "expanded"
 '''
-# callback 2
 @app.expanded_callback(
     [
         Output(component_id="va_data", component_property="data"),
@@ -564,7 +544,6 @@ designated as "expanded"
 )
 
 def init_va_data(hidden_trigger=None, **kwargs):
-    START_TIME = time.time()
     date_cutoff=None
     timeframe = LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "all")
     if timeframe != "all":
@@ -607,42 +586,22 @@ def init_va_data(hidden_trigger=None, **kwargs):
     ]
     # hide download data button if user doesn't have permission to download
     download_div.hidden = (not kwargs["user"].can_download_data)
-    print("Hidden Callback", time.time() - START_TIME)
     return valid_va_data, invalid_va_data, locations, location_types, search_options, ts_options, download_div, update_div, LOOKUP["display_names"], INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 # ============ Location search options (loaded after load_va_data())==================
-# callback 3
-# @app.callback(
-#     Output(component_id="log_data", component_property="children"),
-#     [Input(component_id="plot_tabs", component_property="value")]
-
-# )
-# def log_tab_value(tab_value, **kwargs):
-#     START_TIME = time.time()
-#     tab_names = {"tab-1": "COD", "tab-2": "Demographics", "tab-3": "VA Trends"}
-#     tab_name = tab_names.get(tab_value, None)
-#     if tab_name:
-#         write_va_log(LOGGER, f"[dashboard] Clicked on {tab_name} Tab ", kwargs["request"])
-#         print("log tab value Callback", time.time() - START_TIME)
-#         return tab_name
-
-### client-side conversion for log_tab_value ###
 app.clientside_callback(
-"""
+    """
     function(tab_value, scale) {
         var tab_names = {"tab-1": "COD", "tab-2": "Demographics", "tab-3": "VA Trends"};
         var tab_name = tab_names[tab_value];
         return(tab_name);
-        
     }
     """,
     Output(component_id="log_data", component_property="children"),
     [Input(component_id="plot_tabs", component_property="value")]
 )
 
-## HARD TO UPDATE
 # ============ Filter logic (update filter table used by other componenets)========#
-# callback 4
 @app.callback(
     [
         Output(component_id="filter_dict", component_property="data"),
@@ -671,7 +630,6 @@ def filter_data(
     location_types=None,
     **kwargs
 ):
-    START_TIME = time.time()
     if va_data is not None:
         valid_va_df = pd.DataFrame(va_data)
         valid_va_df["date"] = pd.to_datetime(valid_va_df["date"])
@@ -741,7 +699,6 @@ def filter_data(
                                                     cod=cod_type, time_mapper=LOOKUP["time_dict"])
             
         log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
-        print("filter data Callback", time.time() - START_TIME)
         return combined_filter_dict , dashboard_title, download_url
 
 
@@ -884,79 +841,28 @@ def shift_granularity(current_granularity, levels, move_up=False):
 
 # =========Map Metrics =======================#
 # Top metrics to track for map dropdown
-# callback 5
-# @app.callback(
-#     Output(component_id="cod_type", component_property="options"),
-#     [
-#         Input(component_id="va_data", component_property="data"),
-#         Input(component_id="filter_dict", component_property="data"),
-#     ],
-# )
-# def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
-#     # by default, start with aggregate measures
-#     # print(va_data)
-#     START_TIME = time.time()
-#     metrics = []
-#     metric_data = pd.DataFrame(va_data)
-#     if metric_data.size > 0:
-#         if filter_dict is not None:
-#             metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
-#             # only load options if remaining data after filter
-#             if metric_data.size > 0:
-#                 # add top N CODs by incidence to metric list
-#                 metrics = ["all"] + (
-#                     metric_data["cause"]
-#                     .value_counts()
-#                     .sort_values(ascending=False)
-#                     .head(N)
-#                     .index.tolist()
-#                 )
-#     print("get metrics Callback", time.time() - START_TIME)
-#     return [{"label": LOOKUP["display_names"].get(m, m), "value": m} for m in metrics]
-
-### client-side conversion for get_metrics ###
 app.clientside_callback(
     """
     function(va_data, filter_dict, display_names){
         var N = 10;
-        // console.log(N);
-        // console.log(_.uniq([3,4,3]));
         // by default, start with aggregate measures
         var metrics = [];
-        // NEED TO FIND A CONVENINENT WAY TO ACCOMPLISH THIS...
-        // console.log(va_data);
-        // metric_data = pd.DataFrame(va_data)
         var metric_data= va_data
-        //console.log(Object.values(metric_data['index']).length);
         if (Object.values(metric_data['index']).length > 0){
-            //console.log("HURDLE ONE")
+        
             if (filter_dict !== null){
-                // var value_counts = {};
-                // for(var i=0; i<Object.keys(metric_data['cause']).length; i++){
-                    // if(filter_dict['ids']['valid'].includes(Object.keys(metric_data['cause'])[i])){
-                    // if(filter_dict['ids']['valid'].includes(metric_data['cause'][i])){
-                        //console.log("HURDLE 3")
-                        // if(Object.keys(value_counts).includes(metric_data['cause'][i])){
-                            // value_counts[metric_data['cause'][i]] = value_counts[metric_data['cause'][i]] + 1;
-                        // }
-                        // else{
-                            // value_counts[metric_data['cause'][i]] = 1
-                        // }
-                    // }
-                // }
                 
-                var abc = new Map(Object.entries(metric_data['cause']));
+                var cause_map = new Map(Object.entries(metric_data['cause']));
                 
-                abc = [...abc].map(([name, value]) => ({ name, value }))
+                cause_map = [...cause_map].map(([name, value]) => ({ name, value }))
                 
                 // alternative to for loop
-                let filtered_array = _.filter(abc, function(o) {return filter_dict['ids']['valid'].includes(o.name);});
+                let filtered_array = _.filter(cause_map, function(o) {return filter_dict['ids']['valid'].includes(o.name);});
                 
                 let obj = _.countBy(filtered_array, (rec) => {return rec.value});
                 
                 const sorted = new Map(Object.entries(obj).sort((a, b) => b[1] - a[1]));
                 
-                // console.log([...sorted].map(([name, value]) => ({ name, value })));
                 metrics = Array.from( sorted.keys() ).slice(0,N);
                 metrics.unshift("all")
             }
@@ -964,8 +870,6 @@ app.clientside_callback(
 
 
         var metrics_return = [];
-        // console.log(metrics.length);
-        // can we use a map here????
         for(var j=0; j<metrics.length; j++){
             if(display_names[metrics[j]] !== undefined){
                 metrics_return.push({"label": display_names[metrics[j]], "value":metrics[j]});
@@ -974,9 +878,6 @@ app.clientside_callback(
                 metrics_return.push({"label": metrics[j], "value":metrics[j]});
             }
         }
-        // console.log(metrics_return);
-
-        // metrics_return = [...metrics].map([name] => ({"label":}))
         return(metrics_return)
     }
     """
@@ -1007,40 +908,12 @@ def get_metric_display_names(map_metrics):
 
 
 # ====================Geographic Levels (View options)============#
-# callback 6
-# @app.callback(
-#     [
-#         Output(component_id="view_level", component_property="options"),
-#         Output(component_id="view_level", component_property="disabled"),
-#     ],
-#     [
-#         Input(component_id="filter_dict", component_property="data"),
-#         Input(component_id="location_types", component_property="data"),
-#     ],
-# )
-# def update_view_options(filter_dict, location_types, **kwargs):
-#     START_TIME = time.time()
-#     if filter_dict is not None:
-
-#         # only activate when user is zoomed out and hasn't searched for anything
-#         disable = (filter_dict["geo_filter"] or filter_dict["search_filter"])
-#         if not disable:
-#             view_options = location_types
-#            # label_class = "input-label"
-#         else:
-#             view_options = []
-#             #label_class = "input-label-disabled"
-#         options = [{"label": o.capitalize(), "value": o} for o in view_options]
-#         print("update view Callback", time.time() - START_TIME)
-#         return options, disable #, label_class
-
 ### Conversion of update_view_options to client-side callbacks ###
 ### have to use two different callbacks since we can only have one output in each (django-plotly-dash constraint)
 app.clientside_callback(
     """
     function(filter_dict){
         if(filter_dict){
-            // console.log(filter_dict);
             return((filter_dict['geo_filter'] === true) || (filter_dict['search_filter'] === true));
         }
         return null;
@@ -1077,7 +950,6 @@ app.clientside_callback(
 
 
 # ====================Map Logic===================================#
-# callback 7
 @app.callback(
         Output(component_id="choropleth-container", component_property="children"),
     [
@@ -1100,7 +972,6 @@ def update_choropleth(
     zoom_in=False,
     **kwargs
 ):
-    START_TIME = time.time()
     # first, see which input triggered update. If granularity change, log the new value
     context = dash.callback_context
     trigger = context.triggered[0]
@@ -1275,7 +1146,6 @@ def update_choropleth(
             )
     
     return_value = dcc.Graph(id="choropleth", figure=figure, config=config)
-    print("update choropleth Callback", time.time() - START_TIME)
     return return_value#, json.dumps(ret_val)
 
 
@@ -1382,7 +1252,6 @@ def generate_map_data(
 
 
 # =========Callout Boxes Logic============================================#
-# callback 8
 @app.callback(
     Output(component_id="callout-container", component_property="children"),
     [
@@ -1395,7 +1264,6 @@ def generate_map_data(
 def update_callouts(
     va_data, invalid_va_data, timeframe, filter_dict=None, geojson=GEOJSON, **kwargs
 ):
-    START_TIME = time.time()
     coded_vas, uncoded_vas, active_facilities, num_field_workers, coverage = (
         0,
         0,
@@ -1439,7 +1307,6 @@ def update_callouts(
                 plot_data[[granularity, "age"]].dropna()[granularity].nunique()
             )
             coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
-    print("callouts Callback", time.time() - START_TIME)
     return [
         make_card(coded_vas, header="Coded VAs", tooltip="# of VAs with COD assignments in chosen region and time period"),
         make_card(uncoded_vas, header="Uncoded VAs", tooltip="# of VAs in system missing COD assignments in chosen region and time period"),
@@ -1448,161 +1315,6 @@ def update_callouts(
         # make_card(num_field_workers, header="Field Workers", tooltip="# of Field Workers that have submitted VAs in chosen region and time period"),
         make_card(coverage, header="Region Representation", tooltip="% of region type with data within surrounding geography type - ie. Facilities reporting data within District", style={"width": "225px"}),
     ]
-
-
-### Client-side conversion attempt for update_callouts ###
-# app.clientside_callback(
-#     """
-#     function(
-#         va_data, invalid_va_data, timeframe, filter_dict, geojson, granularity
-#     ){
-#         var coded_vas = 0;
-#         var uncoded_vas = 0;
-#         var active_facilities = 0;
-#         var num_field_workers = 0;
-#         var coverage = 0;
-#         //console.log(va_data);
-#         if (va_data){
-#             // plot_data = pd.DataFrame(va_data)
-#             plot_data = va_data
-#             // invalid_va_data = pd.DataFrame(invalid_va_data)
-#             invalid_va_data = invalid_va_data
-#             granularity = granularity['granularity'] // INITIAL_GRANULARITY
-#             //if (plot_data.size > 0){
-#             if(true){
-#                 if (filter_dict){
-#                     // plot_data = plot_data.loc[filter_dict["ids"]["valid"], ]
-#                     plot_data = plot_data;
-#                     // invalid_va_data = invalid_va_data.loc[filter_dict["ids"]["invalid"], ]
-#                     invalid_va_data = invalid_va_data;
-#                     // granularity = filter_dict.get("granularity", granularity)
-#                     if(Object.keys(filter_dict).includes("granularity")){
-#                         granularity = filter_dict['granularity']
-#                     }
-#                 }
-
-#                 //# total valid (coded) VAs
-#                 // coded_vas = plot_data.shape[0]
-#                 //console.log(plot_data['id']);
-#                 var filtered_ids = new Map(Object.entries(plot_data['id']))
-#                 var coded_vas = _.filter([...filtered_ids].map(([name, value]) => ({ name, value })), function(o) {return filter_dict['ids']['valid'].includes(o.name);});
-#                 //console.log("coded_vas");
-#                 //console.log(coded_vas);
-#                 coded_vas = Object.values(coded_vas).length
-#                 // coded_vas = plot_data.length 
-#                 //console.log("PLOT DATA LENGTH")
-#                 //console.log(plot_data.length)
-
-#                 //# total invalid (uncoded) VAs
-#                 // uncoded_vas = invalid_va_data.shape[0]
-#                 // uncoded_vas = invalid_va_data.length
-#                 var uncoded_vas = _.filter([...filtered_ids].map(([name, value]) => ({ name, value })), function(o) {return filter_dict['ids']['invalid'].includes(o.name);});
-#                 uncoded_vas = Object.values(uncoded_vas).length
-
-#                 //# active facilities
-#                 //console.log("PLOT DATA LOCATION");
-#                 //console.log(plot_data['location']);
-#                 //console.log("UNIQUE");
-#                 //console.log("plot-data locs");
-#                 //console.log(plot_data['location']);
-#                 var filtered_locs= new Map(Object.entries(plot_data['location']))
-#                 //console.log("FILTERED LOCS");
-#                 //console.log([...filtered_locs]);
-#                 filtered_locs = _.filter([...filtered_locs].map(([name, value]) => ({ name, value })), function(o) {return filter_dict['ids']['valid'].includes(o.name);})
-#                 //console.log(_.uniq(Object.values(filtered_locs)));
-                
-#                 active_facilities = _.uniq(Object.values(plot_data['location'])).length
-#                 active_faciliites = _.uniq(Object.values(filtered_locs)).length
-#                 // active_facilities = plot_data["location"].nunique()
-
-#                 //# TODO: get field worker data from ODK - this is just a janky hack
-#                 // num_field_workers = int(1.25 * active_facilities)
-#                 num_field_workers = Math.floor(1.25 * active_facilities)
-
-#                 //# region 'representation' (fraction of chosen regions that have VAs)
-#                 // total_regions = geojson[f"{granularity}_count"]
-#                 total_regions = geojson[granularity + "_count"]
-
-#                 if (filter_dict){
-#                     if (filter_dict["plot_regions"].length > 0){
-#                         total_regions = filter_dict["plot_regions"].length
-
-#                         //# TODO: fix this to be more generic
-#                         if (granularity == "province"){
-#                             granularity = "district"
-#                         }
-#                     }
-#                 }
-                
-#                 //plot_data[[granularity, "age"]].dropna()[granularity].nunique()
-#                 age = new Map(Object.entries(plot_data['age']))
-#                 filtered = _.filter([...age].map(([name, value]) => ({ name, value })), function(o) {return o.value != undefined;})
-#                 valid_age_ind = Object.keys(filtered);
-
-#                 gran = new Map(Object.entries(plot_data[granularity]))
-#                 filtered = _.filter([...gran].map(([name, value]) => ({ name, value })), function(o) {return (filter_dict['ids']['valid'].includes(o.name)) && (o.value != undefined) && (valid_age_ind.includes(o.name))})
-#                 //console.log("FILTERED VALUES")
-#                 //console.log(filtered);
-#                 //console.log(Object.entries(filtered))
-#                 filtered_uni = _.countBy(filtered, (rec) => {return rec.value});
-#                 regions_covered = Object.keys(filtered_uni).length
-#                 //console.log("REGIONS COVERED")
-#                 //console.log(regions_covered)
-
-#                 // _.without( [list of stuff], undefined) .. removes anything that is
-#                 // OR _.compact() ...removes false, null, 0, "", undefined
-#                 // _.uniq().length
-
-#                 // coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
-#                 coverage = (100 * regions_covered / total_regions).toFixed(2) + "%"
-#             }
-#         }
-#         //console.log(coded_vas);
-#         //console.log(uncoded_vas);
-#         //console.log(active_facilities);
-#         //console.log(coverage);
-#         return [
-#             coded_vas,
-#             uncoded_vas,
-#             active_facilities, 
-#             // num_field_workers,
-#             coverage, 
-#         ]
-        
-#     }
-
-#     """,
-#     Output(component_id="callout-container-data", component_property="data"),
-#     [
-#         Input(component_id="va_data", component_property="data"),
-#         Input(component_id="invalid_va_data", component_property="data"),
-#         Input(component_id="timeframe", component_property="value"),
-#         Input(component_id="filter_dict", component_property="data"),
-#         Input(component_id="geojson_data", component_property="data"),
-#         Input(component_id="granularity", component_property="data")
-#     ]
-# )
-
-
-
-# @app.callback(
-#     Output(component_id="callout-container", component_property="children"),
-#     [
-#         Input(component_id="callout-container-data", component_property="data"),
-#     ],
-# )
-# def update_callouts(
-#     data_data, geojson=GEOJSON, **kwargs
-# ):
-#     return [
-#         make_card(data_data[0], header="Coded VAs", tooltip="# of VAs with COD assignments in chosen region and time period"),
-#         make_card(data_data[1], header="Uncoded VAs", tooltip="# of VAs in system missing COD assignments in chosen region and time period"),
-#         make_card(data_data[2], header="Active Facilities", tooltip="# of facilities that have submitted VAs in chosen region and time period"),
-#         # TODO: uncomment this once field worker calculation is possible
-#         # make_card(num_field_workers, header="Field Workers", tooltip="# of Field Workers that have submitted VAs in chosen region and time period"),
-#         make_card(data_data[3], header="Region Representation", tooltip="% of region type with data within surrounding geography type - ie. Facilities reporting data within District", style={"width": "225px"}),
-#     ]
-### END client-side conversion attempt for update_callouts ###
 
 # build a calloutbox with specific value
 # colors: primary, secondary, info, success, warning, danger, light, dark
@@ -1640,7 +1352,6 @@ def make_card(
 
 
 # =========Demographic plot logic==============================================#
-# callback 9
 @app.callback(
     Output(component_id="demos-container", component_property="children"),
     [
@@ -1650,7 +1361,6 @@ def make_card(
     ],
 )
 def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
-    START_TIME = time.time()
     figure = go.Figure()
     if va_data is not None:
         plot_data = pd.DataFrame(va_data)
@@ -1667,11 +1377,9 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
                     plot_title = "All-Cause Demographics"
             figure = plotting.demographic_plot(plot_data, title=plot_title)
             log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
-    print("Demographics plot Callback", time.time() - START_TIME)
     return dcc.Graph(id="demos_plot", figure=figure, config=LOOKUP["chart_config"])
 
 # =========Cause of Death Plot Logic============================================#
-# callback 10
 @app.callback(
     Output(component_id="cod-container", component_property="children"),
     [
@@ -1685,7 +1393,6 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
 )
 
 def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, filter_dict=None, **kwargs):
-    START_TIME = time.time()
     figure = go.Figure()
     if len(cod_groups) > 0:
         if va_data is not None:
@@ -1700,13 +1407,11 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
                 plot_data, cod_groups, demographic=factor, N=N, chosen_cod=cod, height=560
             )
             log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
-        print("COD Plot Callback", time.time() - START_TIME)
         return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
     else:
         raise dash.exceptions.PreventUpdate     
 
 # ========= Time Series Plot Logic============================================#
-# callback 11
 @app.callback(
     
      Output(component_id="ts-container", component_property="children"),
@@ -1723,7 +1428,6 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
     ],
 )
 def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All", search_terms=None, **kwargs):
-    START_TIME = time.time()
     figure, plot_title = go.Figure(), None
     search_term_ids = {}
     if va_data is not None:
@@ -1777,9 +1481,6 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
             figure = plotting.va_trend_plot(
                 plot_data, group_period, factor, title=plot_title, search_term_ids=search_term_ids, height=560
             )
-            # print("TIMEEEEEEEEEEEEEEEEEEE")
-            # print(time.time() - START_TIME)
-    print("trend plot Callback", time.time() - START_TIME)
     return dcc.Graph(id="trend_plot", figure=figure, config=LOOKUP["chart_config"])
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)
