@@ -47,38 +47,38 @@ _select_2 = [
     ("undetermined", _("Ambiguous / Intersex")),
 ]
 
-_select_18 = [
+_select_18 = _dk_ref + [
     ("hospital", _("Hospital")),
     ("other_health_facility", _("Other health facility")),
     ("home", _("Home")),
     ("on_route_to_hospital_or_facility", _("On route to hospital or facility")),
-] + _other + _dk_ref
+] + _other 
 
-_select_19 = [
+_select_19 = _dk_ref + [
     ("single", _("Single")),
     ("married", _("Married")),
     ("partner", _("Partner")),
     ("divorced", _("Divorced")),
     ("widowed", _("Widowed")),
     ("too_young_to_be_married", _("Too young to be married")),
-] + _dk_ref
+]
 
-_select_23 = [
+_select_23 = _dk_ref + [
     ("no_formal_education", _("No formal education")),
     ("primary_school", _("Primary school")),
     ("secondary_school", _("Secondary school")),
     ("higher_than_secondary_school", _("Higher than secondary school")),
-] + _dk_ref
+]
 
-_select_25 = [
+_select_25 = _dk_ref + [
     ("mainly_unemployed", _("Mainly unemployed")),
     ("mainly_employed", _("Mainly employed")),
     ("home-maker", _("Home-maker")),
     ("pensioner", _("Pensioner")),
     ("student", _("Student")),
-] + _other + _dk_ref
+] + _other 
 
-_select_32 = [
+_select_32 =  _ref + [
     ("parent", _("Parent")),
     ("child", _("Child")),
     ("family_member", _("Other family member")),
@@ -87,7 +87,7 @@ _select_32 = [
     ("health_worker", _("Health worker")),
     ("public_official", _("Public official")),
     ("another_relationship", _("Another relationship")),
-] + _ref
+]
 
 _select_58 = [
     ("wet", _("Wet")),
@@ -149,33 +149,33 @@ _select_219 = [
 _select_223 = _select_18
 
 _ped = [("pedestrian", _("Pedestrian"))]
-_select_292 = _ped + [
+_select_292 = _dk_ref + _ped + [
     ("in_car_or_light_vehicle", _("Driver or passenger in car or light vehicle")),
     ("in_bus_or_heavy_vehicle", _("Driver or passenger in bus or heavy vehicle")),
     ("on_a_motorcycle", _("Driver or passenger on a motorcycle")),
     ("on_a_pedal_cycle", _("Driver or passenger on a pedal cycle")),
-] + _other + _dk_ref
+] + _other 
 
-_select_293 = _ped + [
+_select_293 = _dk_ref + _ped + [
     ("stationary_object", _("Stationary object")),
     ("car_or_light_vehicle", _("Car or light vehicle")),
     ("bus_or_heavy_vehicle", _("Bus or heavy vehicle")),
     ("motorcycle", _("Motorcycle")),
     ("pedal_cycle", _("Pedal cycle")),
-] + _other + _dk_ref
+] + _other 
 
-_select_299 = [
+_select_299 = _dk_ref + [
     ("dog", _("Dog")),
     ("snake", _("Snake")),
     ("insect_or_scorpion", _("Insect or scorpion")),
-] + _other + _dk_ref
+] + _other 
 
-_select_306 = [
+_select_306 = _dk_ref + [
     ("cigarettes", _("Cigarettes")),
     ("pipe", _("Pipe")),
     ("chewing_tobacco", _("Chewing tobacco")),
     ("local_form_of_tobacco", _("Local form of tobacco")),
-] + _other + _dk_ref
+] + _other 
 
 _select_322 = [
     ("traditional_healer", _("Traditional healer")),
@@ -245,14 +245,14 @@ _select_520 = [
     ("clear", _("Clear (normal)")),
 ] + _other + _dk_ref
 
-_select_530 = [
+_select_530 = _dk_ref + [
     ("Doctor", _("Doctor")),
     ("Midwife", _("Midwife")),
     ("Nurse", _("Nurse")),
     ("Relative", _("Relative")),
     ("Self_mother", _("Self (the mother)")),
     ("Traditional_birth_attendant", _("Traditional birth attendant")),
-] + _other + _dk_ref
+] + _other 
 
 _select_531 = [
     ("positive", _("Positive")),
