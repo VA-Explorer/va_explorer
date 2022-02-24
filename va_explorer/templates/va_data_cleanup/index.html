@@ -25,7 +25,7 @@
         <table class="table table-sm">
           <tbody>
             <tr>
-              <td class="duplicates-table-text ">{{total_duplicate_records}} duplicate Verbal Autopsies</td>
+              <td class="duplicates-table-text ">{{total_duplicate_records}} potential duplicate Verbal Autopsies</td>
               <td><a class="btn btn-primary" href="{% url 'data_cleanup:download_all' %}"><i class="fas fa-download button-icon"></i> Download All</a></td>
               <td><a class="btn btn-danger" href="{% url 'data_management:delete_all' %}"><i class="fas fa-trash-alt button-icon"></i> Delete All</a></td>
             </tr>
@@ -43,7 +43,7 @@
   {% else %}
     {# Message shown if user happens upon the data_cleanup URL (it's hidden from the navbar) #}
     <div class="row mt-4">
-      <p>Your system is currently not configured to automatically mark Verbal Autopsies as duplicates.</p>
+      <p>Your system is currently not configured to automatically flag Verbal Autopsies as potential duplicates.</p>
       <p>To turn this feature on, please contact your system administrator.</p>
     </div>
   {% endif %}
