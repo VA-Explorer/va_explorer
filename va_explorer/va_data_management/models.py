@@ -59,7 +59,7 @@ class VerbalAutopsy(models.Model):
     Id10010 = models.TextField("Name of VA interviewer", blank=True)
     Id10012 = models.TextField("Date of interview", blank=True)
     Id10013 = models.TextField("Did the respondent give consent?", blank=True)
-    Id10011 = models.TextField("Interview Start Datetime", blank=True)
+    Id10011 = models.TextField("Time at start of interview", blank=True)
     Id10017 = models.TextField("What was the first or given name(s) of the deceased?", blank=True)
     Id10018 = models.TextField("What was the surname (or family name) of the deceased?", blank=True)
     Id10019 = models.TextField("What was the sex of the deceased?", blank=True)
