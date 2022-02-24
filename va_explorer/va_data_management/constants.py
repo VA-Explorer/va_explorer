@@ -609,8 +609,8 @@ _text_fields = [
     "Id10017",
     "Id10018",
     "Id10053",
-    # "Id10054",        # textarea
-    # "Id10055",        # textarea
+    # "Id10054",        # uses a textarea in forms.py
+    # "Id10055",        # uses a textarea in forms.py
     "Id10057",
     "Id10061",
     "Id10062",
@@ -618,9 +618,9 @@ _text_fields = [
     "Id10070",
     "Id10072",
     "Id10073",
-    # "Id10434",        # textarea
-    # "Id10436",        # textarea
-    # "Id10444",        # textarea
+    # "Id10434",        # uses a textarea in forms.py
+    # "Id10436",        # uses a textarea in forms.py
+    # "Id10444",        # uses a textarea in forms.py
     "Id10464",
     "Id10465",
     "Id10466",
@@ -631,8 +631,8 @@ _text_fields = [
     "Id10471",
     "Id10472",
     "Id10473",
-    # "Id10476",        # textarea
-    # "comment",        # textarea
+    # "Id10476",        # uses a textarea in forms.py
+    # "comment",        # uses a textarea in forms.py
 ]
 
 _number_fields = [
