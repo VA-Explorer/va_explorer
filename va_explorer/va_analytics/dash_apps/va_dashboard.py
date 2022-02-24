@@ -943,10 +943,8 @@ app.clientside_callback(
     }
     """,
     Output(component_id="view_level", component_property="options"),
-        # Output(component_id="view_level", component_property="disabled"),
-        # Input(component_id="filter_dict", component_property="data"),
-        [Input(component_id="view_level", component_property="disabled"),
-        Input(component_id="location_types", component_property="data")]
+    [Input(component_id="view_level", component_property="disabled"),
+    Input(component_id="location_types", component_property="data")]
 )
 
 
@@ -1414,11 +1412,7 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
 
 # ========= Time Series Plot Logic============================================#
 @app.callback(
-    
      Output(component_id="ts-container", component_property="children"),
-     
-
-    
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
