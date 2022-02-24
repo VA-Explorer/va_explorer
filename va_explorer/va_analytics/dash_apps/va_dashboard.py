@@ -53,8 +53,6 @@ INITIAL_GRANULARITY = "province"
 INITIAL_COD_TYPE = "all"
 # event logger to track key dashboard events
 LOGGER = logging.getLogger("event_logger")
-import time
-START_TIME = time.time()
 
 # ============Lookup dictionaries =================#
 LOOKUP = plotting.load_lookup_dicts()
@@ -240,9 +238,6 @@ app.layout = html.Div(
                                 dcc.Store(id="display_names"),
                                 dcc.Store(id="cod_type_data"),
                                 dcc.Store(id="timeframe_data"),
-                                dcc.Store(id="geojson_data", data=GEOJSON),
-                                dcc.Store(id="callout-container-data"),
-                                dcc.Store(id="granularity", data={"granularity":INITIAL_GRANULARITY}),
 
                                 # used to trigger data ingest when page first loads
                                 html.Div(id="hidden_trigger", style={"display": "none"})
