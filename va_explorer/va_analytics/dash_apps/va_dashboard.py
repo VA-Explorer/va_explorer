@@ -936,7 +936,8 @@ app.clientside_callback(
             }
             options = [];
             for(var i =0; i<view_options.length;i++){
-                options.push({"label":view_options[i].charAt(0).toUpperCase() + view_options[i].slice(1), "value":view_options[i]})
+                label = view_options[i].charAt(0).toUpperCase() + view_options[i].slice(1)
+                options.push({"label": label, "value":view_options[i]})
             } 
             return (options)
     }
