@@ -81,9 +81,9 @@ def test_download_with_valid_permission(user: User, settings, view_datacleanup_g
     client.force_login(user=user)
 
     VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
-    va2 = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
 
-    response = client.get(f'/va_data_cleanup/download/{va2.id}')
+    response = client.get(f'/va_data_cleanup/download/{va.id}')
 
     assert response.status_code == 200
     assert response._headers["content-type"][1] == "text/csv"
@@ -98,9 +98,9 @@ def test_download_with_invalid_permission(user: User, settings, view_datacleanup
     client.force_login(user=user)
 
     VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
-    va2 = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
 
-    response = client.get(f'/va_data_cleanup/download/{va2.id}')
+    response = client.get(f'/va_data_cleanup/download/{va.id}')
 
     assert response.status_code == 403
     assert response._headers["content-type"][1] == "text/html; charset=utf-8"
@@ -115,10 +115,10 @@ def test_download_with_valid_permission_non_duplicate_va(user: User, settings, v
     client = Client()
     client.force_login(user=user)
 
-    va1 = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
 
-    response = client.get(f'/va_data_cleanup/download/{va1.id}')
+    response = client.get(f'/va_data_cleanup/download/{va.id}')
 
     assert response.status_code == 403
     assert response._headers["content-type"][1] == "text/html; charset=utf-8"
