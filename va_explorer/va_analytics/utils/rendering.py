@@ -33,7 +33,7 @@ def render_update_header(va_stats):
                     )
                 header.children.append(ineligible_desc)
             if "duplicates" in va_stats:
-                duplicates = html.P(children=[html.B("# Auto-detected Duplicates: "), html.Span(va_stats["duplicates"])], style={"margin-left": "10px"})
+                duplicates = html.P(children=[html.B("# Potential Duplicates: "), html.Span(va_stats["duplicates"])], style={"margin-left": "10px"})
                 header.children.append(duplicates)
 
     return header

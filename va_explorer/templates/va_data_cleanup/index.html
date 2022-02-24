@@ -7,16 +7,16 @@
 {% block content %}
   {% if AUTO_DETECT_DUPLICATES %}
     <div class="row mt-4">
-      <p>Verbal Autopsies auto-detected as duplicates by VA Explorer are shown below. </p>
-      <p>Your system is configured to automatically mark Verbal Autopsies as duplicates if they match
+      <p>Verbal Autopsies flagged as potential duplicates by VA Explorer are shown below. </p>
+      <p>Your system is configured to automatically flag Verbal Autopsies as potential duplicates if they match
         across <a href="{% url 'data_cleanup:download_questions' %}">these questions</a>. To manage duplicates,
-        you may delete them or edit the possible duplicate VAs to remove them from detection.
+        you may delete them or edit the potential duplicate VAs to remove them from detection.
       </p>
     </div>
     {% if total_duplicate_records == 0 %}
     <div class="row mt-4">
       <div class="alert alert-warning" role="alert">
-        There are currently no duplicate Verbal Autopsies in the system.
+        There are currently no duplicate Verbal Autopsies flagged by the system.
       </div>
     </div>
     {% else %}
