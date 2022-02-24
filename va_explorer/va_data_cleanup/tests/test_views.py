@@ -68,7 +68,7 @@ def test_index_with_valid_permission_and_invalid_configuration(user: User, setti
 
     response = client.get("/va_data_cleanup/")
     assert response.status_code == 200
-    assert bytes("Your system is currently not configured to automatically mark Verbal Autopsies as duplicates.",
+    assert bytes("Your system is currently not configured to automatically flag Verbal Autopsies as potential duplicates.",
                  "utf-8") in response.content
 
 
