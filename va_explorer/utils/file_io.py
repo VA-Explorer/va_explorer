@@ -46,7 +46,7 @@ def csv_response_with_redirect(filename, location):
     response = HttpResponse(content_type='text/csv')
     response['Location'] = location
     # TODO: This does not currently set the filename
-    response['Content-Disposition'] = 'attachment; filename= "{}"'.format(filename)
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
     response.status_code = 302
 
     return response
