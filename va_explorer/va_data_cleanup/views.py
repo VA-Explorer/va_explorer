@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.http import HttpResponse
 from django.views.generic import (
     ListView,
@@ -8,6 +10,7 @@ from django.views.generic import (
 
 from .models import DataCleanup
 from ..va_data_management.models import VerbalAutopsy
+from ..va_data_management.utils.date_parsing import parse_date
 from ..utils.file_io import download_queryset_as_csv, download_list_as_csv
 from ..utils.mixins import CustomAuthMixin
 from ..va_data_management.models import questions_to_autodetect_duplicates
@@ -25,8 +28,10 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     template_name = 'va_data_cleanup/index.html'
 
     def get_queryset(self):
-        queryset = self.request.user.verbal_autopsies().\
-            prefetch_related("location", "causes", "coding_issues").order_by("unique_va_identifier").filter(duplicate=True)
+        queryset = self.request.user.verbal_autopsies(). \
+            prefetch_related("location", "causes", "coding_issues"). \
+            annotate(deceased=Concat('Id10017', V(' '), 'Id10018')). \
+            order_by("id").filter(duplicate=True)
 
         return queryset
 
@@ -38,9 +43,11 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         context['object_list'] = [{
             "id": va.id,
-            "name": va.Id10007,
-            "date":  va.Id10023 if (va.Id10023 != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+            "interviewer": va.Id10010,
+            "submitted": va.submissiondate,
+            "dod": parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
             "facility": va.location.name if va.location else "",
+            "deceased": va.deceased,
             "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
             "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
             "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
