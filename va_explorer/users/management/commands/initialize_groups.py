@@ -20,8 +20,8 @@ GROUPS_PERMISSIONS = {
     "Data Managers": {
         Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["view_user"],
-        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy"],
-        DataCleanup: [],
+        VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy", "delete_verbalautopsy"],
+        DataCleanup: ["view_datacleanup", "download", "bulk_download"],
     },
     "Data Viewers": {
         Dashboard: ["view_dashboard"],
