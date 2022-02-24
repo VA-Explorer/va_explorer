@@ -15,6 +15,20 @@
       <th><a href="?{% sort_url 'warnings' direction='-' %}">Warnings</a></th>
       <th><a href="?{% sort_url 'errors' direction='-' %}">Errors</a></th>
       <th></th>
+      {% if va_data_cleanup and perms.va_data_cleanup.download %}
+        <th>
+          <span class="info-tooltip" data-toggle="tooltip" data-placement="top" title="Downloads this VA and VAs flagged as its potential duplicate(s) to CSV">
+            Download<i class="fas fa-info-circle info-icon"></i>
+          </span>
+        </th>
+      {% endif %}
+      {% if va_data_cleanup and perms.va_data_management.delete_verbalautopsy %}
+        <th>
+          <span class="info-tooltip" data-toggle="tooltip" data-placement="top" title="Deletes this VA">
+            Delete<i class="fas fa-info-circle info-icon"></i>
+           </span>
+        </th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -33,6 +47,18 @@
           <td>{{ va.warnings }}</td>
           <td>{{ va.errors }}</td>
           <td><a class="btn btn-primary" href="{% url 'data_management:show' id=va.id %}">View</a></td>
+          {% if va_data_cleanup and perms.va_data_cleanup.download %}
+            <td>
+              <a class="btn btn-primary" href="{% url 'data_cleanup:download' va.id %}">
+              <i class="fas fa-download button-icon"></i></a>
+            </td>
+          {% endif %}
+          {% if va_data_cleanup and perms.va_data_management.delete_verbalautopsy %}
+            <td>
+              <a class="btn btn-danger" href="{% url 'data_management:delete' va.id %}">
+              <i class="fas fa-trash-alt button-icon"></i></a>
+            </td>
+          {% endif %}
         </tr>
       {% endfor %}
     {% else %}

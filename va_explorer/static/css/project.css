@@ -228,3 +228,20 @@ table.home-page-statistics td {
 table.home-page-statistics th {
   vertical-align: middle;
 }
+
+.button-icon {
+  color:white;
+}
+
+.duplicates-table-text {
+  width: 70%;
+}
+
+.info-tooltip {
+  cursor: pointer;
+}
+
+.info-icon {
+  margin-left: 5px;
+  color: rgba(75,75,75,0.5);
+}
