@@ -122,13 +122,17 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `./manage.py get_user_form_template --output_file <FILENAME>`
 
-  * Export anynymous info for all users in system 
+  * Export anynymous info for all users in system
+
     `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
+      
       This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
       
 
-  * Link Field Workers to VAs
+* Link Field Workers to VAs
+
   `./manage.py link_fieldworkers_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
+
     This command links a group of field workers to their corresponding VAs in the system. Linking is done by searching a VA's interviewer name (field `Id10010`) against names of field workers in the system. If there's a match, a link is created by setting the VA's username to the matching field worker's username. By default, all field workers in the system are considered for matching, but you can specify a subset with the `--emails` argument (comma-separated, no spaces). To account for typos and slight variations in name spelling, a fuzzy-matching algorithm is used. You can specify how stringent the algorithm is with `--matching_threshold` (higher is stricter, with 100 being a perfect match). 
   
 * Load location data
@@ -286,10 +290,11 @@ From there, you can create a super user. Follow the prompts after running this c
 
 ## Running Coding Algorithm
 
-There are two ways to run the coding algorithm to add cause of death to uncoded verbal autopsies: from the command line or from the user interface.
+There are two ways to run the coding algorithm to add cause of death to uncoded verbal autopsies: from the command line or from the user interface. The system currently supports InterVA5 and its associated settings but will eventually expand to others such as InSilicoVA.
 
-Both methods require the `PYCROSS_HOST` and `INTERVA_HOST` environment variables to be configured to point to the locations of pyCrossVA
+Both methods require the `PYCROSS_HOST` and `INTERVA_HOST` environment variables to be configured to point to the locations of pyCrossVA. 
 InterVA5 respectively. If you are in Docker, both of those will have been configured and started up automatically.
+
 
 ### Command Line
 
@@ -305,7 +310,19 @@ This will list a brief report of results in the following format:
 Coded 24 verbal autopsies (out of 30) [6 issues]
 ```
 
-You will receive an error message if pyCrossVA or InterVA5 are unavailable.
+If you'd like to re-code all existing VAs in the system (overwriting previous COD assignments) you can do so by passing `overwrite True` to the command-line call. This will save a backup table of old COD assignments, clear all CODs in the database, and re-run the coding algorithm on all eligible VAs. By default, old COD assignments will be saved to a .csv file named `old_cod_mapping.csv`. You can customize the name of this file by passing `--cod_fname <filename>` as an optional parameter.
+
+You can also configure certain algorithm settings as environmental variables. For InterVA5, you can set HIV prevalence `(very low (v), low (l) or high (h))`, Malaria prevalance (same options as HIV), and whether or not to export group codes to COD assignments `(True/False)` in your `.env` file like so:  
+```
+INTERVA_MALARIA=l
+INTERVA_HIV=v 
+INTERVA_GROUPCODE=False
+```
+
+See `va_data_management/utils/coding.py` for more details
+
+
+**Note**: You will receive an error message if pyCrossVA or InterVA5 are unavailable.
 
 ### User Interface
 
@@ -342,6 +359,42 @@ Alternatively, you can specify email and pasword as command line arguments:
 ./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
 ```
 
+## Autodetecting Duplicates
+
+VA Explorer can be optionally configured to autodetect duplicate Verbal Autopsies and surface potential duplicates in the
+user interface. By default, this feature is turned off. 
+
+To use this feature, identify a subset of key Verbal Autopsy fields that will, in concert, uniquely identify a Verbal Autopsy. The fields are
+passed into the application as an environment variable:
+
+```
+QUESTIONS_TO_AUTODETECT_DUPLICATES="question1, question2, question3"
+```
+
+As per above, the value for this variable must be a comma-separated string. If any Verbal Autopsies match across these fields, they
+will be marked as potential duplicates. The oldest Verbal Autopsy (by created timestamp) amongst a set of matching Verbal Autopsies 
+is designated as the non-duplicate.
+
+### Marking Existing VAs as Duplicate
+To mark existing Verbal Autopsies in the database as potential duplicates, you may use the following command: 
+
+```
+./manage.py mark_vas_as_duplicate
+```
+
+This command should be run prior to using the feature in the user interface to avoid unexpected results.
+
+IMPORTANT NOTE: If the value of `QUESTIONS_TO_AUTODETECT_DUPLICATES` is changed, you must re-run the command 
+
+```
+./manage.py mark_vas_as_duplicate
+```
+
+### Managing Duplicate VAs 
+Duplicate Verbal Autopsies will appear in the user interface under the "Data Cleanup" tab. The Data Cleanup tab is only present when
+the environmental variable `QUESTIONS_TO_AUTODETECT_DUPLICATE` is set. To manage duplicates, you may delete them or 
+edit the possible duplicate Verbal Autopsies to remove them from detection.
+
 ## Troubleshooting
 * If experiencing trouble installing the `pyscopg2` application requirement, it is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
 * If experiencing trouble installing `scipy` application requirement, specifically with this error message:  <br> `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.     ---------------------------------------- ERROR: Command errored out with exit status 1:` <br> [This thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) can be helpful. Please make sure to upgrade pip, such as by running the command `pip install --upgrade pip`. This issue has especially come up for users on Mac OS Big Sur users.
@@ -353,7 +406,7 @@ Releases are documented in the [CHANGELOG]().
 
 ## License
 
-Copyright 2020-2021 The MITRE Corporation
+Copyright 2020-2022 The MITRE Corporation
 
 The source of this information is the Data for Health Initiative, a joint project of the CDC Foundation and Bloomberg Philanthropies.
 

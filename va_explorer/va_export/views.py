@@ -57,68 +57,83 @@ class VaApi(CustomAuthMixin, View):
 		    loc_name=F("location__name"),
 		))
 
-		#=========LOCATION FILTER LOGIC===================#
-		# if location query, filter down to VAs within chosen location's jurisdiction
-		loc_query = params.get('locations', None)
-		if loc_query:
-			# get ids of all provided locations and their descendants
-			match_list = get_loc_ids_for_filter(loc_query)
+		#=========ID FILTER LOGIC=========================#
+		# if list of VA IDs provided, only dowload VAs with matching IDs (bypassing all other logic).
+		va_ids = params.get('ids', None)
+		if va_ids not in empty_values:
+			# if comma-separated string, split into list
+			if type(va_ids) is str:
+				if "," in va_ids:
+					va_ids = va_ids.split(",")
+				# otherwise, just single ID string - wrap in list
+				else:
+					va_ids = [va_ids]
+			# merge in cause information before returning
+			matching_vas = matching_vas.filter(pk__in=va_ids).select_related("causes").annotate(cause=F("causes__cause"), cause_id=F("causes__pk")).values()
+		# otherwise, proceed to check for other filters
+		else: 
+			#=========LOCATION FILTER LOGIC===================#
+			# if location query, filter down to VAs within chosen location's jurisdiction
+			loc_query = params.get('locations', None)
+			if loc_query:
+				# get ids of all provided locations and their descendants
+				match_list = get_loc_ids_for_filter(loc_query)
 
-			# filter VA queryset down to just those with matching location_ids
-			matching_vas = matching_vas.filter(location__id__in=match_list)
+				# filter VA queryset down to just those with matching location_ids
+				matching_vas = matching_vas.filter(location__id__in=match_list)
 
-		#=========DATE FILTER LOGIC===================#
-		# if start/end dates specified, filter to only VAs within time range
-		start_date = params.get("start_date", None)
-		end_date = params.get("end_date", None)
+			#=========DATE FILTER LOGIC===================#
+			# if start/end dates specified, filter to only VAs within time range
+			start_date = params.get("start_date", None)
+			end_date = params.get("end_date", None)
 
-		if start_date not in empty_values:
-			start_date = start_date[0] if type(start_date) is list else start_date
-			matching_vas = matching_vas.filter(Id10023__gte=start_date)
+			if start_date not in empty_values:
+				start_date = start_date[0] if type(start_date) is list else start_date
+				matching_vas = matching_vas.filter(Id10023__gte=start_date)
 
-		if end_date not in empty_values:
-			end_date = end_date[0] if type(end_date) is list else end_date
-			matching_vas = matching_vas.filter(Id10023__lte=end_date)	
+			if end_date not in empty_values:
+				end_date = end_date[0] if type(end_date) is list else end_date
+				matching_vas = matching_vas.filter(Id10023__lte=end_date)	
 
-		# get causes for matching vas and convert to list of records
-		matching_vas = matching_vas.select_related("causes").annotate(cause=F("causes__cause"), cause_id=F("causes__pk")).values()
+			# get causes for matching vas and convert to list of records
+			matching_vas = matching_vas.select_related("causes").annotate(cause=F("causes__cause"), cause_id=F("causes__pk")).values()
 
-		#=========COD FILTER LOGIC===================#
-		cod_query = params.get('causes', None)
-		if cod_query not in empty_values:
-			# get all valid cod ids (TODO - make this work with if cod names provided)
-			match_list = cod_query.split(",")
-			# filter VA queryset down to just those with matching location_ids
-			matching_vas = matching_vas.filter(cause__in=match_list)
+			#=========COD FILTER LOGIC===================#
+			cod_query = params.get('causes', None)
+			if cod_query not in empty_values:
+				# get all valid cod ids (TODO - make this work with if cod names provided)
+				match_list = cod_query.split(",")
+				# filter VA queryset down to just those with matching location_ids
+				matching_vas = matching_vas.filter(cause__in=match_list)
 
-		#=========DATA CLEANING=======================#
-		# Build a location ancestors lookup and add location information at all levels to all vas
-		location_ancestors = {
-		    location.id: location.get_ancestors()
-		    for location in Location.objects.filter(location_type="facility")
-		}
+		#=========DATA CLEANING (if any matching VAs)========#
+		if matching_vas.count() > 0:
+			# Build a location ancestors lookup and add location information at all levels to all vas
+			location_ancestors = {
+			    location.id: location.get_ancestors()
+			    for location in Location.objects.filter(location_type="facility")
+			}
 
-		# extract COD and location-based fields for each va object and convert to dicts
-		for va in matching_vas:
+			# extract COD and location-based fields for each va object and convert to dicts
+			for va in matching_vas:
+				for ancestor in location_ancestors[va["loc_id"]]:
+					va[ancestor.location_type] = ancestor.name
 
-			for ancestor in location_ancestors[va["loc_id"]]:
-				va[ancestor.location_type] = ancestor.name
+				# Clean up location fields.
+				va["location"] = va["loc_name"]
+				del(va["loc_name"], va["loc_id"])
 
-			# Clean up location fields.
-			va["location"] = va["loc_name"]
-			del(va["loc_name"], va["loc_id"])
+			# convert results to dataframe
+			va_df = pd.DataFrame.from_records(matching_vas)
 
-		# convert results to dataframe
-		va_df = pd.DataFrame.from_records(matching_vas)
+			if "index" in va_df.columns:
+				va_df.drop(columns=["index"], inplace=True)
 
-		if "index" in va_df.columns:
-			va_df.drop(columns=["index"], inplace=True)
-
-		# If user cannot view PII, redact all PII fields:
-		if not request.user.can_view_pii:
-			for field in PII_FIELDS:
-				if field in va_df.columns:
-					va_df[field] = REDACTED_STRING
+			# If user cannot view PII, redact all PII fields:
+			if not request.user.can_view_pii:
+				for field in PII_FIELDS:
+					if field in va_df.columns:
+						va_df[field] = REDACTED_STRING
 
 		#=========DATA FORMAT LOGIC===================#
 		# convert VAs to proper format. Currently supports .csv (default) and .json

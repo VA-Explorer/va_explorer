@@ -2,15 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import DetailView, UpdateView, ListView, RedirectView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import DeleteView, DetailView, UpdateView, ListView, RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.db.models import F, Q, Count, Value as V
 from django.db.models.functions import Concat
 
 import logging
 
-from config.celery_app import app
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
@@ -20,12 +19,13 @@ from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondate
+from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 import time
 import re
 
-
 LOGGER = logging.getLogger("event_logger")
+
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     permission_required = "va_data_management.view_verbalautopsy"
@@ -35,11 +35,12 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
 
         # Restrict to VAs this user can access and prefetch related for performance
-        ti=time.time(); queryset = (self.request.user.verbal_autopsies()\
-                    .select_related("location")\
-                    .select_related("causes")\
-                    .select_related("coding_issues")\
-                    .annotate(deceased = Concat('Id10017', V(' '), 'Id10018'))
+        ti = time.time();
+        queryset = (self.request.user.verbal_autopsies() \
+                    .select_related("location") \
+                    .select_related("causes") \
+                    .select_related("coding_issues") \
+                    .annotate(deceased=Concat('Id10017', V(' '), 'Id10018'))
                     .values("id",
                             "location__name",
                             "causes__cause",
@@ -48,7 +49,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                             "submissiondate",
                             "deceased",
                             errors=Count(F("coding_issues"), filter=Q(coding_issues__severity="error")),
-                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning")))); print(f"total time: {time.time()-ti} secs")
+                            warnings=Count(F("coding_issues"), filter=Q(coding_issues__severity="warning"))));
+        print(f"total time: {time.time() - ti} secs")
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -93,25 +95,34 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         context["filterset"] = self.filterset
 
+        # ids for va download
+        download_ids = [str(i) for i in self.filterset.qs.values_list("id", flat=True)]
+        if len(download_ids) > 0:
+            context["download_url"] = reverse('va_export:va_api') + '?ids=' + ','.join(
+                download_ids)  # self.request.get_host() +
+        else:
+            # filter returned no results - render button useless
+            context["download_url"] = ""
+
         ti = time.time()
         context['object_list'] = [{
             "id": va["id"],
             "deceased": va["deceased"],
             "interviewer": va["Id10010"],
-            "submitted":  va["submissiondate"], #get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
-            "dod":  parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
-            "facility": va["location__name"], #va.location.name if va.location else "",
-            "cause": va["causes__cause"],  #va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-            "warnings": va["warnings"], #len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-            "errors": va["errors"]# len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            "submitted": va["submissiondate"],
+            # get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
+            "dod": parse_date(va["Id10023"]) if (va["Id10023"] != 'dk') else "Unknown",
+            "facility": va["location__name"],  # va.location.name if va.location else "",
+            "cause": va["causes__cause"],  # va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+            "warnings": va["warnings"],
+            # len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+            "errors": va["errors"]  # len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
         } for va in context['object_list']]
 
         context.update(get_va_summary_stats(self.filterset.qs))
         print(f"total time to format display VAs: {time.time() - ti} secs")
 
         return context
-
-
 
 
 # Mixin just for the individual verbal autopsy data management views to restrict access based on user
@@ -134,32 +145,32 @@ class Show(CustomAuthMixin, AccessRestrictionMixin, PermissionRequiredMixin, Det
         context['form'] = VerbalAutopsyForm(None, instance=self.object)
 
         coding_issues = self.object.coding_issues.all()
-        context['warnings'], context['algo_warnings'] = self.filter_warnings([issue for issue in coding_issues if issue.severity == 'warning'])
+        context['warnings'], context['algo_warnings'] = self.filter_warnings(
+            [issue for issue in coding_issues if issue.severity == 'warning'])
         context['errors'] = [issue for issue in coding_issues if issue.severity == 'error']
-
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context['diffs'] = [new.diff_against(old) for (old, new) in history_pairs]
-        
+        context['duplicate'] = self.object.duplicate
+
         # log view record event
         write_va_log(LOGGER, f"[data_mgnt] Clicked view record for va {self.object.id}", self.request)
 
         return context
-    
-    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern 
+
+    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern
     @staticmethod
     def filter_warnings(warnings):
         user_warnings = []
         algo_warnings = []
         for warning in warnings:
-            if re.search("^W\d{6}[-]",str(warning)):
+            if re.search("^W\d{6}[-]", str(warning)):
                 algo_warnings.append(warning)
             else:
                 user_warnings.append(warning)
         return user_warnings, algo_warnings
-
 
 
 class Edit(CustomAuthMixin, PermissionRequiredMixin, AccessRestrictionMixin, SuccessMessageMixin, UpdateView):
@@ -239,3 +250,42 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         messages.success(request, f"Coding algorithm process has started in the background.")
         write_va_log(LOGGER, "ran coding algorithm", self.request)
         return super().post(request, *args, **kwargs)
+
+
+class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = "va_data_management.delete_verbalautopsy"
+    model = VerbalAutopsy
+    success_url = reverse_lazy('va_data_cleanup:index')
+    success_message = "Verbal Autopsy %(id)s was deleted successfully"
+    error_message = "Verbal Autopsy %(id)s could not be deleted. This Verbal Autopsy doesn't exist or " \
+                    "you don't have access to delete it."
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
+        # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
+        if self.request.user.verbal_autopsies().filter(id=obj.id, duplicate=True).exists():
+            messages.success(self.request, self.success_message % obj.__dict__)
+            return super(Delete, self).delete(request, *args, **kwargs)
+        else:
+            messages.error(self.request, self.error_message % obj.__dict__)
+            return redirect('va_data_cleanup:index')
+
+
+delete = Delete.as_view()
+
+
+class DeleteAll(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "va_data_management.bulk_delete"
+    model = VerbalAutopsy
+    success_url = reverse_lazy('va_data_cleanup:index')
+    success_message = "Duplicate Verbal Autopsies successfully deleted!"
+    template_name = "va_data_management/verbalautopsy_confirm_delete_all.html"
+
+    def post(self, request, *args, **kwargs):
+        self.request.user.verbal_autopsies().filter(duplicate=True).delete()
+        messages.success(self.request, self.success_message)
+        return redirect(reverse('va_data_cleanup:index'))
+
+
+delete_all = DeleteAll.as_view()

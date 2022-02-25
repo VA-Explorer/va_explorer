@@ -1,5 +1,5 @@
 from va_explorer.va_data_management.management.commands.run_dhis import Command
-from va_explorer.va_data_management.models import dhisStatus,VerbalAutopsy
+from va_explorer.va_data_management.models import DhisStatus, VerbalAutopsy
 import environ
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import TemplateView

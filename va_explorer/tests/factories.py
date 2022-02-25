@@ -1,8 +1,9 @@
 import factory
 from django.contrib.auth import get_user_model, models
 from factory import DjangoModelFactory, Faker, Sequence
-from factory.fuzzy import FuzzyInteger
-from va_explorer.va_data_management.models import Location, VerbalAutopsy, VaUsername
+from va_explorer.va_data_management.models import Location, VerbalAutopsy, VaUsername, CauseOfDeath, CauseCodingIssue, \
+    DhisStatus
+import json
 
 User = get_user_model()
 
@@ -44,6 +45,7 @@ class LocationFactory(DjangoModelFactory):
 class LocationFacilityFactory(DjangoModelFactory):
     class Meta:
         model = Location
+        django_get_or_create = ('path',)
 
     # Create a root node by default
     name = Faker("city")
@@ -124,8 +126,30 @@ class AdminGroupFactory(GroupFactory):
 class FacilityFactory(LocationFactory):
     location_type = "facility"
 
+
 class VaUsernameFactory(DjangoModelFactory):
     class Meta:
         model = VaUsername
 
     va_username = Faker("user_name")
+
+
+class CauseOfDeathFactory(DjangoModelFactory):
+    class Meta:
+        model = CauseOfDeath
+    cause = "HIV/AIDS related death"
+    algorithm = "InterVA5"
+    settings = json.dumps({"HIV": "l", "Malaria": "l"})
+
+
+class CauseCodingIssueFactory(DjangoModelFactory):
+    class Meta:
+        model = CauseCodingIssue
+    text = "Warning: field username, the va record does not have an assigned username."
+    severity = "warning"
+    settings = json.dumps({"HIV": "l", "Malaria": "l"})
+
+
+class DhisStatusFactory(DjangoModelFactory):
+    class Meta:
+        model = DhisStatus
