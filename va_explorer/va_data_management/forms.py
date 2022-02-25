@@ -1,21 +1,53 @@
 from django import forms
-from datetime import datetime
-from .models import VerbalAutopsy
-from .models import PII_FIELDS
-from va_explorer.va_data_management.utils.date_parsing import parse_date
-from config.settings.base import DATE_FORMATS
 
+from config.settings.base import DATE_FORMATS
+from va_explorer.va_data_management.utils.date_parsing import parse_date
+
+from .constants import PII_FIELDS, FORM_FIELDS, HIDDEN_FIELDS
+from .models import VerbalAutopsy
 
 
 class VerbalAutopsyForm(forms.ModelForm):
-
     class Meta:
         model = VerbalAutopsy
-        exclude = ('id', 'location', 'instanceid', 'deleted_at', 'unique_va_identifier', 'duplicate',)
+        exclude = HIDDEN_FIELDS
+        widgets = {}
+        # Because (the massive amount of) model fields are textarea by default,
+        # we are overriding the display logic via here + mappings in .constants
+        for form_field in FORM_FIELDS["text"]:
+            widgets[form_field] = forms.TextInput()
+        for form_field in FORM_FIELDS["radio"]:
+            widgets[form_field] = forms.RadioSelect(
+                choices=FORM_FIELDS["radio"][form_field], attrs={"class": "va-check"}
+            )
+        for form_field in FORM_FIELDS["checkbox"]:
+            widgets[form_field] = forms.CheckboxSelectMultiple(
+                choices=FORM_FIELDS["checkbox"][form_field], attrs={"class": "va-check"}
+            )
+        for form_field in FORM_FIELDS["dropdown"]:
+            widgets[form_field] = forms.Select(choices=FORM_FIELDS["dropdown"][form_field])
+        for form_field in FORM_FIELDS["number"]:
+            widgets[form_field] = forms.NumberInput()
+        for form_field in FORM_FIELDS["date"]:
+            widgets[form_field] = forms.DateInput()
+        for form_field in FORM_FIELDS["time"]:
+            widgets[form_field] = forms.TimeInput()
+        for form_field in FORM_FIELDS["datetime"]:
+            widgets[form_field] = forms.DateTimeInput()
+        for form_field in FORM_FIELDS["display"]:
+            widgets[form_field] = forms.TextInput(attrs={'readonly': 'readonly'})
+
 
     def __init__(self, *args, **kwargs):
-        include_pii = kwargs.pop('include_pii', True)
+        include_pii = kwargs.pop("include_pii", True)
         super().__init__(*args, **kwargs)
+        # Handle text/textarea input types
+        for _, field in self.fields.items():
+            if not field.widget.attrs.get("class"):
+                field.widget.attrs["class"] = "form-control"
+            if isinstance(field.widget, forms.Textarea):
+                field.widget.attrs["rows"] = "3"
+
         if not include_pii:
             for field in PII_FIELDS:
                 del self.fields[field]
@@ -29,11 +61,10 @@ class VerbalAutopsyForm(forms.ModelForm):
         cleaned_data = super(VerbalAutopsyForm, self).clean(*args, **kwargs)
 
         if "Id10023" in cleaned_data:
-            validate_date_format(
-                self, cleaned_data["Id10023"]
-            )
+            validate_date_format(self, cleaned_data["Id10023"])
 
         return cleaned_data
+
 
 def validate_date_format(form, Id10023):
     """
@@ -45,5 +76,8 @@ def validate_date_format(form, Id10023):
             parse_date(Id10023, strict=True)
         except ValueError:
             form._errors["Id10023"] = form.error_class(
-                [f"Field Id10023 must be in \"dk\" if unknown or in one of following date formats: {list(DATE_FORMATS.values())}"]
+                [
+                    f'Field Id10023 must be "DK" if unknown or in one of \
+                      following date formats: {list(DATE_FORMATS.values())}'
+                ]
             )

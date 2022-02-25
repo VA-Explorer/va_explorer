@@ -13,32 +13,6 @@ from django.core.exceptions import FieldDoesNotExist
 
 import hashlib
 
-REDACTED_STRING = '** redacted **'
-
-PII_FIELDS = [
-    'Id10007',
-    'Id10017',
-    'Id10018',
-    'Id10021',
-    'Id10023_a',
-    'Id10023_b',
-    'Id10023',
-    'Id10060',
-    'Id10061',
-    'Id10062',
-    'Id10070',
-    'Id10071',
-    'Id10072',
-    'Id10073',
-    'Id10476',
-    'Id10477',
-    'Id10478',
-    'Id10479',
-    'comment',
-    'date',
-    'narrat_image',
-]
-
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
     # ability to constrain access control by region; we use django-treabeard's materialized path
@@ -279,7 +253,7 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10171 = models.TextField("Was (s)he breathless while lying flat?", blank=True)
     Id10172 = models.TextField("Did you see the lower chest wall/ribs being pulled in as the child breathed in?", blank=True)
     Id10173_nc = models.TextField("During the illness that led to death did his/her breathing sound like any of the following:", blank=True)
-    id10173_check = models.TextField("id10173_check", blank=True)
+    id10173_check = models.TextField("It is not possible to select \"Don't know\" or \"refuse\" together with other options. Please go back and correct the selection.", blank=True)
     Id10173_a = models.TextField("During the illness that led to death did (s)he have wheezing?", blank=True)
     Id10173 = models.TextField("Calculated Field: During the illness that led to death did his/her breathing sound like any of the following:", blank=True)
     Id10174 = models.TextField("Did (s)he have chest pain?", blank=True)
@@ -517,9 +491,9 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10364 = models.TextField("At birth, was the baby very much smaller than usual, (weighing under 1 kg)?", blank=True)
     Id10365 = models.TextField("At birth, was the baby larger than usual, (weighing over 4.5 kg)?", blank=True)
     id1036X_check = models.TextField("It is not possible to select \"No usual size at Birth\", \"No weighing under 2.5 kg\" and \"No weighing over 4.5 kg\" together. Please go back and correct the selection.", blank=True)
-    Id10366_unit = models.TextField("Id10366_unit", blank=True)
-    Id10366_a = models.TextField("Id10366_a", blank=True)
-    Id10366_b = models.TextField("Id10366_b", blank=True)
+    Id10366_unit = models.TextField("What was the weight of the deceased at birth? [Enter weight in:]", blank=True)
+    Id10366_a = models.TextField("What was the weight of the deceased at birth? [Enter weight in grammes:]", blank=True)
+    Id10366_b = models.TextField("What was the weight of the deceased at birth? [Enter weight in kilograms:]", blank=True)
     Id10366 = models.TextField("What was the weight (in grammes) of the deceased at birth?", blank=True)
     Id10367 = models.TextField("How many months long was the pregnancy before the child was born?", blank=True)
     Id10368 = models.TextField("Were there any complications in the late part of the pregnancy (defined as the last 3 months, before labour)?", blank=True)
@@ -563,7 +537,7 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10414 = models.TextField("What kind of tobacco did (s)he use ?", blank=True)
     id10414_check = models.TextField("It is not possible to select cigarettes or pipe and \"no\" to \"Did (s)he smoke tobacco?\". Please go back and correct the selections.", blank=True)
     Id10415 = models.TextField("How many cigarettes did (s)he smoke daily?", blank=True)
-    Id10416 = models.TextField("How many times did¬†(s)he use tobacco products each day?", blank=True)
+    Id10416 = models.TextField("How many times did (s)he use tobacco products each day?", blank=True)
     Id10418 = models.TextField("Did (s)he receive any treatment for the illness that led to death?", blank=True)
     Id10419 = models.TextField("Did (s)he receive oral rehydration salts?", blank=True)
     Id10420 = models.TextField("Did (s)he receive (or need) intravenous fluids (drip) treatment?", blank=True)
@@ -620,7 +594,7 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10471 = models.TextField("Duration (Id):", blank=True)
     Id10472 = models.TextField("Record the contributing cause(s) of death from the certificate (part 2)", blank=True)
     Id10473 = models.TextField("Duration (part2):", blank=True)
-    Id10481 = models.TextField("Id10481", blank=True)
+    Id10481 = models.TextField("Interview End Datetime", blank=True)
     geopoint = models.TextField("geopoint", blank=True)
     comment = models.TextField("Comment", blank=True)
     # Track the history of changes to each verbal autopsy

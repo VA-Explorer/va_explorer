@@ -22,8 +22,8 @@ from django.urls import reverse
 
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
-from va_explorer.va_analytics.filters import SupervisionFilter
-from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING, Location
+from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
+from va_explorer.va_data_management.models import Location
 from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondates
 from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
