@@ -774,7 +774,10 @@ class CauseOfDeathManager(models.Manager):
 class CauseCodingIssueManager(models.Manager):
     def get_queryset(self):
         return super(CauseCodingIssueManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
-
+    def with_error(self):
+        return self.filter(severity='error')
+    def with_warning(self):
+        return self.filter(severity='warning')
 
 class DhisStatus(models.Model):
     verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
@@ -806,13 +809,6 @@ class CauseOfDeath(models.Model):
 
     def __str__(self):
         return self.cause
-
-
-class CauseCodingIssueManager(models.Manager):
-    def with_error(self):
-        return self.filter(severity='error')
-    def with_warning(self):
-        return self.filter(severity='warning')
 
 
 class CauseCodingIssue(models.Model):
