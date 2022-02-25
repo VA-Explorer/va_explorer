@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import datetime as dt
 from va_explorer.va_analytics.utils.plotting import load_lookup_dicts
 
+
 def render_update_header(va_stats):
     header = html.Div(className="row", id="va_stats_header", children=[])
     if va_stats:
@@ -21,17 +22,20 @@ def render_update_header(va_stats):
                 ineligible_tooltip = "VAs excluded from dashboard due to missing location, date of death (Id10023) or both."
                 ineligible_desc = html.P(
                     id="inelig-tooltip-target",
-                    children=[html.B("# of Ineligible VAs: "), 
+                    children=[html.B("# of Ineligible VAs: "),
                                 va_stats["ineligible_vas"],
                                 html.Span(
                                     className="fas fa-info-circle",
-                                    style={"margin-left": "3px", "color": "rgba(75,75,75,0.5)"}),                                
+                                    style={"margin-left": "3px", "color": "rgba(75,75,75,0.5)"}),
                                 dbc.Tooltip(ineligible_tooltip, target="inelig-tooltip-target")],
-                                
+
                     style={"margin-left": "10px"}
                     )
-                
                 header.children.append(ineligible_desc)
+            if "duplicates" in va_stats:
+                duplicates = html.P(children=[html.B("# Potential Duplicates: "), html.Span(va_stats["duplicates"])], style={"margin-left": "10px"})
+                header.children.append(duplicates)
+
     return header
 
 # method to render download api url from dashboard params

@@ -10,6 +10,29 @@ from va_explorer.va_data_management.models import REDACTED_STRING
 pytestmark = pytest.mark.django_db
 
 
+@pytest.fixture
+def delete_verbalautopsy_group():
+    can_delete_verbalautopsy = Permission.objects.filter(codename="delete_verbalautopsy").first()
+    return GroupFactory.create(permissions=[can_delete_verbalautopsy])
+
+
+@pytest.fixture
+def bulk_delete_verbalautopsy_group():
+    can_bulk_delete_verbalautopsy = Permission.objects.filter(codename="bulk_delete").first()
+    return GroupFactory.create(permissions=[can_bulk_delete_verbalautopsy])
+
+
+@pytest.fixture
+def view_datacleanup_group():
+    can_view_datacleanup = Permission.objects.filter(codename="view_datacleanup").first()
+    return GroupFactory.create(permissions=[can_view_datacleanup ])
+
+
+@pytest.fixture
+def questions_to_autodetect_duplicates():
+    return "Id10017, Id10010"
+
+
 # Get the index and make sure the VA in the system is listed
 def test_index_with_valid_permission(user: User):
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
@@ -37,7 +60,7 @@ def test_index_redacted(user: User):
     assert response.status_code == 200
     assert bytes(REDACTED_STRING, "utf-8") in response.content
     assert bytes(va.Id10023, "utf-8") not in response.content
-    
+
 
 
 # Request the index without permissions and make sure its forbidden
@@ -113,6 +136,111 @@ def test_edit_without_valid_permissions(user: User):
     va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     response = client.get(f"/va_data_management/edit/{va.id}")
     assert response.status_code == 403
+
+
+def test_delete_with_valid_permission_and_valid_va(user: User, settings, delete_verbalautopsy_group,
+                                                   view_datacleanup_group, questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
+
+    user = UserFactory.create(groups=[delete_verbalautopsy_group, view_datacleanup_group])
+
+    client = Client()
+    client.force_login(user=user)
+
+    VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    va2 = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+
+    response = client.post(f"/va_data_management/delete/{va2.id}", follow=True)
+
+    assert response.status_code == 200
+    assert bytes(f'Verbal Autopsy {va2.id} was deleted successfully', "utf-8") in response.content
+    # Confirm that the VA has been deleted
+    assert not VerbalAutopsy.objects.filter(pk=va2.id).first()
+
+
+# A VA must be marked as duplicate for it to be deleted
+def test_delete_with_valid_permission_and_non_duplicate_va(user: User, delete_verbalautopsy_group,
+                                                           view_datacleanup_group):
+    user = UserFactory.create(groups=[delete_verbalautopsy_group, view_datacleanup_group])
+
+    client = Client()
+    client.force_login(user=user)
+
+    va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    response = client.post(f"/va_data_management/delete/{va.id}", follow=True)
+
+    assert response.status_code == 200
+    assert bytes(f'Verbal Autopsy {va.id} could not be deleted.', "utf-8") in response.content
+    # Confirm that the VA has not been deleted
+    assert VerbalAutopsy.objects.filter(pk=va.id).first()
+
+
+# A user must have the delete_verbalautopsy permission to delete a VA
+def test_delete_with_invalid_permission(user: User, settings, view_datacleanup_group,
+                                        questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
+
+    user = UserFactory.create(groups=[view_datacleanup_group])
+
+    client = Client()
+    client.force_login(user=user)
+
+    VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    va2 = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+
+    response = client.post(f"/va_data_management/delete/{va2.id}", follow=True)
+
+    client = Client()
+    client.force_login(user=user)
+
+    assert response.status_code == 403
+    # Confirm that the VA has not been deleted
+    assert VerbalAutopsy.objects.filter(pk=va2.id).first()
+
+
+def test_bulk_delete_with_valid_permission(user: User, settings, bulk_delete_verbalautopsy_group,
+                                                   view_datacleanup_group, questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
+
+    user = UserFactory.create(groups=[bulk_delete_verbalautopsy_group, view_datacleanup_group])
+
+    client = Client()
+    client.force_login(user=user)
+
+    # Create 3 Verbal Autopsies, 2 which will be duplicate
+    for i in range(0, 3):
+        VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    # Confirm that there are 2 duplicate VAs in the system
+    assert VerbalAutopsy.objects.filter(duplicate=True).count() == 2
+
+    response = client.post("/va_data_management/delete_all", follow=True)
+
+    assert response.status_code == 200
+    assert bytes("Duplicate Verbal Autopsies successfully deleted!", "utf-8") in response.content
+    # Confirm that all duplicates have been deleted
+    assert VerbalAutopsy.objects.filter(duplicate=True).count() == 0
+
+
+def test_bulk_delete_with_invalid_permission(user: User, settings, view_datacleanup_group,
+                                             questions_to_autodetect_duplicates):
+    settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = questions_to_autodetect_duplicates
+
+    user = UserFactory.create(groups=[view_datacleanup_group])
+
+    client = Client()
+    client.force_login(user=user)
+
+    # Create 3 Verbal Autopsies, 2 which will be duplicate
+    for i in range(0, 3):
+        VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
+    # Confirm that there are 2 duplicate VAs in the system
+    assert VerbalAutopsy.objects.filter(duplicate=True).count() == 2
+
+    response = client.post("/va_data_management/delete_all", follow=True)
+
+    assert response.status_code == 403
+    # Confirm that all duplicates have been deleted
+    assert VerbalAutopsy.objects.filter(duplicate=True).count() == 2
 
 
 # Update a VA and make sure 1) the data is changed and 2) the history is tracked
