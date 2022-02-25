@@ -38,7 +38,6 @@ class VerbalAutopsyForm(forms.ModelForm):
             widgets[form_field] = forms.TextInput(attrs={'readonly': 'readonly'})
 
 
-
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop("include_pii", True)
         super().__init__(*args, **kwargs)

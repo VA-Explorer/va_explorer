@@ -36,7 +36,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
 
     # But first, account for case differences in csv columns (i.e. ensure id10041 maps to Id10041)
-    fieldCaseMapper = {field.lower(): field for field in model_field_names} 
+    fieldCaseMapper = {field.lower(): field for field in model_field_names}
     record_df.rename(columns=lambda c: fieldCaseMapper.get(c.lower(), c), inplace=True)
 
     # Lowercase the instanceID column that can come from ODK as "instanceID".
@@ -51,13 +51,13 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     print('deduplicating fields...')
     # collapse fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010)
     record_df = deduplicate_columns(record_df)
-    
+
     # if field worker column available (Id10010), standardize names
     if "Id10010" in record_df.columns:
         record_df["Id10010"] = record_df["Id10010"].apply(normalize_name).replace(np.nan, "UNKNOWN")
 
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
-            
+
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
 
@@ -74,11 +74,11 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     ignored_vas = []
     created_vas = []
     location_map = {}
-    
+
     # build location mapper to map csv locations to known db locations
     if "hospital" in record_df.columns:
         location_map = build_location_mapper(record_df["hospital"].unique().tolist())
-        
+
     # if random locations, assign random locations via a random field worker.
     if random_locations:
         valid_usernames = VaUsername.objects.exclude(va_username__exact='')
@@ -107,26 +107,26 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
                 continue
             else:
                 va_instance_ids.add(row['instanceid'])
-            
-        
+
+
         # If we got here, we have a new, legit VA on our hands.
         va_id = row.get('instanceid', f"{i} of {record_df.shape[0]}")
-        
-        
+
+
         # Try to parse date of death as as datetime. Otherwise, record string and add record issue during validation
         parsed_date = parse_date(va.Id10023, strict=False)
         if logger:
-            logger.info(f"va_id: {va_id} - Parsed {parsed_date} for Date of Death from {va.Id10023}") 
+            logger.info(f"va_id: {va_id} - Parsed {parsed_date} for Date of Death from {va.Id10023}")
         va.Id10023 = parsed_date
 
         # Try to parse submission date as as datetime. Otherwise, record string and add record issue during validation
         parsed_sub_date = parse_date(va.submissiondate, strict=False)
         if logger:
-            logger.info(f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}") 
+            logger.info(f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}")
         va.submissiondate = parsed_sub_date
-        
+
         # if random_locations, assign random field worker to VA which can be used to determine location.
-        # Otherwise, try assigning location based on hospital field. 
+        # Otherwise, try assigning location based on hospital field.
         if random_locations:
             username = valid_usernames.order_by('?').first()
             user = User.objects.get(pk=username.user_id)
@@ -136,7 +136,10 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             assign_va_location(va, location_map)
             if "hospital" in row and logger:
                 logger.info(f"va_id: {va_id} - Matched hospital {row['hospital']} to {va.location} location in DB")
-            
+
+        # Generate a unique_identifier_hash for each VA if the application is configured to detect duplicate VAs
+        if VerbalAutopsy.auto_detect_duplicates():
+            va.generate_unique_identifier_hash()
         created_vas.append(va)
 
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
@@ -150,7 +153,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     print("assigning VA usernames to known field workers...")
     assign_va_usernames(new_vas)
     tf = time.time(); print(f"time: {tf - ti} secs"); ti = tf
-    
+
     print("Validating VAs...")
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
@@ -158,15 +161,21 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     print(f"total time: {time.time() - t0}")
 
+
+    # Mark duplicate VAs if the application is configured to do so
+    if VerbalAutopsy.auto_detect_duplicates():
+        print('Marking VAs as duplicate...')
+        VerbalAutopsy.mark_duplicates()
+
     return {
         'ignored': ignored_vas,
         'created': created_vas,
     }
 
 
-# load locations from a csv file into the django database. If delete_previous is true, will clear location db before laoding. 
+# load locations from a csv file into the django database. If delete_previous is true, will clear location db before laoding.
 def load_locations_from_file(csv_file, delete_previous=False):
-    # Delete existing locations ONLY IF DELETE_PREVIOUS IS TRUE. 
+    # Delete existing locations ONLY IF DELETE_PREVIOUS IS TRUE.
     if delete_previous:
         # Clear out any existing locations (this is for initialization only)
         Location.objects.all().delete()
@@ -231,10 +240,10 @@ def load_locations_from_file(csv_file, delete_previous=False):
     print(f"updated {update_ct} locations with new data")
 
 
-# combine fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010). 
+# combine fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010).
 # in Zambia data, often either the normal or _other field has a value but not both.
 # NOTE: currently using 'cleaned' version of other field (called filtered_<field>_other) and discarding <field>-other values
-# verify that this is kosher. 
+# verify that this is kosher.
 def deduplicate_columns(record_df, drop_duplicates=True):
     other_cols = record_df.filter(regex='\_other$', axis=1).columns
     # get original columns that other columns are derived from
@@ -258,7 +267,7 @@ def deduplicate_columns(record_df, drop_duplicates=True):
 def get_va_summary_stats(vas, filter_fields=False):
     # calculate stats
     if vas.count() > 0:
-       
+
         # if filter_fields=True, filter down to only relevant fields
         if filter_fields:
             vas = vas.only("created", "id", "location", "Id10023")
