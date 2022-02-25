@@ -18,7 +18,7 @@ python-Levenshtein==0.12.2
 django==3.1.5
 django-allauth==0.44.0
 django-celery-beat==2.0.0
-django-crispy-forms==1.9.1
+django-crispy-forms==1.14.0
 django-debug-toolbar==3.1.1
 django-environ==0.4.5
 django-extensions==3.0.9
@@ -27,13 +27,14 @@ django-simple-history==2.12.0
 django-treebeard==4.3.1
 django-bootstrap4==2.2.0
 django-filter==2.4.0
+django-pivot==1.8.1
 whitenoise==5.2.0
 channels-redis==3.0.1
 channels==2.4.0
 daphne==2.5.0
 
 # Plotly
-scipy==1.5.2
+scipy==1.5.4
 
 # Dash
 dash==1.14.0
@@ -57,3 +58,6 @@ requests-mock==1.8.0
 
 # Database
 psycopg2==2.8.5 --no-binary psycopg2
+
+#openva pipeline
+git+https://github.com/VA-Explorer/openva_pipeline.git@master

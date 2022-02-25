@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block heading %} {{ filterset.form.data.group_col|capfirst }} Supervision {% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <form method="get">
+    <div class="form-row align-items-end">
+      {% crispy filterset.form %}
+      <div class="form-group">
+        <button class="form-control btn btn-primary filter-button" type="submit">Go</button>
+      </div>
+      {% if filterset.is_valid %}
+        <div class="form-group">
+          <a class="btn btn-secondary form-control filter-button" href="{% url 'va_analytics:supervision' %}">Reset</a>
+        </div>
+      {% endif %}
+    </div>
+  </form>
+
+  <div class="row mt-4">
+    {% include 'partials/_generic_table.html' with table_data=supervision_stats %}
+  </div>
+{% endblock %}

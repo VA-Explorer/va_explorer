@@ -81,15 +81,22 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
     return va
         
         
-def fuzzy_match(search, options=None, option_df=pd.DataFrame(), threshold=75, preprocess=False, drop_terms=None, prnt=False):
+def fuzzy_match(search, options=None, option_df=pd.DataFrame(), threshold=75, preprocess=False, drop_terms=None, prnt=False, return_str=True):
     match = None
     if not pd.isnull(search):
         if not options and option_df.size == 0:
             raise ValueError("Please provide an option list or option_df (dataframe with options in 'name' column)")
         # if options not in dataframe format, create one to store them
         if option_df.size == 0:
-            option_df = (pd.DataFrame({'name': options}).assign(key = lambda df: df['name'].str.lower()))
-    
+            option_df = (pd.DataFrame({'name': options}))
+        # make sure options are stored in 'name' column 
+        assert 'name' in option_df.columns
+        # if no key field in dataframe, create lowercase keys from options
+        if 'key' not in option_df.columns:
+            option_df['key'] = option_df['name'].str.lower()
+        # if threshold is a decimal, convert to percent
+        if threshold > 0 and threshold <= 1:
+            threshold = int(100 * threshold)
         # if preprocess=True, clean search term and options before comparing
         search_term = search
         if preprocess:
@@ -112,7 +119,13 @@ def fuzzy_match(search, options=None, option_df=pd.DataFrame(), threshold=75, pr
         
         if prnt: print(option_df)
         
-        if option_df.size > 0:     
-            match = option_df.iloc[0]['name']
-    
+        if option_df.size > 0:
+                if return_str:
+                    # just return matching name
+                    match = option_df.iloc[0]['name']
+                else:
+                    # return all data about match
+                    match = option_df.iloc[0,:].to_dict()
+
     return match
+    

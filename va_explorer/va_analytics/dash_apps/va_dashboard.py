@@ -10,6 +10,7 @@ import datetime as dt
 import json
 import os
 import re
+import logging
 
 import dash
 import dash_bootstrap_components as dbc
@@ -20,18 +21,25 @@ import pandas as pd
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
+from django.urls import reverse
 
+
+from va_explorer.va_logs.logging_utils import write_va_log
 from va_explorer.va_data_management.models import Location
-from va_explorer.va_analytics.utils import plotting, loading
+from va_explorer.va_analytics.utils import plotting, loading, rendering
 
 # ================APP DEFINITION===============#
 # NOTE: to include external stylesheets, set external_stylesheets parameter in constructor
 # app = dash.Dash(__name__)  # Dash constructor
-app = DjangoDash(name="va_dashboard", serve_locally=True, add_bootstrap_links=True)
+app = DjangoDash(
+        name="va_dashboard",
+        serve_locally=True,
+        add_bootstrap_links=True,
+  )
+
 
 # NOTE: moved Toolbar configurations to plotting.py
 
-# TODO: We should eventually move this mapping to someplace where it's more configurable
 # ===========INITIAL CONFIG VARIABLES=============#
 # initial timeframe for map data to display
 INITIAL_TIMEFRAME = "all"
@@ -40,9 +48,11 @@ DATA_DIR = "va_explorer/va_analytics/dash_apps/dashboard_data"
 # Zambia Geojson pulled from: https://adr.unaids.org/dataset/zambia-geographic-data-2019
 JSON_FILE = "zambia_geojson.json"
 # initial granularity
-INITIAL_GRANULARITY = "district"
+INITIAL_GRANULARITY = "province"
 # initial metric to plot on map
 INITIAL_COD_TYPE = "all"
+# event logger to track key dashboard events
+LOGGER = logging.getLogger("event_logger")
 
 # ============Lookup dictionaries =================#
 LOOKUP = plotting.load_lookup_dicts()
@@ -56,11 +66,13 @@ app.layout = html.Div(
     id="app-body-container",
     children=[
         html.Div(
+
             [
+                html.Div(id="va_update_stats"),
                 # global filters (affect entire dashboard)
                 dbc.Row(
                     [
-                        html.Span("Analytics Dashboard", className="dashboard-title"),
+                        html.Div(id="dashboard-title", children=html.Span("Analytics Dashboard", className="dashboard-title")),
                         html.Div(
                             className="dashboard-comp-container",
                             children=[
@@ -126,16 +138,8 @@ app.layout = html.Div(
                                     ],
                                 ),
                                 html.Div(
-                                    id="download_container",
+                                    id="download_data_div",
                                     className="dashboard-comp-container",
-                                    children=[
-                                        html.A(
-                                            dbc.Button(
-                                                "Download Data", color="primary"
-                                            ),
-                                            href="/va_analytics/download",
-                                        )
-                                    ],
                                 ),
                             ],
                             style={
@@ -224,19 +228,17 @@ app.layout = html.Div(
                                     ],
                                 ),
                                 html.Div(id="bounds"),
+                                
+                                # data stores
                                 dcc.Store(id="va_data"),
                                 dcc.Store(id="invalid_va_data"),
-#                                html.Div(
-#                                    id="invalid_va_data", style={"display": "none"}
-#                                ),
                                 dcc.Store(id="locations"),
                                 dcc.Store(id="location_types"),
-#                                html.Div(id="locations", style={"display": "none"}),
-#                                html.Div(
-#                                    id="location_types", style={"display": "none"}
-#                                ),
                                 dcc.Store(id="filter_dict"),
-                                #html.Div(id="filter_dict", style={"display": "none"}),
+                                dcc.Store(id="display_names"),
+                                dcc.Store(id="cod_type_data"),
+                                dcc.Store(id="timeframe_data"),
+
                                 # used to trigger data ingest when page first loads
                                 html.Div(id="hidden_trigger", style={"display": "none"})
                             ],
@@ -246,8 +248,10 @@ app.layout = html.Div(
                         dbc.Col(
                             [
                                 dcc.Tabs(
-                                    [  # graph tabs
+                                    id="plot_tabs",
+                                    children=[  # graph tabs
                                         dcc.Tab(
+                                            id="cod_tab",
                                             label="COD Analysis",
                                             children=[  # tab 1: COD Analysis
                                                 html.Div(
@@ -348,6 +352,7 @@ app.layout = html.Div(
                                         ),
                                         dcc.Tab(
                                             label="Demographics",
+                                            id="demographic_tab",
                                             children=[
                                                 dcc.Loading(
                                                     html.Div(id="demos-container"),
@@ -357,6 +362,7 @@ app.layout = html.Div(
                                         ),
                                         dcc.Tab(
                                             label="VA Trends",
+                                            id="trend_tab",
                                             children=[
                                                 html.Div(
                                                     id="ts_buttons",
@@ -465,17 +471,39 @@ app.layout = html.Div(
 
 
 # =============Reset logic (reset map to default)====================#
-@app.callback(
-    [
-        Output(component_id="map_search", component_property="value"),
-        Output(component_id="cod_type", component_property="value"),
-        Output(component_id="timeframe", component_property="value"),
-    ],
-    [Input(component_id="reset", component_property="n_clicks")],
+app.clientside_callback(
+    """
+    function(n_clicks){
+        return ""
+    }
+    """,
+    Output(component_id="map_search", component_property="value"),
+    [Input(component_id="reset", component_property="n_clicks")]
+)
+app.clientside_callback(
+    """
+    function(n_clicks, cod_type){
+        return cod_type
+    }
+    """,
+    Output(component_id="cod_type", component_property="value"),
+    [Input(component_id="reset", component_property="n_clicks"),
+     Input(component_id="cod_type_data", component_property="data")
+    ]
+)
+app.clientside_callback(
+    """
+    function(n_clicks, timeframe){
+        return timeframe
+    }
+    """,
+    Output(component_id="timeframe", component_property="value"),
+    [Input(component_id="reset", component_property="n_clicks"),
+    Input(component_id="timeframe_data", component_property="data")
+    ]
 )
 
-def reset_dashboard(n_clicks=0, **kwargs):
-    return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
+
 
 
 # ============ VA data (loaded from database and shared across components) ========
@@ -498,6 +526,14 @@ designated as "expanded"
         Output(component_id="invalid_va_data", component_property="data"),
         Output(component_id="locations", component_property="data"),
         Output(component_id="location_types", component_property="data"),
+        Output(component_id="map_search", component_property="options"), # map search options
+        Output(component_id="ts_search", component_property="options"), # search options for VA trends
+        Output(component_id="download_data_div", component_property="children"), #download button
+        Output(component_id="va_update_stats", component_property="children"), # stats on last update
+        Output(component_id="display_names", component_property="data"),
+        Output(component_id="cod_type_data", component_property="data"),
+        Output(component_id="timeframe_data", component_property="data")
+
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
@@ -507,41 +543,66 @@ def init_va_data(hidden_trigger=None, **kwargs):
     timeframe = LOOKUP["time_dict"].get(INITIAL_TIMEFRAME, "all")
     if timeframe != "all":
         date_cutoff = dt.datetime.today() - dt.timedelta(timeframe)
-    res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)
-    valid_va_data = res["data"]["valid"].to_dict()#.to_json(default_handler=str)
-    invalid_va_data = res["data"]["invalid"].to_dict()#.to_json(default_handler=str)
-    locations = res.get("locations", [])
-    location_types = res.get("location_types", [])
-    return valid_va_data, invalid_va_data, locations, location_types
 
+    res = loading.load_va_data(kwargs['user'], date_cutoff=date_cutoff)    
+
+    # all VAs with required fields for dashboard (COD, date of death, location). 
+    valid_va_data = res["data"]["valid"].to_dict()
+    # strips out numeric cod codes in front of COD names
+    valid_va_data["cause"] = { k:v.lstrip('0123456789.- ') for k, v in valid_va_data["cause"].items()}
+
+    # all VAs without a COD assignment
+    invalid_va_data = res["data"]["invalid"].to_dict()
+    # list of locations used in dashboard
+    locations = res.get("locations", [])
+    # geographical hierarchy (ex. Province -> District -> Facility)
+    location_types = res.get("location_types", {})
+    # map search options
+    search_options = [{"label": location, "value": location} for location in locations.keys()]
+
+    # trend search options
+    raw_ts_options = plotting.load_ts_options(res["data"]["valid"], cod_groups=COD_GROUPS)
+    ts_options =  [{"label": LOOKUP["display_names"].get(name, name.capitalize()),
+                             "value": f"{name}.{type}"} for name, type in raw_ts_options] 
+
+    # statistics on when data was last updated/submitted
+    update_stats = res.get("update_stats", None)
+    update_div = rendering.render_update_header(update_stats)
+
+    # Download button logic.
+    # Only show the Download Data button if user has access to it.
+    download_div = html.Div(id="download_data_div")
+    download_div.children = [
+        dbc.Button(children=[html.I(className="fas fa-download"),
+                    html.Span(" Data", style={"margin-left": "2px"})],
+                    id="download_button", href=reverse("va_export:va_api"), color="primary",
+                    external_link=True) 
+
+    ]
+    # hide download data button if user doesn't have permission to download
+    download_div.hidden = (not kwargs["user"].can_download_data)
+    return valid_va_data, invalid_va_data, locations, location_types, search_options, ts_options, download_div, update_div, LOOKUP["display_names"], INITIAL_COD_TYPE, INITIAL_TIMEFRAME
 
 # ============ Location search options (loaded after load_va_data())==================
-@app.callback(
-    Output(component_id="map_search", component_property="options"),
-    [
-        Input(component_id="map_search", component_property="search_value"),
-        Input(component_id="locations", component_property="data"),
-    ],
+app.clientside_callback(
+    """
+    function(tab_value, scale) {
+        var tab_names = {"tab-1": "COD", "tab-2": "Demographics", "tab-3": "VA Trends"};
+        var tab_name = tab_names[tab_value];
+        return(tab_name);
+    }
+    """,
+    Output(component_id="log_data", component_property="children"),
+    [Input(component_id="plot_tabs", component_property="value")]
 )
-def update_map_options(search_value, locations, **kwargs):
-    if search_value and locations:
-        options = [
-            {"label": location, "value": location}
-            for location in locations.keys()
-            if search_value.lower() in location.lower()
-        ]
-        return options
-
-    raise dash.exceptions.PreventUpdate
-
 
 # ============ Filter logic (update filter table used by other componenets)========#
 @app.callback(
-#    [
+    [
         Output(component_id="filter_dict", component_property="data"),
-#        Output(component_id="timeframe", component_property="disabled"),
-#        Output(component_id="bounds", component_property="children")
-#    ],
+        Output(component_id="dashboard-title", component_property="children"),
+        Output(component_id="download_button", component_property="href")
+    ],
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="invalid_va_data", component_property="data"),
@@ -566,15 +627,13 @@ def filter_data(
 ):
     if va_data is not None:
         valid_va_df = pd.DataFrame(va_data)
+        valid_va_df["date"] = pd.to_datetime(valid_va_df["date"])
         invalid_va_df = pd.DataFrame(invalid_va_data)
+        invalid_va_df["date"] = pd.to_datetime(invalid_va_df["date"])
         search_terms = [] if search_terms is None else search_terms
-#        location_types = (
-#            json.loads(location_types) if location_types is not None else location_types
-#        )
-        #disable_timeframe = False
         
         # get user location restrictions. If none, will return an empty queryset
-        location_restrictions = kwargs["user"].location_restrictions.values("name", "id")
+        location_restrictions = list(kwargs["user"].location_restrictions.values("name", "id"))
             
         # if no selected json, convert to empty dictionary for easier processing
         selected_json = {} if not selected_json else selected_json
@@ -598,8 +657,19 @@ def filter_data(
             search_terms=search_terms,
             locations=locations,
             restrictions=location_restrictions
-        )      
-        
+        )     
+
+        # Dashboard title logic. If field worker, make clear it's just their VAs. Otherwise, 
+        # If particular region chosen, add to title. 
+        if kwargs["user"].is_fieldworker():
+            title = "COD Analytics for Your VAs"
+        elif valid_filter["chosen_region"]["name"].lower().startswith("all"):
+            title = "COD Analytics for All Regions"
+        else:
+            title = f"COD Analytics for {valid_filter['chosen_region']['name']}"
+        dashboard_title = html.Span(title, className="dashboard-title")
+
+        # combine filter information into dictionary to share across other callbacks
         combined_filter_dict = {
             "plot_regions": valid_filter["plot_regions"],  # same across both dicts
             "granularity": valid_filter["granularity"],  # same across both dictionaries
@@ -613,10 +683,44 @@ def filter_data(
                 "invalid": invalid_filter["plot_ids"],
             },
         }
+
+        # build download url based on params above
+        if type(combined_filter_dict["chosen_region"]) is dict:
+            chosen_region = combined_filter_dict["chosen_region"]["name"]
+        else:
+            chosen_region = combined_filter_dict["chosen_region"]
+
+        download_url = rendering.build_download_url(chosen_region=chosen_region, timeframe=timeframe,\
+                                                    cod=cod_type, time_mapper=LOOKUP["time_dict"])
+            
+        log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
+        return combined_filter_dict , dashboard_title, download_url
+
+
+def log_callback_trigger(logger, context, request):
+    if context:
+        trigger = context.triggered[0]
+        if trigger:
+            component_id = trigger["prop_id"].split(".")[0]
+            # don't log entire filter dictionary
+            if component_id != "filter_dict":
+                # by default, set action and value to raw trigger values
+                action = f"changed {component_id} to value "
+                value = trigger["value"]
+                # make message more specific for certain component callbacks
+                if component_id == "choropleth":
+                    action = "Zoomed in on region"
+                    value = trigger["value"]["points"][0]["location"]
+                elif component_id == "map_search":
+                    action = "Searched for region"
+                elif component_id == "cod_type":
+                    action = "Changed COD Type to"
+                elif component_id == "timeframe":
+                    action = "Changed Timeframe to"
+                
+                write_va_log(logger, f"[dashboard] {action} {value}", request)
+            
         
-
-        return combined_filter_dict#, json.dumps(combined_filter_dict)#, disable_timeframe
-
 
 # helper method to get filter ids given adjacent plot regions
 def _get_filter_dict(
@@ -631,14 +735,14 @@ def _get_filter_dict(
 
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
-    plot_ids, plot_regions = list(), list()
+    plot_ids = plot_regions = list()
     
     filter_dict = {
 
         "geo_filter": any(map(lambda x: len(x) > 0, [restrictions, selected_json, search_terms])),
         "search_filter": (len(search_terms) > 0),
         "plot_regions": [],
-        "chosen_region": "all",
+        "chosen_region": {"name": "all"},
         "ids": [],
         "plot_ids": [],
     }
@@ -647,14 +751,14 @@ def _get_filter_dict(
         # first, check if geo filter is for location restrictions
         if len(restrictions) > 0:
             # TODO: make this work for more than one assigned region
-            granularity = locations.get(restrictions[0]['name'], granularity)
+            granularity = locations.get(restrictions[0]["name"], granularity)
             # no need to filter data, as that's already done in load_data
             chosen_region = restrictions[0]
             
-            location_obj = Location.objects.get(pk=chosen_region['id'])
+            location_obj = Location.objects.get(pk=chosen_region["id"])
             # if assigned to a POI (i.e. lowest level of location hierarchy) move one level up
             #TODO: make this more generic to handle other location types
-            if location_obj.location_type == 'facility':
+            if location_obj.location_type == "facility":
                 # ancestors returned in descending order
                 location_obj = location_obj.get_ancestors().last()
                 chosen_region = location_obj.name
@@ -663,10 +767,9 @@ def _get_filter_dict(
             plot_regions.append(chosen_region)
 
             plot_ids = filter_df.index.tolist()
-            filter_dict["chosen_region"] = chosen_region['name']
-            
-            
-        # next, check if user searched anything. If yes, use that as filter.
+            filter_dict["chosen_region"] = chosen_region
+
+       # next, check if user searched anything. If yes, use that as filter.
         if search_terms is not None:
             if filter_dict["search_filter"]:
                 search_terms = (
@@ -674,7 +777,7 @@ def _get_filter_dict(
                 )
                 granularity = locations.get(search_terms[0], granularity)
                 filter_df = filter_df[filter_df[granularity].isin(set(search_terms))]
-                filter_dict["chosen_region"] = search_terms[0]
+                filter_dict["chosen_region"] = {"name": search_terms[0]}
 
         # finally, check for locations clicked on map.
         if len(selected_json) > 0:
@@ -682,7 +785,7 @@ def _get_filter_dict(
             chosen_regions = point_df["location"].tolist()
             granularity = locations.get(chosen_regions[-1], granularity)
             filter_df = filter_df[filter_df[granularity].isin(set(chosen_regions))]
-            filter_dict["chosen_region"] = chosen_regions[0]
+            filter_dict["chosen_region"] = {"name": chosen_regions[0]}
     
         # get all adjacent regions (siblings) to chosen region(s) for plotting. Dont run when user has geo restrictions
         if len(restrictions) == 0:
@@ -706,6 +809,7 @@ def _get_filter_dict(
     # finally, apply time filter if necessary
     if timeframe != "all":
         cutoff = dt.datetime.today() - dt.timedelta(days=LOOKUP["time_dict"][timeframe])
+        filter_df["date"] = pd.to_datetime(filter_df["date"])
         filter_df = filter_df[filter_df["date"] >= cutoff]
 
     filter_dict["plot_regions"] = plot_regions
@@ -714,6 +818,7 @@ def _get_filter_dict(
     filter_dict["granularity"] = granularity
 
     return filter_dict
+
 
 
 # try to move one level up or down in the geographical hierarchy. If not possible,
@@ -731,34 +836,62 @@ def shift_granularity(current_granularity, levels, move_up=False):
 
 # =========Map Metrics =======================#
 # Top metrics to track for map dropdown
-@app.callback(
+app.clientside_callback(
+    """
+    function(va_data, filter_dict, display_names){
+        var N = 10;
+        // by default, start with aggregate measures
+        var metrics = [];
+        var metric_data= va_data
+        if (Object.values(metric_data['index']).length > 0){
+        
+            if (filter_dict !== null){
+                
+                var cause_map = new Map(Object.entries(metric_data['cause']));
+                
+                cause_map = [...cause_map].map(([name, value]) => ({ name, value }))
+                
+                // alternative to for loop
+                let filtered_array = _.filter(cause_map, function(o) {return filter_dict['ids']['valid'].includes(o.name);});
+                
+                let obj = _.countBy(filtered_array, (rec) => {return rec.value});
+                
+                const sorted = new Map(Object.entries(obj).sort((a, b) => b[1] - a[1]));
+                
+                metrics = Array.from( sorted.keys() ).slice(0,N);
+                metrics.unshift("all")
+            }
+        }
+
+
+        var metrics_return = [];
+        for(var j=0; j<metrics.length; j++){
+            if(display_names[metrics[j]] !== undefined){
+                metrics_return.push({"label": display_names[metrics[j]], "value":metrics[j]});
+            }
+            else{
+                metrics_return.push({"label": metrics[j], "value":metrics[j]});
+            }
+        }
+        return(metrics_return)
+    }
+    """
+    ,
     Output(component_id="cod_type", component_property="options"),
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="filter_dict", component_property="data"),
-    ],
+        Input(component_id="display_names", component_property="data"),
+    ]
 )
-def get_metrics(va_data, filter_dict=None, N=10, **kwargs):
-    # by default, start with aggregate measures
-    metrics = []
-    metric_data = pd.DataFrame(va_data)
-    if metric_data.size > 0:
-        if filter_dict is not None:
-            metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
-            # only load options if remaining data after filter
-            if metric_data.size > 0:
-                # add top N CODs by incidence to metric list
-                metrics = ["all"] + (
-                    metric_data["cause"]
-                    .value_counts()
-                    .sort_values(ascending=False)
-                    .head(N)
-                    .index.tolist()
-                )
-
-    return [{"label": LOOKUP["display_names"].get(m, m), "value": m} for m in metrics]
 
 
+
+
+
+
+
+## Not really necessary...get_metrics just references lookup directly
 def get_metric_display_names(map_metrics):
     names = []
     for metric in map_metrics:
@@ -770,38 +903,49 @@ def get_metric_display_names(map_metrics):
 
 
 # ====================Geographic Levels (View options)============#
-@app.callback(
-    [
-        Output(component_id="view_level", component_property="options"),
-        Output(component_id="view_level", component_property="disabled"),
-        #Output(component_id="view_label", component_property="className"),
-    ],
-    [
-        Input(component_id="filter_dict", component_property="data"),
-        Input(component_id="location_types", component_property="data"),
-    ],
-)
-def update_view_options(filter_dict, location_types, **kwargs):
-    if filter_dict is not None:
+### Conversion of update_view_options to client-side callbacks ###
+### have to use two different callbacks since we can only have one output in each (django-plotly-dash constraint)
+app.clientside_callback(
+    """
+    function(filter_dict){
+        if(filter_dict){
+            return((filter_dict['geo_filter'] === true) || (filter_dict['search_filter'] === true));
+        }
+        return null;
+    }
+    """,
+    Output(component_id="view_level", component_property="disabled"),
+    [Input(component_id="filter_dict", component_property="data")]
 
-        # only activate when user is zoomed out and hasn't searched for anything
-        disable = (filter_dict["geo_filter"] or filter_dict["search_filter"])
-        if not disable:
-            view_options = location_types
-           # label_class = "input-label"
-        else:
-            view_options = []
-            #label_class = "input-label-disabled"
-        options = [{"label": o.capitalize(), "value": o} for o in view_options]
-        return options, disable #, label_class
+)
+
+app.clientside_callback(
+    """
+    function(disable, location_types){
+        
+            if(disable === false){
+                view_options = location_types;
+            }
+            else{
+                view_options = [];
+            }
+            options = [];
+            for(var i =0; i<view_options.length;i++){
+                label = view_options[i].charAt(0).toUpperCase() + view_options[i].slice(1)
+                options.push({"label": label, "value":view_options[i]})
+            } 
+            return (options)
+    }
+    """,
+    Output(component_id="view_level", component_property="options"),
+    [Input(component_id="view_level", component_property="disabled"),
+    Input(component_id="location_types", component_property="data")]
+)
 
 
 # ====================Map Logic===================================#
 @app.callback(
-#      [
         Output(component_id="choropleth-container", component_property="children"),
-#        Output(component_id="bounds", component_property="children")
-#        ],
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
@@ -822,9 +966,15 @@ def update_choropleth(
     zoom_in=False,
     **kwargs
 ):
-
+    # first, see which input triggered update. If granularity change, log the new value
+    context = dash.callback_context
+    trigger = context.triggered[0]
+    if trigger["prop_id"].split(".")[0] == "view_level":
+        log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
+        
     figure = go.Figure()
     config = None
+
     if va_data is not None:
         # initialize variables
         all_data = pd.DataFrame(va_data)
@@ -833,11 +983,11 @@ def update_choropleth(
         granularity = INITIAL_GRANULARITY
         location_types = location_types
         include_no_datas = True
-#        ret_val = dict()
+        ret_val = dict()
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
         data_value = (
-            "age_mean" if len(re.findall("[mM]ean", cod_type)) > 0 else "age_count"
+            "age_mean" if len(re.findall("[mM]ean", cod_type)) > 0 else "id_count"
         )
 
         if plot_data.size > 0:
@@ -848,8 +998,6 @@ def update_choropleth(
             # if dashboard filter applied, carry over to data
             if filter_dict is not None:
                 granularity = filter_dict.get("granularity", granularity)
-
-                # only proceed if filter is non-empty
 
                 # geo_filter is true if user clicked on map or searches for location
                 zoom_in = filter_dict["geo_filter"]
@@ -874,6 +1022,7 @@ def update_choropleth(
                             if g["properties"]["area_name"] in plot_regions
                         ]
                         chosen_region = plot_data[granularity].unique()[0]
+
                         # if adjacent_ids specified, and data exists for these regions, plot them on map first
                         plot_ids = filter_dict["plot_ids"]["valid"]
 
@@ -912,7 +1061,6 @@ def update_choropleth(
                 include_no_datas = True
             # if user has not chosen a view level or user is zooming in, default to granularity
             view_level = granularity if len(view_level) == 0 or zoom_in else view_level
-            
             # get map tooltips to match view level (disstrict or province)
             map_df = generate_map_data(
                 plot_data,
@@ -923,7 +1071,7 @@ def update_choropleth(
                 include_no_datas,
             )
             
-                # Set plot title to Total VAs if cod_type=='all'
+            # Set plot title to Total VAs if cod_type=='all'
             cod_title = "Total VAs" if cod_type == "all" else cod_type.capitalize()
 
             highlight_region = map_df.shape[0] == 1
@@ -1044,9 +1192,9 @@ def generate_map_data(
     # doesn't matter if map data is empty if we join with empty data
     if va_df.size > 0 or include_no_datas:
         map_df = (
-            va_df[[view_level, "age", "location"]]
+            va_df[[view_level, "id", "age", "location"]]
             .groupby(view_level)
-            .agg({"age": ["mean", "count"], "location": [pd.Series.nunique]})
+            .agg({"id": ["count"], "age": ["mean"], "location": [pd.Series.nunique]})
         )
 
         map_df.columns = ["_".join(tup) for tup in map_df.columns.to_flat_index()]
@@ -1061,7 +1209,7 @@ def generate_map_data(
             + "</b>"
             + "<br>"
             + f"<b>{metric_name}: </b>"
-            + map_df["age_count"].astype(str)
+            + map_df["id_count"].astype(str)
             + "<br>"
             + "<b>Mean Age of Death: </b>"
             + map_df["age_mean"].astype(str)
@@ -1153,7 +1301,6 @@ def update_callouts(
                 plot_data[[granularity, "age"]].dropna()[granularity].nunique()
             )
             coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
-
     return [
         make_card(coded_vas, header="Coded VAs", tooltip="# of VAs with COD assignments in chosen region and time period"),
         make_card(uncoded_vas, header="Uncoded VAs", tooltip="# of VAs in system missing COD assignments in chosen region and time period"),
@@ -1162,7 +1309,6 @@ def update_callouts(
         # make_card(num_field_workers, header="Field Workers", tooltip="# of Field Workers that have submitted VAs in chosen region and time period"),
         make_card(coverage, header="Region Representation", tooltip="% of region type with data within surrounding geography type - ie. Facilities reporting data within District", style={"width": "225px"}),
     ]
-
 
 # build a calloutbox with specific value
 # colors: primary, secondary, info, success, warning, danger, light, dark
@@ -1224,6 +1370,7 @@ def demographic_plot(va_data, timeframe, filter_dict=None, **kwargs):
                 else:
                     plot_title = "All-Cause Demographics"
             figure = plotting.demographic_plot(plot_data, title=plot_title)
+            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
     return dcc.Graph(id="demos_plot", figure=figure, config=LOOKUP["chart_config"])
 
 # =========Cause of Death Plot Logic============================================#
@@ -1253,56 +1400,14 @@ def cod_plot(va_data, timeframe, factor="Overall", cod_groups="All CODs", N=10, 
             figure = plotting.cod_group_plot(
                 plot_data, cod_groups, demographic=factor, N=N, chosen_cod=cod, height=560
             )
-        
+            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
         return dcc.Graph(id="cod_plot", figure=figure, config=LOOKUP["chart_config"])
     else:
-        raise dash.exceptions.PreventUpdate
-        
-# ============ Trend search options ==================
-@app.callback(
-    Output(component_id="ts_search", component_property="options"),
-    [
-        Input(component_id="ts_search", component_property="search_value"),
-        Input(component_id="va_data", component_property="data"),
-        Input(component_id="filter_dict", component_property="data"),
-    ],
-)
-
-def update_ts_options(search_value, va_data, filter_dict=None, cod_groups=None, **kwargs):
-    if search_value and va_data:
-        if not cod_groups:
-            cod_groups = COD_GROUPS
-        
-        # load cod groups
-        all_options = [(cod_group, "group") for cod_group in cod_groups.columns[2:].tolist()]
-        
-        # load unique cods in selected data
-        va_data = pd.DataFrame(va_data)
-        if va_data.size > 0 and filter_dict:
-            valid_va_data = va_data.loc[filter_dict["ids"]["valid"], :]
-            unique_cods = valid_va_data["cause"].unique().tolist()
-            all_options += [(cod_name, "cod") for cod_name in unique_cods]
-            
-        # always load all-cause option
-        all_options.append(("All Causes", "All causes.all"))
-            
-        # filter options based on search criteria
-        matching_options = [
-            {"label": LOOKUP["display_names"].get(name, name.capitalize()),
-             "value": f"{name}.{type}"}
-            for name, type in all_options #if search_value.lower() in name.lower()
-        ]  
-        return matching_options
-    raise dash.exceptions.PreventUpdate
-            
+        raise dash.exceptions.PreventUpdate     
 
 # ========= Time Series Plot Logic============================================#
 @app.callback(
-#    [
      Output(component_id="ts-container", component_property="children"),
-#     Output(component_id="bounds", component_property="children"),
-#     ],
-    
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="timeframe", component_property="value"),
@@ -1322,15 +1427,15 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                 cod = filter_dict["cod_type"]
                 plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                 # first, check for search terms. If any, use as filter
+                search_terms= [] if search_terms == "All causes.all" else search_terms
                 if search_terms and len(search_terms) > 0:
                     if type(search_terms) is str:
                         search_terms = [search_terms]
                     cod_groups = COD_GROUPS
-                    #ret_val["groups"] = cod_groups.to_json()
                    
                     for search_value in search_terms:
                         if search_value.lower().startswith("all"):
-                            search_value = "All Causes.all"
+                            search_value = "All causes.all"
                         # search term convention: {kewyword.type}
                         key, key_type = search_value.split(".")
                         # if keyword is a cod group, filter to only CODs in that group and only vas meeting that group's criteria
@@ -1360,12 +1465,13 @@ def trend_plot(va_data, timeframe, group_period, filter_dict=None, factor="All",
                     plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                     search_term_ids[cod] = plot_data[plot_data["cause"] == cod].index.tolist()
                     plot_title = f"{cod_title} Trend by {group_period}"
+                    
+            log_callback_trigger(LOGGER, dash.callback_context, kwargs["request"])
 
             figure = plotting.va_trend_plot(
                 plot_data, group_period, factor, title=plot_title, search_term_ids=search_term_ids, height=560
             )
     return dcc.Graph(id="trend_plot", figure=figure, config=LOOKUP["chart_config"])
-
 
 # uncomment this if running as Dash app (as opposed to DjangoDash app)
 # app.run_server(debug= True)

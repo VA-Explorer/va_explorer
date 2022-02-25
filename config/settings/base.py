@@ -20,7 +20,7 @@ DATE_FORMATS = {"%Y-%m-%d": "yyyy-mm-dd",
                 "%m/%d/%Y": "mm/dd/yyyy",
                 "%m/%d/%y": "mm/dd/yy",
                 "%d/%m/%Y": "dd/mm/yyyy",
-                "%d/%m/%y": "dd/mm/yy", 
+                "%d/%m/%y": "dd/mm/yy",
                 "%Y-%m-%d %H:%M:%S": "yyyy-mm-dd HH:MM:SS"}
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
@@ -29,6 +29,14 @@ USE_L10N = True
 USE_TZ = True
 LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 
+# App-specific Configuration
+
+# ==> Configuration for automatic duplicates detection
+# VA Explorer will automatically mark Verbal Autopsies as duplicates if QUESTIONS_TO_AUTODETECT_DUPLICATES is defined
+# Questions must be passed as a comma-separated list, for example, "Id10017, Id10018, Id10019, Id10020"
+# The question IDs passed into the list must match a field in the VerbalAutopsy model
+# By default, automatic duplicates detection is turned off
+QUESTIONS_TO_AUTODETECT_DUPLICATES = os.environ.get('QUESTIONS_TO_AUTODETECT_DUPLICATES', None)
 
 # Databases
 
@@ -57,7 +65,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "django.contrib.humanize", # Handy template tags
-    "django.forms",
+    "django.forms"
 ]
 
 THIRD_PARTY_APPS = [
@@ -73,13 +81,19 @@ THIRD_PARTY_APPS = [
     "django_extensions",
     "bootstrap4",
     "django_filters",
+    "dpd_static_support",
+    "django_pivot",
 ]
 
 LOCAL_APPS = [
     "va_explorer.home.apps.HomeConfig",
+    "va_explorer.va_logs.apps.VaLogsConfig",
     "va_explorer.users.apps.UsersConfig",
     "va_explorer.va_analytics.apps.VaAnalyticsConfig",
     "va_explorer.va_data_management.apps.VaDataManagementConfig",
+    "va_explorer.dhis_manager.apps.DhisManagerConfig",
+    "va_explorer.va_export.apps.VaExportConfig",
+    "va_explorer.va_data_cleanup.apps.VaDataCleanupConfig"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -181,6 +195,8 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "va_explorer.utils.context_processors.settings_context",
+                "va_explorer.utils.context_processors.auto_detect_duplicates",
+                "va_explorer.utils.context_processors.duplicates_count",
             ],
             "libraries": {
                 "va_explorer_tags": "va_explorer.templatetags.va_explorer_tags"
@@ -217,7 +233,7 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VA Explorer] ")
 
 # Logging
-
+LOG_DIR = env("LOG_DIR", default="va_explorer/va_logs")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -225,6 +241,12 @@ LOGGING = {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
             "%(process)d %(thread)d %(message)s"
+        },
+        "debug": {
+            "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
+        },
+        "event": {
+            "format": "%(asctime)s - %(message)s"
         }
     },
     "handlers": {
@@ -232,9 +254,26 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+        },
+        "ingest_file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/logfiles/data_ingest.log",
+            "formatter": "debug"
+        },
+        "event_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": f"{LOG_DIR}/logfiles/events.log",
+            "formatter": "event"
+
         }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
+    "loggers": {
+        "ingest_logger": {"level": "DEBUG", "handlers": ["ingest_file"], "propagate": False},
+        "event_logger": {"level": "INFO", "handlers": ["event_file"], "propagate": False}
+    }
 }
 
 # Caches
@@ -278,7 +317,7 @@ PLOTLY_COMPONENTS = [
     'dash_html_components',
     'dash_renderer',
     'dpd_components',
-    'dash_bootstrap_components'
+    'dash_bootstrap_components',
 ]
 
 PLOTLY_DASH = {

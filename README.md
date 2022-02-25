@@ -9,7 +9,7 @@ VA Explorer currently supports the following functionality at various degrees of
   *  Creation/disabling of user accounts by administrators
   *  Password management for individual users
 * User access controls, including:
-  *  Role-based access with the following roles: administrators, data managers, data viewers,
+  *  Role-based access with the following roles: administrators, data managers, data viewers, dashboard viewers,
   and field workers
   *  Assignment to one or more geographic areas for geographical-level scoping of data
 * Loading of verbal autopsy questionnaire data
@@ -56,6 +56,9 @@ To work with the application, you will need to install some prerequisites:
 * [Postgres](http://www.postgresql.org/)
 * [Docker](https://www.docker.com/)
 
+*Note:* If this is your first time using Postgres, you may be requested to create a user and password for the first time during setup. Take note of this user and password as it will be used later for our setup, as well as your future other projects setups. \
+Instructions can be found online to change your postgres user's password.
+
 Once the prerequisites are available, VA Explorer can be installed and demonstration data can be loaded.
 
 ### Setup
@@ -80,7 +83,7 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `pip install -r requirements/base.txt`
 
-* Create the va_explorer database
+* Create the va_explorer database using your postgres user made during postgres download. It may be `postgres` for example.
 
     `createdb va_explorer -U <name of Postgres user> --password`
 
@@ -111,6 +114,27 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
 
     `./manage.py seed_demo_users`
 
+  * Bulk-create users from a csv file.
+
+    `./manage.py bulk_load_users <CSV_FILE> --email_confirmation <True/False>`
+
+    You can specify user emails, roles, location restrictions, and any other restrictions that are currently exposed in the User Creation Form. If `--email_confirmation` is set to `True`, a confirmation email will be sent out to each new user. Otherwise, their credentials (with temporary password) will be printed to the console. To get a starting template for user csv file, you can run the following command:
+
+    `./manage.py get_user_form_template --output_file <FILENAME>`
+
+  * Export anynymous info for all users in system
+
+    `./manage.py export_user_info --output_file <FILENAME> --user_file=<FILENAME>`
+      
+      This will export anonymous user IDs, user roles, geographic restrictions and privileges to a `.csv` file. Ultimately, the file can be used to track user activity in logs without compromising their PII. By default, it exports info on all users in the system, but you can choose to filter down to a select list of users by setting the `--user_file` argument to a `.txt` file with all user emails (one per line) you'd like to know about. In this case, the command will tell you which emails failed to match users in the database. 
+      
+
+* Link Field Workers to VAs
+
+  `./manage.py link_fieldworkers_to_vas --emails <comma-separated field worker emails> --match_threshold <1-100> --debug <True/False>`
+
+    This command links a group of field workers to their corresponding VAs in the system. Linking is done by searching a VA's interviewer name (field `Id10010`) against names of field workers in the system. If there's a match, a link is created by setting the VA's username to the matching field worker's username. By default, all field workers in the system are considered for matching, but you can specify a subset with the `--emails` argument (comma-separated, no spaces). To account for typos and slight variations in name spelling, a fuzzy-matching algorithm is used. You can specify how stringent the algorithm is with `--matching_threshold` (higher is stricter, with 100 being a perfect match). 
+  
 * Load location data
 
   `./manage.py load_locations <NAME OF CSV>`
@@ -174,7 +198,8 @@ va_explorer/django
 
 ### Deploying with a reverse proxy
 
-Set the following environment variables:
+Set the following environment variables to an appropriate place for the
+host such as `/etc/env` or preferred location.
 
 ```
 export EMAIL_URL=smtp://localhost:25 <or> consolemail://
@@ -195,24 +220,58 @@ Run docker-compose in daemon mode:
 docker-compose up -d django
 ```
 
-If using Apache, set the following configuration in your apache configuration:
-
+If using Apache, ensure the following modules are enabled:
+- proxy proxy_http proxy_wstunnel
+- headers rewrite
+- ssl
+- deflate
+and set the following configuration in your apache configuration:
 ```
 LoadModule rewrite_module modules/mod_rewrite.so
 LoadModule proxy_module modules/mod_proxy.so
 LoadModule proxy_http_module modules/mod_proxy_http.so
 LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 
-<Location />
-    ProxyPreserveHost on
-    ProxyPass http://localhost:5000/
-    ProxyPassReverse http://localhost:5000/
+<VirtualHost *:80>
+        ServerAdmin verbal-autopsy@mitre.org
+        ServerName va-explorer.mitre.org
+        ServerAlias www.va-explorer.mitre.org
 
-    RewriteEngine on
-    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
-    RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
-    RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
-</Location>
+        Redirect permanent / https://va-explorer.mitre.org
+
+        ErrorLog ${APACHE_LOG_DIR}/va_error.log
+        CustomLog ${APACHE_LOG_DIR}/va_access.log combined
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+  <VirtualHost _default_:443>
+        SSLEngine on
+        ServerAdmin verbal-autopsy@mitre.org
+        ServerName va-explorer.mitre.org
+        ServerAlias www.va-explorer.mitre.org
+
+        AddOutputFilterByType DEFLATE text/plain text/html text/css text/javascript application/javascript application/json text/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+        <Location />
+                ProxyPreserveHost on
+                ProxyPass http://localhost:5000/
+                ProxyPassReverse http://localhost:5000/
+
+                SetOutputFilter INFLATE;DEFLATE
+
+                RewriteEngine on
+                RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+                RewriteCond %{HTTP:CONNECTION} ^Upgrade$ [NC]
+                RewriteRule .* ws://localhost:5000%{REQUEST_URI} [P]
+        </Location>
+
+        SSLCertificateFile /etc/ssl/certs/va-explorer.pem
+        SSLCertificateKeyFile /etc/ssl/private/va-explorer.key
+
+        ErrorLog ${APACHE_LOG_DIR}/va_error.log
+        CustomLog ${APACHE_LOG_DIR}/va_access.log combined
+  </VirtualHost>
+</IfModule>
 ```
 
 ### Creating first user
@@ -231,10 +290,11 @@ From there, you can create a super user. Follow the prompts after running this c
 
 ## Running Coding Algorithm
 
-There are two ways to run the coding algorithm to add cause of death to uncoded verbal autopsies: from the command line or from the user interface.
+There are two ways to run the coding algorithm to add cause of death to uncoded verbal autopsies: from the command line or from the user interface. The system currently supports InterVA5 and its associated settings but will eventually expand to others such as InSilicoVA.
 
-Both methods require the `PYCROSS_HOST` and `INTERVA_HOST` environment variables to be configured to point to the locations of pyCrossVA
+Both methods require the `PYCROSS_HOST` and `INTERVA_HOST` environment variables to be configured to point to the locations of pyCrossVA. 
 InterVA5 respectively. If you are in Docker, both of those will have been configured and started up automatically.
+
 
 ### Command Line
 
@@ -250,7 +310,19 @@ This will list a brief report of results in the following format:
 Coded 24 verbal autopsies (out of 30) [6 issues]
 ```
 
-You will receive an error message if pyCrossVA or InterVA5 are unavailable.
+If you'd like to re-code all existing VAs in the system (overwriting previous COD assignments) you can do so by passing `overwrite True` to the command-line call. This will save a backup table of old COD assignments, clear all CODs in the database, and re-run the coding algorithm on all eligible VAs. By default, old COD assignments will be saved to a .csv file named `old_cod_mapping.csv`. You can customize the name of this file by passing `--cod_fname <filename>` as an optional parameter.
+
+You can also configure certain algorithm settings as environmental variables. For InterVA5, you can set HIV prevalence `(very low (v), low (l) or high (h))`, Malaria prevalance (same options as HIV), and whether or not to export group codes to COD assignments `(True/False)` in your `.env` file like so:  
+```
+INTERVA_MALARIA=l
+INTERVA_HIV=v 
+INTERVA_GROUPCODE=False
+```
+
+See `va_data_management/utils/coding.py` for more details
+
+
+**Note**: You will receive an error message if pyCrossVA or InterVA5 are unavailable.
 
 ### User Interface
 
@@ -262,12 +334,15 @@ Clicking the "Run Coding Algorithms" will execute the coding algorithms in the b
 
 ## Importing From ODK
 
-You can use the `import_from_odk` management command to import records from an ODK server like so. You must specify either project-name or project-id to import:
+You can use the `import_from_odk` management command to import records from an ODK server like so. 
+You must specify either project-name or project-id and form-name or form-id to import:
 
 ```
-./manage.py import_from_odk --project-id=1234
+./manage.py import_from_odk --project-id=1234 --form-id=va_form_id
 # or
-./manage.py import_from_odk --project-name=zambia-test
+./manage.py import_from_odk --project-name=zambia-test --form_id=va_form_id
+# or
+./manage.py import_from_odk --project-name=zambia-test --form_name='Form Name'
 ```
 
 This depends on the following environment variables being set:
@@ -284,6 +359,45 @@ Alternatively, you can specify email and pasword as command line arguments:
 ./manage.py import_from_odk --project-name=zambia-test --email=example@example.com --password=example
 ```
 
+## Autodetecting Duplicates
+
+VA Explorer can be optionally configured to autodetect duplicate Verbal Autopsies and surface potential duplicates in the
+user interface. By default, this feature is turned off. 
+
+To use this feature, identify a subset of key Verbal Autopsy fields that will, in concert, uniquely identify a Verbal Autopsy. The fields are
+passed into the application as an environment variable:
+
+```
+QUESTIONS_TO_AUTODETECT_DUPLICATES="question1, question2, question3"
+```
+
+As per above, the value for this variable must be a comma-separated string. If any Verbal Autopsies match across these fields, they
+will be marked as potential duplicates. The oldest Verbal Autopsy (by created timestamp) amongst a set of matching Verbal Autopsies 
+is designated as the non-duplicate.
+
+### Marking Existing VAs as Duplicate
+To mark existing Verbal Autopsies in the database as potential duplicates, you may use the following command: 
+
+```
+./manage.py mark_vas_as_duplicate
+```
+
+This command should be run prior to using the feature in the user interface to avoid unexpected results.
+
+IMPORTANT NOTE: If the value of `QUESTIONS_TO_AUTODETECT_DUPLICATES` is changed, you must re-run the command 
+
+```
+./manage.py mark_vas_as_duplicate
+```
+
+### Managing Duplicate VAs 
+Duplicate Verbal Autopsies will appear in the user interface under the "Data Cleanup" tab. The Data Cleanup tab is only present when
+the environmental variable `QUESTIONS_TO_AUTODETECT_DUPLICATE` is set. To manage duplicates, you may delete them or 
+edit the possible duplicate Verbal Autopsies to remove them from detection.
+
+## Troubleshooting
+* If experiencing trouble installing the `pyscopg2` application requirement, it is possible that `pyscopg2` may be pointing to the wrong SSL when trying to download. Temporarily adding this environment variable has worked as a fix. <br> `export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib' `
+* If experiencing trouble installing `scipy` application requirement, specifically with this error message:  <br> `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.     ---------------------------------------- ERROR: Command errored out with exit status 1:` <br> [This thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) can be helpful. Please make sure to upgrade pip, such as by running the command `pip install --upgrade pip`. This issue has especially come up for users on Mac OS Big Sur users.
 ## Version History
 
 This project adheres to [Semantic Versioning](http://semver.org/).
@@ -292,7 +406,7 @@ Releases are documented in the [CHANGELOG]().
 
 ## License
 
-Copyright 2020-2021 The MITRE Corporation
+Copyright 2020-2022 The MITRE Corporation
 
 The source of this information is the Data for Health Initiative, a joint project of the CDC Foundation and Bloomberg Philanthropies.
 

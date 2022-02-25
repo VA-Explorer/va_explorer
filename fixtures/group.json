@@ -30,6 +30,21 @@
                "dashboard"
             ],
             [
+               "download_data",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
+               "view_pii",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
+               "supervise_users",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
                "change_verbalautopsy",
                "va_data_management",
                "verbalautopsy"
@@ -54,6 +69,21 @@
             ],
             [
                "view_dashboard",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
+               "download_data",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
+               "view_pii",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
+               "supervise_users",
                "va_analytics",
                "dashboard"
             ],
@@ -93,7 +123,16 @@
       "fields":{
          "name":"Field Workers",
          "permissions":[
-
+            [
+               "view_dashboard",
+               "va_analytics",
+               "dashboard"
+            ],
+            [
+               "view_verbalautopsy",
+               "va_data_management",
+               "verbalautopsy"
+            ]
          ]
       }
    }

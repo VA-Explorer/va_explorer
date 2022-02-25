@@ -1,0 +1,18 @@
+{% load va_explorer_tags %}
+{% if last_update or last_submission %}
+  <div class="row">
+    {% if last_update %}
+        <p class='msg-header'> <b>Last Data Update:</b> {{ last_update }}</p>
+    {% else %}
+        <p class='msg-header'>No VAs found</p>
+    {% endif %}
+
+    {% if last_submission %}
+        <p class='msg-header'><b>Last VA submission:</b> {{ last_submission }}</p>
+    {% endif %}
+
+    {% if AUTO_DETECT_DUPLICATES %}
+      <p class='msg-header'><b># Auto-detected Duplicates:</b> {{ DUPLICATES_COUNT }}</p>
+    {% endif %}
+  </div>
+{% endif %}

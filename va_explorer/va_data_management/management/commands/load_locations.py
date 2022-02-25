@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.utils.loading import load_locations_from_file
 import argparse
 import pandas as pd
 
@@ -11,29 +12,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('csv_file', type=argparse.FileType('r'))
+        parser.add_argument('--delete_previous', type=bool, nargs='?', default=False)
 
     def handle(self, *args, **options):
 
         # Load the CSV file
-        csv_data = pd.read_csv(options['csv_file'], keep_default_na=False)
-        
+        csv_file = options['csv_file']
+        delete_previous = options['delete_previous']
 
-        # Clear out any existing locations (this is for initialization only)
-        Location.objects.all().delete()
-        
-        
-        # Store it into the database in a tree structure
-        for row in csv_data.itertuples():
-            if row.Parent:
-                self.stdout.write(f'Adding {row.Name} as child node of {row.Parent}')
-                parent_node = Location.objects.get(name=row.Parent)
-                parent_node.add_child(name=row.Name, location_type=row.Type)
-            else:
-                self.stdout.write(f'Adding root node for {row.Name}')
-                Location.add_root(name=row.Name, location_type=row.Type)
-               
-                
-        # if non existent, add 'Null' location to databse to account for VAs with unknown locations
-        if not Location.objects.filter(name='Unkown').exists():
-            self.stdout.write(f'Adding NULL location to handle unknowns')
-            Location.add_root(name='Unknown', location_type='facility')
+        # see loading.py in va_data_management_utils for implementation
+        load_locations_from_file(csv_file, delete_previous=delete_previous)
+

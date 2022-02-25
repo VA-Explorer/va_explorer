@@ -15,17 +15,12 @@
       <script src="{% static 'vendor/html5shiv-3.7.3/html5shiv.js' %}"></script>
     <![endif]-->
 
-  <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
-
-  {% block css %}
+  <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}"> {% block css %}
   <link href="{% static 'vendor/bootstrap-4.3.1/bootstrap.css' %}" rel="stylesheet">
   <link href="{% static 'vendor/select2-4.1.0-beta.1/select2.css' %}" rel="stylesheet">
+  <link href="{% static 'css/form.css' %}" rel="stylesheet">
   <link href="{% static 'css/project.css' %}" rel="stylesheet">
-  <link href="{% static 'css/fab.css' %}" rel="stylesheet">
-  {% endblock %}
-
-  {% load plotly_dash%}
-  {% plotly_header %}
+  <link href="{% static 'css/fab.css' %}" rel="stylesheet"> {% endblock %} {% load plotly_dash%} {% plotly_header %}
 
 </head>
 
@@ -38,15 +33,14 @@
 
     <div class="row mt-4">
       <h2>
-        {% block heading %}
-        {% endblock heading %}
+        {% block heading %} {% endblock heading %}
       </h2>
       <br>
     </div>
 
-    {% block content %}
-    {% endblock content %}
-  </div> <!-- /container -->
+    {% block content %} {% endblock content %}
+  </div>
+  <!-- /container -->
 
   {% block modal %}{% endblock modal %}
 
@@ -57,10 +51,12 @@
   <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
   <script src="{% static 'js/project.js' %}"></script>
   <script src="{% static 'js/fab.js' %}"></script>
+  <script src="{% static 'js/logging_event_handlers.js' %}"></script>
+  <script src="{% static 'vendor/lodash-4.17.5/lodash.js' %}"></script>
 
   {% block page_scripts %}{% endblock %}
 
-  <div class="navbar fixed-bottom copyright-text">Copyright 2020-2021 The MITRE Corporation</div>
+  <footer class="container copyright-text">Copyright 2020-{% now "Y" %} The MITRE Corporation</footer>
 
 </body>
 {% plotly_footer %}
