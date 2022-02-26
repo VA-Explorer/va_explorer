@@ -61,6 +61,7 @@
 {% if perms.va_data_management.change_verbalautopsy %}
 <div class="row mt-4">
   <div class="col">
+    <a class="btn btn-light float-right" href="{% url 'data_management:batch_operations' %}">Job Statuses</a>
     <h2 class="mb-4">Verbal Autopsy Actions</h2>
       <form method="post" action="{% url 'data_management:run_coding_algorithms' %}">
         {% csrf_token %}

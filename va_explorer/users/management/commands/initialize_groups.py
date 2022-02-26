@@ -6,7 +6,7 @@ from django.core.management import BaseCommand
 
 from va_explorer.users.models import User
 from va_explorer.va_analytics.models import Dashboard
-from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import VerbalAutopsy, BatchOperation
 from va_explorer.va_data_cleanup.models import DataCleanup
 
 
@@ -15,25 +15,29 @@ GROUPS_PERMISSIONS = {
         Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["add_user", "change_user", "delete_user", "view_user"],
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy", "delete_verbalautopsy", "bulk_delete"],
-        DataCleanup: ["view_datacleanup", "download", "bulk_download"]
+        DataCleanup: ["view_datacleanup", "download", "bulk_download"],
+        BatchOperation: ["view_batchoperations"],
     },
     "Data Managers": {
         Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
         User: ["view_user"],
         VerbalAutopsy: ["change_verbalautopsy", "view_verbalautopsy", "delete_verbalautopsy"],
         DataCleanup: ["view_datacleanup", "download", "bulk_download"],
+        BatchOperation: ["view_batchoperations"],
     },
     "Data Viewers": {
         Dashboard: ["view_dashboard"],
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"],
         DataCleanup: [],
+        BatchOperation: ["view_batchoperations"],
     },
     "Field Workers": {
         Dashboard: ["view_dashboard"],
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"],
         DataCleanup: [],
+        BatchOperation: [],
     },
 }
 

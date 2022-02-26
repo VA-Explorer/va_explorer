@@ -9,50 +9,73 @@
   <a class="navbar-brand" href="{% url 'home:index' %}">VA Explorer</a>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-      <li class="nav-item">
-        <a class="{% active '^\/$' %} nav-link" href="{% url 'home:index' %}">Home</a>
+      <li class="nav-item dropdown">
+        <a class="{% active '^\/$|about' %} nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Home
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="{% url 'home:index' %}">Home</a>
+          <a class="dropdown-item" href="{% url 'home:about' %}">About</a>
+        </div>
       </li>
-      <li class="nav-item">
-        <a class="{% active 'about' %} nav-link" href="{% url 'home:about' %}">About</a>
-      </li>
-      {% if perms.users.view_user %}
-      <li class="nav-item">
-        <a class="{% active '\/(.*)users' %} nav-link" href="{% url 'users:index' %}">Users</a>
-      </li>
+
+      {% if perms.users.view_user or perms.va_analytics.supervise_users %}
+        <li class="nav-item dropdown">
+          <a class="{% active '\/(.*)users|supervision' %} nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Users
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {% if perms.users.view_user %}
+              <a class="dropdown-item" href="{% url 'users:index' %}">Users</a>
+            {% endif %}
+            {% if perms.va_analytics.supervise_users %}
+              <a class="dropdown-item" href="{% url 'va_analytics:supervision' %}">Supervision</a>
+            {% endif %}
+          </div>
+        </li>
       {% endif %}
-      {% if perms.va_analytics.supervise_users %}
-      <li class="nav-item">
-        <a class="{% active '\/(.*)supervision' %} nav-link" href="{% url 'va_analytics:supervision' %}">Supervision</a>
-      </li>
-      {% endif %}
+
       {% if perms.va_analytics.view_dashboard %}
       <li class="nav-item">
           <a class="{% active '\/(.*)dashboard' %} nav-link" href="{% url 'va_analytics:dashboard' %}">Dashboard</a>
         </li>
       {% endif %}
-     {% if perms.dhis_manager.change_dhisstatus %}
-       <li class="nav-item">
-          <a class="{% active 'dhis' %} nav-link" href="{% url 'dhis_manager:dhishome' %}">DHIS2</a>
+      {% if perms.va_data_management.view_verbalautopsy or perms.va_data_management.view_batchoperations or perms.va_data_cleanup.view_datacleanup %}
+        <li class="nav-item dropdown">
+          <a class="{% active '\/(.*)data_management|data_cleanup' %} nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Data Management
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {% if perms.va_data_management.view_verbalautopsy %}
+              <a class="dropdown-item" href="{% url 'va_data_management:index' %}">Data Management</a>
+            {% endif %}
+            {% if perms.va_data_management.view_batchoperations %}
+              <a class="dropdown-item" href="{% url 'data_management:batch_operations' %}">Batch Statuses</a>
+            {% endif %}
+            {% if AUTO_DETECT_DUPLICATES and perms.va_data_cleanup.view_datacleanup %}
+              <a class="dropdown-item" href="{% url 'va_data_cleanup:index' %}">Data Cleanup</a>
+            {% endif %}
+          </div>
         </li>
-      </li>
-        {% endif %}
-      {% if perms.va_analytics.download_data %}
-      <li class="nav-item">
-          <a class="{% active '\/(.*)download' %} nav-link" href="{% url 'va_export:download_form' %}">Export</a>
-      </li>
       {% endif %}
 
-      {% if perms.va_data_management.view_verbalautopsy %}
-      <li class="nav-item">
-        <a class="{% active '\/(.*)data_management' %} nav-link" href="{% url 'va_data_management:index' %}">Data Management</a>
-      </li>
-      {% endif %}
-      {% if AUTO_DETECT_DUPLICATES and perms.va_data_cleanup.view_datacleanup %}
-      <li class="nav-item">
-        <a class="{% active '\/(.*)data_cleanup' %} nav-link" href="{% url 'va_data_cleanup:index' %}">Data Cleanup</a>
-      </li>
+      {% if perms.va_analytics.download_data or perms.dhis_manager.change_dhisstatus %}
+        <li class="nav-item dropdown">
+          <a class="{% active '\/(.*)dhis|export' %} nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Export
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {% if perms.va_analytics.download_data %}
+              <a class="dropdown-item" href="{% url 'va_export:download_form' %}">Export</a>
+            {% endif %}
+            {% if perms.dhis_manager.change_dhisstatus %}
+              <a class="dropdown-item" href="{% url 'dhis_manager:dhishome' %}">DHIS2</a>
+            {% endif %}
+          </div>
+        </li>
       {% endif %}
     </ul>
+
     <ul class="navbar-nav ml-auto my-2 my-lg-0">
       <li class="nav-item dropdown">
         {% if request.user.is_authenticated %}
