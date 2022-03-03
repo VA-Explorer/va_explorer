@@ -10,9 +10,13 @@ import openva_pipeline.dhis as dhis
 import pandas as pd
 import numpy as np
 
-DHIS2_HOST = os.environ.get('DHIS2_URL', 'http://localhost:8080')
-# Don't verify localhost (self-signed cert)
-SSL_VERIFY = os.environ.get('DHIS2_SSL_VERIFY', not DHIS2_HOST.startswith('https://localhost')).lower() in ('true', '1', 't')
+DHIS2_HOST = os.environ.get('DHIS2_URL', 'http://127.0.0.1:5002')
+if DHIS2_HOST.startswith('https://localhost'):
+    # Don't verify localhost (self-signed cert or test).
+    SSL_VERIFY = False
+else:
+    # Support multiple user-provided boolean representations from .env
+    SSL_VERIFY = os.environ.get('DHIS2_SSL_VERIFY', 'TRUE').lower() in ('true', '1', 't')
 
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
@@ -43,7 +47,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         env = environ.Env()
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_USER = env("DHIS2_USER")
         DHIS2_PASS = env("DHIS2_PASS")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
@@ -144,7 +147,7 @@ class Command(BaseCommand):
                                              "dhisPassword",
                                              "dhisOrgUnit"]
                                             )
-            settingsDHIS = ntDHIS(DHIS2_URL, DHIS2_USER, DHIS2_PASS, DHIS2_ORGUNIT)
+            settingsDHIS = ntDHIS(DHIS2_HOST, DHIS2_USER, DHIS2_PASS, DHIS2_ORGUNIT)
 
             CODCodes =  cod_codes_dhis.objects.filter(codsource="WHO").values()
             queryCODCodes = pd.DataFrame.from_records(CODCodes)
@@ -213,9 +216,8 @@ class Command(BaseCommand):
         env = environ.Env()
 
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
-        url = DHIS2_URL+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
+        url = DHIS2_HOST+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
         response = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = response.json()
         return jn['pager']['total']
@@ -225,11 +227,10 @@ class Command(BaseCommand):
         prg = 'sv91bCroFFx' if not prg else prg
         env = environ.Env()
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
 
         eventsnum = self.getEventsValues(prg, auth)
-        url = DHIS2_URL+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
+        url = DHIS2_HOST+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
         r = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = r.json()
         list1 = list()
