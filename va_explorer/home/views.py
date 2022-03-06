@@ -20,6 +20,8 @@ def graph(x, y):
     config = {'displayModeBar': False}
     return opy.plot(figure, auto_open=False, output_type='div', config=config)
 
+NUM_TABLE_ROWS = 5
+
 class Index(CustomAuthMixin, TemplateView):
 
     template_name = "home/index.html"
@@ -36,6 +38,7 @@ class Index(CustomAuthMixin, TemplateView):
             context['locations'] = ', '.join([location.name for location in location_restrictions.all()])
         else:
             context['locations'] = 'All Regions' 
+            
         # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
@@ -104,22 +107,18 @@ class Index(CustomAuthMixin, TemplateView):
 
             # List the VAs that need attention; requesting certain fields and prefetching makes this more efficient
             vas_to_address = user_vas.only('id', 'location_id', 'Id10007', 'Id10010', 'Id10017',
-                'Id10018', 'submissiondate', 'Id10011', 'Id10023').filter(causes__isnull=True)[:10].prefetch_related("causes", "coding_issues", "location")
+                'Id10018', 'submissiondate', 'Id10011', 'Id10023').filter(causes__isnull=True)[:NUM_TABLE_ROWS].prefetch_related("causes", "coding_issues", "location")
+            
+            # List the VAs with Indeterminate COD
+            vas_with_indeterminate_cod = user_vas.only('id', 'location_id', 'Id10007', 'Id10010', 'Id10017',
+                'Id10018', 'submissiondate', 'Id10011', 'Id10023').filter(causes__cause="Indeterminate")[:NUM_TABLE_ROWS].prefetch_related("causes", "coding_issues", "location")
 
-            context['issue_list'] = [{
-                "id": va.id,
-                "deceased": f"{va.Id10017} {va.Id10018}", 
-                "interviewer": va.Id10010,
-                "submitted":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
-                "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
-                "facility": va.location.name if va.location else "",
-                "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-                "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-                "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
-            } for va in vas_to_address]
+            context['issue_list'] = self.get_context_for_va_table(vas_to_address)
+            context['indeterminate_cod_list'] = self.get_context_for_va_table(vas_with_indeterminate_cod)
 
-            # If there are more than 10 show a link to where the rest can be seen
-            context['additional_issues'] = max(context['vas_uncoded_overall'] - 10, 0)
+            # If there are more than NUM_TABLE_ROWS show a link to where the rest can be seen
+            context['additional_issues'] = max(context['vas_uncoded_overall'] - NUM_TABLE_ROWS, 0)
+            context['additional_indeterminate_cods'] = max(user_vas.only('id').filter(causes__cause="Indeterminate").count() - NUM_TABLE_ROWS, 0)
         # NO VAS FOUND - RETURN EMPTY STATS
         else:
             # empty stats
@@ -134,6 +133,19 @@ class Index(CustomAuthMixin, TemplateView):
             context['issue_list'] = []
 
         return context
+
+    def get_context_for_va_table(self, va_list):
+        return [{
+            "id": va.id,
+            "deceased": f"{va.Id10017} {va.Id10018}", 
+            "interviewer": va.Id10010,
+            "submitted":  parse_date(va.submissiondate) if (va.submissiondate != 'dk') else "Unknown", #django stores the date in yyyy-mm-dd
+            "dod":  parse_date(va.Id10023) if (va.Id10023 != 'dk') else "Unknown",
+            "facility": va.location.name if va.location else "",
+            "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+            "warnings": len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
+            "errors": len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+            } for va in va_list]
 
 
 class About(CustomAuthMixin, TemplateView):
