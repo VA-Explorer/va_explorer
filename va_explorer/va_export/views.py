@@ -107,6 +107,8 @@ class VaApi(CustomAuthMixin, View):
 				matching_vas = matching_vas.filter(cause__in=match_list)
 
 		#=========DATA CLEANING (if any matching VAs)========#
+		va_df = pd.DataFrame()
+		
 		if matching_vas.count() > 0:
 			# Build a location ancestors lookup and add location information at all levels to all vas
 			location_ancestors = {
