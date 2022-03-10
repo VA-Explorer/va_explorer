@@ -858,8 +858,14 @@ app.clientside_callback(
                 
                 const sorted = new Map(Object.entries(obj).sort((a, b) => b[1] - a[1]));
                 
-                metrics = Array.from( sorted.keys() ).slice(0,N);
-                metrics.unshift("all")
+                metrics = Array.from(sorted.keys()).slice(0,N);
+                
+                // Manually adds "Indeterminate" to COD dropdown if it doesn't exist
+                // TODO: Once additional algorithms are added, will need to add logic that checks if "Indeterminate" is a valid COD
+                if (!metrics.includes("Indeterminate")) {
+                    metrics.push("Indeterminate");
+                }
+                metrics.unshift("all");
             }
         }
 
