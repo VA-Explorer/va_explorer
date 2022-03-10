@@ -85,6 +85,17 @@ def _run_pycross_and_interva5(verbal_autopsies):
     algorithm_response = requests.post(algorithm_url, data=result_json)
     return json.loads(algorithm_response.text)
 
+# Infer the WHO form version most closely matching VA Data. If no matches, return error string. 
+# can specify optional overlap threshold used to determine matches
+def detect_va_format(va_data, threshold=None):
+    format_url = f'{PYCROSS_HOST}/detect_format'
+    if threshold:
+        threshold = abs(threshold) / 100 if threshold > 1 else threshold
+        format_url += f"?threshold={threshold}"
+
+    va_data_csv = va_data.to_csv()
+    response = requests.post(format_url, data=va_data_csv.encode('utf-8'))
+    return response.content
 
 def run_coding_algorithms():
     # Load all verbal autopsies that don't have a cause coding

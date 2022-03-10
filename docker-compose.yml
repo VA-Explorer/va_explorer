@@ -7,7 +7,8 @@ volumes:
 services:
   pycrossva:
     image: va_explorer/pycrossva
-    build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
+    #TODO: CHANGE REPO BACK TO -EXPERIMENT ONCE CHANGES HAVE BEEN MERGED
+    build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-update
     ports:
       - "5001:80"
     

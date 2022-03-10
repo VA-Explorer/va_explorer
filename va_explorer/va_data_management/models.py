@@ -50,7 +50,10 @@ class VerbalAutopsy(SoftDeletionModel):
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
     location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE, null=True)
 
+    # Each VA is collected according to a particular WHO standard/version
+    version = models.TextField("Version", blank=True)
     # The VA fields collected as part of the WHO VA form or local versions
+    #
     # TODO: Need an approach that supports different variants in different countries
     deviceid = models.TextField("Device ID", blank=True)
     instanceid = models.TextField("Instance ID", blank=True, editable=False)
