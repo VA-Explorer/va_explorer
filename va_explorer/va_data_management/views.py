@@ -9,8 +9,15 @@ from django.db.models import Count, F, Q
 from django.db.models import Value as V  # noqa: N817 - not acronym
 from django.db.models.functions import Concat
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import (
+    DeleteView,
+    DetailView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
 from django.views.generic.detail import SingleObjectMixin
 
 from va_explorer.utils.mixins import CustomAuthMixin
@@ -120,24 +127,14 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "id": va["id"],
                 "deceased": va["deceased"],
                 "interviewer": va["Id10010"],
-                "submitted": va[
-                    "submissiondate"
-                ],  # get_submissiondate(va, empty_string="Unknown", parse=True), #django stores the date in yyyy-mm-dd
+                "submitted": va["submissiondate"],
                 "dod": parse_date(va["Id10023"])
                 if (va["Id10023"] != "dk")
                 else "Unknown",
-                "facility": va[
-                    "location__name"
-                ],  # va.location.name if va.location else "",
-                "cause": va[
-                    "causes__cause"
-                ],  # va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-                "warnings": va[
-                    "warnings"
-                ],  # len([issue for issue in va.coding_issues.all() if issue.severity == 'warning']),
-                "errors": va[
-                    "errors"
-                ],  # len([issue for issue in va.coding_issues.all() if issue.severity == 'error'])
+                "facility": va["location__name"],
+                "cause": va["causes__cause"],
+                "warnings": va["warnings"],
+                "errors": va["errors"],
             }
             for va in context["object_list"]
         ]
@@ -181,6 +178,7 @@ class Show(
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
         context["diffs"] = [new.diff_against(old) for (old, new) in history_pairs]
+        context["duplicate"] = self.object.duplicate
 
         # log view record event
         write_va_log(
@@ -309,3 +307,48 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         )
         write_va_log(LOGGER, "ran coding algorithm", self.request)
         return super().post(request, *args, **kwargs)
+
+
+class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = "va_data_management.delete_verbalautopsy"
+    model = VerbalAutopsy
+    success_url = reverse_lazy("va_data_cleanup:index")
+    success_message = "Verbal Autopsy %(id)s was deleted successfully"
+    error_message = (
+        "Verbal Autopsy %(id)s could not be deleted. This Verbal Autopsy doesn't exist or "
+        "you don't have access to delete it."
+    )
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
+        # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
+        if (
+            self.request.user.verbal_autopsies()
+            .filter(id=obj.id, duplicate=True)
+            .exists()
+        ):
+            messages.success(self.request, self.success_message % obj.__dict__)
+            return super(Delete, self).delete(request, *args, **kwargs)
+        else:
+            messages.error(self.request, self.error_message % obj.__dict__)
+            return redirect("va_data_cleanup:index")
+
+
+delete = Delete.as_view()
+
+
+class DeleteAll(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
+    permission_required = "va_data_management.bulk_delete"
+    model = VerbalAutopsy
+    success_url = reverse_lazy("va_data_cleanup:index")
+    success_message = "Duplicate Verbal Autopsies successfully deleted!"
+    template_name = "va_data_management/verbalautopsy_confirm_delete_all.html"
+
+    def post(self, request, *args, **kwargs):
+        self.request.user.verbal_autopsies().filter(duplicate=True).delete()
+        messages.success(self.request, self.success_message)
+        return redirect(reverse("va_data_cleanup:index"))
+
+
+delete_all = DeleteAll.as_view()

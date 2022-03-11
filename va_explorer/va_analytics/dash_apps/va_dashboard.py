@@ -233,6 +233,9 @@ app.layout = html.Div(
                                 dcc.Store(id="locations"),
                                 dcc.Store(id="location_types"),
                                 dcc.Store(id="filter_dict"),
+                                dcc.Store(id="display_names"),
+                                dcc.Store(id="cod_type_data"),
+                                dcc.Store(id="timeframe_data"),
                                 # used to trigger data ingest when page first loads
                                 html.Div(
                                     id="hidden_trigger", style={"display": "none"}
@@ -496,18 +499,39 @@ app.layout = html.Div(
 
 
 # =============Reset logic (reset map to default)====================#
-@app.callback(
-    [
-        Output(component_id="map_search", component_property="value"),
-        Output(component_id="cod_type", component_property="value"),
-        Output(component_id="timeframe", component_property="value"),
-    ],
+app.clientside_callback(
+    """
+    function(n_clicks){
+        return ""
+    }
+    """,
+    Output(component_id="map_search", component_property="value"),
     [Input(component_id="reset", component_property="n_clicks")],
 )
-def reset_dashboard(n_clicks=0, **kwargs):
-    write_va_log(LOGGER, "[dashboard] Clicked Reset Button", kwargs["request"])
-    return "", INITIAL_COD_TYPE, INITIAL_TIMEFRAME
-
+app.clientside_callback(
+    """
+    function(n_clicks, cod_type){
+        return cod_type
+    }
+    """,
+    Output(component_id="cod_type", component_property="value"),
+    [
+        Input(component_id="reset", component_property="n_clicks"),
+        Input(component_id="cod_type_data", component_property="data"),
+    ],
+)
+app.clientside_callback(
+    """
+    function(n_clicks, timeframe){
+        return timeframe
+    }
+    """,
+    Output(component_id="timeframe", component_property="value"),
+    [
+        Input(component_id="reset", component_property="n_clicks"),
+        Input(component_id="timeframe_data", component_property="data"),
+    ],
+)
 
 # ============ VA data (loaded from database and shared across components) ========
 """
@@ -543,6 +567,9 @@ designated as "expanded"
         Output(
             component_id="va_update_stats", component_property="children"
         ),  # stats on last update
+        Output(component_id="display_names", component_property="data"),
+        Output(component_id="cod_type_data", component_property="data"),
+        Output(component_id="timeframe_data", component_property="data"),
     ],
     [Input(component_id="hidden_trigger", component_property="children")],
 )
@@ -617,18 +644,17 @@ def init_va_data(hidden_trigger=None, **kwargs):
 
 
 # ============ Location search options (loaded after load_va_data())==================
-@app.callback(
+app.clientside_callback(
+    """
+    function(tab_value, scale) {
+        var tab_names = {"tab-1": "COD", "tab-2": "Demographics", "tab-3": "VA Trends"};
+        var tab_name = tab_names[tab_value];
+        return(tab_name);
+    }
+    """,
     Output(component_id="log_data", component_property="children"),
     [Input(component_id="plot_tabs", component_property="value")],
 )
-def log_tab_value(tab_value, **kwargs):
-    tab_names = {"tab-1": "COD", "tab-2": "Demographics", "tab-3": "VA Trends"}
-    tab_name = tab_names.get(tab_value, None)
-    if tab_name:
-        write_va_log(
-            LOGGER, f"[dashboard] Clicked on {tab_name} Tab ", kwargs["request"]
-        )
-    return tab_name
 
 
 # ============ Filter logic (update filter table used by other componenets)========#
@@ -885,67 +911,89 @@ def shift_granularity(current_granularity, levels, move_up=False):
 
 # =========Map Metrics =======================#
 # Top metrics to track for map dropdown
-@app.callback(
+app.clientside_callback(
+    """
+    function(va_data, filter_dict, display_names){
+        var N = 10;
+        // by default, start with aggregate measures
+        var metrics = [];
+        var metric_data= va_data
+        if (Object.values(metric_data['index']).length > 0){
+            if (filter_dict !== null){
+                var cause_map = new Map(Object.entries(metric_data['cause']));
+                cause_map = [...cause_map].map(([name, value]) => ({ name, value }))
+                // alternative to for loop
+                let filtered_array = _.filter(cause_map, function(o) {
+                    return filter_dict['ids']['valid'].includes(o.name);
+                });
+                let obj = _.countBy(filtered_array, (rec) => {return rec.value});
+                const sorted = new Map(Object.entries(obj).sort((a, b) => b[1] - a[1]));
+                metrics = Array.from( sorted.keys() ).slice(0,N);
+                metrics.unshift("all")
+            }
+        }
+
+
+        var metrics_return = [];
+        for(var j=0; j<metrics.length; j++){
+            if(display_names[metrics[j]] !== undefined){
+                metrics_return.push({"label": display_names[metrics[j]], "value":metrics[j]});
+            }
+            else{
+                metrics_return.push({"label": metrics[j], "value":metrics[j]});
+            }
+        }
+        return(metrics_return)
+    }
+    """,
     Output(component_id="cod_type", component_property="options"),
     [
         Input(component_id="va_data", component_property="data"),
         Input(component_id="filter_dict", component_property="data"),
+        Input(component_id="display_names", component_property="data"),
     ],
 )
-def get_metrics(va_data, filter_dict=None, n=10, **kwargs):
-    # by default, start with aggregate measures
-    metrics = []
-    metric_data = pd.DataFrame(va_data)
-    if metric_data.size > 0 and filter_dict is not None:
-        metric_data = metric_data.loc[filter_dict["ids"]["valid"], :]
-        # only load options if remaining data after filter
-        if metric_data.size > 0:
-            # add top n CODs by incidence to metric list
-            metrics = ["all"] + (
-                metric_data["cause"]
-                .value_counts()
-                .sort_values(ascending=False)
-                .head(n)
-                .index.tolist()
-            )
-
-    return [{"label": LOOKUP["display_names"].get(m, m), "value": m} for m in metrics]
-
-
-def get_metric_display_names(map_metrics):
-    names = []
-    for metric in map_metrics:
-        metric_name = LOOKUP["display_names"].get(metric, None)
-        if metric_name is None:
-            metric_name = " ".join([x.capitalize() for x in metric.strip().split(" ")])
-        names.append(metric_name)
-    return names
 
 
 # ====================Geographic Levels (View options)============#
-@app.callback(
+# Conversion of update_view_options to client-side callbacks
+# have to use two different callbacks since we can only have one output in each (django-plotly-dash constraint)
+app.clientside_callback(
+    """
+    function(filter_dict){
+        if(filter_dict){
+            return((filter_dict['geo_filter'] === true) || (filter_dict['search_filter'] === true));
+        }
+        return null;
+    }
+    """,
+    Output(component_id="view_level", component_property="disabled"),
+    [Input(component_id="filter_dict", component_property="data")],
+)
+
+app.clientside_callback(
+    """
+    function(disable, location_types){
+            if(disable === false){
+                view_options = location_types;
+            }
+            else{
+                view_options = [];
+            }
+            options = [];
+            for(var i =0; i<view_options.length;i++){
+                label = view_options[i].charAt(0).toUpperCase() + view_options[i].slice(1)
+                options.push({"label": label, "value":view_options[i]})
+            }
+            return (options)
+    }
+    """,
+    Output(component_id="view_level", component_property="options"),
     [
-        Output(component_id="view_level", component_property="options"),
-        Output(component_id="view_level", component_property="disabled"),
-    ],
-    [
-        Input(component_id="filter_dict", component_property="data"),
+        Input(component_id="view_level", component_property="disabled"),
         Input(component_id="location_types", component_property="data"),
     ],
 )
-def update_view_options(filter_dict, location_types, **kwargs):
-    if filter_dict is not None:
-
-        # only activate when user is zoomed out and hasn't searched for anything
-        disable = filter_dict["geo_filter"] or filter_dict["search_filter"]
-        if not disable:
-            view_options = location_types
-        # label_class = "input-label"
-        else:
-            view_options = []
-            # label_class = "input-label-disabled"
-        options = [{"label": o.capitalize(), "value": o} for o in view_options]
-        return options, disable  # , label_class
 
 
 # ====================Map Logic===================================#
@@ -971,7 +1019,6 @@ def update_choropleth(
     zoom_in=False,
     **kwargs,
 ):
-
     # first, see which input triggered update. If granularity change, log the new value
     context = dash.callback_context
     trigger = context.triggered[0]
@@ -1299,7 +1346,6 @@ def update_callouts(
                 plot_data[[granularity, "age"]].dropna()[granularity].nunique()
             )
             coverage = "{}%".format(np.round(100 * regions_covered / total_regions, 0))
-
     return [
         make_card(
             coded_vas,
@@ -1482,6 +1528,7 @@ def trend_plot(
                 cod = filter_dict["cod_type"]
                 plot_data = plot_data.loc[filter_dict["ids"]["valid"], :]
                 # first, check for search terms. If any, use as filter
+                search_terms = [] if search_terms == "All causes.all" else search_terms
                 if search_terms and len(search_terms) > 0:
                     if type(search_terms) is str:
                         search_terms = [search_terms]
@@ -1489,8 +1536,8 @@ def trend_plot(
 
                     for search_value in search_terms:
                         if search_value.lower().startswith("all"):
-                            search_value = "All Causes.all"
-                        # search term convention: {keyword.type}
+                            search_value = "All causes.all"
+                        # search term convention: {kewyword.type}
                         key, key_type = search_value.split(".")
                         # if keyword is a cod group, filter to only CODs in that
                         # group and only vas meeting that group's criteria

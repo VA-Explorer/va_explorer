@@ -3,7 +3,7 @@ import re
 from django import template
 from django.urls import NoReverseMatch, reverse
 
-from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING
+from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
 
 register = template.Library()
 

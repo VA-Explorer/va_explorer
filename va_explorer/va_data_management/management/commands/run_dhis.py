@@ -1,7 +1,6 @@
-import collections
 import csv
 import os
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from io import StringIO
 
 import dateutil.parser
@@ -15,7 +14,7 @@ from django.forms.models import model_to_dict
 from va_explorer.va_data_management.models import (
     CauseOfDeath,
     CODCodesDHIS,
-    DHISStatus,
+    DhisStatus,
     VerbalAutopsy,
 )
 
@@ -58,7 +57,7 @@ class Command(BaseCommand):
         metadatacode = "InterVA5|5|Custom|1|2016 WHO Verbal Autopsy Form|v1_5_1"
 
         # Load all verbal autopsies that have been pushed to dhis2
-        dhis_data = DHISStatus.objects.values_list("verbalautopsy_id", flat=True)
+        dhis_data = DhisStatus.objects.values_list("verbalautopsy_id", flat=True)
 
         # to subset few rows,add at the end [:10] for 10 rows etc..
         # exclude vas that have no dhis2 status; not pushed
@@ -192,7 +191,7 @@ class Command(BaseCommand):
             va_data.to_csv("OpenVAFiles/recordStorage.csv", index=False)
 
             # dhis settings
-            ntDHIS = collections.namedtuple(
+            ntDHIS = namedtuple(
                 "ntDHIS", ["dhisURL", "dhisUser", "dhisPassword", "dhisOrgUnit"]
             )
             settings_dhis = ntDHIS(DHIS_URL, DHIS_USER, DHIS_PASS, DHIS_ORGUNIT)
@@ -237,7 +236,7 @@ class Command(BaseCommand):
         va_in_dhis = self.get_pushed_va("sv91bCroFFx", auth)
         va_in_dhis = [str(i) for i in va_in_dhis]
 
-        dhis_data = DHISStatus.objects.filter(
+        dhis_data = DhisStatus.objects.filter(
             verbalautopsy_id__isnull=False
         ).values_list("vaid", flat=True)
         dhis_data = list(dhis_data)
@@ -246,10 +245,10 @@ class Command(BaseCommand):
         # remove orphaned items deleted in dhis2
         for x in dhis_data:
             if x not in va_in_dhis:
-                ds = DHISStatus.objects.get(vaid=x)
+                ds = DhisStatus.objects.get(vaid=x)
                 ds.delete()
 
-        dhis_data = DHISStatus.objects.filter(
+        dhis_data = DhisStatus.objects.filter(
             verbalautopsy_id__isnull=False
         ).values_list("vaid", flat=True)
         dhis_data = list(dhis_data)
@@ -259,7 +258,7 @@ class Command(BaseCommand):
         to_insert = list(to_insert)
 
         for item in to_insert:
-            ds = DHISStatus.objects.create(vaid=item, verbalautopsy_id=int(item))
+            ds = DhisStatus.objects.create(vaid=item, verbalautopsy_id=int(item))
             ds.save()
 
     def get_events_values(self, prg, auth):

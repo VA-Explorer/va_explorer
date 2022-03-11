@@ -4,7 +4,10 @@ import os
 import pandas as pd
 from django.db.models import F
 
-from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.models import (
+    Location,
+    questions_to_autodetect_duplicates,
+)
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
 
@@ -67,6 +70,8 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
     # get stats on last update and last va submission date
     update_stats = get_va_summary_stats(user_vas)
+    if len(questions_to_autodetect_duplicates()) > 0:
+        update_stats["duplicates"] = user_vas.filter(duplicate=True).count()
     all_vas = (
         user_vas.only(
             "id",

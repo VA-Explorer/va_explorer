@@ -729,6 +729,7 @@ def create_percent_count_buttons(num_groups, x=1, y=1.2, traces=None):
 def va_trend_plot(
     va_df, group_period, factor="All", title=None, search_term_ids=None, height=None
 ):
+    figure = go.Figure()
     group_period = group_period.lower()
     aggregate_title = group_period.capitalize()
     factor = factor.lower()

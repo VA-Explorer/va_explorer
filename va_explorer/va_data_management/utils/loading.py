@@ -161,10 +161,13 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             assign_va_location(va, location_map)
             if "hospital" in row and logger:
                 logger.info(
-                    f"va_id: {va_id} - Matched hospital {row['hospital']} \
-                      to {va.location} location in DB"
+                    f"va_id: {va_id} - Matched hospital \
+                            {row['hospital']} to {va.location} location in DB"
                 )
 
+        # Generate a unique_identifier_hash for each VA if the application is configured to detect duplicate VAs
+        if VerbalAutopsy.auto_detect_duplicates():
+            va.generate_unique_identifier_hash()
         created_vas.append(va)
 
     tf = time.time()
@@ -193,6 +196,11 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     ti = tf
 
     print(f"total time: {time.time() - t0}")
+
+    # Mark duplicate VAs if the application is configured to do so
+    if VerbalAutopsy.auto_detect_duplicates():
+        print("Marking VAs as duplicate...")
+        VerbalAutopsy.mark_duplicates()
 
     return {
         "ignored": ignored_vas,

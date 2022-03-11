@@ -14,7 +14,8 @@ from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormView
 
 from va_explorer.utils.mixins import CustomAuthMixin
-from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING, Location
+from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
+from va_explorer.va_data_management.models import Location
 from va_explorer.va_export.forms import VADownloadForm
 from va_explorer.va_export.utils import get_loc_ids_for_filter
 from va_explorer.va_logs.logging_utils import write_va_log

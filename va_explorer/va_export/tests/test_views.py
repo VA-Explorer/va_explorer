@@ -15,12 +15,8 @@ from va_explorer.tests.factories import (
     VerbalAutopsyFactory,
 )
 from va_explorer.users.models import User
-from va_explorer.va_data_management.models import (
-    REDACTED_STRING,
-    CauseOfDeath,
-    Location,
-    VerbalAutopsy,
-)
+from va_explorer.va_data_management.constants import REDACTED_STRING
+from va_explorer.va_data_management.models import CauseOfDeath, Location, VerbalAutopsy
 from va_explorer.va_export.forms import VADownloadForm
 from va_explorer.va_export.views import va_api_view
 
