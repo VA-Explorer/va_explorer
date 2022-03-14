@@ -28,6 +28,7 @@ ALGORITHM_PARAM_OPTIONS = {
         "HIV": ["h", "l", "v"],
         "Malaria": ["h", "l", "v"],
         "groupcode": ["True", "False"],
+        "api": "True",
     }
 }
 
@@ -39,6 +40,8 @@ ALGORITHM_SETTINGS = {
     "Malaria": os.environ.get("INTERVA_MALARIA", "l"),
     # Whether to include group code in the output causes
     "groupcode": os.environ.get("INTERVA_GROUPCODE", "True"),
+    # Required parameter when calling InterVA5 via api - need not get from .env file because it should always be 'True'
+    "api": "True",
 }
 
 
@@ -53,8 +56,7 @@ def validate_algorithm_settings():
     if len(common_keys) != len(setting_keys):
         unrecognized = setting_keys.difference(common_keys)
         print(
-            f"WARNING: options {unrecognized} not recognized (expected any of \
-             {list(param_opts.keys())}). Skipping..."
+            f"WARNING: options {unrecognized} not recognized (expected any of {list(param_opts.keys())}). Skipping..."
         )
 
     # ensure all common settings are valid
@@ -108,6 +110,13 @@ def run_coding_algorithms():
     )
 
     print(f"ALGORITHM SETTINGS: {ALGORITHM_SETTINGS}")
+
+    causes, issues = run_interva5(verbal_autopsies_without_causes)
+
+    return verbal_autopsies_without_causes, causes, issues
+
+
+def run_interva5(verbal_autopsies_without_causes):
     interva_response_data = _run_pycross_and_interva5(verbal_autopsies_without_causes)
 
     # The ID that comes back is the index in the data that was passed in.
@@ -115,6 +124,14 @@ def run_coding_algorithms():
     causes = []
     for cause_data in interva_response_data["results"]["VA5"]:
         cause = cause_data["CAUSE1"][0].strip()
+        # Account for indeterminate cause of death, which has CAUSE1 == '', LIK1 == '', and INDET == 100
+        if (
+            cause == ""
+            and cause_data["INDET"][0] == 100
+            and cause_data["LIK1"][0].strip() == ""
+        ):
+            cause = "Indeterminate"
+
         if cause:
             va_offset = int(cause_data["ID"][0].strip())
             va_id = verbal_autopsies_without_causes[va_offset].id
@@ -126,6 +143,7 @@ def run_coding_algorithms():
                     settings=ALGORITHM_SETTINGS,
                 )
             )
+
     CauseOfDeath.objects.bulk_create(causes)
 
     # The ID that comes back is the index in the data that was passed in.
@@ -153,10 +171,7 @@ def run_coding_algorithms():
                     settings=ALGORITHM_SETTINGS,
                 )
             )
+
     CauseCodingIssue.objects.bulk_create(issues)
 
-    return {
-        "verbal_autopsies": verbal_autopsies_without_causes,
-        "causes": causes,
-        "issues": issue,
-    }
+    return causes, issues

@@ -30,10 +30,10 @@ class Command(BaseCommand):
                 self.clear_and_save_old_cods(options["cod_fname"])
 
             print("coding all eligible VAs... ")
-            results = run_coding_algorithms()
-            num_coded = len(results["causes"])
-            num_total = len(results["verbal_autopsies"])
-            num_issues = len(results["issues"])
+            verbal_autopsies, causes, issues = run_coding_algorithms()
+            num_coded = len(causes)
+            num_total = len(verbal_autopsies)
+            num_issues = len(issues)
             self.stdout.write(f"DONE. Total time: {time.time() - ti} secs")
             self.stdout.write(
                 f"Coded {num_coded} verbal autopsies (out of {num_total}) [{num_issues} issues]"

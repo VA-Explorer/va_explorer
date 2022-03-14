@@ -80,6 +80,19 @@
       <strong>No coding issues found!</strong>
       <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
     {% endif %}
+  <div>
 </div>
+<div class="row mt-4">
+    <div class="col">
+      <h2 class="mb-4">VAs With Indeterminate Cause of Death</h2>
+      {% if indeterminate_cod_list %}
+        {% include 'partials/_va_table.html' with va_list=indeterminate_cod_list %}
+        {% if additional_indeterminate_cods > 0 %}<p>There are <a href="/va_data_management/?cause=Indeterminate" id="additional_issues">{{ additional_indeterminate_cods }} additional VAs with Indeterminate Cause of Death</a> not listed here</p>{% endif %}
+      {% else %}
+        <strong>No VAs with Indeterminate Cause of Death found!</strong>
+        <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
+      {% endif %} 
+  </div>
+<div>
 
 {% endblock %}
