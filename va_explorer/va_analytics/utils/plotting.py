@@ -92,6 +92,7 @@ def load_lookup_dicts():
         "Other and unspecified infect dis": "Other infectious disease",
         "Other and unspecified maternal CoD": "Other maternal CoD",
         "Pregnancy-induced hypertension": "Hypertension from Pregnancy",
+        "Indeterminate": "Indeterminate",
 
         # internal cod group labels to plot titles
         "All CODs": "All Causes",
