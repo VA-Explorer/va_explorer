@@ -401,7 +401,7 @@ def cod_group_plot(
             group_height, group_traces = 1, []
 
             # filter va data down to only group of interest
-            cod_data = cod_group_data(va_df, cod_group, n=n)
+            cod_data = cod_group_data(va_df, cod_group, None, n=n)
 
             # only proceed if any group data
             if cod_data.size > 0:

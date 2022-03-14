@@ -170,7 +170,6 @@ app.layout = html.Div(
                                             style={"margin-top": "10px"},
                                         ),
                                         html.Div(
-                                            className="dashboard-comp-container",
                                             id="search-container",
                                             children=[
                                                 dcc.Dropdown(
@@ -640,6 +639,9 @@ def init_va_data(hidden_trigger=None, **kwargs):
         ts_options,
         download_div,
         update_div,
+        LOOKUP["display_names"],
+        INITIAL_COD_TYPE,
+        INITIAL_TIMEFRAME,
     )
 
 
@@ -806,9 +808,9 @@ def _get_filter_dict(
     filter_df = va_df.copy()
     granularity = INITIAL_GRANULARITY
     plot_ids = plot_regions = list()
-    search_terms if search_terms else []
-    restrictions if restrictions else []
-    selected_json if selected_json else {}
+    search_terms = search_terms or []
+    restrictions = restrictions or []
+    selected_json = selected_json or {}
 
     filter_dict = {
         "geo_filter": any(

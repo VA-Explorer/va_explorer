@@ -103,7 +103,7 @@ def create_users_from_file(user_list_file, email_confirmation=False, debug=False
         else:
             error_ct += 1
             print(
-                f"WARNING: user fm for {user_data.get('email', 'Unknown email')} \
+                f"WARNING: user form for {user_data.get('email', 'Unknown email')} \
                   had following errors: {user_form.errors}"
             )
 
