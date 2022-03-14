@@ -41,34 +41,31 @@ def setup_test_db(with_vas=True):
 
 # create three dummy users for testing, each with different roles, location restrictions, and privacy privileges
 def get_fake_user_data():
-    users = {}
-    # user 1: restricted to location X, data viewer, cant view PII but can download data
-    users["u1"] = {
-        "name": "user1",
-        "email": "user1@example.com",
-        "location_restrictions": "DistrictX",
-        "group": "Data Viewer",
-        "view_pii": False,
-        "download_data": True,
+    return {
+        # user 1: restricted to location X, data viewer, cant view PII but can download data
+        "u1": {
+            "name": "user1",
+            "email": "user1@example.com",
+            "location_restrictions": "DistrictX",
+            "group": "Data Viewer",
+            "view_pii": False,
+            "download_data": True,
+        },
+        # user 2: data manager restricted to districtY, can view PII and can download data
+        "u2": {
+            "name": "user2",
+            "email": "user2@example.com",
+            "location_restrictions": "DistrictY",
+            "group": "Data Manager",
+            "view_pii": True,
+            "download_data": True,
+        },
+        # user 3: data viewer - no location restrictions, can view PII but cannot download data
+        "u3": {
+            "name": "user3",
+            "email": "user3@example.com",
+            "group": "Data Viewer",
+            "view_pii": True,
+            "download_data": False,
+        },
     }
-
-    # user 2: data manager restricted to districtY, can view PII and can download data
-    users["u2"] = {
-        "name": "user2",
-        "email": "user2@example.com",
-        "location_restrictions": "DistrictY",
-        "group": "Data Manager",
-        "view_pii": True,
-        "download_data": True,
-    }
-
-    # user 3: data viewer - no location restrictions, can view PII but cannot download data
-    users["u3"] = {
-        "name": "user3",
-        "email": "user3@example.com",
-        "group": "Data Viewer",
-        "view_pii": True,
-        "download_data": False,
-    }
-
-    return users
