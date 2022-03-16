@@ -52,6 +52,10 @@ class VerbalAutopsyForm(forms.ModelForm):
         if not include_pii:
             for field in PII_FIELDS:
                 del self.fields[field]
+        ## HIDE CALCULATED FIELDS FROM EDIT FORM
+
+
+
 
     # TODO: to display the error msgs properly, we need to use crispy forms in the template
     # for now we will just display the errors at the top of the page

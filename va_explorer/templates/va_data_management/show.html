@@ -33,6 +33,11 @@
     <div class="row mt-3">
       {% if perms.va_data_management.change_verbalautopsy %}
         <a class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit Record</a>
+        <div align='center' style="margin-top:10px;">
+          <input type="checkbox" id="hidden-check" name="hidden-check" value="checked" checked="TRUE" style="margin-left: 20px;">
+          <label for="hidden-check">Hide Empty Fields</label><br>
+        </div>
+       
       {% endif %}
     </div>
 
@@ -47,10 +52,10 @@
         </thead>
         <tbody>
           {% for field in form %}
-            <tr>
-              <td><b>{{ field.name }}</b></td>
-              <td>{{ field.label }}</td>
-              <td>
+            <tr> 
+              <td class="{{ field.value }}"><b>{{ field.name }}</b></td>
+              <td class="{{ field.value }}">{{ field.label }}</td>
+              <td class="{{ field.value }}">
                 {% pii_filter field.name field.value|replace %}
               </td>
             </tr>
