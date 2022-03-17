@@ -6,7 +6,7 @@ from collections import OrderedDict
 import dateutil.parser,os,requests,collections
 import csv, environ
 
-import openva_pipeline.dhis as dhis
+from va_explorer.dhis_manager.dhis import DHIS
 import pandas as pd
 import numpy as np
 
@@ -54,7 +54,7 @@ class Command(BaseCommand):
         metadatacode = "InterVA5|5|Custom|1|2016 WHO Verbal Autopsy Form|v1_5_1"
 
         # Load all verbal autopsies that have been pushed to dhis2
-        dhisdata = dhisStatus.objects.values_list("verbalautopsy_id", flat=True)
+        dhisdata = DhisStatus.objects.values_list("verbalautopsy_id", flat=True)
 
         #to subset few rows,add at the end [:10] for 10 rows etc..
         #exclude vas that have no dhis2 status; not pushed
@@ -159,7 +159,7 @@ class Command(BaseCommand):
             argsDHIS = [settingsDHIS, dhisCODCodes]
 
             # execute pipeline
-            pipelineDHIS = dhis.DHIS(argsDHIS,"")
+            pipelineDHIS = DHIS(argsDHIS,"")
 
             apiDHIS = pipelineDHIS.connect()
             self.clearFolder("DHIS/blobs/")
@@ -191,17 +191,17 @@ class Command(BaseCommand):
         va_in_dhis2 = self.getPushedVA('sv91bCroFFx', auth)
         va_in_dhis2 = [str(i) for i in va_in_dhis2]
 
-        dhisdata = dhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid',flat=True)
+        dhisdata = DhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid',flat=True)
         dhisdata = list(dhisdata)
         dhisdata = [str(i) for i in dhisdata]
 
         #remove orphaned items deleted in dhis2
         for x in dhisdata:
             if x not in va_in_dhis2:
-                ds = dhisStatus.objects.get(vaid=x)
+                ds = DhisStatus.objects.get(vaid=x)
                 ds.delete()
 
-        dhisdata = dhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid', flat=True)
+        dhisdata = DhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid', flat=True)
         dhisdata = list(dhisdata)
         dhisdata = [str(i) for i in dhisdata]
 
@@ -209,7 +209,7 @@ class Command(BaseCommand):
         toinsert = list(toinsert)
 
         for item in toinsert:
-            ds = dhisStatus.objects.create(vaid=item,verbalautopsy_id=int(item))
+            ds = DhisStatus.objects.create(vaid=item,verbalautopsy_id=int(item))
             ds.save()
 
     def getEventsValues(self,prg, auth):
