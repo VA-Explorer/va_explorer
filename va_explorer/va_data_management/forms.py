@@ -54,9 +54,6 @@ class VerbalAutopsyForm(forms.ModelForm):
                 del self.fields[field]
         ## HIDE CALCULATED FIELDS FROM EDIT FORM
 
-
-
-
     # TODO: to display the error msgs properly, we need to use crispy forms in the template
     # for now we will just display the errors at the top of the page
     def clean(self, *args, **kwargs):
@@ -70,8 +67,7 @@ class VerbalAutopsyForm(forms.ModelForm):
 
         return cleaned_data
 
-
-def validate_date_format(form, Id10023):  # noqa N803 - more readable as actual name
+def validate_date_format(form, Id10023):
     """
     Custom form validation for field Id10023, date of death
     """

@@ -22,7 +22,11 @@ from django.views.generic.detail import SingleObjectMixin
 
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
+<<<<<<< HEAD
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
+=======
+from va_explorer.va_data_management.forms import VerbalAutopsyForm # , VerbalAutopsyFormShow
+>>>>>>> 7fd9681 (Make checkbox text larger and add tooltip)
 from va_explorer.va_data_management.models import VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.date_parsing import parse_date
@@ -163,8 +167,13 @@ class Show(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+<<<<<<< HEAD
         context["id"] = self.object.id
         context["form"] = VerbalAutopsyForm(None, instance=self.object)
+=======
+        context['id'] = self.object.id
+        context['form'] = VerbalAutopsyForm(None, instance=self.object) # VerbalAutopsyFormShow(None, instance=self.object)
+>>>>>>> 7fd9681 (Make checkbox text larger and add tooltip)
 
         coding_issues = self.object.coding_issues.all()
         context["warnings"], context["algo_warnings"] = self.filter_warnings(

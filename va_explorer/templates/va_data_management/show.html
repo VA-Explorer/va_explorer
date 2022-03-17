@@ -32,10 +32,17 @@
   <div class="tab-pane fade show active" id="record" role="tabpanel" aria-labelledby="record-tab">
     <div class="row mt-3">
       {% if perms.va_data_management.change_verbalautopsy %}
-        <a class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit Record</a>
-        <div align='center' style="margin-top:10px;">
-          <input type="checkbox" id="hidden-check" name="hidden-check" value="checked" checked="TRUE" style="margin-left: 20px;">
-          <label for="hidden-check">Hide Empty Fields</label><br>
+        <div style="width:100%; display:flex; justify-content:space-between; align-items:baseline;">
+            <div>
+              <a style="text-align:center;" class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit Record</a>
+            </div>
+            <div align='center' style="margin-top:0px; display:flex; justify-content:space-between; align-items:baseline;">
+              <input type="checkbox" id="hidden-check" name="hidden-check" value="checked" checked="TRUE" style="margin-left: 20px;">
+              <label for="hidden-check" style="margin-left: 5px; font-size:18px;">Hide Empty Fields</label><br>
+              <div  data-toggle="tooltip" title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown." >
+                <img src="/static/images/info-icon.jpg" style="margin-left: 3px; margin-bottom:5px; width:20px;"></img>
+              </div>
+            </div>
         </div>
        
       {% endif %}
