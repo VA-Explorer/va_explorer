@@ -83,6 +83,9 @@ class Command(BaseCommand):
             va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
 
             # Transform to algorithm format using the pyCrossVA web service
+            # TODO: Check that this service is running and provide a warning if it isn't because this will cause failure
+            # TODO: Handle failure so that UI doesn't crash
+            # TODO: This can take absurdly long, lets make it into a batch async job
             transform_url = 'http://127.0.0.1:5001/transform?input=2016WHOv151&output=InterVA5'
             transform_response = requests.post(transform_url, data=va_data_csv, verify=SSL_VERIFY)
 
@@ -243,4 +246,3 @@ class Command(BaseCommand):
                     txt = jn['events'][i]['dataValues'][j]['value']
                     list1.append(txt)
         return list1
-
