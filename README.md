@@ -169,7 +169,7 @@ The server will be running at http://0.0.0.0:8000/
 
 Django can run locally inside Docker. This will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
 
-Additionally, create an sharable network VA Explorer and other docker-compose apps such as ODK Central can join
+Additionally, create an sharable network that VA Explorer and other docker-compose apps such as ODK Central can join
 
     `docker network create va-net`
 
