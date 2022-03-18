@@ -92,7 +92,6 @@ Once the prerequisites are available, VA Explorer can be installed and demonstra
     *  `DATABASE_URL=psql://<YOUR POSTGRESUSER>:<POSTGRESUSER PASSWORD>@localhost/va_explorer`
     *  `CELERY_BROKER_URL=redis://localhost:6379/0`
 
-
 * Run the database migrations
     * `./manage.py makemigrations`
     * `./manage.py migrate`
@@ -168,13 +167,30 @@ The server will be running at http://0.0.0.0:8000/
 
 ## Building/Running in Docker
 
-Django can run locally inside Docker. This will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
+Django can run locally inside Docker. Doing so will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
 
+First, create a sharable nework for VA Explorer: 
 ```
-docker-compose -f docker-compose.yml -f docker-compose.local.yml up django vapostgres
+docker network create va-net
+```
+
+Next, if you have other docker-compose apps such as ODK Central that need to
+communicate with VA Explorer, you will need to update each app's `docker-compose.yml` to enable network sharing:
+```yml
+networks:
+  default:
+    external:
+      name: va-net
+```
+
+Finally, build and deploy VA Explorer by running the following:
+```
+docker-compose -f docker-compose.prod.yml -f docker-compose.local.yml up django vapostgres
 ```
 
 The server will be running at http://0.0.0.0:5000/
+
+
 
 ### Building for Production
 
