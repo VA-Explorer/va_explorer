@@ -10,7 +10,8 @@ from va_explorer.dhis_manager.dhis import DHIS
 import pandas as pd
 import numpy as np
 
-if os.environ.get("DHIS2_URL").startswith('https://localhost'):
+DHIS2_HOST = os.environ.get('DHIS2_URL', 'http://127.0.0.1:5002')
+if DHIS2_HOST.startswith('https://localhost'):
     # Don't verify localhost (self-signed cert or test).
     SSL_VERIFY = False
 else:
@@ -46,7 +47,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         env = environ.Env()
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_USER = env("DHIS2_USER")
         DHIS2_PASS = env("DHIS2_PASS")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
@@ -150,7 +150,7 @@ class Command(BaseCommand):
                                              "dhisPassword",
                                              "dhisOrgUnit"]
                                             )
-            settingsDHIS = ntDHIS(DHIS2_URL, DHIS2_USER, DHIS2_PASS, DHIS2_ORGUNIT)
+            settingsDHIS = ntDHIS(DHIS2_HOST, DHIS2_USER, DHIS2_PASS, DHIS2_ORGUNIT)
 
             CODCodes =  cod_codes_dhis.objects.filter(codsource="WHO").values()
             queryCODCodes = pd.DataFrame.from_records(CODCodes)
@@ -219,9 +219,8 @@ class Command(BaseCommand):
         env = environ.Env()
 
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
-        url = DHIS2_URL+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
+        url = DHIS2_HOST+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
         response = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = response.json()
         return jn['pager']['total']
@@ -231,11 +230,10 @@ class Command(BaseCommand):
         prg = 'sv91bCroFFx' if not prg else prg
         env = environ.Env()
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
 
         eventsnum = self.getEventsValues(prg, auth)
-        url = DHIS2_URL+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
+        url = DHIS2_HOST+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
         r = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = r.json()
         list1 = list()
