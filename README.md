@@ -167,28 +167,32 @@ The server will be running at http://0.0.0.0:8000/
 
 ## Building/Running in Docker
 
-Django can run locally inside Docker. This will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
+Django can run locally inside Docker. Doing so will also set up postgres and redis and automatically configure `DATABASE_URL` and `CELERY_BROKER_URL` to use the docker images of postgres and redis.
 
-Additionally, create an sharable network that VA Explorer and other docker-compose apps such as ODK Central can join
 
-    `docker network create va-net`
+**Note**: If you have other docker-compose apps such as ODK Central that need to
+communicate with VA Explorer, you will need to create a sharable network that both can join before building. This can be done by first running
 
 ```
-docker-compose -f docker-compose.prod.yml -f docker-compose.local.yml up django vapostgres
+docker network create va-net
 ```
 
-The server will be running at http://0.0.0.0:5000/
-
-If you have other docker-compose apps such as ODK Central that need to
-communicate with VA Explorer, they will also need to join the shared network
-created above. Add the following to said app's `docker-compose.yml` to support
-this:
+then updating the other docker-compose apps' `docker-compose.yml` to enable network sharing:
 ```yml
 networks:
   default:
     external:
       name: va-net
 ```
+
+Then, you can build and deploy VA Explorer by running the following:
+```
+docker-compose -f docker-compose.prod.yml -f docker-compose.local.yml up django vapostgres
+```
+
+The server will be running at http://0.0.0.0:5000/
+
+
 
 ### Building for Production
 
