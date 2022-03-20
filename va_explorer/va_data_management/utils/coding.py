@@ -23,8 +23,9 @@ INTERVA_HOST = os.environ.get('INTERVA_HOST', 'http://127.0.0.1:5002')
 # TODO: add other algorithms' settings as we add support for them
 ALGORITHM_PARAM_OPTIONS = {
     'INTERVA': {'HIV': ['h', 'l', 'v'],
-                'Malaria': ['h', 'l', 'v'],  
-                'groupcode': ['True', 'False']
+                'Malaria': ['h', 'l', 'v'],
+                'groupcode': ['True', 'False'],
+                'api': 'True',
                 }
 }
 
@@ -35,7 +36,9 @@ ALGORITHM_SETTINGS = {
     # describes prevalence of Malaria. Should be "h"(high),"l"(low), or "v"(very low).
     'Malaria': os.environ.get('INTERVA_MALARIA', 'l'),
     # Whether to include group code in the output causes
-    'groupcode': os.environ.get('INTERVA_GROUPCODE', 'True')
+    'groupcode': os.environ.get('INTERVA_GROUPCODE', 'True'),
+    # Required parameter when calling InterVA5 via api - need not get from .env file because it should always be 'True'
+    'api': 'True',
 }
 
 # validates provided algorithm settings against algorithm param value sets. Currently only works
@@ -45,11 +48,11 @@ def validate_algorithm_settings():
     param_opts = ALGORITHM_PARAM_OPTIONS["INTERVA"]
     setting_keys = set(ALGORITHM_SETTINGS.keys())
     common_keys = setting_keys.intersection(param_opts.keys())
-    
+
     if len(common_keys) != len(setting_keys):
         unrecognized = setting_keys.difference(common_keys)
         print(f'WARNING: options {unrecognized} not recognized (expected any of {list(param_opts.keys())}). Skipping...')
-    
+        
     # ensure all common settings are valid
     for key in common_keys:
         if not ALGORITHM_SETTINGS[key] in param_opts[key]:
@@ -92,6 +95,13 @@ def run_coding_algorithms():
     verbal_autopsies_without_causes = list(VerbalAutopsy.objects.filter(causes__isnull=True))
 
     print(f"ALGORITHM SETTINGS: {ALGORITHM_SETTINGS}")
+    
+    causes, issues = run_interva5(verbal_autopsies_without_causes)
+
+    return verbal_autopsies_without_causes, causes, issues
+   
+
+def run_interva5(verbal_autopsies_without_causes):
     interva_response_data = _run_pycross_and_interva5(verbal_autopsies_without_causes)
 
     # The ID that comes back is the index in the data that was passed in.
@@ -99,10 +109,15 @@ def run_coding_algorithms():
     causes = []
     for cause_data in interva_response_data['results']['VA5']:
         cause = cause_data['CAUSE1'][0].strip()
+        # Account for indeterminate cause of death, which has CAUSE1 == '', LIK1 == '', and INDET == 100
+        if cause == '' and cause_data['INDET'][0] == 100 and cause_data['LIK1'][0].strip() == '':
+            cause = 'Indeterminate'
+
         if cause:
             va_offset = int(cause_data['ID'][0].strip())
             va_id = verbal_autopsies_without_causes[va_offset].id
             causes.append(CauseOfDeath(verbalautopsy_id=va_id, cause=cause, algorithm='InterVA5', settings=ALGORITHM_SETTINGS))
+
     CauseOfDeath.objects.bulk_create(causes)
 
     # The ID that comes back is the index in the data that was passed in.
@@ -119,12 +134,7 @@ def run_coding_algorithms():
             # TODO: build out the issue model to capture non coding errors
             CauseCodingIssue.objects.filter(verbalautopsy_id=va_id).exclude(algorithm='').delete()
             issues.append(CauseCodingIssue(verbalautopsy_id=va_id, text=issue_text, severity=severity, algorithm='InterVA5', settings=ALGORITHM_SETTINGS))
+    
     CauseCodingIssue.objects.bulk_create(issues)
 
-
-    return {
-        'verbal_autopsies': verbal_autopsies_without_causes,
-        'causes': causes,
-        'issues': issue,
-    }
-
+    return causes, issues
