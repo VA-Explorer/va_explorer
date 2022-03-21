@@ -333,7 +333,6 @@ def cod_group_data(va_df, group, cod_groups, n=10):
         # definition from 2016 WHO VA form
         va_filtered = va_df[va_df[age_col] < 1]
     else:
-
         # don't filter if group starts with 'all'
         if group.startswith("all"):
             top_cods = (
@@ -376,7 +375,7 @@ def cod_group_plot(
     chosen_cod="all",
 ):
     figure = go.Figure()
-    cod_groups if cod_groups else []
+    cod_groups = cod_groups or []
 
     # if no demographic chosen (i.e. overall), color-code by cause-of-death
     # group. Otherwise, color-code by demographic

@@ -693,7 +693,7 @@ def filter_data(
         valid_va_df["date"] = pd.to_datetime(valid_va_df["date"])
         invalid_va_df = pd.DataFrame(invalid_va_data)
         invalid_va_df["date"] = pd.to_datetime(invalid_va_df["date"])
-        search_terms if search_terms else []
+        search_terms = search_terms or []
 
         # get user location restrictions. If none, will return an empty queryset
         location_restrictions = list(
@@ -701,7 +701,7 @@ def filter_data(
         )
 
         # if no selected json, convert to empty dictionary for easier processing
-        selected_json if selected_json else {}
+        selected_json = selected_json or {}
 
         # filter valid vas (VAs with COD)
         valid_filter = _get_filter_dict(
@@ -1217,11 +1217,11 @@ def add_trace_to_map(
     theme_name=None,
 ):
 
-    feature_id if feature_id else "properties.area_name"
-    location_col if location_col else "locations"
-    z_col if z_col else "z_value"
-    tooltip_col if tooltip_col else "tooltip"
-    theme_name if theme_name else "secondary"
+    feature_id = feature_id or "properties.area_name" or feature_id
+    location_col = location_col or "locations"
+    z_col = z_col or "z_value"
+    tooltip_col = tooltip_col or "tooltip"
+    theme_name = theme_name or "secondary"
     trace = trace_type(
         locations=trace_data[location_col],
         z=trace_data[z_col].astype(float),

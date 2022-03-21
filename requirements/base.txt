@@ -9,6 +9,7 @@ python-slugify==4.0.1
 pytz==2020.1
 redis==3.5.3
 requests==2.25.1
+asgiref==3.5.0
 
 # String matching
 fuzzywuzzy==0.18.0
