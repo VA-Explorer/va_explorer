@@ -28,7 +28,6 @@ class VaApi(CustomAuthMixin, View):
     permission_required = "va_analytics.download_data"
 
     def get(self, request, *args, **kwargs):
-        _ = (args, kwargs)  # unused
         # params = super(VaApi, self).get(self, request, *args, **kwargs)
         # get all query params
         params = request.GET
@@ -108,6 +107,8 @@ class VaApi(CustomAuthMixin, View):
                 matching_vas = matching_vas.filter(cause__in=match_list)
 
         # =========DATA CLEANING (if any matching VAs)========#
+        va_df = pd.DataFrame()
+
         if matching_vas.count() > 0:
             # Build a location ancestors lookup and add location information at all levels to all vas
             location_ancestors = {

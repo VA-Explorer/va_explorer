@@ -32,6 +32,7 @@ def build_test_db():
     district2 = province.add_child(name="District2", location_type="district")
     facility_b = district2.add_child(name="Facility2", location_type="facility")
     facility_c = district2.add_child(name="Facility2", location_type="facility")
+    district2.add_child(name="No VA Facility", location_type="facility")
 
     # create VAs
     va1 = VerbalAutopsyFactory.create(location=facility_a, Id10023="2019-01-01")
@@ -90,6 +91,36 @@ class TestAPIView:
         # If this structure changes, need to update this test
         download_ct = json_data["count"]
         assert download_ct == db_va_ct
+
+    def test_download_csv_with_no_matching_vas(self, rf: RequestFactory):
+        build_test_db()
+        # only download data from "No VA Facility", which will have no matching VAs
+        no_va_facility = Location.objects.get(name="No VA Facility")
+
+        request = rf.get(
+            f"/va_export/verbalautopsy/?format=csv&locations={no_va_facility.pk}"
+        )
+        request.user = User.objects.get(name="admin")
+        response = va_api_view(request)
+
+        assert response.status_code == 200
+        # Assert content consists only of line break
+        assert response.content.decode("utf-8") == "\n"
+
+    def test_download_json_with_no_matching_vas(self, rf: RequestFactory):
+        build_test_db()
+        # only download data from "No VA Facility", which will have no matching VAs
+        no_va_facility = Location.objects.get(name="No VA Facility")
+
+        request = rf.get(
+            f"/va_export/verbalautopsy/?format=json&locations={no_va_facility.pk}"
+        )
+        request.user = User.objects.get(name="admin")
+        response = va_api_view(request)
+
+        assert response.status_code == 200
+        # Assert content consists of the correct object
+        assert response.content.decode("utf-8") == '{"count": 0, "records": "[]"}'
 
     def test_location_filtering(self, rf: RequestFactory):
         build_test_db()
