@@ -5,12 +5,12 @@ from io import StringIO
 
 import dateutil.parser
 import numpy as np
-import openva_pipeline.dhis as dhis
 import pandas as pd
 import requests
 from django.core.management.base import BaseCommand
 from django.forms.models import model_to_dict
 
+from va_explorer.dhis_manager.dhis import DHIS
 from va_explorer.va_data_management.models import (
     CauseOfDeath,
     CODCodesDHIS,
@@ -23,6 +23,18 @@ DHIS_PASS = os.environ.get("DHIS_PASS", "district")
 DHIS_URL = os.environ.get("DHIS_URL", "http://localhost:5080")
 # Assign random default, real value should be obtained from user DHIS instance
 DHIS_ORGUNIT = os.environ.get("DHIS_ORGUNIT", "WqAFVcXewEh")
+
+DHIS2_HOST = os.environ.get("DHIS2_URL", "http://127.0.0.1:5002")
+if DHIS2_HOST.startswith("https://localhost"):
+    # Don't verify localhost (self-signed cert or test).
+    SSL_VERIFY = False
+else:
+    # Support multiple user-provided boolean representations from .env
+    SSL_VERIFY = os.environ.get("DHIS2_SSL_VERIFY", "TRUE").lower() in (
+        "true",
+        "1",
+        "t",
+    )
 
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
@@ -90,10 +102,15 @@ class Command(BaseCommand):
             va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
 
             # Transform to algorithm format using the pyCrossVA web service
+            # TODO: Check that this service is running and provide a warning if it isn't because this will cause failure
+            # TODO: Handle failure so that UI doesn't crash
+            # TODO: This can take absurdly long, lets make it into a batch async job
             transform_url = (
                 "http://127.0.0.1:5001/transform?input=2016WHOv151&output=InterVA5"
             )
-            transform_response = requests.post(transform_url, data=va_data_csv)
+            transform_response = requests.post(
+                transform_url, data=va_data_csv, verify=SSL_VERIFY
+            )
 
             # We need to convert the resulting CSV to JSON
             transform_response_reader = csv.DictReader(
@@ -206,12 +223,12 @@ class Command(BaseCommand):
             args_dhis = [settings_dhis, dhis_cod_codes]
 
             # execute pipeline
-            pipeline_dhis = dhis.DHIS(args_dhis, "")
+            pipeline_dhis = DHIS(args_dhis, "")
 
             api_dhis = pipeline_dhis.connect()
-            self.clear_folder("DHIS/blobs/")
+            self.clearFolder("DHIS/blobs/")
             post_log = pipeline_dhis.postVA(api_dhis)
-            self.clear_folder("DHIS/blobs/")
+            self.clearFolder("DHIS/blobs/")
             if post_log["response"]["status"] == "SUCCESS" and post_log["response"][
                 "imported"
             ] == len(va_not_in_dhis):

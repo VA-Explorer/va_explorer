@@ -1216,8 +1216,7 @@ def add_trace_to_map(
     tooltip_col=None,
     theme_name=None,
 ):
-
-    feature_id = feature_id or "properties.area_name" or feature_id
+    feature_id = feature_id or "properties.area_name"
     location_col = location_col or "locations"
     z_col = z_col or "z_value"
     tooltip_col = tooltip_col or "tooltip"

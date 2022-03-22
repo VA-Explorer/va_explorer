@@ -60,6 +60,3 @@ pre-commit==2.17.0
 
 # Database
 psycopg2==2.8.5 --no-binary psycopg2
-
-#openva pipeline
-git+https://github.com/VA-Explorer/openva_pipeline.git@master
