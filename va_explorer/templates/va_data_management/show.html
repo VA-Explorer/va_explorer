@@ -38,10 +38,7 @@
             </div>
             <div align='center' style="margin-top:0px; display:flex; justify-content:space-between; align-items:baseline;">
               <input type="checkbox" id="hidden-check" name="hidden-check" value="checked" checked="TRUE" style="margin-left: 20px;">
-              <label for="hidden-check" style="margin-left: 5px; font-size:18px;">Hide Empty Fields</label><br>
-              <div  data-toggle="tooltip" title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown." >
-                <img src="/static/images/info-icon.jpg" style="margin-left: 3px; margin-bottom:5px; width:20px;"></img>
-              </div>
+              <label data-toggle="tooltip" title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown." for="hidden-check" style="margin-left: 5px; font-size:18px;">Hide Empty Fields</label><br>
             </div>
         </div>
        
@@ -59,10 +56,10 @@
         </thead>
         <tbody>
           {% for field in form %}
-            <tr> 
-              <td class="{{ field.value }}"><b>{{ field.name }}</b></td>
-              <td class="{{ field.value }}">{{ field.label }}</td>
-              <td class="{{ field.value }}">
+            <tr data-value="{{ field.value }}"> 
+              <td><b>{{ field.name }}</b></td>
+              <td>{{ field.label }}</td>
+              <td>
                 {% pii_filter field.name field.value|replace %}
               </td>
             </tr>

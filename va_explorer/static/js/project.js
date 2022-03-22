@@ -1,11 +1,12 @@
 /* Enable Boostrap tooltips */
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
+  $('[data-toggle="tooltip"]').tooltip({
+    trigger : 'hover'
+  })
 })
 $('#hidden-check').change(function() {
-  var vis = this.checked ? 'none' : '';
-  $('.nan').css('display', vis);
-  $('td[class=""]').css('display',vis);
+  $('tr[data-value="nan"]').toggle();
+  $('tr[data-value=""]').toggle();
 })
-$('.nan').css('display', "none");
-$('td[class=""]').css('display',"none");
+$('tr[data-value="nan"]').css('display', "none");
+$('tr[data-value=""]').css('display',"none");
