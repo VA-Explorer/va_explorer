@@ -282,7 +282,7 @@ def test_save_with_invalid_date_format(user: User):
     va = VerbalAutopsyFactory.create(Id10017='Victim name', Id10010='Interviewer name')
     assert va.history.count() == 1
     new_name = "Updated Example Name"
-    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023":"this is not a date 1234" })
+    response = client.post(f"/va_data_management/edit/{va.id}", { "Id10010": new_name, "Id10023_a": "this is not a date 1234" })
     assert response.status_code == 200
 
 # Verify save access is restricted
