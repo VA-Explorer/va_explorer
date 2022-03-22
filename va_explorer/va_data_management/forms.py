@@ -3,7 +3,7 @@ from django import forms
 from config.settings.base import DATE_FORMATS
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 
-from .constants import PII_FIELDS, FORM_FIELDS, HIDDEN_FIELDS
+from .constants import PII_FIELDS, FORM_FIELDS, HIDDEN_FIELDS, _date_fields
 from .models import VerbalAutopsy
 
 
@@ -60,24 +60,21 @@ class VerbalAutopsyForm(forms.ModelForm):
         """
         cleaned_data = super(VerbalAutopsyForm, self).clean(*args, **kwargs)
 
-        if "Id10023" in cleaned_data:
-            validate_date_format(self, cleaned_data["Id10023"])
+        # Validate that each date field has a valid date in the cleaned_data
+        # Excludes calculated date fields because they are no longer editable
+        for field in _date_fields:
+            if cleaned_data[field]:
+                self.validate_date_format(cleaned_data[field], field)
 
         return cleaned_data
 
-
-def validate_date_format(form, Id10023):
-    """
-    Custom form validation for field Id10023, date of death
-    """
-    # TODO add a date picker to the form so we don't have to check the string format
-    if Id10023 != "dk":
-        try:
-            parse_date(Id10023, strict=True)
-        except ValueError:
-            form._errors["Id10023"] = form.error_class(
-                [
-                    f'Field Id10023 must be "DK" if unknown or in one of \
-                      following date formats: {list(DATE_FORMATS.values())}'
-                ]
-            )
+    def validate_date_format(form, field_value, field):
+        # TODO add a date picker to each date field to improve the user experience
+        # TODO find a way to collect all of the date validation errors and show the message once
+        if field_value != "dk":
+            try:
+                parse_date(field_value, strict=True)
+            except ValueError:
+                error_description = f'{field} must be "DK" if unknown or in one of \
+                          following date formats: {list(DATE_FORMATS.values())}'
+                form.add_error(field, error_description)
