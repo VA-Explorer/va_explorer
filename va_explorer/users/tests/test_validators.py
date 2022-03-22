@@ -1,10 +1,14 @@
 from unittest import TestCase
+
 import pytest
 from django.core.exceptions import ValidationError
+
 from va_explorer.tests.factories import UserFactory
 from va_explorer.users.models import UserPasswordHistory
-from va_explorer.users.validators import PasswordComplexityValidator, PasswordHistoryValidator
-
+from va_explorer.users.validators import (
+    PasswordComplexityValidator,
+    PasswordHistoryValidator,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -31,13 +35,15 @@ class TestPasswordComplexityValidator(TestCase):
             self.validator.validate("Password", self.user)
 
     def test_rejects_multiple(self):
-        # Expect no_number, no_upper, and no_special in that order 
-        with self.assertRaisesRegex(ValidationError, "(number).*(uppercase).*(nonalphanumeric)"):
+        # Expect no_number, no_upper, and no_special in that order
+        with self.assertRaisesRegex(
+            ValidationError, "(number).*(uppercase).*(nonalphanumeric)"
+        ):
             self.validator.validate("pass", self.user)
 
     def test_accepts_complex_password(self):
         try:
-            self.validator.validate('Password1!', self.user)
+            self.validator.validate("Password1!", self.user)
         except ValidationError:
             self.fail("PasswordComplexityValidator raised ValidationError unexpectedly")
 
@@ -49,7 +55,7 @@ class TestPasswordHistoryValidator(TestCase):
 
     def test_accepts_new_password(self):
         try:
-            self.validator.validate('test1', self.user)
+            self.validator.validate("test1", self.user)
         except ValidationError:
             self.fail("PasswordHistoryValidator raised ValidationError unexpectedly")
 

@@ -1,18 +1,19 @@
 import logging
 
 import pandas as pd
-from pandas import to_datetime as to_dt
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
 from django.db.models import Count, F, Q
-from django.http import HttpResponse
-from django.views.generic import ListView, TemplateView, View
+from django.views.generic import ListView, TemplateView
 from numpy import round
+from pandas import to_datetime as to_dt
 
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_analytics.filters import SupervisionFilter
-from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondates
+from va_explorer.va_data_management.utils.date_parsing import (
+    get_submissiondates,
+    parse_date,
+)
 from va_explorer.va_logs.logging_utils import write_va_log
 
 LOGGER = logging.getLogger("event_logger")
@@ -76,7 +77,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         all_vas = (
             context["object_list"]
-            .only("id", "submissiondate","Id10011", "Id10010")
+            .only("id", "submissiondate", "Id10011", "Id10010")
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
@@ -96,12 +97,12 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             )
         )
         va_df = pd.DataFrame(all_vas)
-        
+
         if not va_df.empty:
             va_df["date"] = get_submissiondates(va_df)
             context["supervision_stats"] = (
                 va_df.assign(date=lambda df: df["date"].apply(parse_date))
-                .assign(date = lambda df: to_dt(df["date"], errors="coerce"))
+                .assign(date=lambda df: to_dt(df["date"], errors="coerce"))
                 # only analyze vas with valid submission dates
                 .query("date == date")
                 .assign(
@@ -134,7 +135,6 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             ).to_dict(orient="records")
 
         return context
-
 
 
 user_supervision_view = UserSupervisionView.as_view()

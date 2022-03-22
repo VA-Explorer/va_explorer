@@ -11,6 +11,6 @@ class DataCleanup(models.Model):
         default_permissions = ("view",)
 
         permissions = (
-            ('download', 'Can download'),
-            ('bulk_download', 'Can bulk download'),
+            ("download", "Can download"),
+            ("bulk_download", "Can bulk download"),
         )

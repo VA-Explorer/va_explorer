@@ -1,23 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 13 10:08:05 2021
-
-@author: babraham
-"""
-
-from django.db.models import IntegerField
-from django.db.models.functions import Cast
-from django.db.models import F
-import pandas as pd
-import numpy as np
 import json
 import os
-import time
 
-from va_explorer.va_data_management.models import Location
+import pandas as pd
+from django.db.models import F
+
+from va_explorer.va_data_management.models import (
+    Location,
+    questions_to_autodetect_duplicates,
+)
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
-from va_explorer.va_data_management.models import questions_to_autodetect_duplicates
 
 
 # ============ GEOJSON Data (for map) =================
@@ -25,10 +16,9 @@ from va_explorer.va_data_management.models import questions_to_autodetect_duplic
 def load_geojson_data(json_file):
     geojson = None
     if os.path.isfile(json_file):
+        with open(json_file, "r") as jf:
+            geojson = json.loads(jf.read())
 
-        raw_json = open(json_file, "r")
-        geojson = json.loads(raw_json.read())
-        raw_json.close()
         # add min and max coordinates for mapping
         for i, g in enumerate(geojson["features"]):
             coordinate_list = g["geometry"]["coordinates"]
@@ -72,6 +62,7 @@ def load_geojson_data(json_file):
         )
     return geojson
 
+
 # ============ VA Data =================
 def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     # the dashboard requires date of death, exclude if the date is unknown
@@ -81,8 +72,8 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     update_stats = get_va_summary_stats(user_vas)
     if len(questions_to_autodetect_duplicates()) > 0:
         update_stats["duplicates"] = user_vas.filter(duplicate=True).count()
-    all_vas = user_vas\
-        .only(
+    all_vas = (
+        user_vas.only(
             "id",
             "Id10019",
             "Id10058",
@@ -93,11 +84,11 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
             "isChild1",
             "isAdult1",
             "location",
-        ) \
-        .exclude(Id10023__in=["dk", "DK"]) \
-        .exclude(location__isnull=True) \
-        .select_related("location") \
-        .select_related("causes") \
+        )
+        .exclude(Id10023__in=["dk", "DK"])
+        .exclude(location__isnull=True)
+        .select_related("location")
+        .select_related("causes")
         .values(
             "id",
             "Id10019",
@@ -106,15 +97,24 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
             "isNeonatal1",
             "isChild1",
             "isAdult1",
-            'location__id',
-            'location__name',
-            'ageInYears',
+            "location__id",
+            "location__name",
+            "ageInYears",
             date=F("Id10023"),
             cause=F("causes__cause"),
         )
+    )
 
     if not all_vas:
-        return json.dumps({"data": {"valid": pd.DataFrame().to_json(), "invalid": pd.DataFrame().to_json()}, "update_stats": {update_stats}})
+        return json.dumps(
+            {
+                "data": {
+                    "valid": pd.DataFrame().to_json(),
+                    "invalid": pd.DataFrame().to_json(),
+                },
+                "update_stats": {update_stats},
+            }
+        )
 
     # Build a dictionary of location ancestors for each facility
     # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
@@ -129,9 +129,9 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
 
     for va in all_vas:
         # Find parents (likely district and province).
-        for ancestor in location_ancestors[va['location__id']]:
+        for ancestor in location_ancestors[va["location__id"]]:
             va[ancestor.location_type] = ancestor.name
-            #location_types.add(ancestor.location_type)
+            # location_types.add(ancestor.location_type)
             location_types[ancestor.depth] = ancestor.location_type
             locations[ancestor.name] = ancestor.location_type
 
@@ -147,10 +147,8 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
     va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
 
-    # need this becasue location types need to be sorted by depth
-    location_types = [
-        l for _, l in sorted(location_types.items(), key=lambda x: x[0])
-    ]
+    # need this because location types need to be sorted by depth
+    location_types = [l for _, l in sorted(location_types.items(), key=lambda x: x[0])]
 
     return {
         "data": {
@@ -160,7 +158,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         "location_types": location_types,
         "max_depth": len(location_types) - 1,
         "locations": locations,
-        "update_stats": update_stats
+        "update_stats": update_stats,
     }
 
 
@@ -188,6 +186,6 @@ def assign_age_group(va):
         if age <= 16:
             return "child"
         return "adult"
-    except:
+    # Intent is to assign unknown
+    except:  # noqa E722
         return "Unknown"
-

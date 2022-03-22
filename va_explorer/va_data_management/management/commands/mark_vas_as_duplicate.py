@@ -1,12 +1,11 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from django.conf import settings
 from va_explorer.va_data_management.models import VerbalAutopsy
 
 
 class Command(BaseCommand):
     help = "Marks existing VAs as duplicate"
-
 
     def handle(self, *args, **options):
         if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
@@ -19,13 +18,13 @@ class Command(BaseCommand):
             )
             exit()
 
-        try: 
+        try:
             all_existing_vas = list(VerbalAutopsy.objects.all())
-        except:
+        except Exception as err:
             self.stdout.write(
                 self.style.ERROR(
                     "Missing required database fields in Verbal Autopsy model to mark Verbal Autopsies as duplicate."
-                    "Please run latest migration to add fields."
+                    f"Please run latest migration to add fields.\n{err}"
                 )
             )
             exit()
@@ -41,4 +40,8 @@ class Command(BaseCommand):
         VerbalAutopsy.mark_duplicates()
 
         duplicate_count = VerbalAutopsy.objects.filter(duplicate=True).count()
-        self.stdout.write(self.style.SUCCESS(f'Successfully marked {duplicate_count} existing VAs as duplicate!'))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Successfully marked {duplicate_count} existing VAs as duplicate!"
+            )
+        )

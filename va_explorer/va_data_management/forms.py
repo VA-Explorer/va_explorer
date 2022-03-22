@@ -3,7 +3,7 @@ from django import forms
 from config.settings.base import DATE_FORMATS
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 
-from .constants import PII_FIELDS, FORM_FIELDS, HIDDEN_FIELDS
+from .constants import FORM_FIELDS, HIDDEN_FIELDS, PII_FIELDS
 from .models import VerbalAutopsy
 
 
@@ -25,7 +25,9 @@ class VerbalAutopsyForm(forms.ModelForm):
                 choices=FORM_FIELDS["checkbox"][form_field], attrs={"class": "va-check"}
             )
         for form_field in FORM_FIELDS["dropdown"]:
-            widgets[form_field] = forms.Select(choices=FORM_FIELDS["dropdown"][form_field])
+            widgets[form_field] = forms.Select(
+                choices=FORM_FIELDS["dropdown"][form_field]
+            )
         for form_field in FORM_FIELDS["number"]:
             widgets[form_field] = forms.NumberInput()
         for form_field in FORM_FIELDS["date"]:
@@ -35,8 +37,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         for form_field in FORM_FIELDS["datetime"]:
             widgets[form_field] = forms.DateTimeInput()
         for form_field in FORM_FIELDS["display"]:
-            widgets[form_field] = forms.TextInput(attrs={'readonly': 'readonly'})
-
+            widgets[form_field] = forms.TextInput(attrs={"readonly": "readonly"})
 
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop("include_pii", True)
@@ -66,7 +67,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         return cleaned_data
 
 
-def validate_date_format(form, Id10023):
+def validate_date_format(form, Id10023):  # noqa N803 - more readable as actual name
     """
     Custom form validation for field Id10023, date of death
     """

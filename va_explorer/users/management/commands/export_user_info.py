@@ -1,22 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May 28 12:00:36 2021
-
-@author: babraham
-"""
-
-
 from django.core.management.base import BaseCommand
+
 from va_explorer.users.utils.user_form_backend import get_anonymized_user_info
+
 
 class Command(BaseCommand):
 
-    help = "Export an (anonymized) list of all users in the system along with their roles and permissions. No PII is exported during this process."
+    help = "Export an (anonymized) list of all users in the system along with \
+            their roles and permissions. No PII is exported during this process."
 
     def add_arguments(self, parser):
-        parser.add_argument('--output_file', type=str, nargs='?', default="user_list.csv")
-        parser.add_argument('--user_file', type=str, nargs='?', default=None)
+        parser.add_argument(
+            "--output_file", type=str, nargs="?", default="user_list.csv"
+        )
+        parser.add_argument("--user_file", type=str, nargs="?", default=None)
 
     def handle(self, *args, **options):
         fname = options["output_file"]
@@ -25,8 +21,8 @@ class Command(BaseCommand):
         try:
             user_df.to_csv(fname, index=False)
             print(f"Exported info for {user_df.shape[0]} users to {fname}")
-        except:
-            print("Error occured while exporting user info. Check provided filename is a valid path.")
-            
-        
-      
+        except Exception as err:
+            print(
+                f"Error {err} occurred while exporting user info. Check \
+                  provided filename is a valid path."
+            )

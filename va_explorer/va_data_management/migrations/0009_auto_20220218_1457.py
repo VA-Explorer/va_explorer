@@ -6,88 +6,118 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0008_merge_20220105_2201'),
+        ("va_data_management", "0008_merge_20220105_2201"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10011',
-            field=models.TextField(blank=True, verbose_name='Interview Start Datetime'),
+            model_name="historicalverbalautopsy",
+            name="Id10011",
+            field=models.TextField(blank=True, verbose_name="Interview Start Datetime"),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10012',
-            field=models.TextField(blank=True, verbose_name='Date of interview'),
+            model_name="historicalverbalautopsy",
+            name="Id10012",
+            field=models.TextField(blank=True, verbose_name="Date of interview"),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10366_a',
-            field=models.TextField(blank=True, verbose_name='What was the weight of the deceased at birth? [Enter weight in grammes:]'),
+            model_name="historicalverbalautopsy",
+            name="Id10366_a",
+            field=models.TextField(
+                blank=True,
+                verbose_name="What was the weight of the deceased at birth? [Enter weight in grammes:]",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10366_b',
-            field=models.TextField(blank=True, verbose_name='What was the weight of the deceased at birth? [Enter weight in kilograms:]'),
+            model_name="historicalverbalautopsy",
+            name="Id10366_b",
+            field=models.TextField(
+                blank=True,
+                verbose_name="What was the weight of the deceased at birth? [Enter weight in kilograms:]",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10366_unit',
-            field=models.TextField(blank=True, verbose_name='What was the weight of the deceased at birth? [Enter weight in:]'),
+            model_name="historicalverbalautopsy",
+            name="Id10366_unit",
+            field=models.TextField(
+                blank=True,
+                verbose_name="What was the weight of the deceased at birth? [Enter weight in:]",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10416',
-            field=models.TextField(blank=True, verbose_name='How many times did (s)he use tobacco products each day?'),
+            model_name="historicalverbalautopsy",
+            name="Id10416",
+            field=models.TextField(
+                blank=True,
+                verbose_name="How many times did (s)he use tobacco products each day?",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='Id10481',
-            field=models.TextField(blank=True, verbose_name='Interview End Datetime'),
+            model_name="historicalverbalautopsy",
+            name="Id10481",
+            field=models.TextField(blank=True, verbose_name="Interview End Datetime"),
         ),
         migrations.AlterField(
-            model_name='historicalverbalautopsy',
-            name='id10173_check',
-            field=models.TextField(blank=True, verbose_name='It is not possible to select "Don\'t know" or "refuse" together with other options. Please go back and correct the selection.'),
+            model_name="historicalverbalautopsy",
+            name="id10173_check",
+            field=models.TextField(
+                blank=True,
+                verbose_name='It is not possible to select "Don\'t know" or "refuse" together with other options. Please go back and correct the selection.',
+            ),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10011',
-            field=models.TextField(blank=True, verbose_name='Interview Start Datetime'),
+            model_name="verbalautopsy",
+            name="Id10011",
+            field=models.TextField(blank=True, verbose_name="Interview Start Datetime"),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10012',
-            field=models.TextField(blank=True, verbose_name='Date of interview'),
+            model_name="verbalautopsy",
+            name="Id10012",
+            field=models.TextField(blank=True, verbose_name="Date of interview"),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10366_a',
-            field=models.TextField(blank=True, verbose_name='What was the weight of the deceased at birth? [Enter weight in grammes:]'),
+            model_name="verbalautopsy",
+            name="Id10366_a",
+            field=models.TextField(
+                blank=True,
+                verbose_name="What was the weight of the deceased at birth? [Enter weight in grammes:]",
+            ),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10366_b',
-            field=models.TextField(blank=True, verbose_name='What was the weight of the deceased at birth? [Enter weight in kilograms:]'),
+            model_name="verbalautopsy",
+            name="Id10366_b",
+            field=models.TextField(
+                blank=True,
+                verbose_name="What was the weight of the deceased at birth? [Enter weight in kilograms:]",
+            ),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10366_unit',
-            field=models.TextField(blank=True, verbose_name='What was the weight of the deceased at birth? [Enter weight in:]'),
+            model_name="verbalautopsy",
+            name="Id10366_unit",
+            field=models.TextField(
+                blank=True,
+                verbose_name="What was the weight of the deceased at birth? [Enter weight in:]",
+            ),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10416',
-            field=models.TextField(blank=True, verbose_name='How many times did (s)he use tobacco products each day?'),
+            model_name="verbalautopsy",
+            name="Id10416",
+            field=models.TextField(
+                blank=True,
+                verbose_name="How many times did (s)he use tobacco products each day?",
+            ),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='Id10481',
-            field=models.TextField(blank=True, verbose_name='Interview End Datetime'),
+            model_name="verbalautopsy",
+            name="Id10481",
+            field=models.TextField(blank=True, verbose_name="Interview End Datetime"),
         ),
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='id10173_check',
-            field=models.TextField(blank=True, verbose_name='It is not possible to select "Don\'t know" or "refuse" together with other options. Please go back and correct the selection.'),
+            model_name="verbalautopsy",
+            name="id10173_check",
+            field=models.TextField(
+                blank=True,
+                verbose_name='It is not possible to select "Don\'t know" or "refuse" together with other options. Please go back and correct the selection.',
+            ),
         ),
     ]

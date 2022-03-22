@@ -5,18 +5,16 @@ import uuid
 
 # add unique uuid values for each user in db
 def gen_uuid(apps, schema_editor):
-    MyModel = apps.get_model('users', 'user')
+    MyModel = apps.get_model("users", "user")
     for row in MyModel.objects.all():
         row.uuid = uuid.uuid4()
-        row.save(update_fields=['uuid'])
-        
+        row.save(update_fields=["uuid"])
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0006_add_user_uuid'),
+        ("users", "0006_add_user_uuid"),
     ]
 
-    operations = [
-            migrations.RunPython(gen_uuid)
-    ]
+    operations = [migrations.RunPython(gen_uuid)]
