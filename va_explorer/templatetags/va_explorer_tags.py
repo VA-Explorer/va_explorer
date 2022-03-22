@@ -7,8 +7,7 @@ from django.urls import NoReverseMatch, reverse
 from urllib.parse import urlencode
 from collections import OrderedDict
 
-from va_explorer.va_data_management.models import PII_FIELDS
-from va_explorer.va_data_management.models import REDACTED_STRING
+from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
 
 register = template.Library()
 

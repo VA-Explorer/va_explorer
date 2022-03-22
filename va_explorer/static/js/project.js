@@ -1,1 +1,4 @@
-/* Project specific Javascript goes here. */
+/* Enable Boostrap tooltips */
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})

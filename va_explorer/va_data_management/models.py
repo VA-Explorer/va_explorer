@@ -1,36 +1,17 @@
 from django.db import models
 from django.conf import settings
 from simple_history.models import HistoricalRecords
-from django.db.models import JSONField
-#from django.contrib.auth import get_user_model
+from django.db.models import JSONField, Count
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+from django.db import transaction
+# from django.contrib.auth import get_user_model
+from va_explorer.models import SoftDeletionModel
 from django.contrib.auth.models import User
 from treebeard.mp_tree import MP_Node
+from django.core.exceptions import FieldDoesNotExist
 
-REDACTED_STRING = '** redacted **'
-
-PII_FIELDS = [
-    'Id10007',
-    'Id10017',
-    'Id10018',
-    'Id10021',
-    'Id10023_a',
-    'Id10023_b',
-    'Id10023',
-    'Id10060',
-    'Id10061',
-    'Id10062',
-    'Id10070',
-    'Id10071',
-    'Id10072',
-    'Id10073',
-    'Id10476',
-    'Id10477',
-    'Id10478',
-    'Id10479',
-    'comment',
-    'date',
-    'narrat_image',
-]
+import hashlib
 
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
@@ -41,7 +22,7 @@ class Location(MP_Node):
     node_order_by = ['name']
 
     # A user can have their access scoped by one or more locations
-    #users = models.ManyToManyField(get_user_model(), related_name='locations')
+    # users = models.ManyToManyField(get_user_model(), related_name='locations')
 
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
@@ -55,9 +36,17 @@ class Location(MP_Node):
 
     def parent_id(self):
         return self.get_parent().id
-            
 
-class VerbalAutopsy(models.Model):
+
+class VerbalAutopsy(SoftDeletionModel):
+    class Meta:
+        permissions = (
+            ('bulk_delete', 'Can bulk delete'),
+        )
+        indexes = [
+            models.Index(fields=['unique_va_identifier'])
+        ]
+
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
     location = models.ForeignKey(Location, related_name='verbalautopsies', on_delete=models.CASCADE, null=True)
 
@@ -264,7 +253,7 @@ class VerbalAutopsy(models.Model):
     Id10171 = models.TextField("Was (s)he breathless while lying flat?", blank=True)
     Id10172 = models.TextField("Did you see the lower chest wall/ribs being pulled in as the child breathed in?", blank=True)
     Id10173_nc = models.TextField("During the illness that led to death did his/her breathing sound like any of the following:", blank=True)
-    id10173_check = models.TextField("id10173_check", blank=True)
+    id10173_check = models.TextField("It is not possible to select \"Don't know\" or \"refuse\" together with other options. Please go back and correct the selection.", blank=True)
     Id10173_a = models.TextField("During the illness that led to death did (s)he have wheezing?", blank=True)
     Id10173 = models.TextField("Calculated Field: During the illness that led to death did his/her breathing sound like any of the following:", blank=True)
     Id10174 = models.TextField("Did (s)he have chest pain?", blank=True)
@@ -502,9 +491,9 @@ class VerbalAutopsy(models.Model):
     Id10364 = models.TextField("At birth, was the baby very much smaller than usual, (weighing under 1 kg)?", blank=True)
     Id10365 = models.TextField("At birth, was the baby larger than usual, (weighing over 4.5 kg)?", blank=True)
     id1036X_check = models.TextField("It is not possible to select \"No usual size at Birth\", \"No weighing under 2.5 kg\" and \"No weighing over 4.5 kg\" together. Please go back and correct the selection.", blank=True)
-    Id10366_unit = models.TextField("Id10366_unit", blank=True)
-    Id10366_a = models.TextField("Id10366_a", blank=True)
-    Id10366_b = models.TextField("Id10366_b", blank=True)
+    Id10366_unit = models.TextField("What was the weight of the deceased at birth? [Enter weight in:]", blank=True)
+    Id10366_a = models.TextField("What was the weight of the deceased at birth? [Enter weight in grammes:]", blank=True)
+    Id10366_b = models.TextField("What was the weight of the deceased at birth? [Enter weight in kilograms:]", blank=True)
     Id10366 = models.TextField("What was the weight (in grammes) of the deceased at birth?", blank=True)
     Id10367 = models.TextField("How many months long was the pregnancy before the child was born?", blank=True)
     Id10368 = models.TextField("Were there any complications in the late part of the pregnancy (defined as the last 3 months, before labour)?", blank=True)
@@ -548,7 +537,7 @@ class VerbalAutopsy(models.Model):
     Id10414 = models.TextField("What kind of tobacco did (s)he use ?", blank=True)
     id10414_check = models.TextField("It is not possible to select cigarettes or pipe and \"no\" to \"Did (s)he smoke tobacco?\". Please go back and correct the selections.", blank=True)
     Id10415 = models.TextField("How many cigarettes did (s)he smoke daily?", blank=True)
-    Id10416 = models.TextField("How many times did¬†(s)he use tobacco products each day?", blank=True)
+    Id10416 = models.TextField("How many times did (s)he use tobacco products each day?", blank=True)
     Id10418 = models.TextField("Did (s)he receive any treatment for the illness that led to death?", blank=True)
     Id10419 = models.TextField("Did (s)he receive oral rehydration salts?", blank=True)
     Id10420 = models.TextField("Did (s)he receive (or need) intravenous fluids (drip) treatment?", blank=True)
@@ -605,14 +594,19 @@ class VerbalAutopsy(models.Model):
     Id10471 = models.TextField("Duration (Id):", blank=True)
     Id10472 = models.TextField("Record the contributing cause(s) of death from the certificate (part 2)", blank=True)
     Id10473 = models.TextField("Duration (part2):", blank=True)
-    Id10481 = models.TextField("Id10481", blank=True)
+    Id10481 = models.TextField("Interview End Datetime", blank=True)
     geopoint = models.TextField("geopoint", blank=True)
     comment = models.TextField("Comment", blank=True)
     # Track the history of changes to each verbal autopsy
-    history = HistoricalRecords()
+    history = HistoricalRecords(excluded_fields=['unique_va_identifier', 'duplicate'])
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    # Supports soft delete of duplicate records
+    # deleted_at inherited from SoftDeletionModel
+    unique_va_identifier = models.TextField("md5 hash of the unique_va_identifiers", blank=True)
+    duplicate = models.BooleanField("Marks the record as duplicate", blank=True, default=False)
+
     # function to tell if VA had any coding errors
     def any_errors(self):
         return self.coding_issues.filter(severity='error').exists()
@@ -620,11 +614,15 @@ class VerbalAutopsy(models.Model):
     def any_warnings(self):
         return self.coding_issues.filter(severity='warning').exists()
 
+    # def clean(self):
+    # TODO: fill this out with cleaning operations we actually want to do
+    #       return
+
     def set_null_location(self, null_name="Unknown"):
         # to handle passing null_name=None
         if not null_name:
             null_name = "Unknown"
-        # first, check if null location exists. If not, create one. 
+        # first, check if null location exists. If not, create one.
         null_location = Location.objects.filter(name=null_name).first()
         if not null_location:
             # if no locations, make null location root. Otherwise, add child to root
@@ -635,15 +633,123 @@ class VerbalAutopsy(models.Model):
             # find new location we just created
             null_location = Location.objects.get(name=null_name)
         self.location = null_location
-        
-class dhisStatus(models.Model):
-    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
-    vaid = models.TextField(blank=False)
-    edate = models.DateTimeField(auto_now_add=True)
-    status = models.TextField(blank=False, default="SUCCESS")
 
-    def __str__(self):
-        return self.vaid
+    @staticmethod
+    def auto_detect_duplicates():
+        return questions_to_autodetect_duplicates()
+
+    def any_identifier_changed(self, saved_va):
+        for identifier in questions_to_autodetect_duplicates():
+            if getattr(self, identifier) != getattr(saved_va, identifier):
+                return True
+        return False
+
+    def generate_unique_identifier_hash(self):
+        md5 = hashlib.md5()
+        unique_identifier_string = ''.join([str(getattr(self, identifier)) for identifier in questions_to_autodetect_duplicates()])
+        md5.update(unique_identifier_string.encode())
+        self.unique_va_identifier = md5.hexdigest()
+
+    @classmethod
+    def mark_duplicates(cls):
+        duplicate_vas = cls.objects.values('unique_va_identifier'). \
+            annotate(unique_va_identifier_count=Count('unique_va_identifier')).filter(
+            unique_va_identifier_count__gt=1)
+        if duplicate_vas.exists():
+            for identifiers_hash in duplicate_vas:
+                vas = VerbalAutopsy.objects.filter(
+                    unique_va_identifier=identifiers_hash['unique_va_identifier']) \
+                    .order_by('created')
+                # Skip the first record: this is the oldest record one and the one we will not mark as duplicate
+                duplicate_vas = []
+                for va in vas[1:]:
+                    va.duplicate = True
+                    duplicate_vas.append(va)
+
+                VerbalAutopsy.objects.bulk_update(duplicate_vas, ['duplicate'])
+
+    def update_duplicates_with_changed_unique_identifier(self, saved_va):
+        # Given a set of duplicate VAs, we designate the oldest one as the non-duplicate record.
+        # If the record that we are updating is the oldest amongst all of the records with the same
+        # unique_va_identifier, it is the only record in the query set with duplicate = False.
+        # We need to determine which record is the oldest amongst the remaining records that share the
+        # saved_va's unique_va_identifier and mark that as duplicate = False.
+        oldest_va_with_previous_unique_va_identifier = VerbalAutopsy.objects. \
+            filter(unique_va_identifier=saved_va.unique_va_identifier). \
+            exclude(id=self.pk).order_by('created').first()
+
+        if oldest_va_with_previous_unique_va_identifier:
+            oldest_va_with_previous_unique_va_identifier.duplicate = False
+            oldest_va_with_previous_unique_va_identifier.save()
+
+        # Get the oldest pre-existing VAs that matches self.unique_identifier_hash, the identifier we are updating to
+        oldest_va_with_new_unique_va_identifier = VerbalAutopsy.objects. \
+            filter(unique_va_identifier=self.unique_va_identifier).order_by('created').first()
+
+        if oldest_va_with_new_unique_va_identifier:
+            if oldest_va_with_new_unique_va_identifier.created < self.created:
+                self.duplicate = True
+            else:
+                oldest_va_with_new_unique_va_identifier.duplicate = True
+                self.duplicate = False
+                oldest_va_with_new_unique_va_identifier.save()
+        else:
+            self.duplicate = False
+
+    def handle_update_duplicates(self):
+        # If the Verbal Autopsy already exists and we are updating it
+        if self.pk:
+            saved_va = VerbalAutopsy.objects.get(pk=self.pk)
+
+            if self.any_identifier_changed(saved_va):
+                # Generate a new unique_identifier_hash since one of the constituent fields has changed
+                self.generate_unique_identifier_hash()
+                self.update_duplicates_with_changed_unique_identifier(saved_va)
+        # If the Verbal Autopsy does not exist and we are creating it
+        else:
+            # Generate a unique_identifier_hash
+            self.generate_unique_identifier_hash()
+
+            # Get any pre-existing VAs that match self.unique_identifier_hash
+            vas_with_new_unique_va_identifier = VerbalAutopsy.objects. \
+                filter(unique_va_identifier=self.unique_va_identifier)
+
+            # If any pre-existing VAs match self.unique_identifier_hash, they are guaranteed to be older
+            # than this record because we are creating it now. Thus, this record is a duplicate because
+            # we always designate the oldest record as the non-duplicate
+            if vas_with_new_unique_va_identifier.exists():
+                self.duplicate = True
+            else:
+                self.duplicate = False
+
+    def save(self, *args, **kwargs):
+        if VerbalAutopsy.auto_detect_duplicates():
+            self.handle_update_duplicates()
+
+        super(VerbalAutopsy, self).save(*args, **kwargs)
+
+
+# Parses the comma-separated list string in settings.QUESTIONS_TO_AUTODETECT_DUPLICATES into a Python list
+# Validates that the question IDs passed into settings.QUESTIONS_TO_AUTODETECT_DUPLICATES match a field in the VA model
+# If a question ID that is not a field on the VA model is encountered, skip it
+def questions_to_autodetect_duplicates():
+    if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
+        return []
+
+    questions = [q.strip() for q in settings.QUESTIONS_TO_AUTODETECT_DUPLICATES.split(',')]
+    validated_questions = []
+    valid_field = None
+
+    for q in questions:
+        try:
+            valid_field = VerbalAutopsy._meta.get_field(q)
+        except FieldDoesNotExist:
+            pass
+        if valid_field:
+            validated_questions.append(q)
+
+    return validated_questions
+
 
 class cod_codes_dhis(models.Model):
     codsource = models.TextField(blank=False)
@@ -653,6 +759,36 @@ class cod_codes_dhis(models.Model):
 
     def __str__(self):
         return self.codname
+
+
+# Soft-deleting a Verbal Autopsy does not result in cascade deletion the way that true database-level deletes do
+# Add a manager for each of the models where on_delete=models.CASCADE
+# Adding an individual manager works if we only have a small number of related models, but is a brittle solution
+# TODO: Determine a way to handle cascading soft deletes globally/generically
+class DhisStatusManager(models.Manager):
+    def get_queryset(self):
+        return super(DhisStatusManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
+
+
+class CauseOfDeathManager(models.Manager):
+    def get_queryset(self):
+        return super(CauseOfDeathManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
+
+
+class CauseCodingIssueManager(models.Manager):
+    def get_queryset(self):
+        return super(CauseCodingIssueManager, self).get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
+
+
+class DhisStatus(models.Model):
+    verbalautopsy = models.ForeignKey(VerbalAutopsy, related_name='dhisva', on_delete=models.CASCADE)
+    vaid = models.TextField(blank=False)
+    edate = models.DateTimeField(auto_now_add=True)
+    status = models.TextField(blank=False, default="SUCCESS")
+    objects = DhisStatusManager()
+
+    def __str__(self):
+        return self.vaid
 
 class CauseOfDeath(models.Model):
     # One VerbalAutopsy can have multiple causes of death (through different algorithms)
@@ -670,6 +806,7 @@ class CauseOfDeath(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = CauseOfDeathManager()
 
     def __str__(self):
         return self.cause
@@ -688,6 +825,7 @@ class CauseCodingIssue(models.Model):
     # Automatically set timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = CauseCodingIssueManager()
 
     def __str__(self):
         return self.text

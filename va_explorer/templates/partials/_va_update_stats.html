@@ -10,5 +10,9 @@
     {% if last_submission %}
         <p class='msg-header'><b>Last VA submission:</b> {{ last_submission }}</p>
     {% endif %}
+
+    {% if AUTO_DETECT_DUPLICATES %}
+      <p class='msg-header'><b># Auto-detected Duplicates:</b> {{ DUPLICATES_COUNT }}</p>
+    {% endif %}
   </div>
 {% endif %}

@@ -1,14 +1,22 @@
 from django.core.management.base import BaseCommand
-from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, dhisStatus,cod_codes_dhis
+from va_explorer.va_data_management.models import VerbalAutopsy, CauseOfDeath, DhisStatus, cod_codes_dhis
 from django.forms.models import model_to_dict
 from io import StringIO
 from collections import OrderedDict
 import dateutil.parser,os,requests,collections
 import csv, environ
 
-import openva_pipeline.dhis as dhis
+from va_explorer.dhis_manager.dhis import DHIS
 import pandas as pd
 import numpy as np
+
+DHIS2_HOST = os.environ.get('DHIS2_URL', 'http://127.0.0.1:5002')
+if DHIS2_HOST.startswith('https://localhost'):
+    # Don't verify localhost (self-signed cert or test).
+    SSL_VERIFY = False
+else:
+    # Support multiple user-provided boolean representations from .env
+    SSL_VERIFY = os.environ.get('DHIS2_SSL_VERIFY', 'TRUE').lower() in ('true', '1', 't')
 
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
@@ -39,7 +47,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         env = environ.Env()
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_USER = env("DHIS2_USER")
         DHIS2_PASS = env("DHIS2_PASS")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
@@ -47,7 +54,7 @@ class Command(BaseCommand):
         metadatacode = "InterVA5|5|Custom|1|2016 WHO Verbal Autopsy Form|v1_5_1"
 
         # Load all verbal autopsies that have been pushed to dhis2
-        dhisdata = dhisStatus.objects.values_list("verbalautopsy_id", flat=True)
+        dhisdata = DhisStatus.objects.values_list("verbalautopsy_id", flat=True)
 
         #to subset few rows,add at the end [:10] for 10 rows etc..
         #exclude vas that have no dhis2 status; not pushed
@@ -76,8 +83,11 @@ class Command(BaseCommand):
             va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
 
             # Transform to algorithm format using the pyCrossVA web service
+            # TODO: Check that this service is running and provide a warning if it isn't because this will cause failure
+            # TODO: Handle failure so that UI doesn't crash
+            # TODO: This can take absurdly long, lets make it into a batch async job
             transform_url = 'http://127.0.0.1:5001/transform?input=2016WHOv151&output=InterVA5'
-            transform_response = requests.post(transform_url, data=va_data_csv)
+            transform_response = requests.post(transform_url, data=va_data_csv, verify=SSL_VERIFY)
 
             # We need to convert the resulting CSV to JSON
             transform_response_reader = csv.DictReader(StringIO(transform_response.text))
@@ -140,7 +150,7 @@ class Command(BaseCommand):
                                              "dhisPassword",
                                              "dhisOrgUnit"]
                                             )
-            settingsDHIS = ntDHIS(DHIS2_URL, DHIS2_USER, DHIS2_PASS, DHIS2_ORGUNIT)
+            settingsDHIS = ntDHIS(DHIS2_HOST, DHIS2_USER, DHIS2_PASS, DHIS2_ORGUNIT)
 
             CODCodes =  cod_codes_dhis.objects.filter(codsource="WHO").values()
             queryCODCodes = pd.DataFrame.from_records(CODCodes)
@@ -152,7 +162,7 @@ class Command(BaseCommand):
             argsDHIS = [settingsDHIS, dhisCODCodes]
 
             # execute pipeline
-            pipelineDHIS = dhis.DHIS(argsDHIS,"")
+            pipelineDHIS = DHIS(argsDHIS,"")
 
             apiDHIS = pipelineDHIS.connect()
             self.clearFolder("DHIS/blobs/")
@@ -184,17 +194,17 @@ class Command(BaseCommand):
         va_in_dhis2 = self.getPushedVA('sv91bCroFFx', auth)
         va_in_dhis2 = [str(i) for i in va_in_dhis2]
 
-        dhisdata = dhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid',flat=True)
+        dhisdata = DhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid',flat=True)
         dhisdata = list(dhisdata)
         dhisdata = [str(i) for i in dhisdata]
 
         #remove orphaned items deleted in dhis2
         for x in dhisdata:
             if x not in va_in_dhis2:
-                ds = dhisStatus.objects.get(vaid=x)
+                ds = DhisStatus.objects.get(vaid=x)
                 ds.delete()
 
-        dhisdata = dhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid', flat=True)
+        dhisdata = DhisStatus.objects.filter(verbalautopsy_id__isnull=False).values_list('vaid', flat=True)
         dhisdata = list(dhisdata)
         dhisdata = [str(i) for i in dhisdata]
 
@@ -202,17 +212,16 @@ class Command(BaseCommand):
         toinsert = list(toinsert)
 
         for item in toinsert:
-            ds = dhisStatus.objects.create(vaid=item,verbalautopsy_id=int(item))
+            ds = DhisStatus.objects.create(vaid=item,verbalautopsy_id=int(item))
             ds.save()
 
     def getEventsValues(self,prg, auth):
         env = environ.Env()
 
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
-        url = DHIS2_URL+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
-        response = requests.get(url, auth=auth)
+        url = DHIS2_HOST+'/api/events?pageSize=0&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
+        response = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = response.json()
         return jn['pager']['total']
 
@@ -221,12 +230,11 @@ class Command(BaseCommand):
         prg = 'sv91bCroFFx' if not prg else prg
         env = environ.Env()
         # DHIS2 VARIABLES
-        DHIS2_URL = env("DHIS2_URL")
         DHIS2_ORGUNIT = env("DHIS2_ORGUNIT")
 
         eventsnum = self.getEventsValues(prg, auth)
-        url = DHIS2_URL+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
-        r = requests.get(url, auth=auth)
+        url = DHIS2_HOST+'/api/events?pageSize=' + format(eventsnum,'0') + '&program=' + prg + '&orgUnit=' + DHIS2_ORGUNIT + '&totalPages=true'
+        r = requests.get(url, auth=auth, verify=SSL_VERIFY)
         jn = r.json()
         list1 = list()
         for i in range(eventsnum):
@@ -236,4 +244,3 @@ class Command(BaseCommand):
                     txt = jn['events'][i]['dataValues'][j]['value']
                     list1.append(txt)
         return list1
-

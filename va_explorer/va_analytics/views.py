@@ -12,7 +12,6 @@ from numpy import round
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_analytics.filters import SupervisionFilter
-from va_explorer.va_data_management.models import PII_FIELDS, REDACTED_STRING, Location
 from va_explorer.va_data_management.utils.date_parsing import parse_date, get_submissiondates
 from va_explorer.va_logs.logging_utils import write_va_log
 

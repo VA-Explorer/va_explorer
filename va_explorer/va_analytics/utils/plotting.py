@@ -92,6 +92,7 @@ def load_lookup_dicts():
         "Other and unspecified infect dis": "Other infectious disease",
         "Other and unspecified maternal CoD": "Other maternal CoD",
         "Pregnancy-induced hypertension": "Hypertension from Pregnancy",
+        "Indeterminate": "Indeterminate",
 
         # internal cod group labels to plot titles
         "All CODs": "All Causes",
@@ -636,7 +637,7 @@ def create_percent_count_buttons(num_groups, x=1, y=1.2, traces=None):
 
 # ========TREND/TIMESERIES PLOT LOGI======================#
 def va_trend_plot(va_df, group_period, factor="All", title=None, search_term_ids=None, height=None):
-    #figure = go.Figure()
+    figure = go.Figure()
     group_period = group_period.lower()
     aggregate_title = group_period.capitalize()
     factor = factor.lower()
