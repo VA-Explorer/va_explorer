@@ -7,13 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0005_vausername'),
+        ("va_data_management", "0005_vausername"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='verbalautopsy',
-            name='location',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='verbalautopsies', to='va_data_management.location'),
+            model_name="verbalautopsy",
+            name="location",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="verbalautopsies",
+                to="va_data_management.location",
+            ),
         ),
     ]

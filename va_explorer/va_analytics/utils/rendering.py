@@ -1,9 +1,10 @@
-import dash_html_components as html
-import dash_bootstrap_components as dbc
-from django.shortcuts import redirect
-from django.urls import reverse
-from urllib.parse import urlencode
 import datetime as dt
+from urllib.parse import urlencode
+
+import dash_bootstrap_components as dbc
+import dash_html_components as html
+from django.urls import reverse
+
 from va_explorer.va_analytics.utils.plotting import load_lookup_dicts
 
 
@@ -13,30 +14,50 @@ def render_update_header(va_stats):
         assert "last_update" in va_stats and "last_submission" in va_stats
         if va_stats["last_update"] or va_stats["last_submission"]:
             if va_stats["last_update"]:
-                update_desc = html.P(children=[html.B("Last Data Update: "), va_stats["last_update"]], style={"margin-left": "20px"})
+                update_desc = html.P(
+                    children=[html.B("Last Data Update: "), va_stats["last_update"]],
+                    style={"margin-left": "20px"},
+                )
                 header.children.append(update_desc)
             if va_stats["last_submission"]:
-                submission_desc = html.P(children=[html.B("Last VA Submission: "), html.Span(va_stats["last_submission"])], style={"margin-left": "10px"})
+                submission_desc = html.P(
+                    children=[
+                        html.B("Last VA Submission: "),
+                        html.Span(va_stats["last_submission"]),
+                    ],
+                    style={"margin-left": "10px"},
+                )
                 header.children.append(submission_desc)
             if va_stats.get("ineligible_vas", None):
-                ineligible_tooltip = "VAs excluded from dashboard due to missing location, date of death (Id10023) or both."
+                ineligible_tooltip = "VAs excluded from dashboard due to missing \
+                                      location, date of death (Id10023) or both."
                 ineligible_desc = html.P(
                     id="inelig-tooltip-target",
-                    children=[html.B("# of Ineligible VAs: "),
-                                va_stats["ineligible_vas"],
-                                html.Span(
-                                    className="fas fa-info-circle",
-                                    style={"margin-left": "3px", "color": "rgba(75,75,75,0.5)"}),
-                                dbc.Tooltip(ineligible_tooltip, target="inelig-tooltip-target")],
-
-                    style={"margin-left": "10px"}
-                    )
+                    children=[
+                        html.B("# of Ineligible VAs: "),
+                        va_stats["ineligible_vas"],
+                        html.Span(
+                            className="fas fa-info-circle",
+                            style={"margin-left": "3px", "color": "rgba(75,75,75,0.5)"},
+                        ),
+                        dbc.Tooltip(ineligible_tooltip, target="inelig-tooltip-target"),
+                    ],
+                    style={"margin-left": "10px"},
+                )
                 header.children.append(ineligible_desc)
+
             if "duplicates" in va_stats:
-                duplicates = html.P(children=[html.B("# Potential Duplicates: "), html.Span(va_stats["duplicates"])], style={"margin-left": "10px"})
+                duplicates = html.P(
+                    children=[
+                        html.B("# Potential Duplicates: "),
+                        html.Span(va_stats["duplicates"]),
+                    ],
+                    style={"margin-left": "10px"},
+                )
                 header.children.append(duplicates)
 
     return header
+
 
 # method to render download api url from dashboard params
 def build_download_url(chosen_region=None, timeframe=None, cod=None, time_mapper=None):
@@ -59,5 +80,5 @@ def build_download_url(chosen_region=None, timeframe=None, cod=None, time_mapper
         params["causes"] = cod
 
     # build URL
-    api_url = reverse('va_export:va_api') + '?' + urlencode(params)
+    api_url = reverse("va_export:va_api") + "?" + urlencode(params)
     return api_url

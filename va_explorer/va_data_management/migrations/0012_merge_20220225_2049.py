@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0011_merge_20220225_1939'),
-        ('va_data_management', '0007_codingbatch_importbatch'),
+        ("va_data_management", "0011_merge_20220225_1939"),
+        ("va_data_management", "0007_codingbatch_importbatch"),
     ]
 
-    operations = [
-    ]
+    operations = []

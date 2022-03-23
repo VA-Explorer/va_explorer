@@ -9,6 +9,7 @@ python-slugify==4.0.1
 pytz==2020.1
 redis==3.5.3
 requests==2.25.1
+asgiref==3.5.0
 
 # String matching
 fuzzywuzzy==0.18.0
@@ -55,9 +56,7 @@ pytest-django==4.1.0
 factory-boy==2.12.0
 selenium==3.141.0
 requests-mock==1.8.0
+pre-commit==2.17.0
 
 # Database
 psycopg2==2.8.5 --no-binary psycopg2
-
-#openva pipeline
-git+https://github.com/VA-Explorer/openva_pipeline.git@master

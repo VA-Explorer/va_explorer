@@ -8,14 +8,14 @@ from django.utils import timezone
 
 from va_explorer.va_data_management.models import VerbalAutopsy
 
-# Demo only: script to ramdomize VA dates for demos of e.g. the metrics page
+# Demo only: script to randomize VA dates for demos of e.g. the metrics page
 
 
 class Command(BaseCommand):
     help = "Randomize dates for demos, to be run only in development mode"
 
     def handle(self, *args, **options):
-        if not environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.local":
+        if environ.get("DJANGO_SETTINGS_MODULE") != "config.settings.local":
             message = "This functionality is for demo purposes only in the local environment. Exiting."
             self.stdout.write(self.style.ERROR(message))
             sys.exit()
@@ -25,7 +25,7 @@ class Command(BaseCommand):
         # to be in the database in increasing date order so we first create a batch of
         # dates then assign them
         count = VerbalAutopsy.objects.count()
-        days_list = [183 - ceil(sqrt(randint(1, 183 ** 2))) for _ in range(count)]
+        days_list = [183 - ceil(sqrt(randint(1, 183**2))) for _ in range(count)]
         dates_list = [
             timezone.now() - timezone.timedelta(days=days) for days in days_list
         ]

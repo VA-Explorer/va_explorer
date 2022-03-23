@@ -6,35 +6,60 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0006_auto_20210430_2258'),
+        ("va_data_management", "0006_auto_20210430_2258"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ImportBatch',
+            name="ImportBatch",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date_started', models.DateTimeField(auto_now_add=True)),
-                ('date_finished', models.DateTimeField(blank=True, null=True)),
-                ('verbal_autopsies', models.ManyToManyField(to='va_data_management.VerbalAutopsy')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date_started", models.DateTimeField(auto_now_add=True)),
+                ("date_finished", models.DateTimeField(blank=True, null=True)),
+                (
+                    "verbal_autopsies",
+                    models.ManyToManyField(to="va_data_management.VerbalAutopsy"),
+                ),
             ],
             options={
-                'ordering': ['-date_started'],
-                'abstract': False,
+                "ordering": ["-date_started"],
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='CodingBatch',
+            name="CodingBatch",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date_started', models.DateTimeField(auto_now_add=True)),
-                ('date_finished', models.DateTimeField(blank=True, null=True)),
-                ('cause_coding_issues', models.ManyToManyField(to='va_data_management.CauseCodingIssue')),
-                ('cause_of_deaths', models.ManyToManyField(to='va_data_management.CauseOfDeath')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date_started", models.DateTimeField(auto_now_add=True)),
+                ("date_finished", models.DateTimeField(blank=True, null=True)),
+                (
+                    "cause_coding_issues",
+                    models.ManyToManyField(to="va_data_management.CauseCodingIssue"),
+                ),
+                (
+                    "cause_of_deaths",
+                    models.ManyToManyField(to="va_data_management.CauseOfDeath"),
+                ),
             ],
             options={
-                'ordering': ['-date_started'],
-                'abstract': False,
+                "ordering": ["-date_started"],
+                "abstract": False,
             },
         ),
     ]

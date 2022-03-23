@@ -7,13 +7,13 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0008_remove_user_uuid_null_const'),
+        ("users", "0008_remove_user_uuid_null_const"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='uuid',
+            model_name="user",
+            name="uuid",
             field=models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
         ),
     ]

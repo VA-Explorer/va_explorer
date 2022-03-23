@@ -1,20 +1,19 @@
 import pytest
-from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import Client, RequestFactory
 from django.urls import reverse
 
-from va_explorer.users.forms import ExtendedUserCreationForm, UserUpdateForm
 from va_explorer.tests.factories import (
+    FacilityFactory,
+    FieldWorkerFactory,
+    FieldWorkerGroupFactory,
     GroupFactory,
     LocationFactory,
     NewUserFactory,
     UserFactory,
-    FieldWorkerFactory,
-    FacilityFactory,
-    FieldWorkerGroupFactory,
     VaUsernameFactory,
 )
+from va_explorer.users.forms import ExtendedUserCreationForm, UserUpdateForm
 from va_explorer.va_data_management.models import VaUsername
 
 pytestmark = pytest.mark.django_db
@@ -63,7 +62,7 @@ def update_and_return_a_field_worker(rf, field_worker, group, va_username, facil
             "group": group,
             "geographic_access": "location-specific",
             "location_restrictions": [facility],
-            "va_username": va_username
+            "va_username": va_username,
         }
     )
 
@@ -200,7 +199,7 @@ def test_user_change_password():
         {
             "current_password": "AReallyGreatPassword1!",
             "password1": "MyNewPassword123!",
-            "password2": "MyNewPassword123!"
+            "password2": "MyNewPassword123!",
         },
         follow=True,
     )

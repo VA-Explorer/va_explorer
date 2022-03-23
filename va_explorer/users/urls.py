@@ -18,5 +18,5 @@ urlpatterns = [
     path("", view=user_index_view, name="index"),
     path("<int:pk>/", view=user_detail_view, name="detail"),
     path("set_password/", view=user_set_password_view, name="set_password"),
-    path("change_password/", view=user_change_password_view, name="change_password")
+    path("change_password/", view=user_change_password_view, name="change_password"),
 ]
