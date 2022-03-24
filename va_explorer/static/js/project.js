@@ -4,9 +4,12 @@ $(function () {
     trigger : 'hover'
   })
 })
-$('#hidden-check').change(function() {
-  $('tr[data-value="nan"]').toggle();
+$('#hidden-missing').change(function() {
+  $('tr[data-value="N/A"]').toggle();
   $('tr[data-value=""]').toggle();
 })
-$('tr[data-value="nan"]').css('display', "none");
+$('#hidden-redacted').change(function() {
+  $('tr[data-value="** redacted **"]').toggle();
+})
+$('tr[data-value="N/A"]').css('display', "none");
 $('tr[data-value=""]').css('display',"none");
