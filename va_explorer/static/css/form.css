@@ -22,9 +22,19 @@ li input.va-check {
   align-items:baseline; 
   flex-direction:row-reverse;
 }
+
 .checkbox-container{
   margin-top:0px; 
   display:flex; 
   justify-content:space-between; 
   align-items:baseline;
+}
+
+.checkbox{
+  margin-left: 20px;
+}
+
+.checkbox-label{
+  margin-left: 5px;
+  font-size:18px;
 }

@@ -33,19 +33,19 @@
     <div class="row mt-3">
         <div class="va-options-container">
             <div class="checkbox-container" align='center'>
-              <input type="checkbox" id="hidden-missing" name="hidden-missing" value="checked" checked="TRUE" style="margin-left: 20px;">
-              <label data-toggle="tooltip" 
+              <input class="checkbox" type="checkbox" id="hidden-missing" name="hidden-missing" value="checked" checked="TRUE">
+              <label class="checkbox-label"
+                    data-toggle="tooltip" 
                     title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown." 
-                    for="hidden-missing" 
-                    style="margin-left: 5px; font-size:18px;">
+                    for="hidden-missing">
                     Hide Empty Fields
               </label><br>
               {% if not user.can_view_pii %}
-              <input type="checkbox" id="hidden-redacted" name="hidden-redacted" style="margin-left: 20px;">
-              <label data-toggle="tooltip" 
+              <input class="checkbox" type="checkbox" id="hidden-redacted" name="hidden-redacted">
+              <label class="checkbox-label"
+                    data-toggle="tooltip" 
                     title="Toggle whether or not you want to see redacted fields." 
-                    for="hidden-redacted" 
-                    style="margin-left: 5px; font-size:18px;">
+                    for="hidden-redacted">
                     Hide Redacted Fields
               </label><br>
               {% endif %}
