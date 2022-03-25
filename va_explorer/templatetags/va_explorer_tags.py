@@ -70,7 +70,8 @@ def param_replace(context, **kwargs):
         # for all other fields, just override previous value
         else:
             d[k] = v
-    for k in [k for k, v in d.items() if not v]:
+    keys = [k for k, v in d.items() if not v]
+    for k in keys:
         del d[k]
     return d.urlencode()
 

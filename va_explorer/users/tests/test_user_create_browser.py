@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from selenium.webdriver import FirefoxOptions
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.select import Select
 
@@ -20,11 +21,11 @@ def login_active_user(self):
     )
 
     self.selenium.get("%s%s" % (self.live_server_url, "/accounts/login/"))
-    username_input = self.selenium.find_element_by_name("login")
+    username_input = self.selenium.find_element(By.NAME, "login")
     username_input.send_keys(active_user.email)
-    password_input = self.selenium.find_element_by_name("password")
+    password_input = self.selenium.find_element(By.NAME, "password")
     password_input.send_keys(password)
-    self.selenium.find_element_by_xpath('//button[text()="Sign In"]').click()
+    self.selenium.find_element(By.XPATH, '//button[text()="Sign In"]').click()
 
 
 # TODO: Extract some of this out into a pytest fixture that can be shared across tests
@@ -63,23 +64,23 @@ class BrowserTests(StaticLiveServerTestCase):
 
         assert "Create a New User" in self.selenium.title
 
-        select = Select(self.selenium.find_element_by_id("id_group"))
+        select = Select(self.selenium.find_element(By.ID, "id_group"))
 
-        facility_restrictions_dropdown = self.selenium.find_element_by_name(
-            "facility_restrictions"
+        facility_restrictions_dropdown = self.selenium.find_element(
+            By.NAME, "facility_restrictions"
         )
-        location_restrictions_dropdown = self.selenium.find_element_by_name(
-            "location_restrictions"
-        )
-
-        national_access_radio = self.selenium.find_element_by_xpath(
-            '//input[@value="national"]'
-        )
-        location_specific_radio = self.selenium.find_element_by_xpath(
-            '//input[@value="location-specific"]'
+        location_restrictions_dropdown = self.selenium.find_element(
+            By.NAME, "location_restrictions"
         )
 
-        va_username_input = self.selenium.find_element_by_name("va_username")
+        national_access_radio = self.selenium.find_element(
+            By.XPATH, '//input[@value="national"]'
+        )
+        location_specific_radio = self.selenium.find_element(
+            By.XPATH, '//input[@value="location-specific"]'
+        )
+
+        va_username_input = self.selenium.find_element(By.NAME, "va_username")
 
         # Before a role is chosen
         assert not facility_restrictions_dropdown.is_displayed()
