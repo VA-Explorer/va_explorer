@@ -3,6 +3,7 @@ ul.va-check {
   display: block;
   padding-left: 1.25rem;
   margin-bottom: 0;
+  list-style: none !important;
 }
 
 ul.va-check label {
@@ -16,18 +17,18 @@ li input.va-check {
 }
 
 .va-options-container{
-  width:100%; 
-  display:flex; 
-  justify-content:space-between; 
-  align-items:baseline; 
-  flex-direction:row-reverse;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-direction: row-reverse;
 }
 
 .checkbox-container{
-  margin-top:0px; 
-  display:flex; 
-  justify-content:space-between; 
-  align-items:baseline;
+  margin-top: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .checkbox{
