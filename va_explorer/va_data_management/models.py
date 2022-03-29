@@ -214,7 +214,8 @@ class VerbalAutopsy(SoftDeletionModel):
     narrat_image = models.TextField("narrat_image", blank=True)
     Id10477 = MultiSelectField(
         "Select any of the following words that were mentioned as present in the narrative.",
-        blank=True, choices=_select_510,
+        blank=True,
+        choices=_select_510,
     )
     Id10478 = MultiSelectField(
         "Select any of the following words that were mentioned as present in the narrative.",
@@ -499,7 +500,8 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10173_nc = MultiSelectField(
         "During the illness that led to death did his/her breathing sound like \
         any of the following:",
-        blank=True, choices=_select_501,
+        blank=True,
+        choices=_select_501,
     )
     id10173_check = models.TextField(
         'It is not possible to select "Don\'t \
@@ -866,7 +868,9 @@ class VerbalAutopsy(SoftDeletionModel):
         "Did (s)he have paralysis of only one side of the body?", blank=True
     )
     Id10260 = MultiSelectField(
-        "Which were the limbs or body parts paralysed?", blank=True, choices=_select_161,
+        "Which were the limbs or body parts paralysed?",
+        blank=True,
+        choices=_select_161,
     )
     id10260_check = models.TextField(
         'It is not possible to select "only one side paralysed" and "left and \
@@ -1414,7 +1418,11 @@ class VerbalAutopsy(SoftDeletionModel):
         "Can I see the vaccination card (note the vaccines the child received)?",
         blank=True,
     )
-    Id10431 = MultiSelectField("Select EPI vaccines done", blank=True, choices=_select_vaccines,)
+    Id10431 = MultiSelectField(
+        "Select EPI vaccines done",
+        blank=True,
+        choices=_select_vaccines,
+    )
     id10431_check = models.TextField(
         'It is not possible to select "No vaccines", "Don\'t know" or "refuse" \
         together with other options. Please go back and correct the selection.',
@@ -1423,7 +1431,11 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10432 = models.TextField(
         "Was care sought outside the home while (s)he had this illness?", blank=True
     )
-    Id10433 = MultiSelectField("Where or from whom did you seek care?", blank=True, choices=_select_322,)
+    Id10433 = MultiSelectField(
+        "Where or from whom did you seek care?",
+        blank=True,
+        choices=_select_322,
+    )
     id10433_check = models.TextField(
         'It is not possible to select "Don\'t know" or "refuse" together with \
         other options. Please go back and correct the selection.',
