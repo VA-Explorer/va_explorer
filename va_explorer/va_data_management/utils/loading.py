@@ -292,8 +292,8 @@ def deduplicate_columns(record_df, drop_duplicates=True):
     # get original columns that other columns are derived from
     original_cols = list(
         set(
-            other_cols.str.replace(r"^filtered\_", "")
-            .str.replace("_other$", "")
+            other_cols.str.replace(r"^filtered\_", "", regex=True)
+            .str.replace(r"_other$", "", regex=True)
             .tolist()
         )
     )
