@@ -14,3 +14,27 @@ li input.va-check {
   margin-top: 0.3rem;
   margin-left: -1.25rem;
 }
+
+.va-options-container{
+  width:100%; 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:baseline; 
+  flex-direction:row-reverse;
+}
+
+.checkbox-container{
+  margin-top:0px; 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:baseline;
+}
+
+.checkbox{
+  margin-left: 20px;
+}
+
+.checkbox-label{
+  margin-left: 5px;
+  font-size:18px;
+}
