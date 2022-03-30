@@ -135,7 +135,10 @@ class MultiSelectField(models.TextField):
         return MultiSelectFormField(**defaults)
 
     def get_prep_value(self, value):
-        return "" if value is None or type(value) != str else ",".join(map(str, value))
+        if type(value) == MSFList:
+            return ",".join(map(str, value))
+        else:
+            return ""
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared and not isinstance(value, str):

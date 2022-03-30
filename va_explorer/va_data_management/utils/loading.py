@@ -221,9 +221,6 @@ def format_multi_select_fields(row):
             row[multi_select_question] = ",".join(
                 response for response in row[multi_select_question].split()
             )
-            # If the selection is snake case, convert to title case per our implementation
-            for response in row[multi_select_question]:
-                response.replace("_", " ").title()
 
 
 # load locations from a csv file into the django database. If delete_previous
