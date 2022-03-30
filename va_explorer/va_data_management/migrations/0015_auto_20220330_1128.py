@@ -31,7 +31,7 @@ def clean_multi_select_fields(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('va_data_management', '0014_auto_20220330_1128'),
+        ("va_data_management", "0014_auto_20220330_1128"),
     ]
     operations = [
         migrations.RunPython(clean_multi_select_fields, migrations.RunPython.noop)
