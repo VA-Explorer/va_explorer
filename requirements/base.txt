@@ -10,16 +10,16 @@ pytz==2022.1
 redis==4.2.0
 requests==2.27.1
 asgiref==3.5.0
+werkzeug==2.0.3   # werkzeug>2.0.3 is currently breaking change
 
 # String matching
 fuzzywuzzy==0.18.0
 python-Levenshtein==0.12.2
 
 # Django
-# django==3.2.12  # TODO
 django==3.1.5
 django-allauth==0.49.0
-django-celery-beat==2.2.1     # requires Django<4.0
+django-celery-beat==2.2.1     # requires django<4.0
 django-crispy-forms==1.14.0
 django-debug-toolbar==3.2.4
 django-environ==0.8.1
@@ -39,7 +39,7 @@ daphne==3.0.2
 scipy==1.8.0
 
 # Dash
-dash==1.20.0    # other packages require dash<1.21
+dash==1.20.0
 dash-bootstrap-components==0.13.1
 dash-core-components==1.16.0
 dash-html-components==1.1.3
@@ -47,7 +47,7 @@ dash-renderer==1.9.1
 dash-table==4.11.3
 
 # Plotly Dash
-django-plotly-dash==1.6.6
+django-plotly-dash==1.6.6 # requires dash<1.21
 dpd-components==0.1.0
 dpd-static-support==0.0.5
 
