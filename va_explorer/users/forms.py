@@ -309,12 +309,6 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                     user, self.cleaned_data, run_matching_logic=True
                 )
 
-            # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
-            # See allauth:
-            # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
-            # setup_user_email(self.request, user, [])
-            # A workaround to run this script without a mail server. If True, it will send email like normal.
-            # If False, user credentials will just be printed to console.
             console_msg = (
                 "" * 20
                 + f"Created user with email {user.email} and temp. password {password}"
@@ -355,8 +349,6 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        # TODO: Remove if we do not require email confirmation; we will no longer
-        # need the lines below
 
         super(UserUpdateForm, self).__init__(*args, **kwargs)
         self.fields["group"].label = "Role"

@@ -103,7 +103,6 @@ class PasswordHistoryValidator:
         return [entry.old_password for entry in user_password_history[relevant:]]
 
 
-# TODO: convert these to validator classes
 # validate raw user data (from csv) against final user object
 def validate_user_object(user_data, user_object=None):
     if not user_object:

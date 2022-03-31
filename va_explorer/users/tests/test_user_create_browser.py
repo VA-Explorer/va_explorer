@@ -36,7 +36,6 @@ class BrowserTests(StaticLiveServerTestCase):
 
     fixtures = ["fixtures/group.json"]
 
-    # TODO: Needs to be headless to run on CI. Any value to running non-headless locally?
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

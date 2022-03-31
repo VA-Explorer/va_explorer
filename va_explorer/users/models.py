@@ -134,7 +134,6 @@ class User(AbstractUser):
         else:
             self.user_permissions.remove(permission)
 
-    # TODO: Update this if we are supporting more than one username; for now, allow only one
     def set_va_username(self, new_va_username):
         # If None or blank string, delete existing username.
         if not new_va_username:
@@ -144,7 +143,6 @@ class User(AbstractUser):
         # Update or create the VaUsername for this user. There should only be one.
         self.vausername_set.update_or_create(defaults={"va_username": new_va_username})
 
-    # TODO: Update this if we are supporting more than one username; for now, allow only one
     def get_va_username(self):
         va_username_for_user = self.vausername_set.first()
 
@@ -167,16 +165,6 @@ class User(AbstractUser):
         """
         return reverse("users:detail", kwargs={"pk": self.pk})
 
-    # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
-    # def add_email_address(self, request, new_email):
-    #     return EmailAddress.objects.add_email(request, self.user, new_email, confirm=True)
-    #
-    # @receiver(email_confirmed)
-    # def update_user_email(sender, email_address, **kwargs):
-    #     email_address.set_as_primary()
-    #
-    #     EmailAddress.objects.filter(
-    #         user=email_address.user).exclude(primary=True).delete()
 
     def save(self, *args, **kwargs):
         # TODO: May need to be changed depending on how username comes in from ODK?
