@@ -35,7 +35,6 @@ class Index(CustomAuthMixin, TemplateView):
     template_name = "home/index.html"
 
     def get_context_data(self, **kwargs):
-        # TODO: interviewers should only see their own data
         context = super().get_context_data(**kwargs)
 
         user = self.request.user
