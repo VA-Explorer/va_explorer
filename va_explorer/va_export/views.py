@@ -1,11 +1,14 @@
+import csv
 import json
 import logging
+from io import BytesIO
 from urllib.parse import urlencode
 
 import pandas as pd
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.files import File
 from django.db.models import F
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -23,6 +26,28 @@ from va_explorer.va_logs.logging_utils import write_va_log
 LOGGER = logging.getLogger("event_logger")
 
 
+class Echo:
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+
+def iter_items(items, pseudo_buffer):
+    model = items.model
+    model_fields = model._meta.get_fields()
+    field_names = [field.name for field in model_fields]
+    field_names.extend(['date', 'cause', 'cause_id', 'district', 'location_id'])
+    field_names = [field for field in field_names if field not in ['causes', 'dhisva', 'coding_issues']]
+
+    writer = csv.DictWriter(pseudo_buffer, fieldnames=field_names)
+
+    for item in items:
+        yield writer.writerow(item)
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class VaApi(CustomAuthMixin, View):
     permission_required = "va_analytics.download_data"
@@ -33,6 +58,7 @@ class VaApi(CustomAuthMixin, View):
         params = request.GET
         # for nullity checks
         empty_values = (None, "None", "", [])
+        matching_vas_list = []
 
         # NOTE: using same filters as dashboard - exclude vas w/ null locations, unknown death dates, or unknown CODs
         matching_vas = (
@@ -107,8 +133,7 @@ class VaApi(CustomAuthMixin, View):
                 matching_vas = matching_vas.filter(cause__in=match_list)
 
         # =========DATA CLEANING (if any matching VAs)========#
-        va_df = pd.DataFrame()
-
+        matching_vas = matching_vas.values()
         if matching_vas.count() > 0:
             # Build a location ancestors lookup and add location information at all levels to all vas
             location_ancestors = {
@@ -118,6 +143,12 @@ class VaApi(CustomAuthMixin, View):
 
             # extract COD and location-based fields for each va object and convert to dicts
             for va in matching_vas:
+                # If user cannot view PII, redact all PII fields:
+                # not request.user.can_view_pii
+                if True:
+                    for field in PII_FIELDS:
+                        va[field] = REDACTED_STRING
+
                 for ancestor in location_ancestors[va["loc_id"]]:
                     va[ancestor.location_type] = ancestor.name
 
@@ -125,17 +156,6 @@ class VaApi(CustomAuthMixin, View):
                 va["location"] = va["loc_name"]
                 del (va["loc_name"], va["loc_id"])
 
-            # convert results to dataframe
-            va_df = pd.DataFrame.from_records(matching_vas)
-
-            if "index" in va_df.columns:
-                va_df.drop(columns=["index"], inplace=True)
-
-            # If user cannot view PII, redact all PII fields:
-            if not request.user.can_view_pii:
-                for field in PII_FIELDS:
-                    if field in va_df.columns:
-                        va_df[field] = REDACTED_STRING
 
         # =========DATA FORMAT LOGIC===================#
         # convert VAs to proper format. Currently supports .csv (default) and .json
@@ -143,11 +163,13 @@ class VaApi(CustomAuthMixin, View):
 
         # download only for csv
         if fmt.endswith("csv"):
-            # Create the HttpResponse object with the appropriate CSV header.
-            response = HttpResponse(content_type="text/csv")
-            # download raw csv (no metadata)
-            response.write(va_df.to_csv(index=False))
-            response["Content-Disposition"] = 'attachment; filename="va_download.csv"'
+            response = StreamingHttpResponse(
+                streaming_content=(iter_items(matching_vas, Echo())),
+                content_type='text/csv',
+            )
+            response['Content-Disposition'] = 'attachment;filename=items.csv'
+            return response
+
         # download for json
         elif fmt.endswith("json"):
             data = {"count": va_df.shape[0], "records": va_df.to_json(orient="records")}
