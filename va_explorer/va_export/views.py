@@ -1,5 +1,10 @@
+import gzip
+import io
 import json
 import logging
+import os
+import tempfile
+import zipfile
 from urllib.parse import urlencode
 
 import pandas as pd
@@ -27,10 +32,11 @@ LOGGER = logging.getLogger("event_logger")
 class VaApi(CustomAuthMixin, View):
     permission_required = "va_analytics.download_data"
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         # params = super(VaApi, self).get(self, request, *args, **kwargs)
         # get all query params
-        params = request.GET
+        params = request.POST
+
         # for nullity checks
         empty_values = (None, "None", "", [])
 
@@ -141,23 +147,29 @@ class VaApi(CustomAuthMixin, View):
         # convert VAs to proper format. Currently supports .csv (default) and .json
         fmt = params.get("format", "csv").lower().replace("/", "")
 
+        response = HttpResponse(content_type='application/zip')
+
         # download only for csv
         if fmt.endswith("csv"):
-            # Create the HttpResponse object with the appropriate CSV header.
-            response = HttpResponse(content_type="text/csv")
-            # download raw csv (no metadata)
-            response.write(va_df.to_csv(index=False))
-            response["Content-Disposition"] = 'attachment; filename="va_download.csv"'
+            response['Content-Disposition'] = 'attachment; filename=export.csv.zip'
+            response.status_code = 200
+
+            # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
+            z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+            # Write csv file to zip
+            z.writestr("va_download.csv", va_df.to_csv(index=False))
         # download for json
         elif fmt.endswith("json"):
-            data = {"count": va_df.shape[0], "records": va_df.to_json(orient="records")}
+            response['Content-Disposition'] = 'attachment; filename=export.json.zip'
+            response.status_code = 200
 
-            # Create HttpResponse object with appropriate JSON header
-            response = HttpResponse(json.dumps(data), content_type="application/json")
-            response["Content-Disposition"] = 'attachment; filename="va_download.json"'
-
+            # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
+            z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+            # Write JSON to zip
+            z.writestr("va_download.json", json.dumps({"count": va_df.shape[0], "records": va_df.to_json(orient="records")}))
         else:
             response = HttpResponse()
+
         write_va_log(LOGGER, f"downloaded data in {fmt} format", self.request)
 
         return response
