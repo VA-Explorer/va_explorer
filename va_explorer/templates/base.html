@@ -16,7 +16,7 @@
     <![endif]-->
 
   <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}"> {% block css %}
-  <link href="{% static 'vendor/bootstrap-4.3.1/bootstrap.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-4.3.1/bootstrap.min.css' %}" rel="stylesheet">
   <link href="{% static 'vendor/select2-4.1.0-beta.1/select2.css' %}" rel="stylesheet">
   <link href="{% static 'css/form.css' %}" rel="stylesheet">
   <link href="{% static 'css/project.css' %}" rel="stylesheet">
@@ -44,15 +44,12 @@
 
   {% block modal %}{% endblock modal %}
 
-  <script src="{% static 'vendor/jquery-3.5.1/jquery.js' %}"></script>
-  <script src="{% static 'vendor/popper-1.14.3/popper.js' %}"></script>
-  <script src="{% static 'vendor/bootstrap-4.3.1/bootstrap.js' %}"></script>
-  <script src="{% static 'vendor/font-awesome-5.6.3/font-awesome.min.js' %}"></script>
-  <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
+  <script src="{% static 'vendor/jquery-3.5.1/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/popper-1.14.3/popper.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap-4.3.1/bootstrap.min.js' %}"></script>
+{#  <script src="{% static 'vendor/font-awesome-5.6.3/font-awesome.min.js' %}"></script>#}
   <script src="{% static 'js/project.js' %}"></script>
-  <script src="{% static 'js/fab.js' %}"></script>
   <script src="{% static 'js/logging_event_handlers.js' %}"></script>
-  <script src="{% static 'vendor/lodash-4.17.5/lodash.js' %}"></script>
 
   {% block page_scripts %}{% endblock %}
 
