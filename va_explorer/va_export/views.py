@@ -1,9 +1,5 @@
-import gzip
-import io
 import json
 import logging
-import os
-import tempfile
 import zipfile
 from urllib.parse import urlencode
 
@@ -34,7 +30,7 @@ class VaApi(CustomAuthMixin, View):
 
     def post(self, request, *args, **kwargs):
         # params = super(VaApi, self).get(self, request, *args, **kwargs)
-        # get all query params
+        # get all params
         params = request.POST
 
         # for nullity checks
