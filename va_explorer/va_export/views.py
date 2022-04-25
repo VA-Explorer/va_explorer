@@ -1,5 +1,6 @@
 import json
 import logging
+
 import zipfile
 from urllib.parse import urlencode
 
@@ -147,11 +148,11 @@ class VaApi(CustomAuthMixin, View):
 
         # download only for csv
         if fmt.endswith("csv"):
-            response["Content-Disposition"] = "attachment; filename=export.csv.zip"
+            response['Content-Disposition'] = 'attachment; filename=export.csv.zip'
             response.status_code = 200
 
             # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
-            z = zipfile.ZipFile(response, "w", zipfile.ZIP_DEFLATED)
+            z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
             # Write csv file to zip
             z.writestr("va_download.csv", va_df.to_csv(index=False))
         # download for json
