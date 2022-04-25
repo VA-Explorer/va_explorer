@@ -182,12 +182,12 @@ $(document).ready(function() {
   }
 
   /**
-   * Summary. Changes text of submit button to reflect user action. 
+   * Summary. Changes text of submit button to reflect user action.
    */
   function updateSubmitText() {
     if($('#id_action option:selected').text() == "Export Data") {
       $("#submit-form").text("Export");
-      // #TODO: remove this once we get export working 
+      // #TODO: remove this once we get export working
       $("#submit-form").prop("disabled", true);
     }
     else if($("#id_action option:selected").text() == "Download Data"){
@@ -205,4 +205,53 @@ $(document).ready(function() {
     updateSubmitText();
   });
 
+  $('#export-form').on('submit', function(event){
+   event.preventDefault();
+   create_export();
+  });
+
+  const create_export = () => {
+    let request = new XMLHttpRequest();
+    request.open('POST', "/va_export/verbalautopsy/", true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    request.responseType = 'arraybuffer';
+
+    const data = $('#export-form').serialize();
+
+    $('#downloadModal').modal('show');
+
+    request.onload = function (e) {
+      $('#downloadModal').modal('hide');
+      if (this.status === 200) {
+        let filename = "";
+        let disposition = request.getResponseHeader('Content-Disposition');
+        // check if filename is given
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+          let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+          let matches = filenameRegex.exec(disposition);
+          if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+        }
+        const blob = this.response;
+        if (window.navigator.msSaveOrOpenBlob) {
+          window.navigator.msSaveBlob(blob, filename);
+        }
+        else {
+          let downloadLink = window.document.createElement('a');
+          const contentTypeHeader = request.getResponseHeader("Content-Type");
+
+          downloadLink.href = window.URL.createObjectURL(new Blob([blob], {type: contentTypeHeader}));
+          downloadLink.download = filename;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+        }
+      }
+      else {
+        alert('Download failed.')
+      }
+    };
+    request.send(data);
+  }
+
+  $('#submit-form').removeClass('hidden');
 });
