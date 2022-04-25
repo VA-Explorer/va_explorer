@@ -16,7 +16,7 @@
            {% endfor %}
 
       {% endfor %}
-  {% endif %}  
+  {% endif %}
   {% for field in form %}
     <div class="form-group row">
       <div class="col-sm-2">
@@ -41,4 +41,9 @@
 </a>
 <div class="flt-action-btn" id="main-fab"><i class="fas fa-sort"></i></div>
 </div>
+{% endblock %}
+
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'js/fab.js' %}"></script>
 {% endblock %}

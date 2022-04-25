@@ -35,16 +35,16 @@
             <div class="checkbox-container" align='center'>
               <input class="checkbox" type="checkbox" id="hidden-missing" name="hidden-missing" value="checked" checked="TRUE">
               <label class="checkbox-label"
-                    data-toggle="tooltip" 
-                    title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown." 
+                    data-toggle="tooltip"
+                    title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown."
                     for="hidden-missing">
                     Hide Empty Fields
               </label><br>
               {% if not user.can_view_pii %}
               <input class="checkbox" type="checkbox" id="hidden-redacted" name="hidden-redacted">
               <label class="checkbox-label"
-                    data-toggle="tooltip" 
-                    title="Toggle whether or not you want to see redacted fields." 
+                    data-toggle="tooltip"
+                    title="Toggle whether or not you want to see redacted fields."
                     for="hidden-redacted">
                     Hide Redacted Fields
               </label><br>
@@ -69,7 +69,7 @@
         </thead>
         <tbody>
           {% for field in form %}
-            <tr data-value="{% pii_filter field.name field.value|replace %}"> 
+            <tr data-value="{% pii_filter field.name field.value|replace %}">
               <td><b>{{ field.name }}</b></td>
               <td>{{ field.label }}</td>
               <td>
@@ -181,5 +181,9 @@
 </a>
 <div class="flt-action-btn" id="main-fab"><i class="fas fa-sort"></i></div>
 
+{% endblock %}
 
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'js/fab.js' %}"></script>
 {% endblock %}
