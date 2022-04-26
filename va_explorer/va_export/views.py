@@ -162,7 +162,8 @@ class VaApi(CustomAuthMixin, View):
             # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
             z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
             # Write JSON to zip
-            z.writestr("va_download.json", json.dumps({"count": va_df.shape[0], "records": va_df.to_json(orient="records")}))
+            z.writestr("va_download.json", json.dumps({"count": va_df.shape[0],
+                                                       "records": va_df.to_json(orient="records")}))
         else:
             response = HttpResponse()
 
