@@ -20,11 +20,11 @@ from va_explorer.va_export.forms import VADownloadForm
 pytestmark = pytest.mark.django_db
 
 
-CSV_ZIP_FILE_NAME = 'export.csv.zip'
-JSON_ZIP_FILE_NAME = 'export.json.zip'
-CSV_FILE_NAME = 'va_download.csv'
-JSON_FILE_NAME = 'va_download.json'
-FILE_CONTENT_TYPE = 'application/zip'
+CSV_ZIP_FILE_NAME = "export.csv.zip"
+JSON_ZIP_FILE_NAME = "export.json.zip"
+CSV_FILE_NAME = "va_download.csv"
+JSON_FILE_NAME = "va_download.json"
+FILE_CONTENT_TYPE = "application/zip"
 POST_URL = "/va_export/verbalautopsy/"
 
 
@@ -96,7 +96,6 @@ class TestAPIView:
         c.force_login(user=user)
 
         response = c.post(POST_URL, data={"format": "json"})
-
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -106,6 +105,7 @@ class TestAPIView:
             response._headers["content-disposition"][1]
             == f"attachment; filename={JSON_ZIP_FILE_NAME}"
         )
+
         try:
             f = io.BytesIO(response.content)
             zipped_file = zipfile.ZipFile(f, 'r')
@@ -124,7 +124,6 @@ class TestAPIView:
         c.force_login(user=user)
 
         response = c.post(POST_URL, data={"format": "csv", "locations": no_va_facility})
-
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -137,7 +136,7 @@ class TestAPIView:
 
         try:
             f = io.BytesIO(response.content)
-            zipped_file = zipfile.ZipFile(f, 'r')
+            zipped_file = zipfile.ZipFile(f, "r")
             # The single line is the variable name header in the csv
             assert len(zipped_file.open(CSV_FILE_NAME).readlines()) == 1
         finally:
@@ -155,7 +154,6 @@ class TestAPIView:
         response = c.post(
             POST_URL, data={"format": "json", "locations": no_va_facility}
         )
-
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -183,8 +181,7 @@ class TestAPIView:
         c = Client()
         c.force_login(user=user)
 
-        response = c.post(POST_URL, data={'format': 'csv', 'locations': facility_1})
-
+        response = c.post(POST_URL, data={"format": "csv", "locations": facility_1})
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -213,7 +210,6 @@ class TestAPIView:
         c.force_login(user=user)
 
         response = c.post(POST_URL, data={"format": "csv", "causes": cod_name})
-
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -226,7 +222,7 @@ class TestAPIView:
 
         try:
             f = io.BytesIO(response.content)
-            zipped_file = zipfile.ZipFile(f, 'r')
+            zipped_file = zipfile.ZipFile(f, "r")
             # Add one for the variable name header in the csv
             assert len(zipped_file.open(CSV_FILE_NAME).readlines()) == 3
         finally:
@@ -245,7 +241,6 @@ class TestAPIView:
             POST_URL,
             data={"format": "csv", "start_date": start_date, "end_date": end_date},
         )
-
         assert response.status_code == 200
 
         try:
@@ -265,10 +260,10 @@ class TestAPIView:
         cod_name = "cod_a"
 
         query_data = {
-            'format': 'csv',
-            'start_date': start_date,
-            'locations': loc_a.pk,
-            'causes': cod_name
+            "format": "csv",
+            "start_date": start_date,
+            "locations": loc_a.pk,
+            "causes": cod_name,
         }
 
         c = Client()
@@ -284,7 +279,7 @@ class TestAPIView:
 
         try:
             f = io.BytesIO(response.content)
-            zipped_file = zipfile.ZipFile(f, 'r')
+            zipped_file = zipfile.ZipFile(f, "r")
             # Add one for the variable name header in the csv
             assert len(zipped_file.open(CSV_FILE_NAME).readlines()) == db_ct + 1
         finally:
@@ -302,10 +297,10 @@ class TestAPIView:
         cod_name = "cod_b"
 
         query_data = {
-            'format': 'json',
-            'end_date':  end_date,
-            'locations': loc_a.pk,
-            'causes': cod_name
+            "format": "json",
+            "end_date": end_date,
+            "locations": loc_a.pk,
+            "causes": cod_name,
         }
 
         c = Client()
@@ -346,7 +341,6 @@ class TestAPIView:
         c.force_login(user=user)
 
         response = c.post(POST_URL, data={'format': 'csv'})
-
         assert response.status_code == 200
 
         try:
