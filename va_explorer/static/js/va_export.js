@@ -205,27 +205,37 @@ $(document).ready(function() {
     updateSubmitText();
   });
 
+  /**
+   * Summary. Event handler for form submit
+   */
   $('#export-form').on('submit', function(event){
    event.preventDefault();
    create_export();
   });
 
+  /**
+   * Summary. Sends the export form via XMLHttpRequest and POST method; creates download
+   *  Uses the approach here: https://stackoverflow.com/questions/51675844/django-download-excel-file-with-ajax
+   */
   const create_export = () => {
     let request = new XMLHttpRequest();
     request.open('POST', "/va_export/verbalautopsy/", true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    // Response type must be arraybuffer
     request.responseType = 'arraybuffer';
 
     const data = $('#export-form').serialize();
 
+    // Show the download modal before the request is sent
     $('#downloadModal').modal('show');
 
     request.onload = function (e) {
+      // Hide the download modal when the request returns, regardless of the status code returned
       $('#downloadModal').modal('hide');
       if (this.status === 200) {
         let filename = "";
         let disposition = request.getResponseHeader('Content-Disposition');
-        // check if filename is given
+        // Check if filename is given
         if (disposition && disposition.indexOf('attachment') !== -1) {
           let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
           let matches = filenameRegex.exec(disposition);
@@ -247,11 +257,15 @@ $(document).ready(function() {
         }
       }
       else {
-        alert('Download failed.')
+        // Show the downloadFailed modal if we don't receive a status code of 200
+        // TODO: Write to error log
+        $('#downloadFailedModal').modal('show');
       }
     };
     request.send(data);
   }
-
+  // Shows the submit button when the page is completely loaded 
+  // This is required because we are posting the form via JS, so we need to ensure that this file loads before
+  // the user can submit the form)
   $('#submit-form').removeClass('hidden');
 });
