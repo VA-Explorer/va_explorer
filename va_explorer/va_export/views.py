@@ -143,27 +143,34 @@ class VaApi(CustomAuthMixin, View):
         # convert VAs to proper format. Currently supports .csv (default) and .json
         fmt = params.get("format", "csv").lower().replace("/", "")
 
-        response = HttpResponse(content_type='application/zip')
+        response = HttpResponse(content_type="application/zip")
 
         # download only for csv
         if fmt.endswith("csv"):
-            response['Content-Disposition'] = 'attachment; filename=export.csv.zip'
+            response["Content-Disposition"] = "attachment; filename=export.csv.zip"
             response.status_code = 200
 
             # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
-            z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+            z = zipfile.ZipFile(response, "w", zipfile.ZIP_DEFLATED)
             # Write csv file to zip
             z.writestr("va_download.csv", va_df.to_csv(index=False))
         # download for json
         elif fmt.endswith("json"):
-            response['Content-Disposition'] = 'attachment; filename=export.json.zip'
+            response["Content-Disposition"] = "attachment; filename=export.json.zip"
             response.status_code = 200
 
             # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
-            z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+            z = zipfile.ZipFile(response, "w", zipfile.ZIP_DEFLATED)
             # Write JSON to zip
-            z.writestr("va_download.json", json.dumps({"count": va_df.shape[0],
-                                                       "records": va_df.to_json(orient="records")}))
+            z.writestr(
+                "va_download.json",
+                json.dumps(
+                    {
+                        "count": va_df.shape[0],
+                        "records": va_df.to_json(orient="records"),
+                    }
+                ),
+            )
         else:
             response = HttpResponse()
 
