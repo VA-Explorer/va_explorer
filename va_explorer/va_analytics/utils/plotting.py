@@ -426,7 +426,7 @@ def cod_group_plot(
                 if cod_group.lower().startswith("all"):
                     group_title = "Top CODs Overall"
                 else:
-                    group_title = group_title = "Top <b>{}</b> CODs".format(
+                    group_title = "Top <b>{}</b> CODs".format(
                         LOOKUP["display_names"].get(cod_group, cod_group.capitalize())
                     )
 
