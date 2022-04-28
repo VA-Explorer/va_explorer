@@ -42,9 +42,7 @@ class API:
             )
         if dhisURL.startswith("localhost") or dhisURL.startswith("127.0.0.1"):
             dhisURL = "http://{}".format(dhisURL)
-        elif dhisURL.startswith("http://"):
-            dhisURL = dhisURL
-        elif not dhisURL.startswith("https://"):
+        elif not dhisURL.startswith("https://") and not dhisURL.startswith("http://"):
             dhisURL = "https://{}".format(dhisURL)
         self.auth = (dhisUser, dhisPass)
         self.url = "{}/api".format(dhisURL)  # possible new parameter

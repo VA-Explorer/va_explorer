@@ -1044,7 +1044,6 @@ def update_choropleth(
         plot_data = all_data.copy()
         return_value = html.Div(id="choropleth")
         granularity = INITIAL_GRANULARITY
-        location_types = location_types
         include_no_datas = True
         border_thickness = 0.25  # thickness of borders on map
         # name of column to plot
