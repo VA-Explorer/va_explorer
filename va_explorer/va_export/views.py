@@ -1,9 +1,5 @@
-import gzip
-import io
 import json
 import logging
-import os
-import tempfile
 import zipfile
 from urllib.parse import urlencode
 
@@ -34,7 +30,7 @@ class VaApi(CustomAuthMixin, View):
 
     def post(self, request, *args, **kwargs):
         # params = super(VaApi, self).get(self, request, *args, **kwargs)
-        # get all query params
+        # get all params
         params = request.POST
 
         # for nullity checks
@@ -147,15 +143,15 @@ class VaApi(CustomAuthMixin, View):
         # convert VAs to proper format. Currently supports .csv (default) and .json
         fmt = params.get("format", "csv").lower().replace("/", "")
 
-        response = HttpResponse(content_type='application/zip')
+        response = HttpResponse(content_type="application/zip")
 
         # download only for csv
         if fmt.endswith("csv"):
-            response['Content-Disposition'] = 'attachment; filename=export.csv.zip'
+            response["Content-Disposition"] = "attachment; filename=export.csv.zip"
             response.status_code = 200
 
             # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
-            z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
+            z = zipfile.ZipFile(response, "w", zipfile.ZIP_DEFLATED)
             # Write csv file to zip
             z.writestr("va_download.csv", va_df.to_csv(index=False))
         # download for json
@@ -167,6 +163,10 @@ class VaApi(CustomAuthMixin, View):
             z = zipfile.ZipFile(response, 'w', zipfile.ZIP_DEFLATED)
             # Write JSON to zip
             z.writestr("va_download.json", json.dumps({"count": va_df.shape[0], "records": va_df.to_json(orient="records")}))
+
+            # Write zip to response (must use zipfile.ZIP_DEFLATED for compression)
+            z = zipfile.ZipFile(response, "w", zipfile.ZIP_DEFLATED)
+
         else:
             response = HttpResponse()
 
