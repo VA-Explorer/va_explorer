@@ -108,7 +108,7 @@ class TestAPIView:
 
         try:
             f = io.BytesIO(response.content)
-            zipped_file = zipfile.ZipFile(f, 'r')
+            zipped_file = zipfile.ZipFile(f, "r")
             json_data = json.loads(zipped_file.read(JSON_FILE_NAME))
             assert json_data["count"] == 4
         finally:
@@ -166,7 +166,7 @@ class TestAPIView:
 
         try:
             f = io.BytesIO(response.content)
-            zipped_file = zipfile.ZipFile(f, 'r')
+            zipped_file = zipfile.ZipFile(f, "r")
             json_data = json.loads(zipped_file.read(JSON_FILE_NAME))
             assert json_data["count"] == 0
         finally:
@@ -340,7 +340,7 @@ class TestAPIView:
         c = Client()
         c.force_login(user=user)
 
-        response = c.post(POST_URL, data={'format': 'csv'})
+        response = c.post(POST_URL, data={"format": "csv"})
         assert response.status_code == 200
 
         try:
