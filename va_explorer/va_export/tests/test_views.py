@@ -19,7 +19,6 @@ from va_explorer.va_export.forms import VADownloadForm
 
 pytestmark = pytest.mark.django_db
 
-
 CSV_ZIP_FILE_NAME = "export.csv.zip"
 JSON_ZIP_FILE_NAME = "export.json.zip"
 CSV_FILE_NAME = "va_download.csv"
@@ -109,6 +108,7 @@ class TestAPIView:
         try:
             f = io.BytesIO(response.content)
             zipped_file = zipfile.ZipFile(f, "r")
+
             json_data = json.loads(zipped_file.read(JSON_FILE_NAME))
             assert json_data["count"] == 4
         finally:
@@ -167,6 +167,7 @@ class TestAPIView:
         try:
             f = io.BytesIO(response.content)
             zipped_file = zipfile.ZipFile(f, "r")
+
             json_data = json.loads(zipped_file.read(JSON_FILE_NAME))
             assert json_data["count"] == 0
         finally:
@@ -325,6 +326,7 @@ class TestAPIView:
         try:
             f = io.BytesIO(response.content)
             zipped_file = zipfile.ZipFile(f, "r")
+            
             json_data = json.loads(zipped_file.read(JSON_FILE_NAME))
             assert json_data["count"] == db_ct
         finally:
