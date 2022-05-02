@@ -326,7 +326,7 @@ class TestAPIView:
         try:
             f = io.BytesIO(response.content)
             zipped_file = zipfile.ZipFile(f, "r")
-            
+
             json_data = json.loads(zipped_file.read(JSON_FILE_NAME))
             assert json_data["count"] == db_ct
         finally:
