@@ -264,7 +264,7 @@ $(document).ready(function() {
     };
     request.send(data);
   }
-  // Shows the submit button when the page is completely loaded 
+  // Shows the submit button when the page is completely loaded
   // This is required because we are posting the form via JS, so we need to ensure that this file loads before
   // the user can submit the form)
   $('#submit-form').removeClass('hidden');
