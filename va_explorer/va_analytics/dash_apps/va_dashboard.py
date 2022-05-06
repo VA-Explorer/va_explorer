@@ -26,7 +26,6 @@ app = DjangoDash(
     add_bootstrap_links=True,
 )
 
-
 # NOTE: moved Toolbar configurations to plotting.py
 
 # ===========INITIAL CONFIG VARIABLES=============#
@@ -1402,9 +1401,11 @@ def make_card(
                 [
                     header,
                     html.Span(
-                        html.Span(className="fas fa-info-circle"),
-                        style={"margin-left": "5px", "color": "rgba(75,75,75,0.5)"},
-                        id=f"{card_id}-tooltip-target",
+                        html.I(
+                            className="icon-info-circled",
+                            id=f"{card_id}-tooltip-target",
+                            style={"margin-left": "3px", "color": "rgba(75,75,75,0.5)", "cursor": "pointer"},
+                        ),
                     ),
                     dbc.Tooltip(
                         tooltip,
