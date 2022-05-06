@@ -1,0 +1,8 @@
+
+.icon-up-dir:before { content: '\e800'; } /* '' */
+.icon-down-dir:before { content: '\e801'; } /* '' */
+.icon-info-circled:before { content: '\e802'; } /* '' */
+.icon-download:before { content: '\e803'; } /* '' */
+.icon-sort:before { content: '\f0dc'; } /* '' */
+.icon-angle-double-left:before { content: '\f100'; } /* '' */
+.icon-trash:before { content: '\f1f8'; } /* '' */
