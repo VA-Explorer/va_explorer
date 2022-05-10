@@ -1,3 +1,4 @@
+import json
 from datetime import date
 
 import pytest
@@ -9,29 +10,37 @@ from va_explorer.users.models import User
 pytestmark = pytest.mark.django_db
 
 
-# Get the index and make sure
-def test_index(user: User):
+# Get trends json endpoint and make sure the counts are correct
+def test_trends(user: User):
     client = Client()
     client.force_login(user=user)
     today = date.today()
     va = VerbalAutopsyFactory.create(submissiondate=today, Id10023=today)
-    response = client.get("/")
+
+    response = client.get("/trends", follow=True)
     assert response.status_code == 200
-    assert response.context["vas_collected_24_hours"] == 1
-    assert response.context["vas_collected_1_week"] == 1
-    assert response.context["vas_collected_1_month"] == 1
-    assert response.context["vas_collected_overall"] == 1
-    assert response.context["vas_coded_24_hours"] == 0
-    assert response.context["vas_coded_1_week"] == 0
-    assert response.context["vas_coded_1_month"] == 0
-    assert response.context["vas_coded_overall"] == 0
-    assert response.context["vas_uncoded_24_hours"] == 1
-    assert response.context["vas_uncoded_1_week"] == 1
-    assert response.context["vas_uncoded_1_month"] == 1
-    assert response.context["vas_uncoded_overall"] == 1
-    assert len(response.context["issue_list"]) == 1
-    assert va.Id10017 in response.context["issue_list"][0]["deceased"]
-    assert response.context["additional_issues"] == 0
+
+    json_data = json.loads(response.content)
+    va_table_data = json_data["vaTable"]
+
+    assert va_table_data["collected"]["24"] == 1
+    assert va_table_data["collected"]["1 week"] == 1
+    assert va_table_data["collected"]["1 month"] == 1
+    assert va_table_data["collected"]["Overall"] == 1
+
+    assert va_table_data["coded"]["24"] == 0
+    assert va_table_data["coded"]["1 week"] == 0
+    assert va_table_data["coded"]["1 month"] == 0
+    assert va_table_data["coded"]["Overall"] == 0
+
+    assert va_table_data["uncoded"]["24"] == 1
+    assert va_table_data["uncoded"]["1 week"] == 1
+    assert va_table_data["uncoded"]["1 month"] == 1
+    assert va_table_data["uncoded"]["Overall"] == 1
+
+    assert len(json_data["issueList"]) == 1
+    assert va.Id10017 in json_data["issueList"][0]["deceased"]
+    assert json_data["additionalIssues"] == 0
 
 
 # Get the about page and make sure it returns successfully

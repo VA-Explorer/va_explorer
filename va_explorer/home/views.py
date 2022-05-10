@@ -1,12 +1,10 @@
 from datetime import date, timedelta
 
-import numpy as np
 import pandas as pd
-import plotly.graph_objs as go
-import plotly.offline as opy
 from dateutil.relativedelta import relativedelta
 from django.db.models import F
-from django.views.generic import TemplateView
+from django.http import JsonResponse
+from django.views.generic import TemplateView, View
 
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.utils.date_parsing import (
@@ -16,38 +14,85 @@ from va_explorer.va_data_management.utils.date_parsing import (
 )
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
-
-# Simple helper function for creating the plotly graphs used on the home page
-def graph(x, y):
-    figure = go.Figure(data=go.Scatter(x=x, y=y))
-    figure.update_layout(
-        autosize=False, width=300, height=100, margin=dict(l=0, r=0, t=0, b=0, pad=0)
-    )
-    config = {"displayModeBar": False}
-    return opy.plot(figure, auto_open=False, output_type="div", config=config)
-
-
+TODAY = pd.to_datetime(date.today())
 NUM_TABLE_ROWS = 5
 
 
 class Index(CustomAuthMixin, TemplateView):
-
     template_name = "home/index.html"
 
     def get_context_data(self, **kwargs):
         # TODO: interviewers should only see their own data
         context = super().get_context_data(**kwargs)
-
         user = self.request.user
-        today = date.today()
-        start_month = pd.to_datetime(date(today.year - 1, today.month, 1))
-        location_restrictions = user.location_restrictions
-        if location_restrictions.count() > 0:
+
+        context.update(get_va_summary_stats(user.verbal_autopsies()))
+
+        context["locations"] = "All Regions"
+        if user.location_restrictions.count() > 0:
             context["locations"] = ", ".join(
-                [location.name for location in location_restrictions.all()]
+                [location.name for location in user.location_restrictions.all()]
             )
-        else:
-            context["locations"] = "All Regions"
+
+        return context
+
+
+class Trends(CustomAuthMixin, View):
+    def get(self, request, *args, **kwargs):
+        (
+            va_table,
+            graphs,
+            issue_list,
+            indeterminate_cod_list,
+            additional_issues,
+            additional_indeterminate_cods,
+        ) = self.get_page_data(request.user)
+
+        return JsonResponse(
+            {
+                "vaTable": va_table,
+                "graphs": graphs,
+                "issueList": issue_list,
+                "indeterminateCodList": indeterminate_cod_list,
+                "additionalIssues": additional_issues,
+                "additionalIndeterminateCods": additional_indeterminate_cods,
+                "isFieldWorker": request.user.is_fieldworker(),
+            }
+        )
+
+    def get_context_for_va_table(self, va_list):
+        return [
+            {
+                "id": va.id,
+                "deceased": f"{va.Id10017} {va.Id10018}",
+                "interviewer": va.Id10010,
+                "submitted": parse_date(va.submissiondate)
+                if (va.submissiondate != "dk")
+                else "Unknown",  # django stores the date in yyyy-mm-dd
+                "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
+                "facility": va.location.name if va.location else "",
+                "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+                "warnings": len(
+                    [
+                        issue
+                        for issue in va.coding_issues.all()
+                        if issue.severity == "warning"
+                    ]
+                ),
+                "errors": len(
+                    [
+                        issue
+                        for issue in va.coding_issues.all()
+                        if issue.severity == "error"
+                    ]
+                ),
+            }
+            for va in va_list
+        ]
+
+    def get_page_data(self, user):
+        start_month = pd.to_datetime(date(TODAY.year - 1, TODAY.month, 1))
+
         # NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
         user_vas = user.verbal_autopsies()
         if user_vas.count() > 0:
@@ -83,48 +128,13 @@ class Index(CustomAuthMixin, TemplateView):
             va_df["Id10023"] = to_dt(va_df["Id10023"])
             va_df["yearmonth"] = va_df["date"].dt.strftime("%Y-%m")
 
-            context.update(get_va_summary_stats(user_vas))
             # Load the VAs that are collected over various periods of time
-            today = pd.to_datetime(date.today())
-
-            vas_24_hours = va_df[va_df["date"] == today].index
-            vas_1_week = va_df[va_df["date"] >= (today - timedelta(days=7))].index
+            vas_24_hours = va_df[va_df["date"] == TODAY].index
+            vas_1_week = va_df[va_df["date"] >= (TODAY - timedelta(days=7))].index
             vas_1_month = va_df[
-                va_df["date"] >= (today - relativedelta(months=1))
+                va_df["date"] >= (TODAY - relativedelta(months=1))
             ].index
             vas_overall = va_df.sort_values(by="id").index
-
-            # VAs collected in the past 24 hours, 1 week, and 1 month
-            context["vas_collected_24_hours"] = len(vas_24_hours)
-            context["vas_collected_1_week"] = len(vas_1_week)
-            context["vas_collected_1_month"] = len(vas_1_month)
-            context["vas_collected_overall"] = len(vas_overall)
-            # VAs successfully coded in the past 24 hours, 1 week, and 1 month
-            context["vas_coded_24_hours"] = (
-                va_df.loc[vas_24_hours, :].query("cause == cause").shape[0]
-            )
-            context["vas_coded_1_week"] = (
-                va_df.loc[vas_1_week, :].query("cause == cause").shape[0]
-            )
-            context["vas_coded_1_month"] = (
-                va_df.loc[vas_1_month, :].query("cause == cause").shape[0]
-            )
-            context["vas_coded_overall"] = (
-                va_df.loc[vas_overall, :].query("cause == cause").shape[0]
-            )
-            # VAs not able to be coded in the past 24 hours, 1 week, and 1 month
-            context["vas_uncoded_24_hours"] = (
-                context["vas_collected_24_hours"] - context["vas_coded_24_hours"]
-            )
-            context["vas_uncoded_1_week"] = (
-                context["vas_collected_1_week"] - context["vas_coded_1_week"]
-            )
-            context["vas_uncoded_1_month"] = (
-                context["vas_collected_1_month"] - context["vas_coded_1_month"]
-            )
-            context["vas_uncoded_overall"] = (
-                context["vas_collected_overall"] - context["vas_coded_overall"]
-            )
 
             # Graphs of the past 12 months, not including this month (current month will almost
             # always show the month with artificially low numbers)
@@ -147,7 +157,13 @@ class Index(CustomAuthMixin, TemplateView):
                 .reset_index(),
                 how="left",
             ).fillna(0)
-            context["graph_collected"] = graph(plot_df["x"], plot_df["y_collected"])
+
+            graphs = {
+                "submittedChart": {
+                    "x": plot_df["x"].values.tolist(),
+                    "y": plot_df["y_collected"].values.tolist(),
+                }
+            }
 
             # Coded; same query as above, just filtered by whether the va has been coded
             plot_df = plot_df.merge(
@@ -158,14 +174,50 @@ class Index(CustomAuthMixin, TemplateView):
                 .reset_index(),
                 how="left",
             ).fillna(0)
-            # y_coded = va_df.query().groupby("yearmonth")["id"].count().values
-            # y_coded = [coded_by_month.get(month, 0) for month in months]
-            context["graph_coded"] = graph(plot_df["x"], plot_df["y_coded"])
+
+            graphs["codedChart"] = {
+                "x": plot_df["x"].values.tolist(),
+                "y": plot_df["y_coded"].values.tolist(),
+            }
 
             # Uncoded; just take the difference between the two previous queries
-            context["graph_uncoded"] = graph(
-                plot_df["x"], (plot_df["y_collected"] - plot_df["y_coded"])
+            graphs["notYetCodedChart"] = {
+                "x": plot_df["x"].values.tolist(),
+                "y": (plot_df["y_collected"] - plot_df["y_coded"]).values.tolist(),
+            }
+
+            # VAs successfully coded in the past 24 hours, 1 week, and 1 month
+            vas_coded_24_hours = (
+                va_df.loc[vas_24_hours, :].query("cause == cause").shape[0]
             )
+            vas_coded_1_week = va_df.loc[vas_1_week, :].query("cause == cause").shape[0]
+            vas_coded_1_month = (
+                va_df.loc[vas_1_month, :].query("cause == cause").shape[0]
+            )
+            vas_coded_overall = (
+                va_df.loc[vas_overall, :].query("cause == cause").shape[0]
+            )
+
+            va_table = {
+                "collected": {
+                    "24": len(vas_24_hours),
+                    "1 week": len(vas_1_week),
+                    "1 month": len(vas_1_month),
+                    "Overall": len(vas_overall),
+                },
+                "coded": {
+                    "24": vas_coded_24_hours,
+                    "1 week": vas_coded_1_week,
+                    "1 month": vas_coded_1_month,
+                    "Overall": vas_coded_overall,
+                },
+                "uncoded": {
+                    "24": len(vas_24_hours) - vas_coded_24_hours,
+                    "1 week": len(vas_1_week) - vas_coded_1_week,
+                    "1 month": len(vas_1_month) - vas_coded_1_month,
+                    "Overall": len(vas_overall) - vas_coded_overall,
+                },
+            }
 
             # List the VAs that need attention; requesting certain fields and prefetching makes this more efficient
             vas_to_address = (
@@ -201,64 +253,32 @@ class Index(CustomAuthMixin, TemplateView):
                 .prefetch_related("causes", "coding_issues", "location")
             )
 
-            context["issue_list"] = self.get_context_for_va_table(vas_to_address)
-            context["indeterminate_cod_list"] = self.get_context_for_va_table(
+            issue_list = self.get_context_for_va_table(vas_to_address)
+            indeterminate_cod_list = self.get_context_for_va_table(
                 vas_with_indeterminate_cod
             )
 
             # If there are more than NUM_TABLE_ROWS show a link to where the rest can be seen
-            context["additional_issues"] = max(
-                context["vas_uncoded_overall"] - NUM_TABLE_ROWS, 0
+            additional_issues = max(
+                (len(vas_overall) - vas_coded_overall) - NUM_TABLE_ROWS, 0
             )
-            context["additional_indeterminate_cods"] = max(
+            additional_indeterminate_cods = max(
                 user_vas.only("id").filter(causes__cause="Indeterminate").count()
                 - NUM_TABLE_ROWS,
                 0,
             )
-        # NO VAS FOUND - RETURN EMPTY STATS
-        else:
-            # empty stats
-            for va_type in ["collected", "coded", "uncoded"]:
-                for va_time_period in ["24_hours", "1_week", "1_mont", "overall"]:
-                    context[f"vas_{va_type}_{va_time_period}"] = 0
-            # empty graphs
-            months = [start_month + relativedelta(months=i) for i in range(12)]
-            x = [month.strftime("%b") for month in months]
-            for va_type in ["collected", "coded", "uncoded"]:
-                context[f"graph_{va_type}"] = graph(x, np.repeat(0, len(x)))
-            context["issue_list"] = []
 
-        return context
+            return (
+                va_table,
+                graphs,
+                issue_list,
+                indeterminate_cod_list,
+                additional_issues,
+                additional_indeterminate_cods,
+            )
 
-    def get_context_for_va_table(self, va_list):
-        return [
-            {
-                "id": va.id,
-                "deceased": f"{va.Id10017} {va.Id10018}",
-                "interviewer": va.Id10010,
-                "submitted": parse_date(va.submissiondate)
-                if (va.submissiondate != "dk")
-                else "Unknown",  # django stores the date in yyyy-mm-dd
-                "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
-                "facility": va.location.name if va.location else "",
-                "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
-                "warnings": len(
-                    [
-                        issue
-                        for issue in va.coding_issues.all()
-                        if issue.severity == "warning"
-                    ]
-                ),
-                "errors": len(
-                    [
-                        issue
-                        for issue in va.coding_issues.all()
-                        if issue.severity == "error"
-                    ]
-                ),
-            }
-            for va in va_list
-        ]
+
+trends_endpoint_view = Trends.as_view()
 
 
 class About(CustomAuthMixin, TemplateView):
