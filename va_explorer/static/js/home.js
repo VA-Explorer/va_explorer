@@ -63,7 +63,7 @@ const setCodingIssuesTableData = (codingIssuesData, isFieldWorker) => {
 }
 
 const setIndeterminateCODTableData = (codingIssuesData, isFieldWorker) => {
-  const root = document.getElementById('indeterminate-cod');
+  const root = document.getElementById('indeterminate-cod-root');
   codingIssuesData.forEach(row => setVARow(root, row, isFieldWorker));
 }
 

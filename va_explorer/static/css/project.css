@@ -243,5 +243,5 @@ table.home-page-statistics th {
 }
 
 .home-page-statistics canvas {
-  max-height: 175px !important;
+  max-height: 125px !important;
 }
