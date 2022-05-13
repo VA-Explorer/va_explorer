@@ -50,7 +50,7 @@ def test_trends(user: User):
     assert va.Id10017 in json_data["issueList"][0]["deceased"]
     assert json_data["additionalIssues"] == 0
     assert json_data["additionalIndeterminateCods"] == 0
-    assert json_data["isFieldWorker"] == False
+    assert json_data["isFieldWorker"] is False
 
 
 # Get the about page and make sure it returns successfully
