@@ -28,10 +28,10 @@ const setVARow = (root, row, isFieldWorker) => {
     root.insertAdjacentHTML('beforebegin',
 `<tr>
         <td>${row.id}</td>
-        <td>${row.deceased}</td>
         <td>${row.submitted}</td>
-        <td>${row.dod}</td>
         <td>${row.facility}</td>
+        <td>${row.deceased}</td>
+        <td>${row.dod}</td>
         <td>${row.cause}</td>
         <td>${row.warnings}</td>
         <td>${row.errors}</td>
@@ -43,11 +43,11 @@ const setVARow = (root, row, isFieldWorker) => {
     root.insertAdjacentHTML('beforebegin',
 `<tr>
         <td>${row.id}</td>
-        <td>${row.deceased}</td>
-        <td>${row.interviewer}</td>
         <td>${row.submitted}</td>
-        <td>${row.dod}</td>
+        <td>${row.interviewer}</td>
         <td>${row.facility}</td>
+        <td>${row.deceased}</td>
+        <td>${row.dod}</td>
         <td>${row.cause}</td>
         <td>${row.warnings}</td>
         <td>${row.errors}</td>
@@ -86,9 +86,9 @@ const setVACharts = (graphData) => {
   const codedCtx = document.getElementById("codedChart").getContext("2d");
   const notYetCodedCtx = document.getElementById("notYetCodedChart").getContext("2d");
 
-  setVAChart(graphData.submittedChart.x, graphData.submittedChart.y, submittedCtx);
-  setVAChart(graphData.codedChart.x, graphData.codedChart.y,codedCtx);
-  setVAChart(graphData.notYetCodedChart.x, graphData.notYetCodedChart.y, notYetCodedCtx);
+  setVAChart(graphData.collected.x, graphData.collected.y, submittedCtx);
+  setVAChart(graphData.coded.x, graphData.coded.y,codedCtx);
+  setVAChart(graphData.uncoded.x, graphData.uncoded.y, notYetCodedCtx);
 }
 
 const loadAllData = () => {
