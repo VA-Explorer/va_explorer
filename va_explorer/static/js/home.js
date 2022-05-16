@@ -92,8 +92,9 @@ const setVACharts = (graphData) => {
 }
 
 const loadAllData = () => {
+  const endpoint = "/trends";
   $.ajax({
-    url: "/trends",
+    url: endpoint,
     type: "GET",
     dataType: "json",
     success: (jsonResponse) => {
