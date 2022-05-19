@@ -41,7 +41,7 @@ VA_GRAPH_TYPES = VA_TABLE_ROWS
 
 MONTHS = [START_MONTH + relativedelta(months=i) for i in range(12)]
 VA_GRAPH_Y_DATA = 12 * [0.0]
-VA_GRAPH_X_DATA = [month.strftime("%b") for month in MONTHS]
+VA_GRAPH_X_DATA = [month.strftime("%Y-%m") for month in MONTHS]
 
 
 def empty_va_table():
@@ -140,7 +140,8 @@ def get_trends_data(user):
 
         # Graphs of the past 12 months, not including this month (current month will almost
         # always show the month with artificially low numbers)
-        plot_df = pd.DataFrame({"yearmonth": VA_GRAPH_X_DATA, "x": VA_GRAPH_X_DATA})
+        x = [month.strftime("%b") for month in MONTHS]
+        plot_df = pd.DataFrame({"yearmonth": VA_GRAPH_X_DATA, "x": x})
 
         # Collected; total VAs by month
         plot_df = plot_df.merge(
