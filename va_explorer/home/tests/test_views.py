@@ -134,6 +134,91 @@ def test_trends(user: User):
     assert json_data["isFieldWorker"] is False
 
 
+# Hit the trends json endpoint and make sure the counts are correct
+def test_trends_no_data(user: User):
+    client = Client()
+    client.force_login(user=user)
+
+    response = client.get("/trends", follow=True)
+    assert response.status_code == 200
+
+    json_data = json.loads(response.content)
+    va_table_data = json_data["vaTable"]
+
+    # Check that trends counts are correct
+    assert va_table_data["collected"]["24"] == 0
+    assert va_table_data["collected"]["1 week"] == 0
+    assert va_table_data["collected"]["1 month"] == 0
+    assert va_table_data["collected"]["Overall"] == 0
+
+    assert va_table_data["coded"]["24"] == 0
+    assert va_table_data["coded"]["1 week"] == 0
+    assert va_table_data["coded"]["1 month"] == 0
+    assert va_table_data["coded"]["Overall"] == 0
+
+    assert va_table_data["uncoded"]["24"] == 0
+    assert va_table_data["uncoded"]["1 week"] == 0
+    assert va_table_data["uncoded"]["1 month"] == 0
+    assert va_table_data["uncoded"]["Overall"] == 0
+
+    # Check that the underlying graph data are correct
+    # Graphs do not show VAs collected in the current month
+    # Thus, the collected VAs were in: October, April, and September
+    assert json_data["graphs"]["collected"]["y"] == [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    ]
+    # Graphs do not show VAs coded in the current month
+    # Thus, there are no coded VAs in the time period in question
+    assert json_data["graphs"]["coded"]["y"] == [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    ]
+    # Graphs do not show VAs uncoded in the current month
+    # Thus, the uncoded VAs were in: October, April, and September
+    assert json_data["graphs"]["uncoded"]["y"] == [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    ]
+
+    assert len(json_data["issueList"]) == 0
+    assert json_data["additionalIssues"] == 0
+    assert len(json_data["indeterminateCodList"]) == 0
+    assert json_data["additionalIndeterminateCods"] == 0
+
+    assert json_data["isFieldWorker"] is False
+
+
 # Get the about page and make sure it returns successfully
 def test_about(user: User):
     client = Client()
