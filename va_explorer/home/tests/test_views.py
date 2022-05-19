@@ -1,12 +1,11 @@
 import datetime as dt
 import json
 from datetime import date, datetime
-from dateutil.tz import gettz
-from zoneinfo import ZoneInfo
 
 import pytest
 import time_machine
 from dateutil.relativedelta import relativedelta
+from dateutil.tz import gettz
 from django.test import Client
 
 from va_explorer.tests.factories import (
