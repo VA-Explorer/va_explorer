@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 from datetime import date, datetime
+from dateutil.tz import gettz
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -16,7 +17,7 @@ from va_explorer.tests.factories import (
 from va_explorer.users.models import User
 
 pytestmark = pytest.mark.django_db
-eastern_tz = ZoneInfo("US/Eastern")
+eastern_tz = gettz("US/Eastern")
 
 
 # Hit the trends json endpoint and make sure the counts are correct
