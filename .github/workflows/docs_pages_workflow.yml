@@ -1,0 +1,37 @@
+name: docs_pages_workflow
+
+# Execute this workflow on pull request if anything in the va_explorer_docs directory has changed
+#on:
+#  push:
+#  pull_request:
+#    # Run only on changes on these files
+#    paths:
+#      - 'va_explorer_docs'
+
+on:
+  push:
+    branches:
+      - 'va_explorer_docs'
+
+jobs:
+
+  build_docs_job:
+    runs-on: ubuntu-latest
+    container: debian:buster-slim
+
+    steps:
+
+    - name: Prereqs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        apt-get update
+        apt-get install -y git
+        git clone "https://token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
+      shell: bash
+
+    - name: Execute script to build our documentation and update pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: "docs/buildDocs.sh"
+      shell: bash
