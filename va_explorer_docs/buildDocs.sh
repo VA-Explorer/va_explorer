@@ -57,34 +57,26 @@ for current_version in ${versions}; do
       continue
    fi
 
-   languages="en `find va_explorer_docs/locales/ -mindepth 1 -maxdepth 1 -type d -exec basename '{}' \;`"
-   for current_language in ${languages}; do
+  ##########
+  # BUILDS #
+  ##########
+  echo "INFO: Building sphinx"
 
-      # make the current language available to conf.py
-      export current_language
+  # HTML #
+  sphinx-build -b html va_explorer_docs/ va_explorer_docs/_build/html/${current_version}
 
-      ##########
-      # BUILDS #
-      ##########
-      echo "INFO: Building for ${current_language}"
+  # PDF #
+  sphinx-build -b rinoh va_explorer_docs/ va_explorer_docs/_build/rinoh
+  mkdir -p "${docroot}/${current_language}/${current_version}"
+  cp "va_explorer_docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/va_explorer_docs_${current_version}.pdf"
 
-      # HTML #
-      sphinx-build -b html va_explorer_docs/ va_explorer_docs/_build/html/${current_language}/${current_version} -D language="${current_language}"
+  # EPUB #
+  sphinx-build -b epub va_explorer_docs/ va_explorer_docs/_build/epub
+  mkdir -p "${docroot}/${current_version}"
+  cp "va_explorer_docs/_build/epub/target.epub" "${docroot}/${current_version}/va_explorer_docs_${current_version}.epub"
 
-      # PDF #
-      sphinx-build -b rinoh va_explorer_docs/ va_explorer_docs/_build/rinoh -D language="${current_language}"
-      mkdir -p "${docroot}/${current_language}/${current_version}"
-      cp "va_explorer_docs/_build/rinoh/target.pdf" "${docroot}/${current_language}/${current_version}/helloWorld-va_explorer_docs_${current_language}_${current_version}.pdf"
-
-      # EPUB #
-      sphinx-build -b epub va_explorer_docs/ va_explorer_docs/_build/epub -D language="${current_language}"
-      mkdir -p "${docroot}/${current_language}/${current_version}"
-      cp "va_explorer_docs/_build/epub/target.epub" "${docroot}/${current_language}/${current_version}/helloWorld-va_explorer_docs_${current_language}_${current_version}.epub"
-
-      # copy the static assets produced by the above build into our docroot
-      rsync -av "va_explorer_docs/_build/html/" "${docroot}/"
-
-   done
+  # copy the static assets produced by the above build into our docroot
+  rsync -av "va_explorer_docs/_build/html/" "${docroot}/"
 
 done
 
