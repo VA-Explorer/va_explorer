@@ -20,10 +20,10 @@ jobs:
     container: debian:buster-slim
 
     steps:
-
     - name: Prereqs
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       run: |
         apt-get update
         apt-get install -y git
@@ -33,5 +33,6 @@ jobs:
     - name: Execute script to build our documentation and update pages
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: "va_explorer_docs/buildDocs.sh"
+      uses: actions/checkout@v2
+      run: "./va_explorer_docs/buildDocs.sh"
       shell: bash
