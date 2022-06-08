@@ -164,9 +164,9 @@ app.layout = html.Div(
                                 ),
                                 dbc.Row(
                                     [
-                                        html.Span(
-                                            className="fas fa-search",
-                                            style={"margin-top": "10px"},
+                                        html.I(
+                                            className="icon-search",
+                                            style={"margin-top": "5px"},
                                         ),
                                         html.Div(
                                             id="search-container",
