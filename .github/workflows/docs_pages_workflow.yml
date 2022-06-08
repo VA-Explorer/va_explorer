@@ -11,7 +11,7 @@ name: docs_pages_workflow
 on:
   push:
     branches:
-      - 'va_explorer_docs'
+      - 'docs'
 
 jobs:
 
