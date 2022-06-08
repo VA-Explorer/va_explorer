@@ -39,7 +39,7 @@ export REPO_NAME="${GITHUB_REPOSITORY##*/}"
 ##############
 
 # first, cleanup any old builds' static assets
-make -C docs clean
+make -C va_explorer_docs clean
 
 # get a list of branches, excluding 'HEAD' and 'gh-pages'
 versions="`git for-each-ref '--format=%(refname:lstrip=-1)' refs/remotes/origin/ | grep -viE '^(HEAD|gh-pages)$'`"
@@ -51,13 +51,13 @@ for current_version in ${versions}; do
 
    echo "INFO: Building sites for ${current_version}"
 
-   # skip this branch if it doesn't have our docs dir & sphinx config
-   if [ ! -e 'docs/conf.py' ]; then
-      echo -e "\tINFO: Couldn't find 'docs/conf.py' (skipped)"
+   # skip this branch if it doesn't have our va_explorer_docs dir & sphinx config
+   if [ ! -e 'va_explorer_docs/conf.py' ]; then
+      echo -e "\tINFO: Couldn't find 'va_explorer_docs/conf.py' (skipped)"
       continue
    fi
 
-   languages="en `find docs/locales/ -mindepth 1 -maxdepth 1 -type d -exec basename '{}' \;`"
+   languages="en `find va_explorer_docs/locales/ -mindepth 1 -maxdepth 1 -type d -exec basename '{}' \;`"
    for current_language in ${languages}; do
 
       # make the current language available to conf.py
@@ -69,20 +69,20 @@ for current_version in ${versions}; do
       echo "INFO: Building for ${current_language}"
 
       # HTML #
-      sphinx-build -b html docs/ docs/_build/html/${current_language}/${current_version} -D language="${current_language}"
+      sphinx-build -b html va_explorer_docs/ va_explorer_docs/_build/html/${current_language}/${current_version} -D language="${current_language}"
 
       # PDF #
-      sphinx-build -b rinoh docs/ docs/_build/rinoh -D language="${current_language}"
+      sphinx-build -b rinoh va_explorer_docs/ va_explorer_docs/_build/rinoh -D language="${current_language}"
       mkdir -p "${docroot}/${current_language}/${current_version}"
-      cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_language}/${current_version}/helloWorld-docs_${current_language}_${current_version}.pdf"
+      cp "va_explorer_docs/_build/rinoh/target.pdf" "${docroot}/${current_language}/${current_version}/helloWorld-va_explorer_docs_${current_language}_${current_version}.pdf"
 
       # EPUB #
-      sphinx-build -b epub docs/ docs/_build/epub -D language="${current_language}"
+      sphinx-build -b epub va_explorer_docs/ va_explorer_docs/_build/epub -D language="${current_language}"
       mkdir -p "${docroot}/${current_language}/${current_version}"
-      cp "docs/_build/epub/target.epub" "${docroot}/${current_language}/${current_version}/helloWorld-docs_${current_language}_${current_version}.epub"
+      cp "va_explorer_docs/_build/epub/target.epub" "${docroot}/${current_language}/${current_version}/helloWorld-va_explorer_docs_${current_language}_${current_version}.epub"
 
       # copy the static assets produced by the above build into our docroot
-      rsync -av "docs/_build/html/" "${docroot}/"
+      rsync -av "va_explorer_docs/_build/html/" "${docroot}/"
 
    done
 
@@ -109,12 +109,12 @@ git checkout -b gh-pages
 # that start with an underscore (_), such as our "_content" dir..
 touch .nojekyll
 
-# add redirect from the docroot to our default docs language/version
+# add redirect from the docroot to our default va_explorer_docs language/version
 cat > index.html <<EOF
 <!DOCTYPE html>
 <html>
    <head>
-      <title>helloWorld Docs</title>
+      <title>helloWorld va_explorer_docs</title>
       <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/en/master/'" />
    </head>
    <body>
@@ -129,9 +129,9 @@ cat > README.md <<EOF
 
 Nothing to see here. The contents of this branch are essentially a cache that's not intended to be viewed on github.com.
 
-If you're looking to update our documentation, check the relevant development branch's 'docs/' dir.
+If you're looking to update our documentation, check the relevant development branch's 'va_explorer_docs/' dir.
 
-For more information on how this documentation is built using Sphinx, Read the Docs, and GitHub Actions/Pages, see:
+For more information on how this documentation is built using Sphinx, Read the va_explorer_docs, and GitHub Actions/Pages, see:
 
  * https://tech.michaelaltfield.net/2020/07/18/sphinx-rtd-github-pages-1
 EOF
@@ -140,7 +140,7 @@ EOF
 git add .
 
 # commit all the new files
-msg="Updating Docs for commit ${GITHUB_SHA} made on `date -d"@${SOURCE_DATE_EPOCH}" --iso-8601=seconds` from ${GITHUB_REF} by ${GITHUB_ACTOR}"
+msg="Updating va_explorer_docs for commit ${GITHUB_SHA} made on `date -d"@${SOURCE_DATE_EPOCH}" --iso-8601=seconds` from ${GITHUB_REF} by ${GITHUB_ACTOR}"
 git commit -am "${msg}"
 
 # overwrite the contents of the gh-pages branch on our github.com repo
