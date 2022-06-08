@@ -70,14 +70,11 @@ $(document).ready(function(){
         });
     });
     $('#demographic_tab').click(function() {
-        console.log('clicked demo tab')
         $.ajax({
             url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to Demographics Tab"}
         });
     });
-
-
 });
 
