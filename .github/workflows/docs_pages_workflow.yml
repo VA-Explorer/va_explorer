@@ -33,5 +33,5 @@ jobs:
     - name: Execute script to build our documentation and update pages
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: "va_explorer_docs/buildDocs.sh"
+      run: "./va_explorer_docs/buildDocs.sh"
       shell: bash
