@@ -617,7 +617,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
     download_div.children = [
         dbc.Button(
             children=[
-                html.I(className="fas fa-download"),
+                html.I(className="icon-download"),
                 html.Span(" Data", style={"margin-left": "2px"}),
             ],
             id="download_button",
