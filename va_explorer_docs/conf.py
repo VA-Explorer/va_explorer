@@ -223,18 +223,18 @@ html_context['current_version'] = current_version
 html_context['version'] = current_version
 
 # POPULATE LINKS TO OTHER LANGUAGES
-html_context['languages'] = [('en', '/' + REPO_NAME + '/en/' + current_version + '/')]
+# html_context['languages'] = [('en', '/' + REPO_NAME + '/en/' + current_version + '/')]
 
-languages = [lang.name for lang in os.scandir('locales') if lang.is_dir()]
-for lang in languages:
-    html_context['languages'].append((lang, '/' + REPO_NAME + '/' + lang + '/' + current_version + '/'))
+# languages = [lang.name for lang in os.scandir('locales') if lang.is_dir()]
+# for lang in languages:
+#     html_context['languages'].append((lang, '/' + REPO_NAME + '/' + lang + '/' + current_version + '/'))
 
 # POPULATE LINKS TO OTHER VERSIONS
 html_context['versions'] = list()
 
 versions = [branch.name for branch in repo.branches]
 for version in versions:
-    html_context['versions'].append((version, '/' + REPO_NAME + '/' + current_language + '/' + version + '/'))
+    html_context['versions'].append((version, '/' + REPO_NAME + '/' + version + '/'))
 
 # POPULATE LINKS TO OTHER FORMATS/DOWNLOADS
 
@@ -252,10 +252,10 @@ epub_basename = 'target'
 
 html_context['downloads'] = list()
 html_context['downloads'].append(('pdf',
-                                  '/' + REPO_NAME + '/' + current_language + '/' + current_version + '/' + project + '-docs_' + current_language + '_' + current_version + '.pdf'))
+                                  '/' + REPO_NAME + '/' + current_version + '/' + project + '-docs_' + current_version + '.pdf'))
 
 html_context['downloads'].append(('epub',
-                                  '/' + REPO_NAME + '/' + current_language + '/' + current_version + '/' + project + '-docs_' + current_language + '_' + current_version + '.epub'))
+                                  '/' + REPO_NAME + '/' + current_version + '/' + project + '-docs_' + current_version + '.epub'))
 
 ##########################
 # "EDIT ON GITHUB" LINKS #
