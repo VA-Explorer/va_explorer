@@ -2,7 +2,8 @@ import json
 
 import factory
 from django.contrib.auth import get_user_model, models
-from factory import DjangoModelFactory, Faker, Sequence
+from factory import Faker, Sequence
+from factory.django import DjangoModelFactory
 
 from va_explorer.va_data_management.models import (
     CauseCodingIssue,

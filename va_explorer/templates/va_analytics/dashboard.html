@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static i18n %}
 {% load plotly_dash %}
 
 <div class="{% block container-type %}container-fluid{% endblock %}">
@@ -12,4 +13,10 @@
 		{% plotly_direct name='va_dashboard' %}
 	{% endblock %}
 </div> <!-- /container -->
+
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
+  <script src="{% static 'vendor/lodash-4.17.5/lodash.js' %}"></script>
+{% endblock %}
 

@@ -25,6 +25,8 @@ from va_explorer.va_data_management.utils.location_assignment import (
 )
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
+from ..constants import _checkbox_choices
+
 User = get_user_model()
 
 
@@ -125,6 +127,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     print("creating new VAs...")
     for i, row in enumerate(record_df.to_dict(orient="records")):
+        format_multi_select_fields(row)
+
         va = VerbalAutopsy(**row)
         # only import VA if its instanceId doesn't already exist
         if row["instanceid"]:
@@ -217,6 +221,17 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     }
 
 
+# Change the response format of Multiselect questions from ODK (space-separated)
+# into the format that we expect for rendering in the UI (comma-separated)
+def format_multi_select_fields(row):
+    for multi_select_question in _checkbox_choices:
+        if multi_select_question in row and isinstance(row[multi_select_question], str):
+            # Convert to comma-separated
+            row[multi_select_question] = ",".join(
+                response for response in row[multi_select_question].split()
+            )
+
+
 # load locations from a csv file into the django database. If delete_previous
 # is true, will clear location db before laoding.
 def load_locations_from_file(csv_file, delete_previous=False):
@@ -301,8 +316,8 @@ def deduplicate_columns(record_df, drop_duplicates=True):
     # get original columns that other columns are derived from
     original_cols = list(
         set(
-            other_cols.str.replace(r"^filtered\_", "")
-            .str.replace("_other$", "")
+            other_cols.str.replace(r"^filtered\_", "", regex=True)
+            .str.replace(r"_other$", "", regex=True)
             .tolist()
         )
     )

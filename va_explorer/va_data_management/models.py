@@ -11,6 +11,18 @@ from treebeard.mp_tree import MP_Node
 
 from va_explorer.models import SoftDeletionModel
 
+from .constants import (
+    _select_135,
+    _select_161,
+    _select_322,
+    _select_501,
+    _select_510,
+    _select_511,
+    _select_512,
+    _select_vaccines,
+)
+from .utils.multi_select import MultiSelectField
+
 
 class Location(MP_Node):
     # Locations are set up as a tree structure, allowing a regions and sub-regions along with the
@@ -201,17 +213,20 @@ class VerbalAutopsy(SoftDeletionModel):
         blank=True,
     )
     narrat_image = models.TextField("narrat_image", blank=True)
-    Id10477 = models.TextField(
+    Id10477 = MultiSelectField(
         "Select any of the following words that were mentioned as present in the narrative.",
         blank=True,
+        choices=_select_510,
     )
-    Id10478 = models.TextField(
+    Id10478 = MultiSelectField(
         "Select any of the following words that were mentioned as present in the narrative.",
         blank=True,
+        choices=_select_511,
     )
-    Id10479 = models.TextField(
+    Id10479 = MultiSelectField(
         "Select any of the following words that were mentioned as present in the narrative.",
         blank=True,
+        choices=_select_512,
     )
     id10477_check = models.TextField(
         'It is not possible to select "Don\'t know" or "None of the above" \
@@ -483,10 +498,11 @@ class VerbalAutopsy(SoftDeletionModel):
         "Did you see the lower chest wall/ribs being pulled in as the child breathed in?",
         blank=True,
     )
-    Id10173_nc = models.TextField(
+    Id10173_nc = MultiSelectField(
         "During the illness that led to death did his/her breathing sound like \
         any of the following:",
         blank=True,
+        choices=_select_501,
     )
     id10173_check = models.TextField(
         'It is not possible to select "Don\'t \
@@ -765,7 +781,7 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10234 = models.TextField(
         "For how many days did (s)he have the skin rash?", blank=True
     )
-    Id10235 = models.TextField("Where was the rash?", blank=True)
+    Id10235 = MultiSelectField("Where was the rash?", blank=True, choices=_select_135)
     id10235_check = models.TextField(
         'It is not possible to select "Doesn\'t Know" or "Refused to answer" \
         together with other options. Please go back and correct the selection.',
@@ -852,8 +868,10 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10259 = models.TextField(
         "Did (s)he have paralysis of only one side of the body?", blank=True
     )
-    Id10260 = models.TextField(
-        "Which were the limbs or body parts paralysed?", blank=True
+    Id10260 = MultiSelectField(
+        "Which were the limbs or body parts paralysed?",
+        blank=True,
+        choices=_select_161,
     )
     id10260_check = models.TextField(
         'It is not possible to select "only one side paralysed" and "left and \
@@ -1401,7 +1419,11 @@ class VerbalAutopsy(SoftDeletionModel):
         "Can I see the vaccination card (note the vaccines the child received)?",
         blank=True,
     )
-    Id10431 = models.TextField("Select EPI vaccines done", blank=True)
+    Id10431 = MultiSelectField(
+        "Select EPI vaccines done",
+        blank=True,
+        choices=_select_vaccines,
+    )
     id10431_check = models.TextField(
         'It is not possible to select "No vaccines", "Don\'t know" or "refuse" \
         together with other options. Please go back and correct the selection.',
@@ -1410,7 +1432,11 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10432 = models.TextField(
         "Was care sought outside the home while (s)he had this illness?", blank=True
     )
-    Id10433 = models.TextField("Where or from whom did you seek care?", blank=True)
+    Id10433 = MultiSelectField(
+        "Where or from whom did you seek care?",
+        blank=True,
+        choices=_select_322,
+    )
     id10433_check = models.TextField(
         'It is not possible to select "Don\'t know" or "refuse" together with \
         other options. Please go back and correct the selection.',

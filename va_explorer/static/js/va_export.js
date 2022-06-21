@@ -182,12 +182,12 @@ $(document).ready(function() {
   }
 
   /**
-   * Summary. Changes text of submit button to reflect user action. 
+   * Summary. Changes text of submit button to reflect user action.
    */
   function updateSubmitText() {
     if($('#id_action option:selected').text() == "Export Data") {
       $("#submit-form").text("Export");
-      // #TODO: remove this once we get export working 
+      // #TODO: remove this once we get export working
       $("#submit-form").prop("disabled", true);
     }
     else if($("#id_action option:selected").text() == "Download Data"){
@@ -205,4 +205,67 @@ $(document).ready(function() {
     updateSubmitText();
   });
 
+  /**
+   * Summary. Event handler for form submit
+   */
+  $('#export-form').on('submit', function(event){
+   event.preventDefault();
+   create_export();
+  });
+
+  /**
+   * Summary. Sends the export form via XMLHttpRequest and POST method; creates download
+   *  Uses the approach here: https://stackoverflow.com/questions/51675844/django-download-excel-file-with-ajax
+   */
+  const create_export = () => {
+    let request = new XMLHttpRequest();
+    request.open('POST', "/va_export/verbalautopsy/", true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    // Response type must be arraybuffer
+    request.responseType = 'arraybuffer';
+
+    const data = $('#export-form').serialize();
+
+    // Show the download modal before the request is sent
+    $('#downloadModal').modal('show');
+
+    request.onload = function (e) {
+      // Hide the download modal when the request returns, regardless of the status code returned
+      $('#downloadModal').modal('hide');
+      if (this.status === 200) {
+        let filename = "";
+        let disposition = request.getResponseHeader('Content-Disposition');
+        // Check if filename is given
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+          let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+          let matches = filenameRegex.exec(disposition);
+          if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+        }
+        const blob = this.response;
+        if (window.navigator.msSaveOrOpenBlob) {
+          window.navigator.msSaveBlob(blob, filename);
+        }
+        else {
+          let downloadLink = window.document.createElement('a');
+          const contentTypeHeader = request.getResponseHeader("Content-Type");
+
+          downloadLink.href = window.URL.createObjectURL(new Blob([blob], {type: contentTypeHeader}));
+          downloadLink.download = filename;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+        }
+      }
+      else {
+        // Show the downloadFailed modal if we don't receive a status code of 200
+        // TODO: Write to error log
+        $('#downloadFailedModal').modal('show');
+      }
+    };
+    request.send(data);
+  }
+  // Shows the submit button when the page is completely loaded
+  // This is required because we are posting the form via JS, so we need to ensure that this file loads before
+  // the user can submit the form)
+  $('#submit-form').removeClass('hidden');
 });

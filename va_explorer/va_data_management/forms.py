@@ -5,6 +5,7 @@ from va_explorer.va_data_management.utils.date_parsing import parse_date
 
 from .constants import FORM_FIELDS, HIDDEN_FIELDS, PII_FIELDS
 from .models import VerbalAutopsy
+from .utils.multi_select import MultiSelectFormField
 
 
 class VerbalAutopsyForm(forms.ModelForm):
@@ -21,9 +22,10 @@ class VerbalAutopsyForm(forms.ModelForm):
                 choices=FORM_FIELDS["radio"][form_field], attrs={"class": "va-check"}
             )
         for form_field in FORM_FIELDS["checkbox"]:
-            widgets[form_field] = forms.CheckboxSelectMultiple(
-                choices=FORM_FIELDS["checkbox"][form_field], attrs={"class": "va-check"}
-            )
+            widgets[form_field] = MultiSelectFormField(
+                flat_choices=FORM_FIELDS["checkbox"][form_field]
+            ).widget
+            widgets[form_field].attrs = {"class": "va-check"}
         for form_field in FORM_FIELDS["dropdown"]:
             widgets[form_field] = forms.Select(
                 choices=FORM_FIELDS["dropdown"][form_field]
@@ -67,7 +69,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         return cleaned_data
 
 
-def validate_date_format(form, Id10023):  # noqa N803 - more readable as actual name
+def validate_date_format(form, Id10023):
     """
     Custom form validation for field Id10023, date of death
     """

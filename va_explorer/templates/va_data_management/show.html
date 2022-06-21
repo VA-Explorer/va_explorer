@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static i18n %}
 {% load va_explorer_tags %}
 
 {% block title %}Verbal Autopsy #{{ object.id }}{% endblock %}
@@ -31,9 +31,31 @@
 <div class="tab-content">
   <div class="tab-pane fade show active" id="record" role="tabpanel" aria-labelledby="record-tab">
     <div class="row mt-3">
-      {% if perms.va_data_management.change_verbalautopsy %}
-        <a class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit Record</a>
-      {% endif %}
+        <div class="va-options-container">
+            <div class="checkbox-container" align='center'>
+              <input class="checkbox" type="checkbox" id="hidden-missing" name="hidden-missing" value="checked" checked="TRUE">
+              <label class="checkbox-label"
+                    data-toggle="tooltip"
+                    title="Toggle whether or not you want to see fields with 'N/A' or '' as responses. When unchecked, these blank responses will be shown."
+                    for="hidden-missing">
+                    Hide Empty Fields
+              </label><br>
+              {% if not user.can_view_pii %}
+              <input class="checkbox" type="checkbox" id="hidden-redacted" name="hidden-redacted">
+              <label class="checkbox-label"
+                    data-toggle="tooltip"
+                    title="Toggle whether or not you want to see redacted fields."
+                    for="hidden-redacted">
+                    Hide Redacted Fields
+              </label><br>
+              {% endif %}
+            </div>
+            {% if perms.va_data_management.change_verbalautopsy %}
+            <div>
+              <a style="text-align:center;" class="btn btn-primary" href="{% url 'data_management:edit' id=id %}">Edit Record</a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
     <div class="row mt-4">
@@ -47,7 +69,7 @@
         </thead>
         <tbody>
           {% for field in form %}
-            <tr>
+            <tr data-value="{% pii_filter field.name field.value|replace %}">
               <td><b>{{ field.name }}</b></td>
               <td>{{ field.label }}</td>
               <td>
@@ -93,9 +115,7 @@
         </table>
       </div>
     {% endif %}
-  </div>
-
-  {% if algo_warnings %}
+    {% if algo_warnings %}
       <div class="row mt-4">
         <table class="table table-hover table-sm">
           <thead>
@@ -112,7 +132,6 @@
       </div>
     {% endif %}
   </div>
-
 
   {% if diffs and not user.is_fieldworker  %}
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
@@ -162,5 +181,9 @@
 </a>
 <div class="flt-action-btn" id="main-fab"><i class="fas fa-sort"></i></div>
 
+{% endblock %}
 
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'js/fab.js' %}"></script>
 {% endblock %}

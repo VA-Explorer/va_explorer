@@ -30,7 +30,7 @@
       <tbody>
         <tr>
           <th scope="row">Submitted</th>
-          <td>{{ vas_collected_24_hours }}</span></td>
+          <td>{{ vas_collected_24_hours }}</td>
           <td>{{ vas_collected_1_week }}</td>
           <td>{{ vas_collected_1_month }}</td>
           <td>{{ vas_collected_overall }}</td>
@@ -92,8 +92,14 @@
       {% else %}
         <strong>No VAs with Indeterminate Cause of Death found!</strong>
         <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
-      {% endif %} 
+      {% endif %}
   </div>
 <div>
 
 {% endblock %}
+
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
+{% endblock %}
+
