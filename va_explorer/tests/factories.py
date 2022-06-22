@@ -76,6 +76,16 @@ class VerbalAutopsyFactory(DjangoModelFactory):
     username = ""
 
 
+class CauseOfDeathFactory(DjangoModelFactory):
+    class Meta:
+        model = CauseOfDeath
+
+    cause = "HIV/AIDS related death"
+    algorithm = "InterVA5"
+    settings = json.dumps({"HIV": "l", "Malaria": "l"})
+    verbalautopsy = factory.SubFactory(VerbalAutopsyFactory)
+
+
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
@@ -145,15 +155,6 @@ class VaUsernameFactory(DjangoModelFactory):
         model = VaUsername
 
     va_username = Faker("user_name")
-
-
-class CauseOfDeathFactory(DjangoModelFactory):
-    class Meta:
-        model = CauseOfDeath
-
-    cause = "HIV/AIDS related death"
-    algorithm = "InterVA5"
-    settings = json.dumps({"HIV": "l", "Malaria": "l"})
 
 
 class CauseCodingIssueFactory(DjangoModelFactory):

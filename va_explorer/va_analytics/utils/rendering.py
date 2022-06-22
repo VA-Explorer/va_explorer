@@ -36,8 +36,8 @@ def render_update_header(va_stats):
                     children=[
                         html.B("# of Ineligible VAs: "),
                         va_stats["ineligible_vas"],
-                        html.Span(
-                            className="fas fa-info-circle",
+                        html.I(
+                            className="icon-info-circled",
                             style={"margin-left": "3px", "color": "rgba(75,75,75,0.5)"},
                         ),
                         dbc.Tooltip(ineligible_tooltip, target="inelig-tooltip-target"),

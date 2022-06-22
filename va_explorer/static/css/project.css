@@ -241,3 +241,7 @@ table.home-page-statistics th {
   margin-left: 5px;
   color: rgba(75,75,75,0.5);
 }
+
+.home-page-statistics canvas {
+  max-height: 125px !important;
+}
