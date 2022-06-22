@@ -487,6 +487,19 @@ Cleanup" tab. The Data Cleanup tab is only present when the environment variable
 them or edit the possible duplicate Verbal Autopsies to remove them from
 detection.
 
+## Adding Icons
+VA Explorer uses fontello for application icons rather than a full icon library so that only the icons 
+used in the application are loaded. By only including icons that are used in the application, page load 
+performance is improved. 
+
+To use fontello icons:
+1. Visit https://fontello.com/
+2. Select icons through the user interface
+3. Click 'Download webfont' button
+4. Unzip the downloaded folder
+5. Replace the current folder at `va_explorer/static/vendor/fontello-<hash>` with the newly-downloaded folder 
+6. Update the application's base template, base.html, to reference the new folder
+
 ## Troubleshooting
 
 - If experiencing trouble installing the `pyscopg2` application requirement, it
