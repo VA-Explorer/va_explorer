@@ -45,7 +45,6 @@ make -C docs clean
 versions="`git for-each-ref '--format=%(refname:lstrip=-1)' refs/remotes/origin/ | grep -viE '^(HEAD|gh-pages)$'`"
 for current_version in ${versions}; do
 
-   # make the current language available to conf.py
    export current_version
    git checkout ${current_version}
 
