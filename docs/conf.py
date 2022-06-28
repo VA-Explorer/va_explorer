@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'VA Explorer Documentation'
+project = 'VA Explorer'
 copyright = '2022, The MITRE Corporation'
 author = 'The MITRE Corporation'
 
@@ -130,7 +130,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'vaExplorer.tex', 'VA Explorer Documentation',
+    (master_doc, 'vaExplorer.tex', 'VA Explorer',
      'The MITRE Corporation', 'manual'),
 ]
 
@@ -149,7 +149,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'vaExplorer', 'VA Explorer Documentation',
+    (master_doc, 'vaExplorer', 'VA Explorer',
      author, 'vaExplorer', 'One line description of project.',
      'Miscellaneous'),
 ]
