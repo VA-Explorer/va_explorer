@@ -26,7 +26,6 @@ app = DjangoDash(
     add_bootstrap_links=True,
 )
 
-
 # NOTE: moved Toolbar configurations to plotting.py
 
 # ===========INITIAL CONFIG VARIABLES=============#
@@ -165,9 +164,9 @@ app.layout = html.Div(
                                 ),
                                 dbc.Row(
                                     [
-                                        html.Span(
-                                            className="fas fa-search",
-                                            style={"margin-top": "10px"},
+                                        html.I(
+                                            className="icon-search",
+                                            style={"margin-top": "5px"},
                                         ),
                                         html.Div(
                                             id="search-container",
@@ -618,7 +617,7 @@ def init_va_data(hidden_trigger=None, **kwargs):
     download_div.children = [
         dbc.Button(
             children=[
-                html.I(className="fas fa-download"),
+                html.I(className="icon-download"),
                 html.Span(" Data", style={"margin-left": "2px"}),
             ],
             id="download_button",
@@ -1402,9 +1401,15 @@ def make_card(
                 [
                     header,
                     html.Span(
-                        html.Span(className="fas fa-info-circle"),
-                        style={"margin-left": "5px", "color": "rgba(75,75,75,0.5)"},
-                        id=f"{card_id}-tooltip-target",
+                        html.I(
+                            className="icon-info-circled",
+                            id=f"{card_id}-tooltip-target",
+                            style={
+                                "margin-left": "3px",
+                                "color": "rgba(75,75,75,0.5)",
+                                "cursor": "pointer",
+                            },
+                        ),
                     ),
                     dbc.Tooltip(
                         tooltip,

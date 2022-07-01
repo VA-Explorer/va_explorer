@@ -3,6 +3,7 @@ import json
 import os
 import re
 from io import StringIO
+from math import ceil
 
 import pandas as pd
 import requests
@@ -109,16 +110,36 @@ def run_coding_algorithms():
     # Load all verbal autopsies that don't have a cause coding
     # TODO: This should eventually check to see that there's a cause coding for
     # every supported algorithm
-    verbal_autopsies_without_causes = list(
-        VerbalAutopsy.objects.filter(causes__isnull=True)
-    )
 
     print(f"ALGORITHM SETTINGS: {ALGORITHM_SETTINGS}")
 
-    causes, issues = run_interva5(verbal_autopsies_without_causes)
-    interva_batch.finish_coding(causes, issues)
+    causes_list = []
+    issues_list = []
+    verbal_autopsies_without_causes_list = []
 
-    return verbal_autopsies_without_causes, causes, issues
+    # Determine number of iterations necessary for large lists of verbal autopsies
+    count = VerbalAutopsy.objects.filter(causes__isnull=True).count()
+    batch_size = 500
+    batches = ceil(count / batch_size)
+
+    for i in range(batches):
+        batch_start = i * batch_size
+        batch_end = (i + 1) * batch_size
+        verbal_autopsies_without_causes = list(
+            VerbalAutopsy.objects.filter(causes__isnull=True)[batch_start:batch_end]
+        )
+        causes, issues = run_interva5(verbal_autopsies_without_causes)
+
+        causes_list += causes
+        issues_list += issues
+        verbal_autopsies_without_causes_list += verbal_autopsies_without_causes
+
+    interva_batch.finish_coding(causes, issues)
+    return {
+        "verbal_autopsies": verbal_autopsies_without_causes_list,
+        "causes": causes_list,
+        "issues": issues_list,
+    }
 
 
 def run_interva5(verbal_autopsies_without_causes):

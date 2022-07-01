@@ -8,8 +8,8 @@
       {% if not user.is_fieldworker %}
         <th><a href="?{% sort_url 'submissiondate' direction='-' %}">Interviewer</a></th>
       {% endif %}
-       <th><a href="?{% sort_url 'Id10010' direction='-' %}">Facility</a></th>
-       <th><a href="?{% sort_url 'deceased' direction='-' %}">Deceased</a></th>
+      <th><a href="?{% sort_url 'Id10010' direction='-' %}">Facility</a></th>
+      <th><a href="?{% sort_url 'deceased' direction='-' %}">Deceased</a></th>
       <th><a href="?{% sort_url 'Id10023' direction='-' %}">Deathdate</a></th>
       <th><a href="?{% sort_url 'cause' direction='-' %}">Cause</a></th>
       <th><a href="?{% sort_url 'warnings' direction='-' %}">Warnings</a></th>
@@ -18,14 +18,14 @@
       {% if va_data_cleanup and perms.va_data_cleanup.download %}
         <th>
           <span class="info-tooltip" data-toggle="tooltip" data-placement="top" title="Downloads this VA and VAs flagged as its potential duplicate(s) to CSV">
-            Download<i class="fas fa-info-circle info-icon"></i>
+            Download<i class="icon-info-circled"></i>
           </span>
         </th>
       {% endif %}
       {% if va_data_cleanup and perms.va_data_management.delete_verbalautopsy %}
         <th>
           <span class="info-tooltip" data-toggle="tooltip" data-placement="top" title="Deletes this VA">
-            Delete<i class="fas fa-info-circle info-icon"></i>
+            Delete<i class="icon-info-circled"></i>
            </span>
         </th>
       {% endif %}
@@ -50,13 +50,15 @@
           {% if va_data_cleanup and perms.va_data_cleanup.download %}
             <td>
               <a class="btn btn-primary" href="{% url 'data_cleanup:download' va.id %}">
-              <i class="fas fa-download button-icon"></i></a>
+                <i class="icon-download"></i>
+              </a>
             </td>
           {% endif %}
           {% if va_data_cleanup and perms.va_data_management.delete_verbalautopsy %}
             <td>
               <a class="btn btn-danger" href="{% url 'data_management:delete' va.id %}">
-              <i class="fas fa-trash-alt button-icon"></i></a>
+                <i class="icon-trash"></i>
+              </a>
             </td>
           {% endif %}
         </tr>
