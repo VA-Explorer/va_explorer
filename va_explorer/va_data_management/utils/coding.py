@@ -130,7 +130,11 @@ def run_coding_algorithms():
         issues_list += issues
         verbal_autopsies_without_causes_list += verbal_autopsies_without_causes
 
-    return {"verbal_autopsies": verbal_autopsies_without_causes_list, "causes": causes_list, "issues": issues_list}
+    return {
+        "verbal_autopsies": verbal_autopsies_without_causes_list,
+        "causes": causes_list,
+        "issues": issues_list,
+    }
 
 
 def run_interva5(verbal_autopsies_without_causes):
