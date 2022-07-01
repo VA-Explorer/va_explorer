@@ -115,8 +115,8 @@ def run_coding_algorithms():
 
     # Determine number of iterations necessary for large lists of verbal autopsies
     count = VerbalAutopsy.objects.filter(causes__isnull=True).count()
-    batches = ceil(count / 5)
     batch_size = 500
+    batches = ceil(count / batch_size)
 
     for i in range(batches):
         batch_start = i * batch_size
