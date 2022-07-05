@@ -5,8 +5,7 @@ from django.core.management import BaseCommand
 from va_explorer.users.models import User
 from va_explorer.va_analytics.models import Dashboard
 from va_explorer.va_data_cleanup.models import DataCleanup
-from va_explorer.va_data_management.models import VerbalAutopsy
-from va_explorer.va_data_management.models import DhisStatus
+from va_explorer.va_data_management.models import DhisStatus, VerbalAutopsy
 
 GROUPS_PERMISSIONS = {
     "Admins": {

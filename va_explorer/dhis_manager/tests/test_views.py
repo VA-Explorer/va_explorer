@@ -2,19 +2,15 @@ import pytest
 from django.contrib.auth.models import Permission
 from django.test import Client
 
-from va_explorer.tests.factories import (
-    GroupFactory,
-    UserFactory,
-)
+from va_explorer.tests.factories import GroupFactory, UserFactory
 from va_explorer.users.models import User
 
 pytestmark = pytest.mark.django_db
 
+
 @pytest.fixture
 def view_dhisstatus_group():
-    can_view_dhisstatus = Permission.objects.filter(
-        codename="view_dhisstatus"
-    ).first()
+    can_view_dhisstatus = Permission.objects.filter(codename="view_dhisstatus").first()
     return GroupFactory.create(permissions=[can_view_dhisstatus])
 
 
@@ -42,5 +38,3 @@ def test_index_without_valid_permission(user: User):
 
     response = client.get("/dhis/")
     assert response.status_code == 403
-
-
