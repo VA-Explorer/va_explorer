@@ -17,7 +17,7 @@ LOGGER = logging.getLogger()
 
 class IndexView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "pages/dhis.html"
-    permission_required = "dhis_manager.change_dhisstatus"
+    permission_required = "va_data_management.view_dhisstatus"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -69,7 +69,7 @@ index_view = IndexView.as_view()
 
 class PushDHISView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
     template_name = "pages/dhis.html"
-    permission_required = "dhis_manager.change_dhisstatus"
+    permission_required = "va_data_management.change_dhisstatus"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
