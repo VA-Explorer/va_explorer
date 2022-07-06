@@ -20,7 +20,7 @@ from va_explorer.va_data_management.models import (
 
 DHIS_USER = os.environ.get("DHIS_USER", "admin")
 DHIS_PASS = os.environ.get("DHIS_PASS", "district")
-DHIS_HOST = os.environ.get("DHIS_HOST", "http://localhost:5080")
+DHIS_HOST = os.environ.get("DHIS_HOST", "http://localhost:8080")
 # Assign random default, real value should be obtained from user DHIS instance
 DHIS_ORGUNIT = os.environ.get("DHIS_ORGUNIT", "WqAFVcXewEh")
 

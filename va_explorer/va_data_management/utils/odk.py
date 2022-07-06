@@ -4,7 +4,7 @@ from io import BytesIO
 import pandas as pd
 import requests
 
-ODK_HOST = os.environ.get("ODK_HOST", "http://localhost:5080")
+ODK_HOST = os.environ.get("ODK_HOST", "http://localhost:80")
 if ODK_HOST.startswith("https://localhost"):
     # Don't verify localhost (self-signed cert or test).
     SSL_VERIFY = False
