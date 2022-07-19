@@ -2,7 +2,8 @@ import json
 import os
 
 import pandas as pd
-from django.db.models import F
+from django.db.models import F, Case, When, Value, DateField, CharField
+from django.db.models.functions import Cast
 
 from va_explorer.va_data_management.models import (
     Location,
@@ -72,49 +73,28 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
     update_stats = get_va_summary_stats(user_vas)
     if len(questions_to_autodetect_duplicates()) > 0:
         update_stats["duplicates"] = user_vas.filter(duplicate=True).count()
+
     all_vas = (
-        user_vas.only(
-            "id",
-            "Id10019",
-            "Id10058",
-            "Id10023",
-            "ageInYears",
-            "age_group",
-            "isNeonatal1",
-            "isChild1",
-            "isAdult1",
-            "location",
-        )
+        user_vas.only("id", "Id10019", "Id10058", "Id10023", "ageInYears", "location")
+        .annotate(age_group_named=Case(When(isNeonatal1='1', then=Value('neonate')),
+                                       When(isChild1='1', then=Value('child')),
+                                       When(isAdult1='1', then=Value('adult')),
+                                       When(ageInYears__lte=1, then=Value('neonate')),
+                                       When(ageInYears__lte=16, then=Value('child')),
+                                       default=Value('Unknown'), output_field=CharField()
+                                       ),
+                  date=Cast('Id10023', output_field=DateField())
+                  )
         .exclude(Id10023__in=["dk", "DK"])
         .exclude(location__isnull=True)
         .select_related("location")
         .select_related("causes")
-        .values(
-            "id",
-            "Id10019",
-            "Id10058",
-            "age_group",
-            "isNeonatal1",
-            "isChild1",
-            "isAdult1",
-            "location__id",
-            "location__name",
-            "ageInYears",
-            date=F("Id10023"),
-            cause=F("causes__cause"),
-        )
+        .values("id", "Id10019", "Id10058", "age_group_named", "location__id", "location__name", "ageInYears",
+                'date', cause=F("causes__cause"))
     )
 
     if not all_vas:
-        return json.dumps(
-            {
-                "data": {
-                    "valid": pd.DataFrame().to_json(),
-                    "invalid": pd.DataFrame().to_json(),
-                },
-                "update_stats": {update_stats},
-            }
-        )
+        return {"data": {"valid": {}, "invalid": {}}, "update_stats": {update_stats}, }
 
     # Build a dictionary of location ancestors for each facility
     # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
@@ -140,26 +120,21 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         del va["location__name"]
         del va["location__id"]
 
-    # Convert list to dataframe.
-    va_df = pd.DataFrame.from_records(all_vas)
-    # convert dates to datetimes
-    va_df["date"] = pd.to_datetime(va_df["date"])
-    va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
-    va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
-
     # need this because location types need to be sorted by depth
     location_types = [l for _, l in sorted(location_types.items(), key=lambda x: x[0])]
 
-    return {
-        "data": {
-            "valid": va_df[~pd.isnull(va_df["cause"])].reset_index(),
-            "invalid": va_df[pd.isnull(va_df["cause"])].reset_index(),
-        },
+    valid_vas = [va for va in all_vas if va.get('cause')]
+    invalid_vas = [va for va in all_vas if not va.get('cause')]
+
+    data = {
+        "data": {"valid": valid_vas, "invalid": invalid_vas},
         "location_types": location_types,
         "max_depth": len(location_types) - 1,
         "locations": locations,
         "update_stats": update_stats,
     }
+
+    return data
 
 
 def assign_age_group(va):

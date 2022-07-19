@@ -6,6 +6,9 @@ from django.db.models import Count, F, Q
 from django.views.generic import ListView, TemplateView
 from numpy import round
 from pandas import to_datetime as to_dt
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .utils.loading import load_va_data
 
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
@@ -17,6 +20,13 @@ from va_explorer.va_data_management.utils.date_parsing import (
 from va_explorer.va_logs.logging_utils import write_va_log
 
 LOGGER = logging.getLogger("event_logger")
+
+
+class DashboardAPIView(APIView):
+    def get(self, request, format=None):
+        date_cutoff = None
+        data = load_va_data(request.user, date_cutoff=date_cutoff)
+        return Response()
 
 
 class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
@@ -107,7 +117,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 .query("date == date")
                 .assign(
                     week_hash=lambda df: df["date"].dt.isocalendar().week
-                    + 52 * df["date"].dt.year
+                                         + 52 * df["date"].dt.year
                 )
                 .groupby(group_col)
                 .agg(

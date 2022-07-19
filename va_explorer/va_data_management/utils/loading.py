@@ -334,37 +334,29 @@ def deduplicate_columns(record_df, drop_duplicates=True):
 
 
 def get_va_summary_stats(vas, filter_fields=False):
-    # calculate stats
-    if vas.count() > 0:
+    # if vas.count() > 0 code is the slowest SQL query
 
-        # if filter_fields=True, filter down to only relevant fields
-        if filter_fields:
-            vas = vas.only("created", "id", "location", "Id10023")
+    # if filter_fields=True, filter down to only relevant fields
+    if filter_fields:
+        vas = vas.only("created", "id", "location", "Id10023")
 
-        stats = vas.aggregate(
-            last_update=Max("created"),
-            last_submission=Max("submissiondate"),
-            total_vas=Count("id"),
-        )
+    stats = vas.aggregate(
+        last_update=Max("created"),
+        last_submission=Max("submissiondate"),
+        total_vas=Count("id"),
+    )
 
-        stats["ineligible_vas"] = vas.filter(
-            Q(Id10023__in=["DK", "dk"])
-            | Q(Id10023__isnull=True)
-            | Q(location__isnull=True)
-        ).count()
+    stats["ineligible_vas"] = vas.filter(
+        Q(Id10023__in=["DK", "dk"])
+        | Q(Id10023__isnull=True)
+        | Q(location__isnull=True)
+    ).count()
 
-        # clean up dates if non-null
-        if stats["last_update"] and type(stats["last_update"]) is not str:
-            stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
+    # clean up dates if non-null
+    if stats["last_update"] and type(stats["last_update"]) is not str:
+        stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
 
-        if stats["last_submission"] and type(stats["last_update"]) is not str:
-            stats["last_submission"] = stats["last_submission"].strftime("%Y-%m-%d")
-        return stats
-    # no VAs - return empty stats
-    else:
-        return {
-            "last_update": None,
-            "last_submission": None,
-            "total_vas": None,
-            "ineligible_vas": None,
-        }
+    if stats["last_submission"] and type(stats["last_update"]) is not str:
+        stats["last_submission"] = stats["last_submission"].strftime("%Y-%m-%d")
+    return stats
+    # TODO is it likely or possible to return no VAs? if yes, return empty stats
