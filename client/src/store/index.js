@@ -112,8 +112,12 @@ export default new Vuex.Store({
         },
     },
     actions: {
-        loadData({state}) {
-            axios.get('va_explorer_data.json')
+        async loadData({state}) {
+
+            // TODO this request will fail because no session info is attached to request so will assume anonymousUser
+            // const res = await axios.get('http://localhost:8000/va_analytics/api/dashboard')
+
+            await axios.get('va_explorer_data.json')
                 .then(res => {
                     state.rawdata = res.data.data.valid.map(item => ({...item, active: true}))
                     state.invalid = res.data.data.invalid

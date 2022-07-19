@@ -93,6 +93,7 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "dpd_static_support",
     "django_pivot",
+    "corsheaders",
 ]
 
 LOCAL_APPS = [
@@ -143,6 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",

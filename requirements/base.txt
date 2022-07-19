@@ -35,6 +35,8 @@ whitenoise==6.0.0
 channels-redis==3.4.0
 channels==3.0.4
 daphne==3.0.2
+djangorestframework==3.13.1
+django-cors-headers==3.13.0
 
 # Plotly
 scipy==1.7.3 ; python_version == '3.7'
