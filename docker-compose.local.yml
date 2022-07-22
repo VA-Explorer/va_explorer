@@ -26,14 +26,3 @@ services:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
       - local_postgres_data_backups:/backups
-
-  vue:
-    container_name: vue-dashboard
-    build:
-      context: ./client
-      dockerfile: Dockerfile.dev
-    restart: always
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./client:/app
