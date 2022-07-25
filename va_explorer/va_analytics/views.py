@@ -26,7 +26,7 @@ class DashboardAPIView(APIView):
     def get(self, request, format=None):
         date_cutoff = None
         data = load_va_data(request.user, date_cutoff=date_cutoff)
-        return Response()
+        return Response(data)
 
 
 class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):

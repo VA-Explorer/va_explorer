@@ -1,3 +1,232 @@
-main {
+/* ---- CSS RESET ---- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+figure {
+  margin: 0;
+}
+
+main {
+  height: 100vh;
+  width: 100%;
+  font-size: .88rem;
+  box-sizing: border-box;
+  padding: 10px;
+  display: grid;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-gap: 10px;
+  --h2height: 20px;
+}
+
+.sectionContainer {
+  text-align: center;
+  border-radius: 5px;
+  box-shadow: none;
+  transition: box-shadow .2s ease-in-out;
+  height: 100%;
+  padding: 0.5rem;
+  background-color: #f0f1f6;
+}
+
+.sectionContainer:hover {
+  box-shadow: 0 10px 6px -6px #8f8f8f;
+}
+
+h2 {
+  height: var(--h2height);
+  font-weight: bold;
+  font-size: 0.90rem;
+  color: #383838;
+  margin: 0;
+}
+
+/* ---- PANEL STATISTICS SECTION ---- */
+.panelView {
+  grid-column: 1/4;
+  grid-row: 1/3;
+}
+
+.panelView .controls {
+  height: 25%;
+  display: flex;
+  align-items: center;
+}
+
+.panelView .controls label {
+  margin: 0 8px;
+  font-size: 0.82rem;
+  width: auto;
+}
+
+.panelView .button {
+  margin-left: 10px;
+}
+
+.panelView .highlightsContainer {
+  height: calc(100% - 25% - 30px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 10px;
+}
+
+.highlight {
+  margin: 0.25rem;
+  border-radius: 5px;
+}
+
+.highlight h3 {
+  padding: 1rem;
+  border-bottom: solid 1px #cdcdcd;
+  background-color: #dedfe8;
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+.highlight p {
+  background-color: #fcfcfc;
+  padding: 15px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+/* ---- MAP SECTION ---- */
+.mapView {
+  grid-column: 1/4;
+  grid-row: 3/6;
+}
+
+.mapView .controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mapView .controls label {
+  margin: 0;
+}
+
+/* ---- TOP CAUSES SECTION ---- */
+.topCausesView {
+  grid-column: 4/6;
+  grid-row: 1/4;
+  display: flex;
+  flex-direction: column;
+}
+
+.topCausesView .chartsContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - var(--h2height));
+}
+
+.topCausesView .topCausesContainer {
+  height: 50%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.topCausesView .topCauseLineChartContainer {
+  height: 50%;
+}
+
+/* ---- DEMOGRAPHICS SECTION ---- */
+.demographicsView {
+  grid-column: 4/6;
+  grid-row: 4/6;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.demographicsView .chartsContainer {
+  display: flex;
+  flex: 1;
+}
+
+/* ---- FORM ELEMENT STYLES ---- */
+button, .is-btn {
+  background-color: white;
+  border: solid 1px lightgrey;
+  cursor: pointer;
+  justify-content: center;
+  padding-bottom: calc(.5em - 1px);
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: calc(.5em - 1px);
+  text-align: center;
+  white-space: nowrap;
+  border-radius: .375em;
+  box-shadow: none;
+  display: inline-flex;
+  font-size: 0.80rem;
+  height: 2.25em;
+  line-height: 1.125;
+}
+
+:is(button, .is-btn):hover {
+  background-color: #e3e3e3;
+}
+
+select {
+  padding: 0.4em 1em 0.4em 0.5em;
+  background-color: white;
+  border: solid 1px #dbdbdb;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: rgb(54, 54, 54);
+}
+
+select:hover,
+select:focus {
+  cursor: pointer;
+  border: solid 1px #9e9e9e;
+}
+
+select:focus {
+  outline: solid 1px hsl(217, 71%, 53%);
+}
+
+input, textarea {
+  font-size: 0.8rem;
+  resize: none;
+  border: 1px solid lightgrey;
+  border-radius: 4px;
+  box-shadow: none;
+  padding-bottom: calc(.45em - 1px);
+  padding-left: calc(.70em - 1px);
+  padding-right: calc(.70em - 1px);
+  padding-top: calc(.45em - 1px);
+  background-color: #fff;
+  font-family: inherit;
+}
+
+input {
+  align-items: center;
+  display: inline-flex;
+  height: 2.0em;
+  justify-content: flex-start;
+  line-height: 1.5;
+}
+
+:is(input, textarea):hover {
+  cursor: pointer;
+  border: solid 1px #9e9e9e;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; /* added line */
+  border: 0;
 }

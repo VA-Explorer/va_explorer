@@ -7,37 +7,106 @@
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-        aria-hidden="true">&times;</span></button>
-    </div>
-  {% endfor %}
-{% endif %}
+{% block heading %}
+  Dashboard
+{% endblock %}
 
 {% block content %}
   <main id="dashboardApp">
-    <% sample %>
+
+    <section class="sectionContainer panelView">
+      <h2>Summaries and Control Panel</h2>
+      <div class="controls">
+        <label for="causeSelected">Cause of Death</label>
+        <div class="select">
+          <select id="causeSelected" v-model="causeSelected"
+                  @change="filterByCauseOfDeath($event.target.value)">
+            <option></option>
+            <option v-for="cause in listOfCauses" :key="cause"><% cause %></option>
+          </select>
+        </div>
+        <label for="startDate">Start Date:</label>
+        <input id="startDate" class="input" type="date" required v-model="startDate"
+               @input="filterByDate($event.target.value)">
+        <button type="button" class="button" @click="resetAllDataToActive()">Reset</button>
+      </div>
+      <div class="highlightsContainer">
+        <div v-for="(value, key) in highlightsSummaries" :key="key" class="highlight">
+          <h3><% key %></h3>
+          <p><% value %></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sectionContainer mapView">
+      <h2>Geographic Distribution</h2>
+      <div class="controls">
+        <label for="mapview">Map View:</label>
+        <div class="select">
+          <select id="mapview">
+            <option v-for="option in location_types" :key="option"><% option %></option>
+          </select>
+        </div>
+        <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
+        <select id="searchLocations">
+          <option value=""></option>
+          <option v-for="(location_type, location) in locations" :key="location"><% location %></option>
+        </select>
+      </div>
+      <div id="map"></div>
+    </section>
+
+    <section class="sectionContainer topCausesView">
+      <h2>Cause of Death Analysis</h2>
+      <div class="chartsContainer" ref="cod">
+
+        <div class="topCausesContainer">
+          <stacked-bar-chart v-if="topCauses.length > 0"
+                             :plot-data="topCauses" x-key="cause"
+                             direction="horizontal" bar-axis-location="top"
+                             :width="codWidth" :height="codHeight / 2"
+                             :margin="{top: 20, bottom: 10, left: 100, right: 30}"
+                             :colors="['#23689b']">
+          </stacked-bar-chart>
+        </div>
+
+        <div class="topCauseLineChartContainer">
+          <line-chart v-if="allCausesTrend.length > 0"
+                      :plot-data="allCausesTrend" x-key="date"
+                      :width="codWidth" :height="codHeight / 2" :margin="{top: 10, bottom: 20, left: 40, right: 20}"
+                      :colors="['#23689b']">
+          </line-chart>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="sectionContainer demographicsView">
+      <h2>All Cause Demographics</h2>
+      <div class="chartsContainer" ref="demographics">
+        <stacked-bar-chart v-if="gender.length > 0"
+                           :plot-data="gender" x-key="age_group_named"
+                           :width="demographicsWidth * (2/5)" :height="demographicsHeight"
+                           :margin="{top: 5, bottom: 30, left: 40, right: 20}"
+                           :colors="['#10437a', '#c1a1d3']">
+        </stacked-bar-chart>
+        <stacked-bar-chart v-if="placeOfDeath.length > 0" :plot-data="placeOfDeath" x-key="place"
+                           direction="horizontal" :width="demographicsWidth * (3/5)" :height="demographicsHeight"
+                           :margin="{top: 30, bottom: 20, left: 90, right: 10}"
+                           :colors="['#23689b']">
+        </stacked-bar-chart>
+      </div>
+    </section>
+
   </main>
 {% endblock %}
 
-<!-- Needs to be outside content block so JS in base template loads first -->
 {% block page_scripts %}
   <script type="text/javascript" src="{% static 'vendor/vue-2.6.14/vue.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'vendor/vuesalize-0.1.2/vuesalize.min.js' %}"></script>
-
-  <script type="text/javascript">
-
-    const dashboard = new Vue({
-      el: '#dashboardApp',
-      delimiters: ["<%", "%>"],
-      data() {
-        return {
-          sample: "welcome to the dashboard!"
-        }
-      }
-    })
-  </script>
+  <script type="text/javascript" src="{% static 'vendor/d3-array/d3-array@3.js' %}"></script>
+  {% csrf_token %}
+  <script type="text/javascript" src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}
 
