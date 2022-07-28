@@ -27,14 +27,14 @@ degrees of maturity:
   - Death distributions by age, gender, and place of death for chosen regions
   - Trends over time for chosen regions
 
-<a href="docs/assets/overview.png">
-  <img src="docs/assets/overview.png" alt="Overview" title="VA Explorer Overview" width="270" />
+<a href="docs/images/overview.png">
+  <img src="docs/images/overview.png" alt="Overview" title="VA Explorer Overview" width="270" />
 </a>Î
-<a href="docs/assets/dashboard.png">
-  <img src="docs/assets/dashboard.png" alt="Dashboard" title="VA Explorer Dashboard" width="270" />
+<a href="docs/images/dashboard.png">
+  <img src="docs/images/dashboard.png" alt="Dashboard" title="VA Explorer Dashboard" width="270" />
 </a>
-<a href="docs/assets/vas.png">
-  <img src="docs/assets/vas.png" alt="Verbal Autopsies" title="VA Explorer VAs" width="270" />
+<a href="docs/images/vas.png">
+  <img src="docs/images/vas.png" alt="Verbal Autopsies" title="VA Explorer VAs" width="270" />
 </a>Î
 
 ## Background
