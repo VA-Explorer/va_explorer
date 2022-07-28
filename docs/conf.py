@@ -262,6 +262,6 @@ html_context['downloads'].append(('epub',
 ##########################
 
 html_context['display_github'] = True
-html_context['github_user'] = 'va_explorer'
-html_context['github_repo'] = 'VA-Explorer'
+html_context['github_user'] = 'VA-Explorer'
+html_context['github_repo'] = 'va_explorer'
 html_context['github_version'] = 'tree/docs/'
