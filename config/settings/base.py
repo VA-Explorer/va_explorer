@@ -83,15 +83,12 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "django_celery_beat",
-    "django_plotly_dash.apps.DjangoPlotlyDashConfig",
     "simple_history",
-    "channels",
     "debug_toolbar",
     "whitenoise.runserver_nostatic",
     "django_extensions",
     "bootstrap4",
     "django_filters",
-    "dpd_static_support",
     "django_pivot",
     "corsheaders",
 ]
@@ -154,8 +151,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_plotly_dash.middleware.BaseMiddleware",
-    "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",  # Track which user makes VA data edits
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
@@ -173,9 +168,6 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "django_plotly_dash.finders.DashAssetFinder",
-    "django_plotly_dash.finders.DashComponentFinder",
-    "django_plotly_dash.finders.DashAppDirectoryFinder",
 ]
 
 # Media
@@ -256,7 +248,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+                      "%(process)d %(thread)d %(message)s"
         },
         "debug": {
             "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
@@ -328,39 +320,3 @@ ACCOUNT_ADAPTER = "va_explorer.users.adapters.AccountAdapter"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731 - allow this limited use
-
-# Plotly Dash
-
-X_FRAME_OPTIONS = "SAMEORIGIN"
-
-PLOTLY_COMPONENTS = [
-    "dash_core_components",
-    "dash_html_components",
-    "dash_renderer",
-    "dpd_components",
-    "dash_bootstrap_components",
-]
-
-PLOTLY_DASH = {
-    "ws_route": "ws/channel",
-    "insert_demo_migrations": True,  # Insert model instances used by the demo
-    "http_poke_enabled": True,  # Flag controlling availability of direct-to-messaging http endpoint
-    "cache_arguments": True,  # True for cache, False for session-based argument propagation
-    # "serve_locally":True, # True to serve assets locally, False to use their unadulterated urls (eg a CDN)
-    "stateless_loader": "demo.scaffold.stateless_app_loader",
-}
-
-# Channels
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [
-                ("redis", 6379),
-            ],
-        },
-    },
-}
-
-ASGI_APPLICATION = "va_explorer.va_analytics.routing.applications"
