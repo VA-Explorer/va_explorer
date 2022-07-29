@@ -105,7 +105,7 @@ cat > index.html <<EOF
 <!DOCTYPE html>
 <html>
    <head>
-      <title>helloWorld docs</title>
+      <title>VA Explorer Documentation</title>
       <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/en/master/'" />
    </head>
    <body>
@@ -118,7 +118,7 @@ EOF
 cat > README.md <<EOF
 # GitHub Pages Cache
 
-Nothing to see here. The contents of this branch are essentially a cache that's not intended to be viewed on github.com.
+The contents of this branch are a cache that is not intended to be viewed on github.com.
 
 EOF
 

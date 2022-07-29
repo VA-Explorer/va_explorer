@@ -1,12 +1,12 @@
 name: docs_pages_workflow
 
-# Execute this workflow on pull request if anything in the va_explorer_docs directory has changed
+# Execute this workflow on pull request if anything in the docs directory has changed
 #on:
 #  push:
 #  pull_request:
 #    # Run only on changes on these files
 #    paths:
-#      - 'va_explorer_docs'
+#      - 'docs'
 
 on:
   push:
