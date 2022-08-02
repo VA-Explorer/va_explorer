@@ -51,7 +51,7 @@
         <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
         <select id="searchLocations">
           <option value=""></option>
-          <option v-for="(location_type, location) in locations" :key="location"><% location %></option>
+          <option v-for="location in locations" :key="location"><% location %></option>
         </select>
       </div>
       <div id="map"></div>
@@ -62,20 +62,20 @@
       <div class="chartsContainer" ref="cod">
 
         <div class="topCausesContainer">
-          <stacked-bar-chart v-if="topCauses.length > 0"
-                             :plot-data="topCauses" x-key="cause"
+          <stacked-bar-chart v-if="COD_grouping"
+                             :plot-data="COD_grouping" x-key="cause"
                              direction="horizontal" bar-axis-location="top"
-                             :width="codWidth" :height="codHeight / 2"
-                             :margin="{top: 20, bottom: 10, left: 100, right: 30}"
-                             :colors="['#23689b']">
+                             :y-tick-format="d => d.length > 15 ? `${d.slice(0,15)}...` : d"
+                             :padding-between-bars="0.2"
+                             :width="codWidth" :height="(4/5) * codHeight"
+                             :margin="{top: 20, bottom: 10, left: 100, right: 30}">
           </stacked-bar-chart>
         </div>
 
         <div class="topCauseLineChartContainer">
-          <line-chart v-if="allCausesTrend.length > 0"
-                      :plot-data="allCausesTrend" x-key="date"
-                      :width="codWidth" :height="codHeight / 2" :margin="{top: 10, bottom: 20, left: 40, right: 20}"
-                      :colors="['#23689b']">
+          <line-chart v-if="COD_trend" :plot-data="COD_trend" x-key="month"
+                      :width="codWidth" :height="codHeight / 2"
+                      :margin="{top: 10, bottom: 20, left: 40, right: 20}">
           </line-chart>
         </div>
 
@@ -85,16 +85,15 @@
     <section class="sectionContainer demographicsView">
       <h2>All Cause Demographics</h2>
       <div class="chartsContainer" ref="demographics">
-        <stacked-bar-chart v-if="gender.length > 0"
-                           :plot-data="gender" x-key="age_group_named"
+        <stacked-bar-chart v-if="demographics" :plot-data="demographics" x-key="age_group"
                            :width="demographicsWidth * (2/5)" :height="demographicsHeight"
-                           :margin="{top: 5, bottom: 30, left: 40, right: 20}"
-                           :colors="['#10437a', '#c1a1d3']">
+                           :margin="{top: 10, bottom: 30, left: 40, right: 20}">
         </stacked-bar-chart>
-        <stacked-bar-chart v-if="placeOfDeath.length > 0" :plot-data="placeOfDeath" x-key="place"
+        <stacked-bar-chart v-if="place_of_death" :plot-data="place_of_death" x-key="place"
                            direction="horizontal" :width="demographicsWidth * (3/5)" :height="demographicsHeight"
-                           :margin="{top: 30, bottom: 20, left: 90, right: 10}"
-                           :colors="['#23689b']">
+                           :y-tick-format="d => d.length > 12 ? `${d.slice(0, 12)}...` : d"
+                           :padding-between-bars="0.2"
+                           :margin="{top: 10, bottom: 20, left: 90, right: 15}">
         </stacked-bar-chart>
       </div>
     </section>

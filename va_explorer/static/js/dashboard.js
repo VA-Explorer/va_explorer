@@ -10,10 +10,17 @@ const dashboard = new Vue({
             rawdata: [],
             invalid: "",
             location_types: ["Province", "District"],
-            locations: [],
             map: null,
             geojson: {},
             layer: null,
+
+            COD_grouping: null,
+            COD_trend: null,
+            place_of_death: null,
+            demographics: null,
+            geographic_province_sums: null,
+            geographic_district_sums: null,
+            cause_stats: null,
 
             demographicsHeight: 0,
             demographicsWidth: 0,
@@ -23,84 +30,62 @@ const dashboard = new Vue({
             topCausesLimit: 50,
             startDate: "",
             causeSelected: "",
-            borderType: "District"
+            borderType: "Province"
         }
     },
     computed: {
         listOfCauses() {
-            return [...new Set(this.rawdata.map(item => item.cause))].sort()
-        },
-        filteredData() {
-            return this.rawdata
-                .filter(item => item.active)
-                .map(item => ({
-                    ...item,
-                    province: item.province.split(' ')[0],
-                    district: item.district.split(' ')[0]
-                }))
+            if (this.COD_grouping) {
+                return this.COD_grouping.map(item => item.cause).sort()
+            } else {
+                return []
+            }
         },
         highlightsSummaries() {
-            return {
-                "Coded VAs": this.filteredData.length,
-                "Uncoded VAs": this.invalid.length,
-                "Active Facilities": [...new Set(this.filteredData.map(item => item.location))].length,
-                "Placeholder": 0,
+            if (this.cause_stats) {
+                return {
+                    "Coded VAs": this.cause_stats.find(item => item.valid_cause).count,
+                    "Uncoded VAs": this.cause_stats.find(item => !item.valid_cause).count,
+                    "Placeholder 1": 0,
+                    "Placeholder 2": 0,
+                }
+            } else {
+                return {}
             }
         },
         geographicSums() {
-            let geo_groups = d3.rollups(this.filteredData, v => v.length, d => d[this.borderType.toLowerCase()])
-            let map = Object.fromEntries(geo_groups)
-            return map
+            if (this.borderType === 'Province') {
+                return this.geographic_province_sums
+            } else if (this.borderType === 'District') {
+                return this.geographic_district_sums
+            }
         },
-        gender() {
-            let groupby_gender_age = d3.rollups(this.filteredData,
-                v => v.length,
-                d => d.age_group_named, d => d.Id10019)
-            return groupby_gender_age.map(gender => ({age_group_named: gender[0], ...Object.fromEntries(gender[1])}))
-        },
-        placeOfDeath() {
-            let grouped = d3.rollups(this.filteredData, v => v.length, d => d.Id10058)
-            return grouped
-                .map(item => ({place: item[0].slice(0, 15), value: item[1]}))
-                .sort((a, b) => b.value - a.value)
-        },
-        topCauses() {
-            let grouped = d3.rollup(this.filteredData, v => v.length, d => d.cause)
-            let map = Object.fromEntries(grouped)
-            const causes = Object.keys(map)
-                .map(item => ({cause: `${item.slice(0, 15)}...`, value: map[item]}))
-                .sort((a, b) => b.value - a.value)
-            return causes.slice(0, this.topCausesLimit)
-        },
-        ageGroup() {
-            let grouped = d3.rollup(this.filteredData, v => v.length, d => d.age_group)
-            let map = Object.fromEntries(grouped)
-            return Object.keys(map).map(item => ({name: item, value: map[item]}))
-        },
-        allCausesTrend() {
-            let dates = this.filteredData.map(item => ({date: this.getMonth(new Date(item.date)).toLocaleDateString()}))
-            let grouped = d3.rollup(dates, v => v.length, d => d.date)
-            let map = Object.fromEntries(grouped)
-            return Object.keys(map)
-                .map(item => ({date: item, value: map[item]}))
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-        },
+        locations() {
+            if (!this.geographic_province_sums || !this.geographic_district_sums) return []
+            const provinces = this.geographic_province_sums.map(item => item.province_name)
+            const districts = this.geographic_district_sums.map(item => item.district_name)
+            return [...provinces, ...districts]
+        }
     },
     async created() {
         /*
         Request data from API endpoint
          */
         this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const res = await fetch('http://localhost:8000/va_analytics/api/dashboard', {
+        const dataReq = await fetch('http://localhost:8000/va_analytics/api/dashboard', {
             method: 'GET',
             headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
             mode: 'same-origin'
         })
 
-        const jsonRes = await res.json()
-        this.rawdata = jsonRes.data.valid.map(item => ({...item, active: true}))
-        this.invalid = jsonRes.data.invalid
-        this.locations = jsonRes.locations
+        const jsonRes = await dataReq.json()
+        this.COD_grouping = jsonRes.COD_grouping
+        this.COD_trend = jsonRes.COD_trend
+        this.place_of_death = jsonRes.place_of_death
+        this.demographics = jsonRes.demographics
+        this.geographic_province_sums = jsonRes.geographic_province_sums
+        this.geographic_district_sums = jsonRes.geographic_district_sums
+        this.cause_stats = jsonRes.cause_stats
 
         // Request geojson data
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/static/`
@@ -129,7 +114,8 @@ const dashboard = new Vue({
             }).addTo(this.map)
         },
         addGeoJSONToMap() {
-           if (this.layer) {
+            const vm = this
+            if (this.layer) {
                 this.map.removeLayer(this.layer)
             }
 
@@ -140,7 +126,12 @@ const dashboard = new Vue({
             })
             this.layer = L.geoJson(geojson, {
                 style: function (feature) {
-                    return {opacity: 0.9, weight: 1, dashArray: '2', color: 'red'}
+                    if (feature.properties.area_level_label !== 'Country') {
+                        const color = vm.getColor(feature)
+                        return {stroke: true, weight: 1, color, opacity: 1, fillColor: color, fillOpacity: 0.3}
+                    } else {
+                        return {weight: 2, opacity: 1, color: 'grey', stroke: true}
+                    }
                 }
             }).addTo(this.map)
         },
@@ -148,6 +139,19 @@ const dashboard = new Vue({
             const month = date.getUTCMonth()
             const year = date.getUTCFullYear()
             return new Date(year, month, 0)
+        },
+        getColor(feature) {
+            const {area_name, area_level_label} = feature.properties
+            const area = `${area_name} ${area_level_label}`
+            const geo_sums = this.borderType === 'Province' ? this.geographic_province_sums : this.geographic_district_sums
+            const geo_accessor = this.borderType === 'Province' ? 'province_name' : 'district_name'
+
+            const results = geo_sums.find(item => item[geo_accessor] === area)
+            if (results) {
+                return results.count > 1000 ? 'red' : 'blue'
+            } else {
+                return '#797979'
+            }
         },
         resizeCharts() {
             /*
@@ -160,11 +164,12 @@ const dashboard = new Vue({
             this.codHeight = this.$refs.cod.clientHeight - 1
         },
         resetAllDataToActive() {
+            // TODO use original API request
             this.startDate = null
             this.causeSelected = ""
-            this.rawdata = this.rawdata.map(item => ({...item, active: true}))
         },
         filterByCauseOfDeath(COD) {
+            // TODO make COD a query param in API request
             if (COD) {
                 this.rawdata = this.rawdata.map(item => ({...item, active: item.cause === COD}))
             } else {
@@ -172,6 +177,7 @@ const dashboard = new Vue({
             }
         },
         filterByDate(startDate) {
+            // TODO make date a query param in API request
             this.rawdata = this.rawdata.map(item => ({...item, active: new Date(startDate) < new Date(item.date)}))
         },
     },

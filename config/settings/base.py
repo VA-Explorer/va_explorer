@@ -42,6 +42,8 @@ QUESTIONS_TO_AUTODETECT_DUPLICATES = os.environ.get(
     "QUESTIONS_TO_AUTODETECT_DUPLICATES", None
 )
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Databases
 
 db_user = os.environ.get("POSTGRES_USER", "postgres")
