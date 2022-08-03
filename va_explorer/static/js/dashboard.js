@@ -8,7 +8,6 @@ const dashboard = new Vue({
             csrftoken: "",
 
             rawdata: [],
-            invalid: "",
             location_types: ["Province", "District"],
             map: null,
             geojson: {},
@@ -30,11 +29,15 @@ const dashboard = new Vue({
             topCausesLimit: 50,
             startDate: "",
             causeSelected: "",
-            borderType: "Province"
+            borderType: "Province",
+            colorScale: ['#d73027', '#f46d43', '#fdae61', '#fee090', '#ffffbf',
+                '#e0f3f8', '#abd9e9', '#74add1', '#4575b4'
+            ].reverse()
         }
     },
     computed: {
         listOfCauses() {
+            // Used to generate options in "Summaries and Control Panel: Cause of Death" select dropdown
             if (this.COD_grouping) {
                 return this.COD_grouping.map(item => item.cause).sort()
             } else {
@@ -48,6 +51,7 @@ const dashboard = new Vue({
                     "Uncoded VAs": this.cause_stats.find(item => !item.valid_cause).count,
                     "Placeholder 1": 0,
                     "Placeholder 2": 0,
+                    "Placeholder 3": 0,
                 }
             } else {
                 return {}
@@ -61,10 +65,21 @@ const dashboard = new Vue({
             }
         },
         locations() {
+            // Used to generate options in "Geographic Distributions" select dropdown
             if (!this.geographic_province_sums || !this.geographic_district_sums) return []
             const provinces = this.geographic_province_sums.map(item => item.province_name)
             const districts = this.geographic_district_sums.map(item => item.district_name)
             return [...provinces, ...districts]
+        },
+        geoScale() {
+            // A better way to do this would be to import d3 scale and use a quanitzed scale
+            // but import is large
+            if (!this.geographicSums) return
+            const geoMax = Math.max(...this.geographicSums.map(item => +item.count)) + 100
+            const geoMin = 0
+            const n = 10
+            const step = (geoMax - geoMin) / (n - 1)
+            return Array.from({length: n}, (_, i) => geoMin + step * i)
         }
     },
     async created() {
@@ -128,9 +143,9 @@ const dashboard = new Vue({
                 style: function (feature) {
                     if (feature.properties.area_level_label !== 'Country') {
                         const color = vm.getColor(feature)
-                        return {stroke: true, weight: 1, color, opacity: 1, fillColor: color, fillOpacity: 0.3}
+                        return {stroke: true, weight: 2, color, opacity: 1, fillColor: color, fillOpacity: 0.7}
                     } else {
-                        return {weight: 2, opacity: 1, color: 'grey', stroke: true}
+                        return {weight: 2.5, opacity: 1, color: 'grey', stroke: true}
                     }
                 }
             }).addTo(this.map)
@@ -148,15 +163,18 @@ const dashboard = new Vue({
 
             const results = geo_sums.find(item => item[geo_accessor] === area)
             if (results) {
-                return results.count > 1000 ? 'red' : 'blue'
+                const count = results.count
+                for (let i = 0; i < this.geoScale.length; i++) {
+                    if (count > this.geoScale[i] && count < this.geoScale[i + 1]) {
+                        return this.colorScale[i]
+                    }
+                }
             } else {
-                return '#797979'
+                return '#c0c0c0'
             }
         },
         resizeCharts() {
-            /*
-            Apply method on mounted and with event listener to automatically resize charts
-             */
+            // Apply method on mounted and with event listener to automatically resize charts
             this.demographicsWidth = this.$refs.demographics.clientWidth - 1
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 
