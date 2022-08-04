@@ -20,15 +20,13 @@
       <div class="controls">
         <label for="causeSelected">Cause of Death</label>
         <div class="select">
-          <select id="causeSelected" v-model="causeSelected"
-                  @change="filterByCauseOfDeath($event.target.value)">
+          <select id="causeSelected" v-model="causeSelected" @change="updateDataAndMap()">
             <option></option>
-            <option v-for="cause in listOfCauses" :key="cause"><% cause %></option>
+            <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
           </select>
         </div>
         <label for="startDate">Start Date:</label>
-        <input id="startDate" class="input" type="date" required v-model="startDate"
-               @input="filterByDate($event.target.value)">
+        <input id="startDate" class="input" type="date" required v-model="startDate" @input="updateDataAndMap()">
         <button type="button" class="button" @click="resetAllDataToActive()">Reset</button>
       </div>
       <div class="highlightsContainer">
@@ -45,7 +43,7 @@
         <label for="mapview">Map View:</label>
         <div class="select">
           <select id="mapview" v-model="borderType">
-            <option v-for="option in location_types" :key="option"><% option %></option>
+            <option v-for="option in locationTypesDropdownOptions" :key="option"><% option %></option>
           </select>
         </div>
         <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
@@ -62,12 +60,12 @@
       <div class="chartsContainer" ref="cod">
 
         <div class="topCausesContainer">
-          <stacked-bar-chart v-if="COD_grouping"
+          <stacked-bar-chart v-if="COD_grouping.length > 0"
                              :plot-data="COD_grouping" x-key="cause"
                              direction="horizontal" bar-axis-location="top"
                              :y-tick-format="d => d.length > 15 ? `${d.slice(0,15)}...` : d"
                              :padding-between-bars="0.2"
-                             :width="codWidth" :height="(4/5) * codHeight"
+                             :width="codWidth" :height="dynamicCODHeight"
                              :margin="{top: 20, bottom: 10, left: 100, right: 30}">
           </stacked-bar-chart>
         </div>
@@ -86,11 +84,11 @@
       <h2>All Cause Demographics</h2>
       <div class="chartsContainer" ref="demographics">
         <stacked-bar-chart v-if="demographics" :plot-data="demographics" x-key="age_group"
-                           :width="demographicsWidth * (2/5)" :height="demographicsHeight"
+                           :width="demographicsWidth * (1/3)" :height="demographicsHeight"
                            :margin="{top: 10, bottom: 30, left: 40, right: 20}">
         </stacked-bar-chart>
         <stacked-bar-chart v-if="place_of_death" :plot-data="place_of_death" x-key="place"
-                           direction="horizontal" :width="demographicsWidth * (3/5)" :height="demographicsHeight"
+                           direction="horizontal" :width="demographicsWidth * (2/3)" :height="demographicsHeight"
                            :y-tick-format="d => d.length > 12 ? `${d.slice(0, 12)}...` : d"
                            :padding-between-bars="0.2"
                            :margin="{top: 10, bottom: 20, left: 90, right: 15}">

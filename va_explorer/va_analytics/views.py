@@ -24,8 +24,12 @@ LOGGER = logging.getLogger("event_logger")
 
 class DashboardAPIView(APIView):
     def get(self, request, format=None):
-        date_cutoff = None
-        data = load_va_data(request.user, date_cutoff=date_cutoff)
+        start_date = request.query_params.get('start_date', None)
+        cause_of_death = request.query_params.get('cause_of_death', None)
+        if cause_of_death == '':
+            cause_of_death = None
+
+        data = load_va_data(request.user, date_cutoff=start_date, cause_of_death=cause_of_death)
         return Response(data)
 
 

@@ -64,9 +64,7 @@ def load_geojson_data(json_file):
 
 
 # ============ VA Data =================
-def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
-    # the dashboard requires date of death, exclude if the date is unknown
-    # Using .values at the end lets us do select_related("causes") which drastically speeds up the query.
+def load_va_data(user, date_cutoff="1901-01-01", cause_of_death=None):
     user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
 
     # get stats on last update and last va submission date
@@ -76,19 +74,13 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
 
     user_vas_filtered = (user_vas
                          .exclude(Id10023__in=["dk", "DK"])
-                         .exclude(location__isnull=True))
+                         .exclude(location__isnull=True)
+                         )
 
-    cause_stats = (
-        user_vas_filtered
-        .exclude(Id10023__in=["dk", "DK"])
-        .exclude(location__isnull=True)
-        .values(valid_cause=Case(When(causes__cause__isnull=True, then=Value(False)),
-                                 When(causes__cause__isnull=False, then=Value(True))))
-        .annotate(count=Count('pk'))
-    )
+    if cause_of_death:
+        user_vas_filtered = user_vas_filtered.filter(causes__cause=cause_of_death)
 
-    if not cause_stats:
-        return {"data": {"valid": {}, "invalid": {}}}
+    uncoded_vas = user_vas.filter(causes__cause__isnull=True).count()
 
     demographics = (
         user_vas_filtered
@@ -162,7 +154,7 @@ def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
         "demographics": demographics,
         "geographic_province_sums": geographic_province_sums,
         "geographic_district_sums": geographic_district_sums,
-        "cause_stats": cause_stats,
+        "uncoded_vas": uncoded_vas
     }
 
     return data

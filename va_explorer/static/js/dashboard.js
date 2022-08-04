@@ -7,54 +7,46 @@ const dashboard = new Vue({
         return {
             csrftoken: "",
 
-            rawdata: [],
-            location_types: ["Province", "District"],
+            // map related values
             map: null,
             geojson: {},
             layer: null,
 
-            COD_grouping: null,
+            //
+            COD_grouping: [],
             COD_trend: null,
             place_of_death: null,
             demographics: null,
             geographic_province_sums: null,
             geographic_district_sums: null,
-            cause_stats: null,
+            uncoded_vas: 0,
 
+            // chart sizes
             demographicsHeight: 0,
             demographicsWidth: 0,
             codHeight: 0,
             codWidth: 0,
 
-            topCausesLimit: 50,
+            // dropdowns options and selected values
+            listOfCausesDropdownOptions: [],
+            locationTypesDropdownOptions: ["Province", "District"],
             startDate: "",
             causeSelected: "",
             borderType: "Province",
-            colorScale: ['#d73027', '#f46d43', '#fdae61', '#fee090', '#ffffbf',
-                '#e0f3f8', '#abd9e9', '#74add1', '#4575b4'
-            ].reverse()
+            colorScale: [
+                "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
+                "#fee090", "#fdae61", "#f46d43", "#d73027"
+            ]
         }
     },
     computed: {
-        listOfCauses() {
-            // Used to generate options in "Summaries and Control Panel: Cause of Death" select dropdown
-            if (this.COD_grouping) {
-                return this.COD_grouping.map(item => item.cause).sort()
-            } else {
-                return []
-            }
-        },
         highlightsSummaries() {
-            if (this.cause_stats) {
-                return {
-                    "Coded VAs": this.cause_stats.find(item => item.valid_cause).count,
-                    "Uncoded VAs": this.cause_stats.find(item => !item.valid_cause).count,
-                    "Placeholder 1": 0,
-                    "Placeholder 2": 0,
-                    "Placeholder 3": 0,
-                }
-            } else {
-                return {}
+            return {
+                "Coded VAs": d3.sum(this.COD_grouping.map(item => item.count)),
+                "Uncoded VAs": this.uncoded_vas,
+                "Placeholder 1": 0,
+                "Placeholder 2": 0,
+                "Placeholder 3": 0,
             }
         },
         geographicSums() {
@@ -80,27 +72,17 @@ const dashboard = new Vue({
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
             return Array.from({length: n}, (_, i) => geoMin + step * i)
+        },
+        dynamicCODHeight() {
+            return this.COD_grouping.length === 1 ? (1 / 2) * this.codHeight : (4 / 5) * this.codHeight
         }
     },
     async created() {
-        /*
-        Request data from API endpoint
-         */
-        this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const dataReq = await fetch('http://localhost:8000/va_analytics/api/dashboard', {
-            method: 'GET',
-            headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
-            mode: 'same-origin'
-        })
+        // Request data from API endpoint
+        await this.getData()
 
-        const jsonRes = await dataReq.json()
-        this.COD_grouping = jsonRes.COD_grouping
-        this.COD_trend = jsonRes.COD_trend
-        this.place_of_death = jsonRes.place_of_death
-        this.demographics = jsonRes.demographics
-        this.geographic_province_sums = jsonRes.geographic_province_sums
-        this.geographic_district_sums = jsonRes.geographic_district_sums
-        this.cause_stats = jsonRes.cause_stats
+        // assign list of causes for 'Cause of Death' dropdown
+        this.listOfCausesDropdownOptions = this.COD_grouping.map(item => item.cause).sort()
 
         // Request geojson data
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/static/`
@@ -118,7 +100,26 @@ const dashboard = new Vue({
         window.removeEventListener('resize', this.resizeCharts)
     },
     methods: {
+        async getData() {
+            this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const data_url = `http://localhost:8000/va_analytics/api/dashboard?start_date=${this.startDate}&cause_of_death=${this.causeSelected}`
+            const dataReq = await fetch(data_url, {
+                method: 'GET',
+                headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
+                mode: 'same-origin'
+            })
+
+            const jsonRes = await dataReq.json()
+            this.COD_grouping = jsonRes.COD_grouping
+            this.COD_trend = jsonRes.COD_trend
+            this.place_of_death = jsonRes.place_of_death
+            this.demographics = jsonRes.demographics
+            this.geographic_province_sums = jsonRes.geographic_province_sums
+            this.geographic_district_sums = jsonRes.geographic_district_sums
+            this.uncoded_vas = jsonRes.uncoded_vas
+        },
         async initializeBaseMap() {
+            // use to set base map with tile on initial load
             this.map = L.map('map').setView([-13, 27], 6)
 
             this.map.attributionControl.setPrefix('')
@@ -129,10 +130,9 @@ const dashboard = new Vue({
             }).addTo(this.map)
         },
         addGeoJSONToMap() {
+            // remove any existing choropleth layer and add new layer
             const vm = this
-            if (this.layer) {
-                this.map.removeLayer(this.layer)
-            }
+            if (this.layer) this.map.removeLayer(this.layer)
 
             const borders = ['Country', this.borderType]
             let geojson = JSON.parse(JSON.stringify(this.geojson))
@@ -174,32 +174,26 @@ const dashboard = new Vue({
             }
         },
         resizeCharts() {
-            // Apply method on mounted and with event listener to automatically resize charts
+            // Apply method on mounted and with window event listener to automatically resize charts
             this.demographicsWidth = this.$refs.demographics.clientWidth - 1
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 
             this.codWidth = this.$refs.cod.clientWidth - 1
             this.codHeight = this.$refs.cod.clientHeight - 1
         },
-        resetAllDataToActive() {
-            // TODO use original API request
-            this.startDate = null
+        async updateDataAndMap() {
+            await this.getData()
+            this.addGeoJSONToMap()
+        },
+        async resetAllDataToActive() {
+            // use this to reset all of the dashboard filters and retrieve the initial data
+            this.startDate = ""
             this.causeSelected = ""
-        },
-        filterByCauseOfDeath(COD) {
-            // TODO make COD a query param in API request
-            if (COD) {
-                this.rawdata = this.rawdata.map(item => ({...item, active: item.cause === COD}))
-            } else {
-                this.rawdata = this.rawdata.map(item => ({...item, active: true}))
-            }
-        },
-        filterByDate(startDate) {
-            // TODO make date a query param in API request
-            this.rawdata = this.rawdata.map(item => ({...item, active: new Date(startDate) < new Date(item.date)}))
+            await this.updateDataAndMap()
         },
     },
     watch: {
+        // assign watchers to update map choropleth since it does not happen automatically
         geojson() {
             this.addGeoJSONToMap()
         },

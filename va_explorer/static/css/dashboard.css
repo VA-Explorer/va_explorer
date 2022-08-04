@@ -11,7 +11,7 @@ figure {
 
 /* ---- Main container styling ---- */
 main {
-  height: 100vh;
+  height: 95vh;
   width: 100%;
   font-size: .88rem;
   box-sizing: border-box;
@@ -81,18 +81,18 @@ h2 {
 }
 
 .highlight h3 {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: solid 1px #cdcdcd;
   background-color: #dedfe8;
-  font-size: 0.85rem;
+  font-size: 0.80rem;
   margin-bottom: 0;
 }
 
 .highlight p {
   background-color: #fcfcfc;
-  padding: 15px;
+  padding: 0.75rem;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 0;
 }
 
