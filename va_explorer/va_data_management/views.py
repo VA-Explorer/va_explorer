@@ -5,7 +5,7 @@ import time
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Q, TextField
 from django.db.models import Value as V  # noqa: N817 - not acronym
 from django.db.models.functions import Concat
 from django.shortcuts import redirect
@@ -47,7 +47,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
-            .annotate(deceased=Concat("Id10017", V(" "), "Id10018"))
+            .annotate(deceased=Concat("Id10017", V(" "), "Id10018", output_field=TextField()))
             .values(
                 "id",
                 "location__name",
@@ -64,7 +64,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 ),
             )
         )
-        print(f"total time: {time.time()-ti} secs")
+        print(f"total time: {time.time() - ti} secs")
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -325,8 +325,8 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
         # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
         if (
             self.request.user.verbal_autopsies()
-            .filter(id=obj.id, duplicate=True)
-            .exists()
+                .filter(id=obj.id, duplicate=True)
+                .exists()
         ):
             messages.success(self.request, self.success_message % obj.__dict__)
             return super(Delete, self).delete(request, *args, **kwargs)

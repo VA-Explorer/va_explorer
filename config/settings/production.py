@@ -26,11 +26,10 @@ CACHES = {
     }
 }
 
-
 # Static
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+WHITENOISE_MANIFEST_STRICT = False
 # Templates
 
 TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
@@ -52,7 +51,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+                      "%(process)d %(thread)d %(message)s"
         },
         "debug": {
             "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
