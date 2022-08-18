@@ -20,6 +20,10 @@ const dashboard = new Vue({
             geographic_province_sums: null,
             geographic_district_sums: null,
             uncoded_vas: 0,
+            update_stats: {
+                last_update: null,
+                last_submission: null,
+            },
 
             // chart sizes
             demographicsHeight: 0,
@@ -44,9 +48,8 @@ const dashboard = new Vue({
             return {
                 "Coded VAs": d3.sum(this.COD_grouping.map(item => item.count)),
                 "Uncoded VAs": this.uncoded_vas,
-                "Placeholder 1": 0,
-                "Placeholder 2": 0,
-                "Placeholder 3": 0,
+                "Active Facilities": 'N/A',
+                "Region Representation": 'N/A',
             }
         },
         geographicSums() {
@@ -75,7 +78,7 @@ const dashboard = new Vue({
         },
         dynamicCODHeight() {
             return this.COD_grouping.length === 1 ? (1 / 2) * this.codHeight : (4 / 5) * this.codHeight
-        }
+        },
     },
     async created() {
         // Request data from API endpoint
@@ -101,6 +104,7 @@ const dashboard = new Vue({
     },
     methods: {
         async getData() {
+            // TODO change hostname for production
             this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             const data_url = `http://localhost:8000/va_analytics/api/dashboard?start_date=${this.startDate}&cause_of_death=${this.causeSelected}`
             const dataReq = await fetch(data_url, {
@@ -117,6 +121,8 @@ const dashboard = new Vue({
             this.geographic_province_sums = jsonRes.geographic_province_sums
             this.geographic_district_sums = jsonRes.geographic_district_sums
             this.uncoded_vas = jsonRes.uncoded_vas
+            this.update_stats = jsonRes.update_stats
+            console.log(this.update_stats)
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load
@@ -148,6 +154,8 @@ const dashboard = new Vue({
                         return {weight: 2.5, opacity: 1, color: 'grey', stroke: true}
                     }
                 }
+            }).bindTooltip(function (layer) {
+                console.log(layer)
             }).addTo(this.map)
         },
         getMonth(date) {

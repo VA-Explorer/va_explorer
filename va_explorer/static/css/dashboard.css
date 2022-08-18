@@ -45,6 +45,10 @@ h2 {
   margin: 0;
 }
 
+svg text {
+  font-size: 0.70rem;
+}
+
 /* ---- PANEL STATISTICS SECTION ---- */
 .panelView {
   grid-column: 1/4;
@@ -55,6 +59,16 @@ h2 {
   height: 25%;
   display: flex;
   align-items: center;
+}
+
+.panelView .updatesSection {
+  margin: 0.50rem 8px 0;
+  text-align: left;
+  font-size: 0.80rem;
+}
+
+.panelView .updatesSection span {
+  font-weight: bold;
 }
 
 .panelView .controls label {
@@ -68,16 +82,23 @@ h2 {
 }
 
 .panelView .highlightsContainer {
-  height: calc(100% - 25% - 30px);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px 10px;
+  padding: 0 10px 10px;
 }
 
 .highlight {
-  margin: 0.25rem;
-  border-radius: 5px;
+  margin: 0.35rem;
+  border-radius: 0.5rem;
+  flex: 1;
+}
+
+.highlight:first-child {
+  margin-left: 0;
+}
+
+.highlight:last-child {
+  margin-right: 0;
 }
 
 .highlight h3 {
@@ -86,6 +107,7 @@ h2 {
   background-color: #dedfe8;
   font-size: 0.80rem;
   margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .highlight p {
@@ -94,6 +116,16 @@ h2 {
   font-weight: bold;
   font-size: 1.1rem;
   margin-bottom: 0;
+}
+
+.resetBtn {
+  background-color: #696969;
+  color: white;
+  border: none;
+}
+
+.resetBtn:hover {
+  background-color: #7e7e7e !important;
 }
 
 /* ---- MAP SECTION ---- */

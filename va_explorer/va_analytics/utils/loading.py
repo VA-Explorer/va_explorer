@@ -7,7 +7,7 @@ import pandas as pd
 from django.db.models import F, Q, Case, When, Value, DateField, CharField, Count, Subquery, OuterRef
 from django.db.models.functions import Cast, TruncMonth, Substr
 
-from va_explorer.va_data_management.models import Location
+from va_explorer.va_data_management.models import Location, questions_to_autodetect_duplicates
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
 
@@ -68,9 +68,9 @@ def load_va_data(user, date_cutoff="1901-01-01", cause_of_death=None):
     user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
 
     # get stats on last update and last va submission date
-    # update_stats = get_va_summary_stats(user_vas)
-    # if len(questions_to_autodetect_duplicates()) > 0:
-    #     update_stats["duplicates"] = user_vas.filter(duplicate=True).count()
+    update_stats = get_va_summary_stats(user_vas)
+    if len(questions_to_autodetect_duplicates()) > 0:
+        update_stats["duplicates"] = user_vas.filter(duplicate=True).count()
 
     user_vas_filtered = (user_vas
                          .exclude(Id10023__in=["dk", "DK"])
@@ -154,7 +154,8 @@ def load_va_data(user, date_cutoff="1901-01-01", cause_of_death=None):
         "demographics": demographics,
         "geographic_province_sums": geographic_province_sums,
         "geographic_district_sums": geographic_district_sums,
-        "uncoded_vas": uncoded_vas
+        "uncoded_vas": uncoded_vas,
+        "update_stats": update_stats
     }
 
     return data
