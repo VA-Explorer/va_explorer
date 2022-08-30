@@ -64,8 +64,8 @@ def load_geojson_data(json_file):
 
 
 # ============ VA Data =================
-def load_va_data(user, date_cutoff="1901-01-01", cause_of_death=None):
-    user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
+def load_va_data(user, cause_of_death, start_date, end_date):
+    user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
 
     # get stats on last update and last va submission date
     update_stats = get_va_summary_stats(user_vas)

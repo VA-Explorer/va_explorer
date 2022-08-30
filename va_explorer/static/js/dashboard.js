@@ -34,7 +34,10 @@ const dashboard = new Vue({
             // dropdowns options and selected values
             listOfCausesDropdownOptions: [],
             locationTypesDropdownOptions: ["Province", "District"],
+            deathDateDropdownOptions: ["Any Time", "Within 1 Month", "Within 3 months", "Within 1 year", "Custom"],
+            deathDateSelected: "Any Time",
             startDate: "",
+            endDate: "",
             causeSelected: "",
             borderType: "Province",
             colorScale: [
@@ -48,8 +51,6 @@ const dashboard = new Vue({
             return {
                 "Coded VAs": d3.sum(this.COD_grouping.map(item => item.count)),
                 "Uncoded VAs": this.uncoded_vas,
-                "Active Facilities": 'N/A',
-                "Region Representation": 'N/A',
             }
         },
         geographicSums() {
@@ -104,10 +105,21 @@ const dashboard = new Vue({
     },
     methods: {
         async getData() {
+            /*
+            fetch data for charts from API and assign all data variables for charts
+             */
+
+            const {startDate, endDate} = this.getStartAndEndDates()
+
             // TODO change hostname for production
             this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const data_url = `http://localhost:8000/va_analytics/api/dashboard?start_date=${this.startDate}&cause_of_death=${this.causeSelected}`
-            const dataReq = await fetch(data_url, {
+
+            const data_url = 'http://localhost:8000/va_analytics/api/dashboard?'
+            const dataReq = await fetch(data_url + new URLSearchParams({
+                start_date: startDate,
+                end_date: endDate,
+                cause_of_death: this.causeSelected,
+            }), {
                 method: 'GET',
                 headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
                 mode: 'same-origin'
@@ -122,10 +134,11 @@ const dashboard = new Vue({
             this.geographic_district_sums = jsonRes.geographic_district_sums
             this.uncoded_vas = jsonRes.uncoded_vas
             this.update_stats = jsonRes.update_stats
-            console.log(this.update_stats)
         },
         async initializeBaseMap() {
-            // use to set base map with tile on initial load
+            /*
+            use to set base map with tile on initial load
+             */
             this.map = L.map('map').setView([-13, 27], 6)
 
             this.map.attributionControl.setPrefix('')
@@ -136,7 +149,9 @@ const dashboard = new Vue({
             }).addTo(this.map)
         },
         addGeoJSONToMap() {
-            // remove any existing choropleth layer and add new layer
+            /*
+            remove any existing choropleth layer and add new layer
+             */
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)
 
@@ -154,11 +169,15 @@ const dashboard = new Vue({
                         return {weight: 2.5, opacity: 1, color: 'grey', stroke: true}
                     }
                 }
-            }).bindTooltip(function (layer) {
-                console.log(layer)
             }).addTo(this.map)
+                // .bindTooltip(function (layer) {
+                //     console.log(layer)
+                // }).addTo(this.map)
         },
         getMonth(date) {
+            /*
+            Extract year and month for line chart
+             */
             const month = date.getUTCMonth()
             const year = date.getUTCFullYear()
             return new Date(year, month, 0)
@@ -181,8 +200,31 @@ const dashboard = new Vue({
                 return '#c0c0c0'
             }
         },
+        getStartAndEndDates() {
+            let date
+            switch (this.deathDateSelected) {
+                case "Any Time":
+                    return {startDate: "", endDate: ""}
+                case "Within 1 Month":
+                    date = new Date()
+                    date.setMonth(date.getMonth() - 1)
+                    return {startDate: date.toISOString().slice(0,10), endDate: ""}
+                case "Within 3 months":
+                    date = new Date()
+                    date.setMonth(date.getMonth() - 3)
+                    return {startDate: date.toISOString().slice(0,10), endDate: ""}
+                case "Within 1 year":
+                    date = new Date()
+                    date.setFullYear(date.getFullYear() - 1)
+                    return {startDate: date.toISOString().slice(0,10), endDate: ""}
+                case "Custom":
+                    return {startDate: this.startDate, endDate: this.endDate}
+            }
+        },
         resizeCharts() {
-            // Apply method on mounted and with window event listener to automatically resize charts
+            /*
+            Apply method on mounted and with window event listener to automatically resize charts
+             */
             this.demographicsWidth = this.$refs.demographics.clientWidth - 1
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 
@@ -194,9 +236,11 @@ const dashboard = new Vue({
             this.addGeoJSONToMap()
         },
         async resetAllDataToActive() {
-            // use this to reset all of the dashboard filters and retrieve the initial data
+            // use this to reset all dashboard filters and retrieve the initial data
             this.startDate = ""
+            this.endDate = ""
             this.causeSelected = ""
+            this.deathDateSelected = "Any Time"
             await this.updateDataAndMap()
         },
     },

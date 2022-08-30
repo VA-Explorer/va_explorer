@@ -13,31 +13,49 @@
   <main id="dashboardApp">
 
     <section class="sectionContainer panelView">
+
       <h2>Summaries and Control Panel</h2>
       <p class="updatesSection">
-        <span>Last Data Update:</span>
-        <time><% update_stats.last_update %></time>
-        <span>Last VA Submission:</span>
-        <time><% update_stats.last_submission %></time>
+        <span>Last Data Update: <time><% update_stats.last_update %></time></span>
+        <span>Last VA Submission: <time><% update_stats.last_submission %></time></span>
       </p>
-      <div class="controls">
-        <label for="causeSelected">All Causes</label>
-        <div class="select">
-          <select id="causeSelected" v-model="causeSelected" @change="updateDataAndMap()">
-            <option></option>
-            <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
-          </select>
-        </div>
-        <label for="startDate">Start Date:</label>
-        <input id="startDate" class="input" type="date" required v-model="startDate" @input="updateDataAndMap()">
-        <button type="button" class="button resetBtn" @click="resetAllDataToActive()">Reset</button>
-      </div>
+
       <div class="highlightsContainer">
         <div v-for="(value, key) in highlightsSummaries" :key="key" class="highlight">
           <h3><% key %></h3>
           <p><% value %></p>
         </div>
       </div>
+
+      <form class="controls" @submit.prevent="updateDataAndMap">
+
+        <div class="allCausesContainer">
+          <label for="causeSelected">All Causes:</label>
+          <select id="causeSelected" class="select" v-model="causeSelected">
+            <option value="">All</option>
+            <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
+          </select>
+          <label for="deathDate">Death Date:</label>
+          <select id="deathDate" class="select" v-model="deathDateSelected">
+            <option v-for="option in deathDateDropdownOptions" :key="option"><% option %></option>
+          </select>
+        </div>
+
+        <div class="betweenDatesContainer" v-if="deathDateSelected === 'Custom'">
+          <span>Between</span>
+          <input id="startDate" class="input" type="date" required v-model="startDate">
+          <span>and</span>
+          <input id="endDate" class="input" type="date" required v-model="endDate">
+        </div>
+
+        <div class="btnsContainer">
+          <button type="submit" class="button updateDataBtn">Update Data</button>
+          <button type="button" class="button resetBtn" @click="resetAllDataToActive()">Reset</button>
+        </div>
+
+      </form>
+
+
     </section>
 
     <section class="sectionContainer mapView">
