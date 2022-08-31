@@ -21,8 +21,8 @@ const dashboard = new Vue({
             geographic_district_sums: null,
             uncoded_vas: 0,
             update_stats: {
-                last_update: null,
-                last_submission: null,
+                last_update: 0,
+                last_submission: 0,
             },
 
             // chart sizes
@@ -49,6 +49,8 @@ const dashboard = new Vue({
     computed: {
         highlightsSummaries() {
             return {
+                "Last Data Update": this.update_stats.last_update,
+                "Last VA Submission": this.update_stats.last_submission,
                 "Coded VAs": d3.sum(this.COD_grouping.map(item => item.count)),
                 "Uncoded VAs": this.uncoded_vas,
             }
@@ -170,9 +172,9 @@ const dashboard = new Vue({
                     }
                 }
             }).addTo(this.map)
-                // .bindTooltip(function (layer) {
-                //     console.log(layer)
-                // }).addTo(this.map)
+            // .bindTooltip(function (layer) {
+            //     console.log(layer)
+            // }).addTo(this.map)
         },
         getMonth(date) {
             /*
@@ -208,15 +210,15 @@ const dashboard = new Vue({
                 case "Within 1 Month":
                     date = new Date()
                     date.setMonth(date.getMonth() - 1)
-                    return {startDate: date.toISOString().slice(0,10), endDate: ""}
+                    return {startDate: date.toISOString().slice(0, 10), endDate: ""}
                 case "Within 3 months":
                     date = new Date()
                     date.setMonth(date.getMonth() - 3)
-                    return {startDate: date.toISOString().slice(0,10), endDate: ""}
+                    return {startDate: date.toISOString().slice(0, 10), endDate: ""}
                 case "Within 1 year":
                     date = new Date()
                     date.setFullYear(date.getFullYear() - 1)
-                    return {startDate: date.toISOString().slice(0,10), endDate: ""}
+                    return {startDate: date.toISOString().slice(0, 10), endDate: ""}
                 case "Custom":
                     return {startDate: this.startDate, endDate: this.endDate}
             }
