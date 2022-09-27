@@ -159,7 +159,7 @@ const dashboard = new Vue({
         },
         addGeoJSONToMap() {
             /*
-            remove any existing choropleth layer and add new layer
+            Remove any existing choropleth layer and add new layer with tooltip and coloring
              */
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)
@@ -177,11 +177,17 @@ const dashboard = new Vue({
                     } else {
                         return {weight: 2.5, opacity: 1, color: 'grey', stroke: true}
                     }
+                },
+                onEachFeature: function (feature, layer) {
+                    const html_tooltip = vm.generateTooltip(feature)
+                    layer.bindTooltip(html_tooltip)
+                    layer.on("click", async (e) => {
+                        const geoproperty = e.target.feature.properties
+                        vm.regionSelected = `${geoproperty.area_name} ${geoproperty.area_level_label}`
+                        await vm.getData()
+                    })
                 }
             }).addTo(this.map)
-            // .bindTooltip(function (layer) {
-            //     console.log(layer)
-            // }).addTo(this.map)
         },
         getMonth(date) {
             /*
@@ -210,6 +216,9 @@ const dashboard = new Vue({
             }
         },
         getStartAndEndDates() {
+            /*
+            Generate start and end dates based on death date drop down options
+             */
             let date
             switch (this.deathDateSelected) {
                 case "Any Time":
@@ -229,6 +238,31 @@ const dashboard = new Vue({
                 case "Custom":
                     return {startDate: this.startDate, endDate: this.endDate}
             }
+        },
+        generateTooltip(feature) {
+            const vm = this
+
+            const area_level_label = feature.properties.area_level_label
+            const area_name = feature.properties.area_name
+            let count = "N/A"
+            if (area_level_label === 'District') {
+                let district = vm.geographic_district_sums.find(item => item.district_name.includes(area_name))
+                if (district) {
+                    count = district.count
+                }
+            } else if (area_level_label === 'Province') {
+                let province = vm.geographic_province_sums.find(item => item.province_name.includes(area_name))
+                if (province) {
+                    count = province.count
+                }
+            }
+            const html_tooltip = `
+                    <div class="mapTooltip">
+                        <h4>${area_name} ${area_level_label}</h4>
+                        <p>${count}</p>
+                    </div>
+                    `
+            return html_tooltip
         },
         resizeCharts() {
             /*

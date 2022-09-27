@@ -187,6 +187,16 @@ svg text {
   border-radius: 0 0 5px 5px;
 }
 
+.mapTooltip h4 {
+  font-size: 0.80rem;
+  font-weight: bold;
+}
+
+.mapTooltip p {
+  font-size: 0.80rem;
+}
+
+
 /* ---- TOP CAUSES SECTION ---- */
 .topCausesView {
   grid-column: 4/6;
