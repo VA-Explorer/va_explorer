@@ -68,7 +68,7 @@
           </select>
         </div>
         <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
-        <select id="searchLocations">
+        <select id="searchLocations" v-model="regionSelected">
           <option value=""></option>
           <option v-for="location in locations" :key="location"><% location %></option>
         </select>

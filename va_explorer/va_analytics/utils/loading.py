@@ -64,7 +64,7 @@ def load_geojson_data(json_file):
 
 
 # ============ VA Data =================
-def load_va_data(user, cause_of_death, start_date, end_date):
+def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest):
     user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
 
     # get stats on last update and last va submission date
@@ -79,6 +79,23 @@ def load_va_data(user, cause_of_death, start_date, end_date):
 
     if cause_of_death:
         user_vas_filtered = user_vas_filtered.filter(causes__cause=cause_of_death)
+
+    if region_of_interest:
+        if "District" in region_of_interest:
+            user_vas_filtered = (
+                user_vas_filtered.annotate(district_name=Subquery(Location.objects.values('name').filter(
+                    Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2))[:1]))
+                .filter(district_name=region_of_interest)
+                .select_related("location")
+            )
+
+        if "Province" in region_of_interest:
+            user_vas_filtered = (
+                user_vas_filtered.annotate(province_name=Subquery(Location.objects.values('name').filter(
+                    Q(path=Substr(OuterRef("location__path"), 1, 4)), Q(depth=1))[:1]))
+                .filter(province_name=region_of_interest)
+                .select_related("location")
+                )
 
     uncoded_vas = user_vas.filter(causes__cause__isnull=True).count()
 

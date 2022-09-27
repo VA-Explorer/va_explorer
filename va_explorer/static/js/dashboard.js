@@ -39,6 +39,7 @@ const dashboard = new Vue({
             startDate: "",
             endDate: "",
             causeSelected: "",
+            regionSelected: "",
             borderType: "Province",
             colorScale: [
                 "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
@@ -113,14 +114,15 @@ const dashboard = new Vue({
 
             const {startDate, endDate} = this.getStartAndEndDates()
 
-            // TODO change hostname for production
             this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+            // TODO change hostname for production
             const data_url = 'http://localhost:8000/va_analytics/api/dashboard?'
             const dataReq = await fetch(data_url + new URLSearchParams({
                 start_date: startDate,
                 end_date: endDate,
                 cause_of_death: this.causeSelected,
+                region_of_interest: this.regionSelected,
             }), {
                 method: 'GET',
                 headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
@@ -141,7 +143,12 @@ const dashboard = new Vue({
             /*
             use to set base map with tile on initial load
              */
-            this.map = L.map('map').setView([-13, 27], 6)
+            this.map = L.map('map', {
+                maxBounds: [
+                    [-6, 20],
+                    [-20, 34],
+                ]
+            }).setView([-13, 27], 6)
 
             this.map.attributionControl.setPrefix('')
 
@@ -243,6 +250,7 @@ const dashboard = new Vue({
             this.endDate = ""
             this.causeSelected = ""
             this.deathDateSelected = "Any Time"
+            this.regionSelected = ""
             await this.updateDataAndMap()
         },
     },
