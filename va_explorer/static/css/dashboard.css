@@ -316,3 +316,37 @@ input {
   white-space: nowrap; /* added line */
   border: 0;
 }
+
+@media screen and (max-width: 995px) {
+  main {
+    /*height: 95vh;*/
+    width: 100%;
+    font-size: .88rem;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: min-content 75vh 50vh 35vh;
+    grid-gap: 10px;
+    --h2height: 20px;
+  }
+
+  .panelView {
+    grid-row: 1/2;
+    grid-column: 1/2;
+  }
+
+  .mapView {
+    grid-row: 2/3;
+    grid-column: 1/2;
+  }
+
+  .topCausesView {
+    grid-row: 3/4;
+    grid-column: 1/2;
+  }
+
+  .demographicsView {
+    grid-row: 4/5;
+    grid-column: 1/2;
+  }
+}
