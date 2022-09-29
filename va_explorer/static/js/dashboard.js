@@ -88,9 +88,6 @@ const dashboard = new Vue({
         // Request data from API endpoint
         await this.getData()
 
-        // assign list of causes for 'Cause of Death' dropdown
-        this.listOfCausesDropdownOptions = this.COD_grouping.map(item => item.cause).sort()
-
         // Request geojson data
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/static/`
         const geojsonRes = await fetch(`${url}/data/zambia_geojson.json`)
@@ -138,6 +135,7 @@ const dashboard = new Vue({
             this.geographic_district_sums = jsonRes.geographic_district_sums
             this.uncoded_vas = jsonRes.uncoded_vas
             this.update_stats = jsonRes.update_stats
+            this.listOfCausesDropdownOptions = jsonRes.all_causes_list
         },
         async initializeBaseMap() {
             /*

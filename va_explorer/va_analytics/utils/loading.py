@@ -1,7 +1,9 @@
+import csv
 import itertools
 import json
 import os
 from operator import itemgetter
+from pathlib import Path
 
 import pandas as pd
 from django.db.models import F, Q, Case, When, Value, DateField, CharField, Count, Subquery, OuterRef
@@ -63,6 +65,35 @@ def load_geojson_data(json_file):
     return geojson
 
 
+def load_cod_groupings(cause_of_death: str):
+    filename = 'cod_groupings.csv'
+    path = Path(__file__).parent.parent / 'data' / filename
+
+    with open(path) as csvfile:
+        filereader = csv.DictReader(csvfile)
+        remove = ['algorithm', 'cod']
+        headers = [header for header in filereader.fieldnames if header not in remove]
+
+        data = []
+        for row in filereader:
+            data.append(row)
+
+        cods = sorted([row.get('cod') for row in data] + headers)
+
+    filter_causes = []
+    if cause_of_death:
+        for row in data:
+            if row.get('cod') == cause_of_death:
+                filter_causes.append(row.get('cod'))
+                break
+
+            for key, value in row.items():
+                if cause_of_death == key and value == '1':
+                    filter_causes.append(row.get('cod'))
+
+    return {'dropdown_options': cods, 'filter_causes': filter_causes}
+
+
 # ============ VA Data =================
 def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest):
     user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
@@ -78,7 +109,8 @@ def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest)
                          )
 
     if cause_of_death:
-        user_vas_filtered = user_vas_filtered.filter(causes__cause=cause_of_death)
+        causes = load_cod_groupings(cause_of_death=cause_of_death)['filter_causes']
+        user_vas_filtered = user_vas_filtered.filter(causes__cause__in=causes)
 
     if region_of_interest:
         if "District" in region_of_interest:
@@ -95,7 +127,7 @@ def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest)
                     Q(path=Substr(OuterRef("location__path"), 1, 4)), Q(depth=1))[:1]))
                 .filter(province_name=region_of_interest)
                 .select_related("location")
-                )
+            )
 
     uncoded_vas = user_vas.filter(causes__cause__isnull=True).count()
 
@@ -172,7 +204,8 @@ def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest)
         "geographic_province_sums": geographic_province_sums,
         "geographic_district_sums": geographic_district_sums,
         "uncoded_vas": uncoded_vas,
-        "update_stats": update_stats
+        "update_stats": update_stats,
+        "all_causes_list": load_cod_groupings(cause_of_death=cause_of_death)['dropdown_options']
     }
 
     return data
