@@ -14,9 +14,9 @@ const dashboard = new Vue({
 
             //
             COD_grouping: [],
-            COD_trend: null,
-            place_of_death: null,
-            demographics: null,
+            COD_trend: [],
+            place_of_death: [],
+            demographics: [],
             geographic_province_sums: null,
             geographic_district_sums: null,
             uncoded_vas: 0,
