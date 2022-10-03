@@ -113,8 +113,7 @@ const dashboard = new Vue({
 
             this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            // TODO change hostname for production
-            const data_url = 'http://localhost:8000/va_analytics/api/dashboard?'
+            const data_url = `${window.location.origin}/va_analytics/api/dashboard?`
             const dataReq = await fetch(data_url + new URLSearchParams({
                 start_date: startDate,
                 end_date: endDate,
