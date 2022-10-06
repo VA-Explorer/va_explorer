@@ -12,7 +12,7 @@ const dashboard = new Vue({
             geojson: {},
             layer: null,
 
-            //
+            // default values for all the charts
             COD_grouping: [],
             COD_trend: [],
             place_of_death: [],
@@ -41,6 +41,7 @@ const dashboard = new Vue({
             causeSelected: "",
             regionSelected: "",
             borderType: "Province",
+
             colorScale: [
                 "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                 "#fee090", "#fdae61", "#f46d43", "#d73027"
@@ -71,8 +72,7 @@ const dashboard = new Vue({
             return [...provinces, ...districts]
         },
         geoScale() {
-            // A better way to do this would be to import d3 scale and use a quanitzed scale
-            // but import is large
+            // A better way to do this would be to import d3 scale and use a quanitzed scale but import is large
             if (!this.geographicSums) return
             const geoMax = Math.max(...this.geographicSums.map(item => +item.count)) + 100
             const geoMin = 0
@@ -105,9 +105,7 @@ const dashboard = new Vue({
     },
     methods: {
         async getData() {
-            /*
-            fetch data for charts from API and assign all data variables for charts
-             */
+            // fetch data for charts from API and assign all data variables for charts
 
             const {startDate, endDate} = this.getStartAndEndDates()
 
@@ -137,9 +135,7 @@ const dashboard = new Vue({
             this.listOfCausesDropdownOptions = jsonRes.all_causes_list
         },
         async initializeBaseMap() {
-            /*
-            use to set base map with tile on initial load
-             */
+            // use to set base map with tile on initial load
             this.map = L.map('map', {
                 maxBounds: [
                     [-6, 20],
@@ -155,9 +151,8 @@ const dashboard = new Vue({
             }).addTo(this.map)
         },
         addGeoJSONToMap() {
-            /*
-            Remove any existing choropleth layer and add new layer with tooltip and coloring
-             */
+            // Remove any existing choropleth layer and add new layer with tooltip and coloring
+
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)
 
@@ -187,9 +182,7 @@ const dashboard = new Vue({
             }).addTo(this.map)
         },
         getMonth(date) {
-            /*
-            Extract year and month for line chart
-             */
+            // Extract year and month for line chart
             const month = date.getUTCMonth()
             const year = date.getUTCFullYear()
             return new Date(year, month, 0)
@@ -213,9 +206,8 @@ const dashboard = new Vue({
             }
         },
         getStartAndEndDates() {
-            /*
-            Generate start and end dates based on death date drop down options
-             */
+            // Generate start and end dates based on death date drop down options
+
             let date
             switch (this.deathDateSelected) {
                 case "Any Time":
@@ -237,6 +229,8 @@ const dashboard = new Vue({
             }
         },
         generateTooltip(feature) {
+            // create tooltip for leaflet map
+
             const vm = this
 
             const area_level_label = feature.properties.area_level_label
@@ -262,9 +256,8 @@ const dashboard = new Vue({
             return html_tooltip
         },
         resizeCharts() {
-            /*
-            Apply method on mounted and with window event listener to automatically resize charts
-             */
+            // Apply method on mounted and with window event listener to automatically resize charts
+
             this.demographicsWidth = this.$refs.demographics.clientWidth - 1
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 

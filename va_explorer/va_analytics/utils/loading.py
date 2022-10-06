@@ -1,68 +1,13 @@
 import csv
 import itertools
-import json
-import os
 from operator import itemgetter
 from pathlib import Path
 
-import pandas as pd
 from django.db.models import F, Q, Case, When, Value, DateField, CharField, Count, Subquery, OuterRef
 from django.db.models.functions import Cast, TruncMonth, Substr
 
 from va_explorer.va_data_management.models import Location, questions_to_autodetect_duplicates
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
-
-
-# ============ GEOJSON Data (for map) =================
-# load geojson data from flat file (will likely migrate to a database later)
-def load_geojson_data(json_file):
-    geojson = None
-    if os.path.isfile(json_file):
-        with open(json_file, "r") as jf:
-            geojson = json.loads(jf.read())
-
-        # add min and max coordinates for mapping
-        for i, g in enumerate(geojson["features"]):
-            coordinate_list = g["geometry"]["coordinates"]
-            coordinate_stat_tables = []
-            for coords in coordinate_list:
-                if len(coords) == 1:
-                    coords = coords[0]
-                coordinate_stat_tables.append(
-                    pd.DataFrame(coords, columns=["lon", "lat"]).describe()
-                )
-            g["properties"]["area_name"] += " {}".format(
-                g["properties"]["area_level_label"]
-            )
-            g["properties"]["min_x"] = min(
-                [stat_df["lon"]["min"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["max_x"] = max(
-                [stat_df["lon"]["max"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["min_y"] = min(
-                [stat_df["lat"]["min"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["max_y"] = max(
-                [stat_df["lat"]["max"] for stat_df in coordinate_stat_tables]
-            )
-            geojson["features"][i] = g
-        # save total districts and provinces for future use
-        geojson["district_count"] = len(
-            [
-                f
-                for f in geojson["features"]
-                if f["properties"]["area_level_label"] == "District"
-            ]
-        )
-        geojson["province_count"] = len(
-            [
-                f
-                for f in geojson["features"]
-                if f["properties"]["area_level_label"] == "Province"
-            ]
-        )
-    return geojson
 
 
 def load_cod_groupings(cause_of_death: str):
@@ -108,10 +53,12 @@ def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest)
                          .exclude(location__isnull=True)
                          )
 
+    # apply cause of death filtering if sent in with request
     if cause_of_death:
         causes = load_cod_groupings(cause_of_death=cause_of_death)['filter_causes']
         user_vas_filtered = user_vas_filtered.filter(causes__cause__in=causes)
 
+    # apply geographic filtering if sent in with request
     if region_of_interest:
         if "District" in region_of_interest:
             user_vas_filtered = (
