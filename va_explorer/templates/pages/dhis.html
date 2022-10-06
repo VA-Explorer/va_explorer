@@ -25,12 +25,14 @@
       <td><b>Records to push</b></td>
       <td align="right"><h3 class="text-danger">{{object_list.vanum}}</h3></td>
     </tr>
+    {% if perms.va_data_management.change_dhisstatus %}
      <tr>
       <td> <a href="{% url 'dhis_manager:dhishome' %}" >
           <button class="btn btn-primary">Refresh</button></a></td>
       <td><a href="{% url 'dhis_manager:dhisrecords' %}" >
-        <button class="btn btn-primary" onclick="updatePush()">Push to dhis</button></a></td>
+        <button class="btn btn-primary" onclick="updatePush()">Push to DHIS2</button></a></td>
     </tr>
+    {% endif %}
     <tr>
       <td></td>
       <td> <div id="pushing"></div></td>
