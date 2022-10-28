@@ -4,8 +4,8 @@
 {% block css %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-  <link rel="stylesheet" href="{% static 'vendor/vuesalize/vuesalize-0.2.0.css' %}">
-  <link rel="stylesheet" href="{% static 'vendor/leaflet-1.8.0/leaflet.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/vuesalize-0.2.0/vuesalize.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/leaflet-1.9.2/leaflet.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -121,11 +121,10 @@
 {% endblock %}
 
 {% block page_scripts %}
-  <script type="text/javascript" src="{% static 'vendor/vue-2.6.14/vue.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/vuesalize/vuesalize-0.2.0.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/leaflet-1.8.0/leaflet.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/d3-array/d3-array@3.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/vue-2.7.13/vue.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/vuesalize-0.2.0/vuesalize.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/leaflet-1.9.2/leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/d3-array-3.2.0/d3-array.min.js' %}"></script>
   {% csrf_token %}
   <script type="text/javascript" src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}
-

@@ -27,7 +27,6 @@ DATE_FORMATS = {
 LANGUAGE_CODE = "en-us"
 SITE_ID = 1
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 
@@ -42,7 +41,7 @@ QUESTIONS_TO_AUTODETECT_DUPLICATES = os.environ.get(
     "QUESTIONS_TO_AUTODETECT_DUPLICATES", None
 )
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Databases
 
@@ -250,7 +249,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-                      "%(process)d %(thread)d %(message)s"
+            "%(process)d %(thread)d %(message)s"
         },
         "debug": {
             "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
