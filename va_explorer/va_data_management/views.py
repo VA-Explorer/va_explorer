@@ -1,6 +1,5 @@
 import logging
 import re
-import time
 
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -41,13 +40,14 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     def get_queryset(self):
 
         # Restrict to VAs this user can access and prefetch related for performance
-        ti = time.time()
         queryset = (
             self.request.user.verbal_autopsies()
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
-            .annotate(deceased=Concat("Id10017", V(" "), "Id10018", output_field=TextField()))
+            .annotate(
+                deceased=Concat("Id10017", V(" "), "Id10018", output_field=TextField())
+            )
             .values(
                 "id",
                 "location__name",
@@ -64,7 +64,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 ),
             )
         )
-        print(f"total time: {time.time() - ti} secs")
 
         # sort by chosen field (default is VA ID)
         # get raw sort key (includes direction)
@@ -121,13 +120,12 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             # filter returned no results - render button useless
             context["download_url"] = ""
 
-        ti = time.time()
         context["object_list"] = [
             {
                 "id": va["id"],
                 "deceased": va["deceased"],
                 "interviewer": va["Id10010"],
-                "submitted": va["submissiondate"],
+                "submitted": parse_date(va["submissiondate"]),
                 "dod": parse_date(va["Id10023"])
                 if (va["Id10023"] != "dk")
                 else "Unknown",
@@ -140,8 +138,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         ]
 
         context.update(get_va_summary_stats(self.filterset.qs))
-        print(f"total time to format display VAs: {time.time() - ti} secs")
-
         return context
 
 
@@ -177,7 +173,10 @@ class Show(
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])
-        context["diffs"] = [new.diff_against(old) for (old, new) in history_pairs]
+        context["diffs"] = [
+            new.diff_against(old, excluded_fields=["unique_va_identifier", "duplicate"])
+            for (old, new) in history_pairs
+        ]
         context["duplicate"] = self.object.duplicate
 
         # log view record event
@@ -325,8 +324,8 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
         # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
         if (
             self.request.user.verbal_autopsies()
-                .filter(id=obj.id, duplicate=True)
-                .exists()
+            .filter(id=obj.id, duplicate=True)
+            .exists()
         ):
             messages.success(self.request, self.success_message % obj.__dict__)
             return super(Delete, self).delete(request, *args, **kwargs)

@@ -1,5 +1,10 @@
 from django.urls import path
-from va_explorer.va_analytics.views import dashboard_view, user_supervision_view, DashboardAPIView
+
+from va_explorer.va_analytics.views import (
+    DashboardAPIView,
+    dashboard_view,
+    user_supervision_view,
+)
 
 app_name = "va_analytics"
 urlpatterns = [

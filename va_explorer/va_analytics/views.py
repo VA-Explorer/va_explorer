@@ -18,6 +18,7 @@ from va_explorer.va_data_management.utils.date_parsing import (
     parse_date,
 )
 from va_explorer.va_logs.logging_utils import write_va_log
+
 from .utils.loading import load_va_data
 
 LOGGER = logging.getLogger("event_logger")
@@ -25,16 +26,20 @@ LOGGER = logging.getLogger("event_logger")
 
 class DashboardAPIView(APIView):
     def get(self, request, format=None):
-        start_date = request.query_params['start_date'] or "1901-01-01"
-        end_date = request.query_params['end_date'] or datetime.today().strftime("%Y-%m-%d")
-        cause_of_death = request.query_params['cause_of_death'] or None
-        region_of_interest = request.query_params['region_of_interest'] or None
+        start_date = request.query_params["start_date"] or "1901-01-01"
+        end_date = request.query_params["end_date"] or datetime.today().strftime(
+            "%Y-%m-%d"
+        )
+        cause_of_death = request.query_params["cause_of_death"] or None
+        region_of_interest = request.query_params["region_of_interest"] or None
 
-        data = load_va_data(request.user,
-                            start_date=start_date,
-                            end_date=end_date,
-                            cause_of_death=cause_of_death,
-                            region_of_interest=region_of_interest)
+        data = load_va_data(
+            request.user,
+            start_date=start_date,
+            end_date=end_date,
+            cause_of_death=cause_of_death,
+            region_of_interest=region_of_interest,
+        )
         return Response(data)
 
 
@@ -126,7 +131,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 .query("date == date")
                 .assign(
                     week_hash=lambda df: df["date"].dt.isocalendar().week
-                                         + 52 * df["date"].dt.year
+                    + 52 * df["date"].dt.year
                 )
                 .groupby(group_col)
                 .agg(

@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 from functools import reduce
 
 from django.contrib.auth.base_user import BaseUserManager
@@ -13,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
 from va_explorer.va_data_management.models import Location, VerbalAutopsy
+from va_explorer.va_data_management.utils import TODAY
 
 
 class CustomUserManager(BaseUserManager):
@@ -66,11 +66,12 @@ class User(AbstractUser):
     # The query set of verbal autopsies that this user has access to, based on location restrictions
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
-    def verbal_autopsies(self, date_cutoff=None, end_date=datetime.today().strftime("%Y-%m-%d")):
-
+    def verbal_autopsies(self, date_cutoff=None, end_date=TODAY):
         # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
         date_cutoff = date_cutoff if date_cutoff else "1901-01-01"
-        va_objects = VerbalAutopsy.objects.filter(Id10023__gte=date_cutoff, Id10023__lte=end_date)
+        va_objects = VerbalAutopsy.objects.filter(
+            Id10023__gte=date_cutoff, Id10023__lte=end_date
+        )
 
         if self.is_fieldworker():
             return va_objects.filter(
