@@ -8,7 +8,6 @@ from config.settings.base import DATE_FORMATS
 
 DATE_FORMATS = DATE_FORMATS.keys()
 NULL_STRINGS = ["nan", "dk"]
-TODAY = datetime.today().strftime("%Y-%m-%d")
 
 
 # helper method to parse dates in a variety of formats

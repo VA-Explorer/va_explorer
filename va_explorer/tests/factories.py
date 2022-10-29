@@ -70,7 +70,7 @@ class VerbalAutopsyFactory(DjangoModelFactory):
         model = VerbalAutopsy
 
     Id10007 = "Example Name"
-    Id10023 = "dk"
+    Id10023 = "1901-01-01"
     Id10058 = "hospital"
     location = factory.SubFactory(LocationFacilityFactory)
     username = ""

@@ -8,6 +8,7 @@ from math import ceil
 import pandas as pd
 import requests
 from django.forms import model_to_dict
+from simple_history.utils import bulk_create_with_history
 
 from va_explorer.va_data_management.models import (
     CauseCodingIssue,
@@ -165,7 +166,7 @@ def run_interva5(verbal_autopsies_without_causes):
                 )
             )
 
-    CauseOfDeath.objects.bulk_create(causes)
+    causes = bulk_create_with_history(causes, CauseOfDeath)
 
     # The ID that comes back is the index in the data that was passed in.
     # Use that to look up the matching VA in the verbal_autopsies_without_causes list.

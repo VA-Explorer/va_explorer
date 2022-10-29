@@ -90,7 +90,7 @@ const dashboard = new Vue({
 
         // Request geojson data
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/static/`
-        const geojsonRes = await fetch(`${url}/data/zambia_geojson.json`)
+        const geojsonRes = await fetch(`${url}data/zambia_geojson.json`)
         this.geojson = await geojsonRes.json()
     },
     async mounted() {
@@ -142,9 +142,10 @@ const dashboard = new Vue({
                     [-20, 34],
                 ]
             }).setView([-13, 27], 6)
-
+            
             this.map.attributionControl.setPrefix('')
-
+            this.map.keyboard.disable()
+            
             const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 10,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -152,6 +153,7 @@ const dashboard = new Vue({
         },
         addGeoJSONToMap() {
             // Remove any existing choropleth layer and add new layer with tooltip and coloring
+            
 
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)

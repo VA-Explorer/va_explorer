@@ -278,6 +278,10 @@ select:focus {
   outline: solid 1px hsl(217, 71%, 53%);
 }
 
+path:focus {
+  outline: 0;
+}
+
 input, textarea {
   font-size: 0.8rem;
   resize: none;

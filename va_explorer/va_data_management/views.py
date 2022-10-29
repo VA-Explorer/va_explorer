@@ -255,7 +255,15 @@ class Reset(
         _ = context  # unused
         earliest = self.object.history.earliest()
         latest = self.object.history.latest()
-        if earliest and len(latest.diff_against(earliest).changes) > 0:
+        if (
+            earliest
+            and len(
+                latest.diff_against(
+                    earliest, excluded_fields=["unique_va_identifier", "duplicate"]
+                ).changes
+            )
+            > 0
+        ):
             earliest.instance.save()
             # update the validation errors
             validate_vas_for_dashboard([earliest])
@@ -281,7 +289,14 @@ class RevertLatest(
         if self.object.history.count() > 1:
             previous = self.object.history.all()[1]
             latest = self.object.history.latest()
-            if len(latest.diff_against(previous).changes) > 0:
+            if (
+                len(
+                    latest.diff_against(
+                        previous, excluded_fields=["unique_va_identifier", "duplicate"]
+                    ).changes
+                )
+                > 0
+            ):
                 previous.instance.save()
                 # update the validation errors
                 validate_vas_for_dashboard([previous])
@@ -318,7 +333,7 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
         "you don't have access to delete it."
     )
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, request, *args, **kwargs):
         obj = self.get_object()
         # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
         # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
