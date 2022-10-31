@@ -72,7 +72,7 @@ def test_index_redacted(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create(Id10023="death date")
+    va = VerbalAutopsyFactory.create(Id10023="2012-12-21")
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert bytes(REDACTED_STRING, "utf-8") in response.content
