@@ -38,7 +38,7 @@
         {% endif %}
       {% if perms.va_analytics.download_data %}
       <li class="nav-item">
-          <a class="{% active '\/(.*)download' %} nav-link" href="{% url 'va_export:download_form' %}">Export</a>
+          <a class="{% active '\/(.*)export' %} nav-link" href="{% url 'va_export:download_form' %}">Export</a>
       </li>
       {% endif %}
 

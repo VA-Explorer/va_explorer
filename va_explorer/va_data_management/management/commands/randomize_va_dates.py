@@ -3,6 +3,7 @@ from math import ceil, sqrt
 from os import environ
 from random import randint
 
+import pytz
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -26,9 +27,14 @@ class Command(BaseCommand):
         # dates then assign them
         count = VerbalAutopsy.objects.count()
         days_list = [183 - ceil(sqrt(randint(1, 183**2))) for _ in range(count)]
-        dates_list = [
-            timezone.now() - timezone.timedelta(days=days) for days in days_list
-        ]
+        dates_list = []
+        for days in days_list:
+            date = timezone.now() - timezone.timedelta(days=days)
+            if timezone.is_naive(date):
+                date = timezone.make_aware()
+                date = date.astimezone(pytz.utc)
+            dates_list.append(date)
+
         dates_list.sort()
         for va, new_date in zip(VerbalAutopsy.objects.all(), dates_list):
             # Set Id10023 and created and updated all to same date

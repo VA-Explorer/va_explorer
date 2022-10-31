@@ -1,5 +1,4 @@
 import logging
-import time
 
 import numpy as np
 import pandas as pd
@@ -27,7 +26,6 @@ User = get_user_model()
 
 # load VA records into django database
 def load_records_from_dataframe(record_df, random_locations=False, debug=True):
-    ti = t0 = time.time()
     logger = None if not debug else logging.getLogger("event_logger")
     if logger:
         header = "=" * 10 + "DATA INGEST" + "=" * 10
@@ -68,10 +66,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             record_df["Id10010"].apply(normalize_name).replace(np.nan, "UNKNOWN")
         )
 
-    tf = time.time()
-    print(f"time: {tf - ti} secs")
-    ti = tf
-
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
 
@@ -109,9 +103,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # pull in all existing VA instanceIDs from db for de-duping purposes
     print("pulling in instance ids...")
     va_instance_ids = set(VerbalAutopsy.objects.values_list("instanceid", flat=True))
-    tf = time.time()
-    print(f"time: {tf - ti} secs")
-    ti = tf
 
     if debug:
         print(
@@ -174,32 +165,16 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             va.generate_unique_identifier_hash()
         created_vas.append(va)
 
-    tf = time.time()
-    print(f"time: {tf - ti} secs")
-    ti = tf
-
     print("populating DB...")
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
-
-    tf = time.time()
-    print(f"time: {tf - ti} secs")
-    ti = tf
 
     # link VAs to known field workers in the system
     print("assigning VA usernames to known field workers...")
     assign_va_usernames(new_vas)
-    tf = time.time()
-    print(f"time: {tf - ti} secs")
-    ti = tf
 
     print("Validating VAs...")
     # Add any errors to the db
     validate_vas_for_dashboard(new_vas)
-    tf = time.time()
-    print(f"time: {tf - ti} secs")
-    ti = tf
-
-    print(f"total time: {time.time() - t0}")
 
     # Mark duplicate VAs if the application is configured to do so
     if VerbalAutopsy.auto_detect_duplicates():
@@ -334,37 +309,31 @@ def deduplicate_columns(record_df, drop_duplicates=True):
 
 
 def get_va_summary_stats(vas, filter_fields=False):
-    # calculate stats
-    if vas.count() > 0:
+    # if vas.count() > 0 code is the slowest SQL query
 
-        # if filter_fields=True, filter down to only relevant fields
-        if filter_fields:
-            vas = vas.only("created", "id", "location", "Id10023")
+    # if filter_fields=True, filter down to only relevant fields
+    if filter_fields:
+        vas = vas.only("created", "id", "location", "Id10023")
 
-        stats = vas.aggregate(
-            last_update=Max("created"),
-            last_submission=Max("submissiondate"),
-            total_vas=Count("id"),
-        )
+    stats = vas.aggregate(
+        last_update=Max("created"),
+        last_submission=Max("submissiondate"),
+        total_vas=Count("id"),
+    )
 
-        stats["ineligible_vas"] = vas.filter(
-            Q(Id10023__in=["DK", "dk"])
-            | Q(Id10023__isnull=True)
-            | Q(location__isnull=True)
-        ).count()
+    stats["ineligible_vas"] = vas.filter(
+        Q(Id10023__in=["DK", "dk"]) | Q(Id10023__isnull=True) | Q(location__isnull=True)
+    ).count()
 
-        # clean up dates if non-null
-        if stats["last_update"] and type(stats["last_update"]) is not str:
-            stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
+    # clean up dates if non-null
+    if stats["last_update"] and type(stats["last_update"]) is not str:
+        stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
 
-        if stats["last_submission"] and type(stats["last_update"]) is not str:
+    if stats["last_submission"]:
+        # Handle datetimes and Text (which can occur since submissiondate is TextField)
+        if type(stats["last_submission"]) is not str:
             stats["last_submission"] = stats["last_submission"].strftime("%Y-%m-%d")
-        return stats
-    # no VAs - return empty stats
-    else:
-        return {
-            "last_update": None,
-            "last_submission": None,
-            "total_vas": None,
-            "ineligible_vas": None,
-        }
+        else:
+            stats["last_submission"] = parse_date(stats["last_submission"])
+    return stats
+    # TODO is it likely or possible to return no VAs? if yes, return empty stats

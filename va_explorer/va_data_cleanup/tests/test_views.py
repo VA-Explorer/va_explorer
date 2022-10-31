@@ -105,7 +105,7 @@ def test_download_with_valid_permission(
     response = client.get(f"/va_data_cleanup/download/{va.id}")
 
     assert response.status_code == 200
-    assert response._headers["content-type"][1] == "text/csv"
+    assert response.headers["content-type"] == "text/csv"
 
 
 def test_download_with_invalid_permission(
@@ -123,7 +123,7 @@ def test_download_with_invalid_permission(
     response = client.get(f"/va_data_cleanup/download/{va.id}")
 
     assert response.status_code == 403
-    assert response._headers["content-type"][1] == "text/html; charset=utf-8"
+    assert response.headers["content-type"] == "text/html; charset=utf-8"
 
 
 # Test if a user arbitrarily passes in a non-duplicate VA, 403 raised
@@ -142,7 +142,7 @@ def test_download_with_valid_permission_non_duplicate_va(
     response = client.get(f"/va_data_cleanup/download/{va.id}")
 
     assert response.status_code == 403
-    assert response._headers["content-type"][1] == "text/html; charset=utf-8"
+    assert response.headers["content-type"] == "text/html; charset=utf-8"
 
 
 def test_bulk_download_with_valid_permission(
@@ -164,7 +164,7 @@ def test_bulk_download_with_valid_permission(
     response = client.get("/va_data_cleanup/download_all")
 
     assert response.status_code == 200
-    assert response._headers["content-type"][1] == "text/csv"
+    assert response.headers["content-type"] == "text/csv"
 
 
 def test_bulk_download_with_invalid_permission(
@@ -182,4 +182,4 @@ def test_bulk_download_with_invalid_permission(
     response = client.get("/va_data_cleanup/download_all")
 
     assert response.status_code == 403
-    assert response._headers["content-type"][1] == "text/html; charset=utf-8"
+    assert response.headers["content-type"] == "text/html; charset=utf-8"

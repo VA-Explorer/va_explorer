@@ -1,8 +1,8 @@
 version: '3'
 
 volumes:
-  local_postgres_data: {}
-  local_postgres_data_backups: {}
+  local_postgres_data: { }
+  local_postgres_data_backups: { }
 
 services:
   pycrossva:
@@ -21,7 +21,7 @@ services:
     environment:
       DJANGO_ALLOWED_HOSTS: 0.0.0.0,127.0.0.1,localhost,va_explorer.org
       EMAIL_URL: consolemail://
-      
+
   vapostgres:
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
