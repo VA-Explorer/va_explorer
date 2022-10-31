@@ -14,8 +14,6 @@ urlpatterns = [
         kwargs={"exception": Exception("Page not Found")},
     ),
     path("accounts/", include("allauth.urls")),
-    # django-plotly-dash
-    path("django_plotly_dash/", include("django_plotly_dash.urls")),
     # Your stuff: custom urls includes go here
     path(
         "va_analytics/",

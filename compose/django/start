@@ -16,4 +16,4 @@ echo "Initializing groups..."
 python /app/manage.py initialize_groups
 
 echo "Starting gunicorn..."
-/usr/local/bin/gunicorn config.wsgi --bind=0.0.0.0:5000 --workers=4 --chdir=/app
+/usr/local/bin/gunicorn config.wsgi --bind=0.0.0.0:5000 --workers=4 --timeout=60 --chdir=/app

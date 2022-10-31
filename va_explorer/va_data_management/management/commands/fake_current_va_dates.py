@@ -41,5 +41,4 @@ class Command(BaseCommand):
             va.Id10023 = va.created = va.updated = (
                 datetime.strptime(va.Id10023, "%m/%d/%y").date() + shift
             )
-            va.skip_history_when_saving = True
-            va.save()
+            va.save_without_historical_record()

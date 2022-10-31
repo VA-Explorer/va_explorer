@@ -47,10 +47,10 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             {% if perms.va_data_management.view_verbalautopsy %}
-              <a class="dropdown-item" href="{% url 'va_data_management:index' %}">Data Management</a>
+              <a class="dropdown-item" href="{% url 'va_data_management:index' %}">Data Search & Repair</a>
             {% endif %}
             {% if perms.va_data_management.view_batchoperations %}
-              <a class="dropdown-item" href="{% url 'data_management:batch_operations' %}">Batch Statuses</a>
+              <a class="dropdown-item" href="{% url 'data_management:batch_operations' %}">Data Operations</a>
             {% endif %}
             {% if AUTO_DETECT_DUPLICATES and perms.va_data_cleanup.view_datacleanup %}
               <a class="dropdown-item" href="{% url 'va_data_cleanup:index' %}">Data Cleanup</a>
@@ -66,10 +66,10 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             {% if perms.va_analytics.download_data %}
-              <a class="dropdown-item" href="{% url 'va_export:download_form' %}">Export</a>
+              <a class="dropdown-item" href="{% url 'va_export:download_form' %}">Export to File</a>
             {% endif %}
             {% if perms.dhis_manager.change_dhisstatus %}
-              <a class="dropdown-item" href="{% url 'dhis_manager:dhishome' %}">DHIS2</a>
+              <a class="dropdown-item" href="{% url 'dhis_manager:dhishome' %}">Export to DHIS2</a>
             {% endif %}
           </div>
         </li>

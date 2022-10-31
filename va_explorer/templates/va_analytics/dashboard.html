@@ -1,22 +1,131 @@
 {% extends "base.html" %}
 {% load static i18n %}
-{% load plotly_dash %}
 
-<div class="{% block container-type %}container-fluid{% endblock %}">
-	{% if messages %}
-	    {% for message in messages %}
-	        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
-	    {% endfor %}
-	{% endif %}
-
-	{% block content %}
-		{% plotly_direct name='va_dashboard' %}
-	{% endblock %}
-</div> <!-- /container -->
-
-<!-- Needs to be outside content block so JS in base template loads first -->
-{% block page_scripts %}
-  <script src="{% static 'vendor/plotly-1.58.4/plotly.js' %}"></script>
-  <script src="{% static 'vendor/lodash-4.17.5/lodash.js' %}"></script>
+{% include "partials/_messages.html" %}
+{% block css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/vuesalize-0.2.0/vuesalize.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/leaflet-1.9.2/leaflet.css' %}">
 {% endblock %}
 
+{% block content %}
+
+  <main id="dashboardApp">
+
+    <section class="sectionContainer panelView">
+
+      <h2>Summaries and Control Panel</h2>
+
+      <div class="highlightsContainer">
+        <div v-for="(value, key) in highlightsSummaries" :key="key" class="highlight">
+          <h3><% key %></h3>
+          <p><% value %></p>
+        </div>
+      </div>
+
+      <form class="controls" @submit.prevent="updateDataAndMap">
+
+        <div class="allCausesContainer">
+          <label for="causeSelected">All Causes:</label>
+          <select id="causeSelected" class="select" v-model="causeSelected">
+            <option value="">All</option>
+            <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
+          </select>
+          <label for="deathDate">Death Date:</label>
+          <select id="deathDate" class="select" v-model="deathDateSelected">
+            <option v-for="option in deathDateDropdownOptions" :key="option"><% option %></option>
+          </select>
+        </div>
+
+        <div class="betweenDatesContainer" v-if="deathDateSelected === 'Custom'">
+          <span>Between</span>
+          <input id="startDate" class="input" type="date" required v-model="startDate">
+          <span>and</span>
+          <input id="endDate" class="input" type="date" required v-model="endDate">
+        </div>
+
+        <div class="btnsContainer">
+          <button type="submit" class="button updateDataBtn">Update Data</button>
+          <button type="button" class="button resetBtn" @click="resetAllDataToActive()">Reset</button>
+        </div>
+
+      </form>
+
+
+    </section>
+
+    <section class="sectionContainer mapView">
+      <h2>Geographic Distribution</h2>
+      <div class="controls">
+        <label for="mapview">Map View:</label>
+        <div class="select">
+          <select id="mapview" v-model="borderType">
+            <option v-for="option in locationTypesDropdownOptions" :key="option"><% option %></option>
+          </select>
+        </div>
+        <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
+        <select id="searchLocations" v-model="regionSelected">
+          <option value=""></option>
+          <option v-for="location in locations" :key="location"><% location %></option>
+        </select>
+      </div>
+      <div id="map"></div>
+    </section>
+
+    <section class="sectionContainer topCausesView">
+      <h2>Cause of Death Analysis</h2>
+      <div class="chartsContainer" ref="cod">
+
+        <div class="topCausesContainer">
+          <stacked-bar-chart v-if="COD_grouping.length > 0"
+                             :plot-data="COD_grouping" x-key="cause"
+                             direction="horizontal" bar-axis-location="top"
+                             :y-tick-format="d => d.length > 15 ? `${d.slice(0,15)}...` : d"
+                             :padding-between-bars="0.3"
+                             :x-ticks="3"
+                             :width="codWidth" :height="dynamicCODHeight"
+                             :margin="{top: 20, bottom: 10, left: 110, right: 30}">
+          </stacked-bar-chart>
+        </div>
+
+        <div class="topCauseLineChartContainer">
+          <line-chart v-if="COD_trend.length > 0" :plot-data="COD_trend" x-key="month"
+                      :width="codWidth" :height="codHeight / 2"
+                      :x-ticks="6" :show-points="true" :point-radius="2.5"
+                      :margin="{top: 10, bottom: 20, left: 40, right: 20}">
+          </line-chart>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="sectionContainer demographicsView">
+      <h2>All Cause Demographics</h2>
+      <div class="chartsContainer" ref="demographics">
+        <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
+                           :width="demographicsWidth * (1/3)" :height="demographicsHeight"
+                           :y-ticks="4"
+                           :margin="{top: 10, bottom: 20, left: 40, right: 20}">
+        </stacked-bar-chart>
+        <stacked-bar-chart v-if="place_of_death.length > 0" :plot-data="place_of_death" x-key="place"
+                           direction="horizontal" :width="demographicsWidth * (2/3)" :height="demographicsHeight"
+                           :y-tick-format="d => d.length > 12 ? `${d.slice(0, 12)}...` : d"
+                           :padding-between-bars="0.2"
+                           :x-ticks="3"
+                           :margin="{top: 10, bottom: 20, left: 90, right: 15}">
+        </stacked-bar-chart>
+      </div>
+    </section>
+
+  </main>
+{% endblock %}
+
+{% block page_scripts %}
+  <script type="text/javascript" src="{% static 'vendor/vue-2.7.13/vue.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/vuesalize-0.2.0/vuesalize.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/leaflet-1.9.2/leaflet.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/d3-array-3.2.0/d3-array.min.js' %}"></script>
+  {% csrf_token %}
+  <script type="text/javascript" src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
