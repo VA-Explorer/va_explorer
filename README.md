@@ -89,11 +89,19 @@ demonstration data can be loaded.
 
 - Activate the virtual env:
 
-  `source venv/bin/activate`
+  Mac: `source venv/bin/activate`
+  Windows: `python -m venv /venv/bin/activate`
 
 - Install application requirements
 
   `pip install -r requirements/base.txt`
+
+- Windows only: manually uninstall and reinstall `psycopg2`
+
+  ```
+  pip uninstall psycopg2
+  pip install psycopg2
+  ```
 
 - Create the va_explorer database using your postgres user made during postgres
   download. It may be `postgres` for example.
