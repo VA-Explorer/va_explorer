@@ -3,8 +3,9 @@ from django import forms
 from config.settings.base import DATE_FORMATS
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 
-from .constants import PII_FIELDS, FORM_FIELDS, HIDDEN_FIELDS
+from .constants import FORM_FIELDS, HIDDEN_FIELDS, PII_FIELDS
 from .models import VerbalAutopsy
+from .utils.multi_select import MultiSelectFormField
 
 
 class VerbalAutopsyForm(forms.ModelForm):
@@ -21,11 +22,14 @@ class VerbalAutopsyForm(forms.ModelForm):
                 choices=FORM_FIELDS["radio"][form_field], attrs={"class": "va-check"}
             )
         for form_field in FORM_FIELDS["checkbox"]:
-            widgets[form_field] = forms.CheckboxSelectMultiple(
-                choices=FORM_FIELDS["checkbox"][form_field], attrs={"class": "va-check"}
-            )
+            widgets[form_field] = MultiSelectFormField(
+                flat_choices=FORM_FIELDS["checkbox"][form_field]
+            ).widget
+            widgets[form_field].attrs = {"class": "va-check"}
         for form_field in FORM_FIELDS["dropdown"]:
-            widgets[form_field] = forms.Select(choices=FORM_FIELDS["dropdown"][form_field])
+            widgets[form_field] = forms.Select(
+                choices=FORM_FIELDS["dropdown"][form_field]
+            )
         for form_field in FORM_FIELDS["number"]:
             widgets[form_field] = forms.NumberInput()
         for form_field in FORM_FIELDS["date"]:
@@ -35,8 +39,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         for form_field in FORM_FIELDS["datetime"]:
             widgets[form_field] = forms.DateTimeInput()
         for form_field in FORM_FIELDS["display"]:
-            widgets[form_field] = forms.TextInput(attrs={'readonly': 'readonly'})
-
+            widgets[form_field] = forms.TextInput(attrs={"readonly": "readonly"})
 
     def __init__(self, *args, **kwargs):
         include_pii = kwargs.pop("include_pii", True)

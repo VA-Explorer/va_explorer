@@ -14,28 +14,19 @@
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
-	text-align:center;
 	color: #FFF;
 	box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.25);
 	position: fixed;
 	bottom: 50px;
 	right: 25px;
 	font-size: 25px;
-	display: table-cell;
 	cursor: pointer;
-}
-
-.flt-action-btn svg {
-	vertical-align: middle;
-	padding-top: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .flt-action-btn.child {
-	right: 25px;
-	width: 42px;
-	height: 42px;
-	display: none;
-  opacity: 0;
   font-size: 21px;
   box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.25);
 }

@@ -16,7 +16,7 @@ def test_fill_user_form_data():
     setup_test_db()
     users = get_fake_user_data()
 
-    for user, user_data in users.items():
+    for _, user_data in users.items():
         user_form = fill_user_form_data(user_data)
         validate_user_form(user_data, user_form)
         # save user and assert it was created correctly
@@ -48,7 +48,7 @@ def test_create_users_from_file():
         len(user_emails) == len(raw_emails) == len(user_emails.intersection(raw_emails))
     )
 
-    for i, user_data in user_df.iterrows():
+    for _, user_data in user_df.iterrows():
         user_object = list(
             filter(lambda x: x.email == user_data["email"], res["users"])
         )[0]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('va_data_management', '0005_cod_codes_dhis'),
+        ("va_data_management", "0005_cod_codes_dhis"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='dhisstatus',
-            name='status',
-            field=models.TextField(default='SUCCESS'),
+            model_name="dhisstatus",
+            name="status",
+            field=models.TextField(default="SUCCESS"),
         ),
     ]

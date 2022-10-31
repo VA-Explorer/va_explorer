@@ -1,9 +1,18 @@
+import json
+
 import factory
 from django.contrib.auth import get_user_model, models
-from factory import DjangoModelFactory, Faker, Sequence
-from va_explorer.va_data_management.models import Location, VerbalAutopsy, VaUsername, CauseOfDeath, CauseCodingIssue, \
-    DhisStatus
-import json
+from factory import Faker, Sequence
+from factory.django import DjangoModelFactory
+
+from va_explorer.va_data_management.models import (
+    CauseCodingIssue,
+    CauseOfDeath,
+    DhisStatus,
+    Location,
+    VaUsername,
+    VerbalAutopsy,
+)
 
 User = get_user_model()
 
@@ -42,10 +51,11 @@ class LocationFactory(DjangoModelFactory):
     location_type = "province"
     path = "0001"
 
+
 class LocationFacilityFactory(DjangoModelFactory):
     class Meta:
         model = Location
-        django_get_or_create = ('path',)
+        django_get_or_create = ("path",)
 
     # Create a root node by default
     name = Faker("city")
@@ -54,14 +64,27 @@ class LocationFacilityFactory(DjangoModelFactory):
     location_type = "facility"
     path = "0001"
 
+
 class VerbalAutopsyFactory(DjangoModelFactory):
     class Meta:
         model = VerbalAutopsy
+
     Id10007 = "Example Name"
-    Id10023 = "dk"
+    Id10023 = "1901-01-01"
     Id10058 = "hospital"
     location = factory.SubFactory(LocationFacilityFactory)
     username = ""
+
+
+class CauseOfDeathFactory(DjangoModelFactory):
+    class Meta:
+        model = CauseOfDeath
+
+    cause = "HIV/AIDS related death"
+    algorithm = "InterVA5"
+    settings = json.dumps({"HIV": "l", "Malaria": "l"})
+    verbalautopsy = factory.SubFactory(VerbalAutopsyFactory)
+
 
 class UserFactory(DjangoModelFactory):
     class Meta:
@@ -134,17 +157,10 @@ class VaUsernameFactory(DjangoModelFactory):
     va_username = Faker("user_name")
 
 
-class CauseOfDeathFactory(DjangoModelFactory):
-    class Meta:
-        model = CauseOfDeath
-    cause = "HIV/AIDS related death"
-    algorithm = "InterVA5"
-    settings = json.dumps({"HIV": "l", "Malaria": "l"})
-
-
 class CauseCodingIssueFactory(DjangoModelFactory):
     class Meta:
         model = CauseCodingIssue
+
     text = "Warning: field username, the va record does not have an assigned username."
     severity = "warning"
     settings = json.dumps({"HIV": "l", "Malaria": "l"})

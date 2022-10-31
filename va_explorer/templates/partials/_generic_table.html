@@ -8,9 +8,9 @@
           <a href="?{% sort_url column direction='-' %}"> {{ column|capfirst }}</a>
           {% if column in request.GET.order_by %}
             {% if "-" in request.GET.order_by %}
-              <i class="fas fa-caret-down"></i>
+              <i class="icon-down-dir"></i>
             {% else %}
-              <i class="fas fa-caret-up"></i>
+              <i class="icon-up-dir"></i>
             {% endif %}
           {% endif %}
         </th>

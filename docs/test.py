@@ -1,5 +1,3 @@
-import os
-
 from pathlib import Path
 
 # p = os.path.dirname(os.path.abspath(__file__))
@@ -7,4 +5,3 @@ from pathlib import Path
 p = Path(__file__).absolute().parent.parent
 
 print(p)
-

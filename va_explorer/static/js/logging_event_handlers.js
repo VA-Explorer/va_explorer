@@ -3,7 +3,7 @@ $(document).ready(function(){
     var log_url = "/va_logs/submit_log"
 
     //===========HOME==================//
-    $('#additional_issues').click(function() { 
+    $('#additional-issues').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
@@ -21,7 +21,7 @@ $(document).ready(function(){
         }
     }
 
-    $('#record-tab').click(function() { 
+    $('#record-tab').click(function() {
         getRecordId()
         $.ajax({
             url: log_url,
@@ -30,7 +30,7 @@ $(document).ready(function(){
         });
     });
 
-    $('#issues-tab').click(function() { 
+    $('#issues-tab').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
@@ -38,7 +38,7 @@ $(document).ready(function(){
         });
     });
 
-    $('#history-tab').click(function() { 
+    $('#history-tab').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
@@ -47,7 +47,7 @@ $(document).ready(function(){
     });
 
 //===========DASHBOARD==================//
-    $('#download-data-button').click(function() { 
+    $('#download-data-button').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
@@ -55,29 +55,26 @@ $(document).ready(function(){
         });
     });
 
-    $('#cod_tab').click(function() { 
+    $('#cod_tab').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to COD Tab"}
         });
     });
-    $('#trend_tab').click(function() { 
+    $('#trend_tab').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to VA Trends Tab"}
         });
     });
-    $('#demographic_tab').click(function() { 
-        console.log('clicked demo tab')
+    $('#demographic_tab').click(function() {
         $.ajax({
             url: log_url,
             method: 'POST',
             data: {name: "dashboard", message: "Switched to Demographics Tab"}
         });
     });
-
-
 });
 

@@ -1,18 +1,18 @@
+import uuid
+from datetime import datetime
+from functools import reduce
+
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import AbstractUser, Permission
 from django.db import models
 from django.db.models import ManyToManyField
 from django.urls import reverse
-from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
-from functools import reduce
-import uuid
 
 # from allauth.account.models import EmailAddress
 # from allauth.account.signals import email_confirmed
 # from django.dispatch import receiver
-from va_explorer.va_data_management.models import VerbalAutopsy, Location, VaUsername
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 
 
 class CustomUserManager(BaseUserManager):
@@ -59,23 +59,32 @@ class User(AbstractUser):
         _("The user has a user-defined password"), default=False
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    location_restrictions = ManyToManyField(Location, related_name="users", db_table="users_user_location_restrictions")
+    location_restrictions = ManyToManyField(
+        Location, related_name="users", db_table="users_user_location_restrictions"
+    )
 
     # The query set of verbal autopsies that this user has access to, based on location restrictions
     # Note: locations are organized in a tree structure, and users have access to all children of any
     # parent location nodes they have access to
-    def verbal_autopsies(self, date_cutoff= None):
-               
+    def verbal_autopsies(self, date_cutoff=None, end_date=None):
         # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
-        date_cutoff = "1901-01-01" if not date_cutoff else date_cutoff
-        va_objects = VerbalAutopsy.objects.filter(Id10023__gte=date_cutoff)
-        
+        date_cutoff = date_cutoff if date_cutoff else "1901-01-01"
+        end_date = end_date if end_date else datetime.today().strftime("%Y-%m-%d")
+        va_objects = VerbalAutopsy.objects.filter(
+            Id10023__gte=date_cutoff, Id10023__lte=end_date
+        )
+
         if self.is_fieldworker():
-            return va_objects.filter(username__in=self.vausername_set.all().values_list('va_username'))
+            return va_objects.filter(
+                username__in=self.vausername_set.all().values_list("va_username")
+            )
         if self.location_restrictions.count() > 0:
             # Get the query set of all locations at or below the parent nodes the user can access by joining
             # the query sets of all the location trees; using the | operator leads to an efficient query
-            location_sets = [Location.get_tree(location) for location in self.location_restrictions.all()]
+            location_sets = [
+                Location.get_tree(location)
+                for location in self.location_restrictions.all()
+            ]
             locations = reduce((lambda set1, set2: set1 | set2), location_sets)
             # Return the list of all verbal autopsies associated with that query set of locations
             return va_objects.filter(location__in=locations)
@@ -88,11 +97,13 @@ class User(AbstractUser):
 
     @property
     def can_view_pii(self):
-        return self.has_perm('va_analytics.view_pii')
+        return self.has_perm("va_analytics.view_pii")
 
     @can_view_pii.setter
     def can_view_pii(self, value):
-        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='view_pii')
+        permission = Permission.objects.get(
+            content_type__app_label="va_analytics", codename="view_pii"
+        )
         if value:
             self.user_permissions.add(permission)
         else:
@@ -100,11 +111,13 @@ class User(AbstractUser):
 
     @property
     def can_download_data(self):
-        return self.has_perm('va_analytics.download_data')
+        return self.has_perm("va_analytics.download_data")
 
     @can_download_data.setter
     def can_download_data(self, value):
-        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='download_data')
+        permission = Permission.objects.get(
+            content_type__app_label="va_analytics", codename="download_data"
+        )
         if value:
             self.user_permissions.add(permission)
         else:
@@ -112,11 +125,13 @@ class User(AbstractUser):
 
     @property
     def can_supervise_users(self):
-        return self.has_perm('va_analytics.supervise_users')
+        return self.has_perm("va_analytics.supervise_users")
 
     @can_supervise_users.setter
     def can_supervise_users(self, value):
-        permission = Permission.objects.get(content_type__app_label='va_analytics', codename='supervise_users')
+        permission = Permission.objects.get(
+            content_type__app_label="va_analytics", codename="supervise_users"
+        )
         if value:
             self.user_permissions.add(permission)
         else:
@@ -130,7 +145,7 @@ class User(AbstractUser):
             return
 
         # Update or create the VaUsername for this user. There should only be one.
-        self.vausername_set.update_or_create(defaults={'va_username': new_va_username})
+        self.vausername_set.update_or_create(defaults={"va_username": new_va_username})
 
     # TODO: Update this if we are supporting more than one username; for now, allow only one
     def get_va_username(self):

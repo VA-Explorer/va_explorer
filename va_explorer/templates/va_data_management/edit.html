@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static i18n %}
 {% block title %}Edit Verbal Autopsy {{ id }}{% endblock %}
 
 {% block heading %}Edit Verbal Autopsy #{{ id }}{% endblock %}
@@ -16,7 +16,7 @@
            {% endfor %}
 
       {% endfor %}
-  {% endif %}  
+  {% endif %}
   {% for field in form %}
     <div class="form-group row">
       <div class="col-sm-2">
@@ -34,11 +34,16 @@
 </form>
 
 <div class="flt-action-backdrop"></div>
-<div class="flt-action-btn child to-top" data-subitem="3"><i class="fas fa-caret-up"></i></div>
-<div class="flt-action-btn child to-bottom" data-subitem="2"><i class="fas fa-caret-down"></i></div>
+<div class="flt-action-btn child to-top" data-subitem="3"><i class="icon-up-dir"></i></div>
+<div class="flt-action-btn child to-bottom" data-subitem="2"><i class="icon-down-dir"></i></div>
 <a href="{% url 'data_management:show' id=id %}">
-  <div class="flt-action-btn child" data-subitem="1"><i class="fas fa-angle-double-left"></i></div>
+  <div class="flt-action-btn child" data-subitem="1"><i class="icon-angle-double-left"></i></div>
 </a>
-<div class="flt-action-btn" id="main-fab"><i class="fas fa-sort"></i></div>
+<div class="flt-action-btn" id="main-fab"><i class="icon-sort"></i></div>
 </div>
+{% endblock %}
+
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'js/fab.js' %}"></script>
 {% endblock %}

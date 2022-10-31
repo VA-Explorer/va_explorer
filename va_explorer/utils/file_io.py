@@ -1,4 +1,5 @@
 import csv
+
 from django.http import HttpResponse
 
 
@@ -20,15 +21,16 @@ def download_queryset_as_csv(queryset, filename, location):
             value = getattr(row, field)
             if callable(value):
                 try:
-                    value = value() or ''
-                except:
-                    value = 'Error retrieving value'
+                    value = value() or ""
+                except Exception as err:
+                    value = f"Error retrieving value: {err}"
             if value is None:
-                value = ''
+                value = ""
             values.append(value)
         writer.writerow(values)
 
     return response
+
 
 def download_list_as_csv(generic_list, filename, location):
     # Set the response details
@@ -36,17 +38,20 @@ def download_list_as_csv(generic_list, filename, location):
 
     writer = csv.writer(response, delimiter=",")
     for item in generic_list:
-        # Note .writerow() requires a sequence ('', (), []) and places each index in its own column of the row, sequentially
-        # If your desired string is not an item in a sequence, writerow() will iterate over each letter in your string
+        # Note .writerow() requires a sequence ('', (), []) and places each
+        # index in its own column of the row, sequentially
+        # If your desired string is not an item in a sequence, writerow() will
+        # iterate over each letter in your string
         writer.writerow([item])
 
     return response
 
+
 def csv_response_with_redirect(filename, location):
-    response = HttpResponse(content_type='text/csv')
-    response['Location'] = location
+    response = HttpResponse(content_type="text/csv")
+    response["Location"] = location
     # TODO: This does not currently set the filename
-    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+    response["Content-Disposition"] = 'attachment; filename="{}.csv"'.format(filename)
     response.status_code = 302
 
     return response

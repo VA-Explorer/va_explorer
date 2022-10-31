@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% load static i18n %}
 
@@ -7,13 +6,13 @@
   <div class="col">
     {% include 'partials/_va_update_stats.html' %}
     {% if not user.is_fieldworker %}
-        {% if last_update or last_submission %}
-          <h2 class="mb-4">VA Collection Overview for {{ locations }}</h2>
-        {% else %}
-          <h2 class="mb-4">No VAs found for {{ locations }}</h2>
-        {% endif %}
+      {% if last_update or last_submission %}
+        <h2 class="mb-4">VA Collection Overview for {{ locations }}</h2>
+      {% else %}
+        <h2 class="mb-4">No VAs found for {{ locations }}</h2>
+      {% endif %}
     {% else %}
-        <h2 class="mb-4">Your VA Trends</h2>
+      <h2 class="mb-4">Your VA Trends</h2>
     {% endif %}
 
     <table class="table home-page-statistics">
@@ -30,31 +29,30 @@
       <tbody>
         <tr>
           <th scope="row">Submitted</th>
-          <td>{{ vas_collected_24_hours }}</span></td>
-          <td>{{ vas_collected_1_week }}</td>
-          <td>{{ vas_collected_1_month }}</td>
-          <td>{{ vas_collected_overall }}</td>
-          <td>{{ graph_collected|safe }}</td>
+          <td id="submitted-past-24-hours"></td>
+          <td id="submitted-past-week"></td>
+          <td id="submitted-past-month"></td>
+          <td id="submitted-overall"></td>
+          <td><canvas id="submittedChart"></canvas></td>
         </tr>
         <tr>
           <th scope="row">Coded</th>
-          <td>{{ vas_coded_24_hours }}</td>
-          <td>{{ vas_coded_1_week }}</td>
-          <td>{{ vas_coded_1_month }}</td>
-          <td>{{ vas_coded_overall }}</td>
-          <td>{{ graph_coded|safe }}</td>
+          <td id="coded-past-24-hours"></td>
+          <td id="coded-past-week"></td>
+          <td id="coded-past-month"></td>
+          <td id="coded-overall"></td>
+          <td><canvas id="codedChart"></canvas></td>
         </tr>
         <tr>
           <th scope="row">Not Yet Coded</th>
-          <td>{{ vas_uncoded_24_hours }}</td>
-          <td>{{ vas_uncoded_1_week }}</td>
-          <td>{{ vas_uncoded_1_month }}</td>
-          <td>{{ vas_uncoded_overall }}</td>
-          <td>{{ graph_uncoded|safe }}</td>
+          <td id="uncoded-past-24-hours"></td>
+          <td id="uncoded-past-week"></td>
+          <td id="uncoded-past-month"></td>
+          <td id="uncoded-overall"></td>
+          <td><canvas id="notYetCodedChart"></canvas></td>
         </tr>
       </tbody>
     </table>
-
   </div>
 </div>
 
@@ -73,26 +71,75 @@
 <div class="row mt-4">
   <div class="col">
     <h2 class="mb-4">VAs With Coding Issues</h2>
-    {% if issue_list %}
-      {% include 'partials/_va_table.html' with va_list=issue_list %}
-      {% if additional_issues > 0 %}<p>There are <a href="/va_data_management/?only_errors=True" id="additional_issues">{{ additional_issues }} additional issues</a> not listed here</p>{% endif %}
-    {% else %}
-      <strong>No coding issues found!</strong>
-      <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
-    {% endif %}
-  <div>
+    <table class="table table-sm hidden" id="coding-issues">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Submitted</th>
+          {% if not user.is_fieldworker %}<th>Interviewer</th>{% endif %}
+          <th>Facility</th>
+          <th>Deceased</th>
+          <th>Deathdate</th>
+          <th>Cause</th>
+          <th>Warnings</th>
+          <th>Errors</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="coding-issues-root"></tr>
+      </tbody>
+    </table>
+    <p id="additional-issues-msg" class="hidden">There are <a href="/va_data_management/?only_errors=True" id="additional-issues">
+    <span id="additional-issues-count"></span> additional issues</a> not listed here</p>
+  </div>
 </div>
 <div class="row mt-4">
-    <div class="col">
-      <h2 class="mb-4">VAs With Indeterminate Cause of Death</h2>
-      {% if indeterminate_cod_list %}
-        {% include 'partials/_va_table.html' with va_list=indeterminate_cod_list %}
-        {% if additional_indeterminate_cods > 0 %}<p>There are <a href="/va_data_management/?cause=Indeterminate" id="additional_issues">{{ additional_indeterminate_cods }} additional VAs with Indeterminate Cause of Death</a> not listed here</p>{% endif %}
-      {% else %}
-        <strong>No VAs with Indeterminate Cause of Death found!</strong>
-        <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
-      {% endif %} 
+  <div class="col">
+    <div id="no-coding-issues" class="hidden">
+      <strong>No coding issues found!</strong>
+      <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
+    </div>
   </div>
-<div>
+</div>
+<div class="row mt-4">
+  <div class="col">
+    <h2 class="mb-4">VAs With Indeterminate Cause of Death</h2>
+    <table class="table table-sm hidden" id="indeterminate-cod">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Submitted</th>
+          {% if not user.is_fieldworker %}<th>Interviewer</th>{% endif %}
+          <th>Facility</th>
+          <th>Deceased</th>
+          <th>Deathdate</th>
+          <th>Cause</th>
+          <th>Warnings</th>
+          <th>Errors</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="indeterminate-cod-root"></tr>
+      </tbody>
+    </table>
+    <p id="additional-indeterminate-cods-msg" class="hidden">There are <a href="/va_data_management/?cause=Indeterminate" id="additional-cods">
+      <span id="additional-indeterminate-cods-count"></span> additional VAs with Indeterminate Cause of Death</a> not listed here</p>
+  </div>
+</div>
+<div class="row mt-4">
+  <div class="col">
+    <div id="no-indeterminate-cod" class="hidden">
+      <strong>No VAs with Indeterminate Cause of Death found!</strong>
+      <p>Head over to the <a href="/va_analytics/dashboard">dashboard</a> to analyze VAs</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
+<!-- Needs to be outside content block so JS in base template loads first -->
+{% block page_scripts %}
+  <script src="{% static 'vendor/chartjs-3.7.1/chart.min.js' %}"></script>
+  <script src="{% static 'js/home.js' %}"></script>
 {% endblock %}

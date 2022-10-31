@@ -47,12 +47,16 @@ _select_2 = [
     ("undetermined", _("Ambiguous / Intersex")),
 ]
 
-_select_18 = _dk_ref + [
-    ("hospital", _("Hospital")),
-    ("other_health_facility", _("Other health facility")),
-    ("home", _("Home")),
-    ("on_route_to_hospital_or_facility", _("On route to hospital or facility")),
-] + _other 
+_select_18 = (
+    _dk_ref
+    + [
+        ("hospital", _("Hospital")),
+        ("other_health_facility", _("Other health facility")),
+        ("home", _("Home")),
+        ("on_route_to_hospital_or_facility", _("On route to hospital or facility")),
+    ]
+    + _other
+)
 
 _select_19 = _dk_ref + [
     ("single", _("Single")),
@@ -70,15 +74,19 @@ _select_23 = _dk_ref + [
     ("higher_than_secondary_school", _("Higher than secondary school")),
 ]
 
-_select_25 = _dk_ref + [
-    ("mainly_unemployed", _("Mainly unemployed")),
-    ("mainly_employed", _("Mainly employed")),
-    ("home-maker", _("Home-maker")),
-    ("pensioner", _("Pensioner")),
-    ("student", _("Student")),
-] + _other 
+_select_25 = (
+    _dk_ref
+    + [
+        ("mainly_unemployed", _("Mainly unemployed")),
+        ("mainly_employed", _("Mainly employed")),
+        ("home-maker", _("Home-maker")),
+        ("pensioner", _("Pensioner")),
+        ("student", _("Student")),
+    ]
+    + _other
+)
 
-_select_32 =  _ref + [
+_select_32 = _ref + [
     ("parent", _("Parent")),
     ("child", _("Child")),
     ("family_member", _("Other family member")),
@@ -123,15 +131,19 @@ _select_135 = [
     ("everywhere", _("Everywhere")),
 ] + _dk_ref
 
-_select_161 = [
-    ("right_side", _("Right side")),
-    ("left_side", _("Left side")),
-    ("lower_part_of_body", _("Lower part of body")),
-    ("upper_part_of_body", _("Upper part of body")),
-    ("one_leg_only", _("One leg only")),
-    ("one_arm_only", _("One arm only")),
-    ("whole_body", _("Whole body")),
-] + _other + _dk_ref
+_select_161 = (
+    [
+        ("right_side", _("Right side")),
+        ("left_side", _("Left side")),
+        ("lower_part_of_body", _("Lower part of body")),
+        ("upper_part_of_body", _("Upper part of body")),
+        ("one_leg_only", _("One leg only")),
+        ("one_arm_only", _("One arm only")),
+        ("whole_body", _("Whole body")),
+    ]
+    + _other
+    + _dk_ref
+)
 
 _select_164 = [
     ("solids", _("Solids")),
@@ -149,33 +161,51 @@ _select_219 = [
 _select_223 = _select_18
 
 _ped = [("pedestrian", _("Pedestrian"))]
-_select_292 = _dk_ref + _ped + [
-    ("in_car_or_light_vehicle", _("Driver or passenger in car or light vehicle")),
-    ("in_bus_or_heavy_vehicle", _("Driver or passenger in bus or heavy vehicle")),
-    ("on_a_motorcycle", _("Driver or passenger on a motorcycle")),
-    ("on_a_pedal_cycle", _("Driver or passenger on a pedal cycle")),
-] + _other 
+_select_292 = (
+    _dk_ref
+    + _ped
+    + [
+        ("in_car_or_light_vehicle", _("Driver or passenger in car or light vehicle")),
+        ("in_bus_or_heavy_vehicle", _("Driver or passenger in bus or heavy vehicle")),
+        ("on_a_motorcycle", _("Driver or passenger on a motorcycle")),
+        ("on_a_pedal_cycle", _("Driver or passenger on a pedal cycle")),
+    ]
+    + _other
+)
 
-_select_293 = _dk_ref + _ped + [
-    ("stationary_object", _("Stationary object")),
-    ("car_or_light_vehicle", _("Car or light vehicle")),
-    ("bus_or_heavy_vehicle", _("Bus or heavy vehicle")),
-    ("motorcycle", _("Motorcycle")),
-    ("pedal_cycle", _("Pedal cycle")),
-] + _other 
+_select_293 = (
+    _dk_ref
+    + _ped
+    + [
+        ("stationary_object", _("Stationary object")),
+        ("car_or_light_vehicle", _("Car or light vehicle")),
+        ("bus_or_heavy_vehicle", _("Bus or heavy vehicle")),
+        ("motorcycle", _("Motorcycle")),
+        ("pedal_cycle", _("Pedal cycle")),
+    ]
+    + _other
+)
 
-_select_299 = _dk_ref + [
-    ("dog", _("Dog")),
-    ("snake", _("Snake")),
-    ("insect_or_scorpion", _("Insect or scorpion")),
-] + _other 
+_select_299 = (
+    _dk_ref
+    + [
+        ("dog", _("Dog")),
+        ("snake", _("Snake")),
+        ("insect_or_scorpion", _("Insect or scorpion")),
+    ]
+    + _other
+)
 
-_select_306 = _dk_ref + [
-    ("cigarettes", _("Cigarettes")),
-    ("pipe", _("Pipe")),
-    ("chewing_tobacco", _("Chewing tobacco")),
-    ("local_form_of_tobacco", _("Local form of tobacco")),
-] + _other 
+_select_306 = (
+    _dk_ref
+    + [
+        ("cigarettes", _("Cigarettes")),
+        ("pipe", _("Pipe")),
+        ("chewing_tobacco", _("Chewing tobacco")),
+        ("local_form_of_tobacco", _("Local form of tobacco")),
+    ]
+    + _other
+)
 
 _select_322 = [
     ("traditional_healer", _("Traditional healer")),
@@ -184,7 +214,10 @@ _select_322 = [
     ("government_hospital", _("Government hospital")),
     ("govment_health_center_or_clinic", _("Government health center or clinic")),
     ("private_hospital", _("Private hospital")),
-    ("community_based_pract_system", _("Community-based practitioner associated with health system")),
+    (
+        "community_based_pract_system",
+        _("Community-based practitioner associated with health system"),
+    ),
     ("trained_birth_attendant", _("Trained birth attendant")),
     ("private_physician", _("Private physician")),
     ("relative_friend", _("Relative, friend (outside household)")),
@@ -197,62 +230,86 @@ _select_500 = [
     ("foreign_national", _("Foreign national")),
 ] + _dk_ref
 
-_select_501 = [
-    ("stridor", _("Stridor")),
-    ("grunting", _("Grunting")),
-    ("wheezing", _("Wheezing")),
-] + _no + _dk_ref
+_select_501 = (
+    [
+        ("stridor", _("Stridor")),
+        ("grunting", _("Grunting")),
+        ("wheezing", _("Wheezing")),
+    ]
+    + _no
+    + _dk_ref
+)
 
 _none = [("None", _("None of the above words were mentioned"))]
-_select_510 = [
-    ("Chronic_kidney_disease", _("Chronic kidney disease")),
-    ("Dialysis", _("Dialysis")),
-    ("Fever", _("Fever")),
-    ("Heart_attack", _("Heart attack")),
-    ("Heart_problem", _("Heart problem")),
-    ("Jaundice", _("Jaundice")),
-    ("Liver_failure", _("Liver failure")),
-    ("Malaria", _("Malaria")),
-    ("Pneumonia", _("Pneumonia")),
-    ("Renal_kidney_failure", _("Renal (kidney) failure")),
-    ("Suicide", _("Suicide")),
-] + _none + _dk
+_select_510 = (
+    [
+        ("Chronic_kidney_disease", _("Chronic kidney disease")),
+        ("Dialysis", _("Dialysis")),
+        ("Fever", _("Fever")),
+        ("Heart_attack", _("Heart attack")),
+        ("Heart_problem", _("Heart problem")),
+        ("Jaundice", _("Jaundice")),
+        ("Liver_failure", _("Liver failure")),
+        ("Malaria", _("Malaria")),
+        ("Pneumonia", _("Pneumonia")),
+        ("Renal_kidney_failure", _("Renal (kidney) failure")),
+        ("Suicide", _("Suicide")),
+    ]
+    + _none
+    + _dk
+)
 
-_select_511 = [
-    ("asphyxia", _("Asphyxia")),
-    ("incubator", _("Incubator")),
-    ("lung_problem", _("Lung problem")),
-    ("pneumonia", _("Pneumonia")),
-    ("preterm_delivery", _("Preterm delivery")),
-    ("respiratory_distress", _("Respiratory distress")),
-] + _none + _dk
+_select_511 = (
+    [
+        ("asphyxia", _("Asphyxia")),
+        ("incubator", _("Incubator")),
+        ("lung_problem", _("Lung problem")),
+        ("pneumonia", _("Pneumonia")),
+        ("preterm_delivery", _("Preterm delivery")),
+        ("respiratory_distress", _("Respiratory distress")),
+    ]
+    + _none
+    + _dk
+)
 
-_select_512 = [
-    ("abdomen", _("Abdomen")),
-    ("cancer", _("Cancer")),
-    ("dehydration", _("Dehydration")),
-    ("dengue", _("Dengue fever")),
-    ("diarrhea", _("Diarrhoea")),
-    ("fever", _("Fever")),
-    ("heart_problem", _("Heart problems")),
-    ("jaundice", _("Jaundice (yellow skin or eyes)")),
-    ("pneumonia", _("Pneumonia")),
-    ("rash", _("Rash")),
-] + _none + _dk
+_select_512 = (
+    [
+        ("abdomen", _("Abdomen")),
+        ("cancer", _("Cancer")),
+        ("dehydration", _("Dehydration")),
+        ("dengue", _("Dengue fever")),
+        ("diarrhea", _("Diarrhoea")),
+        ("fever", _("Fever")),
+        ("heart_problem", _("Heart problems")),
+        ("jaundice", _("Jaundice (yellow skin or eyes)")),
+        ("pneumonia", _("Pneumonia")),
+        ("rash", _("Rash")),
+    ]
+    + _none
+    + _dk
+)
 
-_select_520 = [
-    ("green_or_brown", _("Green or brown")),
-    ("clear", _("Clear (normal)")),
-] + _other + _dk_ref
+_select_520 = (
+    [
+        ("green_or_brown", _("Green or brown")),
+        ("clear", _("Clear (normal)")),
+    ]
+    + _other
+    + _dk_ref
+)
 
-_select_530 = _dk_ref + [
-    ("Doctor", _("Doctor")),
-    ("Midwife", _("Midwife")),
-    ("Nurse", _("Nurse")),
-    ("Relative", _("Relative")),
-    ("Self_mother", _("Self (the mother)")),
-    ("Traditional_birth_attendant", _("Traditional birth attendant")),
-] + _other 
+_select_530 = (
+    _dk_ref
+    + [
+        ("Doctor", _("Doctor")),
+        ("Midwife", _("Midwife")),
+        ("Nurse", _("Nurse")),
+        ("Relative", _("Relative")),
+        ("Self_mother", _("Self (the mother)")),
+        ("Traditional_birth_attendant", _("Traditional birth attendant")),
+    ]
+    + _other
+)
 
 _select_531 = [
     ("positive", _("Positive")),
@@ -575,7 +632,7 @@ _checkbox_choices = {
     "Id10433": _select_322,
     "Id10477": _select_510,
     "Id10478": _select_511,
-    "Id10479": _select_512
+    "Id10479": _select_512,
 }
 
 # Generally >5 choices assigned here instead of radio buttons (if not checkbox)
@@ -600,10 +657,9 @@ _text_fields = [
     "simserial",
     "username",
     "bid",
-    "province",         # TODO: convert to dynamic dropdown
-    "area",             # TODO: convert to dynamic dropdown
-    "hospital"          # TODO: convert to dynamic dropdown
-    "Id10007",
+    "province",  # TODO: convert to dynamic dropdown
+    "area",  # TODO: convert to dynamic dropdown
+    "hospital" "Id10007",  # TODO: convert to dynamic dropdown
     "Id10010",
     "Id10010c",
     "Id10017",
@@ -800,7 +856,7 @@ HIDDEN_FIELDS = (
     "id",
     "location",
     "instanceid",
-    "deleted_at",               
+    "deleted_at",
     "unique_va_identifier",
     "duplicate",
     "bid2",
@@ -822,7 +878,7 @@ HIDDEN_FIELDS = (
     "id10477_check",
     "id10478_check",
     "id10479_check",
-    "geopoint"      # GPS data stored on VAs sent from ODK?
+    "geopoint",  # GPS data stored on VAs sent from ODK?
 )
 
 FORM_FIELDS = {
@@ -834,7 +890,7 @@ FORM_FIELDS = {
     "date": _date_fields,
     "time": _time_fields,
     "datetime": _datetime_fields,
-    "display":  _display_fields,    # corresponds to calculate in WHO instrument
+    "display": _display_fields,  # corresponds to calculate in WHO instrument
 }
 
 REDACTED_STRING = "** redacted **"
