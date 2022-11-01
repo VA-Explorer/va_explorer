@@ -78,7 +78,8 @@ const dashboard = new Vue({
             const geoMin = 0
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
-            return Array.from({length: n}, (_, i) => geoMin + step * i)
+            console.log(Array.from({length: n}, (_, i) => Math.round(geoMin + step * i)));
+            return Array.from({length: n}, (_, i) => Math.round(geoMin + step * i))
         },
         dynamicCODHeight() {
             return this.COD_grouping.length === 1 ? (1 / 2) * this.codHeight : (4 / 5) * this.codHeight
@@ -142,10 +143,10 @@ const dashboard = new Vue({
                     [-20, 34],
                 ]
             }).setView([-13, 27], 6)
-            
+
             this.map.attributionControl.setPrefix('')
             this.map.keyboard.disable()
-            
+
             const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 10,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -153,7 +154,7 @@ const dashboard = new Vue({
         },
         addGeoJSONToMap() {
             // Remove any existing choropleth layer and add new layer with tooltip and coloring
-            
+
 
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)
@@ -199,7 +200,7 @@ const dashboard = new Vue({
             if (results) {
                 const count = results.count
                 for (let i = 0; i < this.geoScale.length; i++) {
-                    if (count > this.geoScale[i] && count < this.geoScale[i + 1]) {
+                    if (count >= this.geoScale[i] && count < this.geoScale[i + 1]) {
                         return this.colorScale[i]
                     }
                 }

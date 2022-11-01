@@ -69,7 +69,17 @@
           <option v-for="location in locations" :key="location"><% location %></option>
         </select>
       </div>
-      <div id="map"></div>
+      <div id="map">
+        <div class="legend" v-if="geoScale">
+          <div v-for="(color, i) in colorScale" :key="i">
+            <svg width="18" height="14">
+              <rect :fill="color" :style="{border: '2px solid ' + color}" width="14" height="14"></rect>
+            </svg>
+            <% geoScale[i] + (i < geoScale.length - 2 ? ' - ' + (geoScale[i + 1] - 1) : '+') %>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <section class="sectionContainer topCausesView">

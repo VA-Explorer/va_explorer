@@ -98,10 +98,7 @@ demonstration data can be loaded.
 
 - Windows only: manually uninstall and reinstall `psycopg2`
 
-  ```
-  pip uninstall psycopg2
-  pip install psycopg2
-  ```
+  `pip uninstall psycopg2; pip install psycopg2`
 
 - Create the va_explorer database using your postgres user made during postgres
   download. It may be `postgres` for example.

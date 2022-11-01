@@ -354,3 +354,15 @@ input {
     grid-column: 1/2;
   }
 }
+
+.legend {
+  z-index: 1000;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  border: 2px solid #ccc;
+  text-align: left;
+}
