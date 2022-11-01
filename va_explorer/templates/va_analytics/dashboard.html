@@ -90,11 +90,11 @@
           <stacked-bar-chart v-if="COD_grouping.length > 0"
                              :plot-data="COD_grouping" x-key="cause"
                              direction="horizontal" bar-axis-location="top"
-                             :y-tick-format="d => d.length > 15 ? `${d.slice(0,15)}...` : d"
+                             :y-tick-format="d => d.length > 30 ? `${d.slice(0,30)}...` : d"
                              :padding-between-bars="0.3"
                              :x-ticks="3"
                              :width="codWidth" :height="dynamicCODHeight"
-                             :margin="{top: 20, bottom: 10, left: 110, right: 30}">
+                             :margin="{top: 20, bottom: 10, left: 190, right: 30}">
           </stacked-bar-chart>
         </div>
 
@@ -112,17 +112,20 @@
     <section class="sectionContainer demographicsView">
       <h2>All Cause Demographics</h2>
       <div class="chartsContainer" ref="demographics">
-        <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
-                           :width="demographicsWidth * (1/2)" :height="demographicsHeight"
-                           :y-ticks="4" direction="horizontal"
-                           :margin="{top: 10, bottom: 20, left: 110, right: 20}">
-        </stacked-bar-chart>
+        <div>
+          <base-legend :legend-data="demographicsLegendData" :alignment="'horizontal'"></base-legend>
+          <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
+                             :width="demographicsWidth * (1/2)" :height="demographicsHeight - 30"
+                             :y-ticks="4" direction="horizontal"
+                             :margin="{top: 0, bottom: 20, left: 110, right: 20}">
+          </stacked-bar-chart>
+        </div>
         <stacked-bar-chart v-if="place_of_death.length > 0" :plot-data="place_of_death" x-key="place"
                            direction="horizontal" :width="demographicsWidth * (1/2)" :height="demographicsHeight"
-                           :y-tick-format="d => d.length > 12 ? `${d.slice(0, 12)}...` : d"
+                           :y-tick-format="d => d.length > 25 ? `${d.slice(0, 25)}...` : d"
                            :padding-between-bars="0.2"
                            :x-ticks="3"
-                           :margin="{top: 10, bottom: 20, left: 90, right: 15}">
+                           :margin="{top: 10, bottom: 20, left: 150, right: 15}">
         </stacked-bar-chart>
       </div>
     </section>

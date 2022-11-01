@@ -45,6 +45,17 @@ const dashboard = new Vue({
             colorScale: [
                 "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                 "#fee090", "#fdae61", "#f46d43", "#d73027"
+            ],
+
+            demographicsLegendData: [
+                {
+                    name: "Female",
+                    color: "#440154FF",
+                },
+                {
+                    name: "Male",
+                    color: "#404788FF",
+                }
             ]
         }
     },
@@ -126,7 +137,10 @@ const dashboard = new Vue({
             const jsonRes = await dataReq.json()
             this.COD_grouping = jsonRes.COD_grouping
             this.COD_trend = jsonRes.COD_trend
-            this.place_of_death = jsonRes.place_of_death
+            this.place_of_death = jsonRes.place_of_death.map(d => {
+                d.place = d.place.replace(/_/g, " ");
+                return d;
+            })
             this.demographics = jsonRes.demographics
             this.geographic_province_sums = jsonRes.geographic_province_sums
             this.geographic_district_sums = jsonRes.geographic_district_sums
@@ -151,6 +165,9 @@ const dashboard = new Vue({
                 this.demographics[index].order = ageGroups.indexOf(ageGroup);
             }
             this.demographics.sort((a, b) => a.order > b.order ? 1 : b.order > a.order ? -1 : 0);
+            this.demographics.forEach(d => {
+                delete d.order;
+            });
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load
