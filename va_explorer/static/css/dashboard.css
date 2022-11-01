@@ -11,14 +11,15 @@ figure {
 
 /* ---- Main container styling ---- */
 main {
-  height: 95vh;
-  width: 100%;
+  margin-top: -50px;
+  height: calc(100vh - 95px);
+  width: calc(100vw - 30px);
   font-size: .88rem;
   box-sizing: border-box;
-  padding: 10px;
+  padding: 10px 0 0 0;
   display: grid;
   grid-template-rows: 15rem repeat(5, minmax(0, 1fr));
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-gap: 10px;
   --h2height: 20px;
 }
@@ -199,7 +200,7 @@ svg text {
 
 /* ---- TOP CAUSES SECTION ---- */
 .topCausesView {
-  grid-column: 4/6;
+  grid-column: 4/7;
   grid-row: 1/5;
   display: flex;
   flex-direction: column;
@@ -223,7 +224,7 @@ svg text {
 
 /* ---- DEMOGRAPHICS SECTION ---- */
 .demographicsView {
-  grid-column: 4/6;
+  grid-column: 4/7;
   grid-row: 5/7;
 
   display: flex;
@@ -365,4 +366,12 @@ input {
   border-radius: 4px;
   border: 2px solid #ccc;
   text-align: left;
+}
+
+.container {
+  margin-left: unset;
+}
+
+body {
+  padding-bottom: 0;
 }

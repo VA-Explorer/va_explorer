@@ -113,12 +113,12 @@
       <h2>All Cause Demographics</h2>
       <div class="chartsContainer" ref="demographics">
         <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
-                           :width="demographicsWidth * (1/3)" :height="demographicsHeight"
-                           :y-ticks="4"
-                           :margin="{top: 10, bottom: 20, left: 40, right: 20}">
+                           :width="demographicsWidth * (1/2)" :height="demographicsHeight"
+                           :y-ticks="4" direction="horizontal"
+                           :margin="{top: 10, bottom: 20, left: 110, right: 20}">
         </stacked-bar-chart>
         <stacked-bar-chart v-if="place_of_death.length > 0" :plot-data="place_of_death" x-key="place"
-                           direction="horizontal" :width="demographicsWidth * (2/3)" :height="demographicsHeight"
+                           direction="horizontal" :width="demographicsWidth * (1/2)" :height="demographicsHeight"
                            :y-tick-format="d => d.length > 12 ? `${d.slice(0, 12)}...` : d"
                            :padding-between-bars="0.2"
                            :x-ticks="3"

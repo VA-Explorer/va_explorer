@@ -78,7 +78,6 @@ const dashboard = new Vue({
             const geoMin = 0
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
-            console.log(Array.from({length: n}, (_, i) => Math.round(geoMin + step * i)));
             return Array.from({length: n}, (_, i) => Math.round(geoMin + step * i))
         },
         dynamicCODHeight() {
@@ -134,6 +133,24 @@ const dashboard = new Vue({
             this.uncoded_vas = jsonRes.uncoded_vas
             this.update_stats = jsonRes.update_stats
             this.listOfCausesDropdownOptions = jsonRes.all_causes_list
+
+            // if one or more age groups is absent from API data, add it with counts of zero
+            // also add age ranges here (todo: modify API to do these things?)
+            const ageGroups = ["neonate", "child", "adult"]
+            for (const ageGroup of ageGroups) {
+                let index = this.demographics.map(d => d.age_group).indexOf(ageGroup);
+                if (index === -1) {
+                    this.demographics.push({
+                        female: 0,
+                        male: 0,
+                    });
+                    index = this.demographics.length - 1;
+                }
+                this.demographics[index].age_group = ageGroup === "neonate" ? "Neonate (< 28 days)" :
+                    ageGroup === "child" ? "Child (≤ 12 years)" : "Adult (> 12 years)";
+                this.demographics[index].order = ageGroups.indexOf(ageGroup);
+            }
+            this.demographics.sort((a, b) => a.order > b.order ? 1 : b.order > a.order ? -1 : 0);
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load
