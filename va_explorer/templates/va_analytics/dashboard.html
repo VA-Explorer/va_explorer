@@ -59,14 +59,14 @@
       <div class="controls">
         <label for="mapview">Map View:</label>
         <div class="select">
-          <select id="mapview" v-model="borderType">
+          <select id="mapview" v-model="borderType" @change="updateDataAndMap()">
             <option v-for="option in locationTypesDropdownOptions" :key="option"><% option %></option>
           </select>
         </div>
         <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
-        <select id="searchLocations" v-model="regionSelected">
-          <option value=""></option>
-          <option v-for="location in locations" :key="location"><% location %></option>
+        <select id="searchLocations" v-model="regionSelected" @change="updateDataAndMap()">
+          <option value="">All <% borderType %>s</option>
+          <option v-for="location in locations" v-if="location.type === borderType" :key="location"><% location.name %></option>
         </select>
       </div>
       <div id="map">

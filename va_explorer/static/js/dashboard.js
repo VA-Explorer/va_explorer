@@ -56,7 +56,9 @@ const dashboard = new Vue({
                     name: "Male",
                     color: "#404788FF",
                 }
-            ]
+            ],
+
+            locations: [],
         }
     },
     computed: {
@@ -75,13 +77,12 @@ const dashboard = new Vue({
                 return this.geographic_district_sums
             }
         },
-        locations() {
-            // Used to generate options in "Geographic Distributions" select dropdown
-            if (!this.geographic_province_sums || !this.geographic_district_sums) return []
-            const provinces = this.geographic_province_sums.map(item => item.province_name)
-            const districts = this.geographic_district_sums.map(item => item.district_name)
-            return [...provinces, ...districts]
-        },
+        // locations() {
+        //     // Used to generate options in "Geographic Distributions" select dropdown
+        //     if (!this.geographic_province_sums || !this.geographic_district_sums) return []
+        //     return this.borderType === "Province" ? this.geographic_province_sums.map(item => item.province_name) :
+        //         this.geographic_district_sums.map(item => item.district_name);
+        // },
         geoScale() {
             // A better way to do this would be to import d3 scale and use a quanitzed scale but import is large
             if (!this.geographicSums) return
@@ -98,6 +99,15 @@ const dashboard = new Vue({
     async created() {
         // Request data from API endpoint
         await this.getData()
+
+        this.locations = this.geographic_province_sums.map(d => ({
+            name: d.province_name,
+            type: "Province",
+        })).concat(this.geographic_district_sums.map(d => ({
+            name: d.district_name,
+            type: "District",
+        })));
+        this.locations.sort((a, b) => a.name > b.name ? 1 : b.name > a.name ? -1 : 0);
 
         // Request geojson data
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/static/`
