@@ -41,18 +41,16 @@
           </select>
         </div>
 
-        <div class="betweenDatesContainer" v-if="deathDateSelected === 'Custom'">
-          <span>Between</span>
-          <input id="startDate" class="input" type="date" required v-model="startDate">
-          <span>and</span>
-          <input id="endDate" class="input" type="date" required v-model="endDate">
-          <button type="submit" class="button updateDataBtn">Update Data</button>
-        </div>
-
-        <div class="btnsContainer">
+        <div class="betweenDatesContainer">
+          <div  v-if="deathDateSelected === 'Custom'">
+            <span>Between</span>
+            <input id="startDate" class="input" type="date" required v-model="startDate">
+            <span>and</span>
+            <input id="endDate" class="input" type="date" required v-model="endDate">
+            <button type="submit" class="button updateDataBtn" style="margin-left: 10px">Update Data</button>
+          </div>
           <button type="button" class="button resetBtn" @click="resetAllDataToActive()">Reset</button>
         </div>
-
       </form>
 
 
@@ -75,9 +73,14 @@
       </div>
       <div id="map">
         <div class="legend" v-if="geoScale && !isNaN(geoScale[0])">
+          <div>
+            <svg width="18" height="14">
+              <rect fill="#c0c0c0" width="14" height="14"></rect>
+            </svg> 0
+          </div>
           <div v-for="(color, i) in colorScale" :key="i">
             <svg width="18" height="14">
-              <rect :fill="color" :style="{border: '2px solid ' + color}" width="14" height="14"></rect>
+              <rect :fill="color"width="14" height="14"></rect>
             </svg>
             <% geoScale[i] + (i < geoScale.length - 2 ? ' - ' + (geoScale[i + 1] - 1) : '+') %>
           </div>

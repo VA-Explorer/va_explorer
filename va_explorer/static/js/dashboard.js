@@ -1,3 +1,5 @@
+// todo: percent/count toggle
+
 Vue.use('stacked-bar-chart', 'line-chart', 'loader-spinning')
 
 const dashboard = new Vue({
@@ -88,7 +90,7 @@ const dashboard = new Vue({
             // A better way to do this would be to import d3 scale and use a quanitzed scale but import is large
             if (!this.geographicSums) return
             const geoMax = Math.max(...this.geographicSums.map(item => +item.count)) + 100
-            const geoMin = 0
+            const geoMin = 1
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
             return Array.from({length: n}, (_, i) => Math.round(geoMin + step * i))
@@ -289,7 +291,7 @@ const dashboard = new Vue({
 
             const area_level_label = feature.properties.area_level_label
             const area_name = feature.properties.area_name
-            let count = "N/A"
+            let count = 0
             if (area_level_label === 'District') {
                 let district = vm.geographic_district_sums.find(item => item.district_name.includes(area_name))
                 if (district) {

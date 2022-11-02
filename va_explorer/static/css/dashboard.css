@@ -103,12 +103,12 @@ svg text {
   align-items: center;
 }
 
-.panelView .btnsContainer {
+.panelView .betweenDatesContainer {
   display: flex;
   gap: 0.5rem;
 }
 
-.panelView .btnsContainer button {
+.panelView .betweenDatesContainer button {
   font-size: 0.85rem;
   color: white;
   border: none;
