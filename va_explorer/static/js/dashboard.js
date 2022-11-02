@@ -62,6 +62,8 @@ const dashboard = new Vue({
 
             locations: [],
             suppressWarning: false,
+            placeOfDeathValue: "count",
+            causeOfDeathValue: "count",
         }
     },
     computed: {
@@ -88,6 +90,26 @@ const dashboard = new Vue({
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
             return Array.from({length: n}, (_, i) => Math.round(geoMin + step * i))
+        },
+        placeOfDeathData() {
+            if (!this.place_of_death) return [];
+            if (this.placeOfDeathValue === "count") return this.place_of_death;
+            const totalCount = d3.sum(this.place_of_death.map(item => item.count));
+            return JSON.parse(JSON.stringify(this.place_of_death)).map(d => {
+                d.percentage = Math.round(d.count * 1000  / totalCount) / 10;
+                delete d.count;
+                return d;
+            })
+        },
+        causeOfDeathData() {
+            if (!this.COD_grouping) return [];
+            if (this.causeOfDeathValue === "count") return this.COD_grouping;
+            const totalCount = d3.sum(this.COD_grouping.map(item => item.count));
+            return JSON.parse(JSON.stringify(this.COD_grouping)).map(d => {
+                d.percentage = Math.round(d.count * 1000  / totalCount) / 10;
+                delete d.count;
+                return d;
+            })
         },
     },
     async created() {
