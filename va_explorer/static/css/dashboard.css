@@ -214,7 +214,7 @@ svg text {
 }
 
 .topCausesView .chartsContainer,
-.trendView .chartsContainer{
+.trendView .chartsContainer {
   display: flex;
   flex-direction: column;
   height: calc(100% - var(--h2height));
@@ -237,6 +237,7 @@ svg text {
 .demographicsView .chartsContainer {
   display: flex;
   flex: 1;
+  height: calc(100% - var(--h2height));
 }
 
 /* ---- FORM ELEMENT STYLES ---- */
