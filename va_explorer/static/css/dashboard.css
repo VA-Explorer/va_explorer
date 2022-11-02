@@ -214,7 +214,7 @@ svg text {
 
 .topCausesView .topCausesContainer {
   height: 50%;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 

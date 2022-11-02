@@ -59,6 +59,7 @@ const dashboard = new Vue({
             ],
 
             locations: [],
+            suppressWarning: false,
         }
     },
     computed: {
@@ -178,6 +179,12 @@ const dashboard = new Vue({
             this.demographics.forEach(d => {
                 delete d.order;
             });
+
+            // display warning message if small sample size (allow user to stop these dialogs)
+            if (!this.suppressWarning &&
+                d3.sum(this.COD_grouping.map(item => item.count)) < 50) {
+                $("#small-sample-size-warning").modal().show();
+            }
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load
