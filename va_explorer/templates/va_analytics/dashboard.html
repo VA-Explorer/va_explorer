@@ -108,6 +108,9 @@
                              :x-tick-format="causeOfDeathValue === 'count' ? (d => d) : (d =>`${d}%`)"
                              :width="codWidth" :height="codHeight - 30"
                              :margin="{top: 20, bottom: 10, left: 190, right: 30}">
+            <template v-slot:tooltip="{ bar }">
+              <span style="font-weight: bold"><% bar.x_value %></span> <% bar.y_value %>
+            </template>
           </stacked-bar-chart>
         </div>
       </div>
@@ -135,6 +138,9 @@
                              :width="demographicsWidth * (1/2)" :height="demographicsHeight - 30"
                              :y-ticks="4" direction="horizontal"
                              :margin="{top: 0, bottom: 20, left: 110, right: 20}">
+            <template v-slot:tooltip="{ bar }">
+              <span style="font-weight: bold"><% bar.x_value %> (<% bar.y_label %>)</span> <% bar.y_value %>
+            </template>
           </stacked-bar-chart>
         </div>
         <div>
@@ -151,6 +157,9 @@
                              :x-ticks="3"
                              :x-tick-format="placeOfDeathValue === 'count' ? (d => d) : (d =>`${d}%`)"
                              :margin="{top: 0, bottom: 20, left: 150, right: 15}">
+            <template v-slot:tooltip="{ bar }">
+              <span style="font-weight: bold"><% bar.x_value %></span> <% bar.y_value %>
+            </template>
           </stacked-bar-chart>
         </div>
       </div>
