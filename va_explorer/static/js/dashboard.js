@@ -80,12 +80,6 @@ const dashboard = new Vue({
                 return this.geographic_district_sums
             }
         },
-        // locations() {
-        //     // Used to generate options in "Geographic Distributions" select dropdown
-        //     if (!this.geographic_province_sums || !this.geographic_district_sums) return []
-        //     return this.borderType === "Province" ? this.geographic_province_sums.map(item => item.province_name) :
-        //         this.geographic_district_sums.map(item => item.district_name);
-        // },
         geoScale() {
             // A better way to do this would be to import d3 scale and use a quanitzed scale but import is large
             if (!this.geographicSums) return
@@ -94,9 +88,6 @@ const dashboard = new Vue({
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
             return Array.from({length: n}, (_, i) => Math.round(geoMin + step * i))
-        },
-        dynamicCODHeight() {
-            return this.COD_grouping.length === 1 ? (1 / 2) * this.codHeight : (4 / 5) * this.codHeight
         },
     },
     async created() {

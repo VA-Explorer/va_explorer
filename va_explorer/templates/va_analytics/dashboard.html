@@ -100,19 +100,23 @@
                              :y-tick-format="d => d.length > 30 ? `${d.slice(0,30)}...` : d"
                              :padding-between-bars="0.3"
                              :x-ticks="3"
-                             :width="codWidth" :height="dynamicCODHeight"
+                             :width="codWidth" :height="codHeight"
                              :margin="{top: 20, bottom: 10, left: 190, right: 30}">
           </stacked-bar-chart>
         </div>
+      </div>
+    </section>
 
+    <section class="sectionContainer trendView">
+      <h2>Trend</h2>
+      <div class="chartsContainer" ref="trend">
         <div class="topCauseLineChartContainer">
           <line-chart v-if="COD_trend.length > 0" :plot-data="COD_trend" x-key="month"
-                      :width="codWidth" :height="codHeight / 2"
+                      :width="codWidth" :height="demographicsHeight"
                       :x-ticks="6" :show-points="true" :point-radius="2.5"
                       :margin="{top: 10, bottom: 20, left: 40, right: 20}">
           </line-chart>
         </div>
-
       </div>
     </section>
 
