@@ -27,12 +27,13 @@
 
         <div class="allCausesContainer">
           <label for="causeSelected">All Causes:</label>
-          <select id="causeSelected" class="select" v-model="causeSelected">
+          <select id="causeSelected" class="select" v-model="causeSelected" @change="updateDataAndMap">
             <option value="">All</option>
             <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
           </select>
           <label for="deathDate">Death Date:</label>
-          <select id="deathDate" class="select" v-model="deathDateSelected">
+          <select id="deathDate" class="select" v-model="deathDateSelected"
+                  @change="if (deathDateSelected !== 'Custom') updateDataAndMap()">
             <option v-for="option in deathDateDropdownOptions" :key="option"><% option %></option>
           </select>
         </div>
@@ -42,10 +43,10 @@
           <input id="startDate" class="input" type="date" required v-model="startDate">
           <span>and</span>
           <input id="endDate" class="input" type="date" required v-model="endDate">
+          <button type="submit" class="button updateDataBtn">Update Data</button>
         </div>
 
         <div class="btnsContainer">
-          <button type="submit" class="button updateDataBtn">Update Data</button>
           <button type="button" class="button resetBtn" @click="resetAllDataToActive()">Reset</button>
         </div>
 
@@ -59,12 +60,12 @@
       <div class="controls">
         <label for="mapview">Map View:</label>
         <div class="select">
-          <select id="mapview" v-model="borderType" @change="updateDataAndMap()">
+          <select id="mapview" v-model="borderType" @change="regionSelected = ''; updateDataAndMap()">
             <option v-for="option in locationTypesDropdownOptions" :key="option"><% option %></option>
           </select>
         </div>
         <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
-        <select id="searchLocations" v-model="regionSelected" @change="updateDataAndMap()">
+        <select id="searchLocations" v-model="regionSelected" @change="updateDataAndMap">
           <option value="">All <% borderType %>s</option>
           <option v-for="location in locations" v-if="location.type === borderType" :key="location"><% location.name %></option>
         </select>
