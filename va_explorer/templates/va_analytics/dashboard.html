@@ -29,9 +29,9 @@
         </div>
 
         <div class="allCausesContainer">
-          <label for="causeSelected">All Causes:</label>
+          <label for="causeSelected">Cause of Death:</label>
           <select id="causeSelected" class="select" v-model="causeSelected" @change="updateDataAndMap">
-            <option value="">All</option>
+            <option value="">All Causes</option>
             <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
           </select>
           <label for="deathDate">Death Date:</label>
