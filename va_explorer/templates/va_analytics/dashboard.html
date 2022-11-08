@@ -19,36 +19,38 @@
       <div class="highlightsContainer">
         <div v-for="(value, key) in highlightsSummaries" :key="key" class="highlight">
           <h3><% key %></h3>
-          <p><% value %></p>
+          <p :class="{'text-danger': key === 'Coded VAs' && value < 50}"><% value %></p>
         </div>
       </div>
 
       <form class="controls" @submit.prevent="updateDataAndMap">
+        <div style="font-style: italic">
+          Note: this dashboard visualizes only Coded VAs and all charts will sum to the value in the Coded VAs cell above.
+        </div>
 
         <div class="allCausesContainer">
-          <label for="causeSelected">All Causes:</label>
-          <select id="causeSelected" class="select" v-model="causeSelected">
-            <option value="">All</option>
+          <label for="causeSelected">Cause of Death:</label>
+          <select id="causeSelected" class="select" v-model="causeSelected" @change="updateDataAndMap">
+            <option value="">All Causes</option>
             <option v-for="cause in listOfCausesDropdownOptions" :key="cause"><% cause %></option>
           </select>
           <label for="deathDate">Death Date:</label>
-          <select id="deathDate" class="select" v-model="deathDateSelected">
+          <select id="deathDate" class="select" v-model="deathDateSelected"
+                  @change="if (deathDateSelected !== 'Custom') updateDataAndMap()">
             <option v-for="option in deathDateDropdownOptions" :key="option"><% option %></option>
           </select>
         </div>
 
-        <div class="betweenDatesContainer" v-if="deathDateSelected === 'Custom'">
-          <span>Between</span>
-          <input id="startDate" class="input" type="date" required v-model="startDate">
-          <span>and</span>
-          <input id="endDate" class="input" type="date" required v-model="endDate">
-        </div>
-
-        <div class="btnsContainer">
-          <button type="submit" class="button updateDataBtn">Update Data</button>
+        <div class="betweenDatesContainer">
+          <div  v-if="deathDateSelected === 'Custom'">
+            <span>Between</span>
+            <input id="startDate" class="input" type="date" required v-model="startDate">
+            <span>and</span>
+            <input id="endDate" class="input" type="date" required v-model="endDate">
+            <button type="submit" class="button updateDataBtn" style="margin-left: 10px">Update Data</button>
+          </div>
           <button type="button" class="button resetBtn" @click="resetAllDataToActive()">Reset</button>
         </div>
-
       </form>
 
 
@@ -59,63 +61,146 @@
       <div class="controls">
         <label for="mapview">Map View:</label>
         <div class="select">
-          <select id="mapview" v-model="borderType">
+          <select id="mapview" v-model="borderType" @change="regionSelected = ''; updateDataAndMap()">
             <option v-for="option in locationTypesDropdownOptions" :key="option"><% option %></option>
           </select>
         </div>
         <label for="searchLocations" class="sr-only">Search Locations (or click on map)</label>
-        <select id="searchLocations" v-model="regionSelected">
-          <option value=""></option>
-          <option v-for="location in locations" :key="location"><% location %></option>
+        <select id="searchLocations" v-model="regionSelected" @change="updateDataAndMap">
+          <option value="">All <% borderType %>s</option>
+          <option v-for="location in locations" v-if="location.type === borderType" :key="location"><% location.name %></option>
         </select>
       </div>
-      <div id="map"></div>
+      <div id="map">
+        <div class="legend" v-if="geoScale && !isNaN(geoScale[0])">
+          <div>
+            <svg width="18" height="14">
+              <rect fill="#c0c0c0" width="14" height="14"></rect>
+            </svg> 0
+          </div>
+          <div v-for="(color, i) in colorScale" :key="i">
+            <svg width="18" height="14">
+              <rect :fill="color"width="14" height="14"></rect>
+            </svg>
+            <% geoScale[i] + (i < geoScale.length - 2 ? ' - ' + (geoScale[i + 1] - 1) : '+') %>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <section class="sectionContainer topCausesView">
       <h2>Cause of Death Analysis</h2>
       <div class="chartsContainer" ref="cod">
-
+        <div>
+          <input type="radio" value="count" v-model="causeOfDeathValue">
+          <span style="vertical-align: super; font-size: 12px">Count</span>
+          <input type="radio" value="percentage" v-model="causeOfDeathValue">
+          <span style="vertical-align: super; font-size: 12px">Percentage</span>
+        </div>
         <div class="topCausesContainer">
           <stacked-bar-chart v-if="COD_grouping.length > 0"
-                             :plot-data="COD_grouping" x-key="cause"
+                             :plot-data="causeOfDeathData" x-key="cause"
                              direction="horizontal" bar-axis-location="top"
-                             :y-tick-format="d => d.length > 15 ? `${d.slice(0,15)}...` : d"
+                             :y-tick-format="d => d.length > 30 ? `${d.slice(0,30)}...` : d"
                              :padding-between-bars="0.3"
                              :x-ticks="3"
-                             :width="codWidth" :height="dynamicCODHeight"
-                             :margin="{top: 20, bottom: 10, left: 110, right: 30}">
+                             :x-tick-format="causeOfDeathValue === 'count' ? (d => d) : (d =>`${d}%`)"
+                             :width="codWidth" :height="codHeight - 30"
+                             :margin="{top: 20, bottom: 10, left: 190, right: 30}">
+            <template v-slot:tooltip="{ bar }">
+              <span style="font-weight: bold"><% bar.x_value %></span> <% bar.y_value %>
+            </template>
           </stacked-bar-chart>
         </div>
+      </div>
+    </section>
 
+    <section class="sectionContainer trendView">
+      <h2>Trend</h2>
+      <div class="chartsContainer" ref="trend">
         <div class="topCauseLineChartContainer">
           <line-chart v-if="COD_trend.length > 0" :plot-data="COD_trend" x-key="month"
-                      :width="codWidth" :height="codHeight / 2"
+                      :width="codWidth" :height="demographicsHeight"
                       :x-ticks="6" :show-points="true" :point-radius="2.5"
-                      :margin="{top: 10, bottom: 20, left: 40, right: 20}">
+                      :margin="{top: 10, bottom: 20, left: 30, right: 20}">
           </line-chart>
         </div>
-
       </div>
     </section>
 
     <section class="sectionContainer demographicsView">
       <h2>All Cause Demographics</h2>
       <div class="chartsContainer" ref="demographics">
-        <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
-                           :width="demographicsWidth * (1/3)" :height="demographicsHeight"
-                           :y-ticks="4"
-                           :margin="{top: 10, bottom: 20, left: 40, right: 20}">
-        </stacked-bar-chart>
-        <stacked-bar-chart v-if="place_of_death.length > 0" :plot-data="place_of_death" x-key="place"
-                           direction="horizontal" :width="demographicsWidth * (2/3)" :height="demographicsHeight"
-                           :y-tick-format="d => d.length > 12 ? `${d.slice(0, 12)}...` : d"
-                           :padding-between-bars="0.2"
-                           :x-ticks="3"
-                           :margin="{top: 10, bottom: 20, left: 90, right: 15}">
-        </stacked-bar-chart>
+        <div>
+          <base-legend :legend-data="demographicsLegendData" :alignment="'horizontal'" style="text-align: center"></base-legend>
+          <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
+                             :width="demographicsWidth * (1/2)" :height="demographicsHeight - 30"
+                             :x-ticks="2" direction="horizontal"
+                             :margin="{top: 0, bottom: 20, left: 110, right: 20}">
+            <template v-slot:tooltip="{ bar }">
+              <span style="font-weight: bold"><% bar.x_value %> (<% bar.y_label %>)</span> <% bar.y_value %>
+            </template>
+          </stacked-bar-chart>
+        </div>
+        <div>
+          <div>
+            <input type="radio" value="count" v-model="placeOfDeathValue">
+            <span style="vertical-align: super; font-size: 12px">Count</span>
+            <input type="radio" value="percentage" v-model="placeOfDeathValue">
+            <span style="vertical-align: super; font-size: 12px">Percentage</span>
+          </div>
+          <stacked-bar-chart v-if="place_of_death.length > 0" :plot-data="placeOfDeathData" x-key="place"
+                             direction="horizontal" :width="demographicsWidth * (1/2)" :height="demographicsHeight - 30"
+                             :y-tick-format="d => d.length > 20 ? `${d.slice(0, 20)}...` : d"
+                             :padding-between-bars="0.2"
+                             :x-ticks="3"
+                             :x-tick-format="placeOfDeathValue === 'count' ? (d => d) : (d =>`${d}%`)"
+                             :margin="{top: 0, bottom: 20, left: 120, right: 0}">
+            <template v-slot:tooltip="{ bar }">
+              <span style="font-weight: bold"><% bar.x_value %></span> <% bar.y_value %>
+            </template>
+          </stacked-bar-chart>
+        </div>
       </div>
     </section>
+
+    <div
+      class="modal fade"
+      id="small-sample-size-warning"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" style="width: 300px">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Warning
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Sample sizes under 50 may not be representative of the population.
+            <div style="margin-top: 30px">
+              <input type="checkbox" v-model="suppressWarning">
+              <span style="vertical-align: super">Do not show this warning again</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </main>
 {% endblock %}
