@@ -123,7 +123,7 @@
           <line-chart v-if="COD_trend.length > 0" :plot-data="COD_trend" x-key="month"
                       :width="codWidth" :height="demographicsHeight"
                       :x-ticks="6" :show-points="true" :point-radius="2.5"
-                      :margin="{top: 10, bottom: 20, left: 40, right: 20}">
+                      :margin="{top: 10, bottom: 20, left: 30, right: 20}">
           </line-chart>
         </div>
       </div>
@@ -136,7 +136,7 @@
           <base-legend :legend-data="demographicsLegendData" :alignment="'horizontal'" style="text-align: center"></base-legend>
           <stacked-bar-chart v-if="demographics.length > 0" :plot-data="demographics" x-key="age_group"
                              :width="demographicsWidth * (1/2)" :height="demographicsHeight - 30"
-                             :y-ticks="4" direction="horizontal"
+                             :x-ticks="2" direction="horizontal"
                              :margin="{top: 0, bottom: 20, left: 110, right: 20}">
             <template v-slot:tooltip="{ bar }">
               <span style="font-weight: bold"><% bar.x_value %> (<% bar.y_label %>)</span> <% bar.y_value %>
@@ -152,11 +152,11 @@
           </div>
           <stacked-bar-chart v-if="place_of_death.length > 0" :plot-data="placeOfDeathData" x-key="place"
                              direction="horizontal" :width="demographicsWidth * (1/2)" :height="demographicsHeight - 30"
-                             :y-tick-format="d => d.length > 25 ? `${d.slice(0, 25)}...` : d"
+                             :y-tick-format="d => d.length > 20 ? `${d.slice(0, 20)}...` : d"
                              :padding-between-bars="0.2"
                              :x-ticks="3"
                              :x-tick-format="placeOfDeathValue === 'count' ? (d => d) : (d =>`${d}%`)"
-                             :margin="{top: 0, bottom: 20, left: 150, right: 15}">
+                             :margin="{top: 0, bottom: 20, left: 120, right: 0}">
             <template v-slot:tooltip="{ bar }">
               <span style="font-weight: bold"><% bar.x_value %></span> <% bar.y_value %>
             </template>
