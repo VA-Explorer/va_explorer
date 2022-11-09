@@ -221,7 +221,6 @@ const dashboard = new Vue({
         addGeoJSONToMap() {
             // Remove any existing choropleth layer and add new layer with tooltip and coloring
 
-
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)
 
