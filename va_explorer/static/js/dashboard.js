@@ -330,7 +330,6 @@ const dashboard = new Vue({
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 
             this.codWidth = this.$refs.cod.clientWidth - 1
-            this.codHeight = this.$refs.cod.clientHeight - 1
         },
         async updateDataAndMap() {
             await this.getData()
