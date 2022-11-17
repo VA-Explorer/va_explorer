@@ -26,7 +26,7 @@ from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
 
 def load_cod_groupings(cause_of_death: str):
-    INTERVA_GROUPCODE = os.environ.get("INTERVA_GROUPCODE") == 'True'
+    INTERVA_GROUPCODE = os.environ.get("INTERVA_GROUPCODE") == "True"
     if INTERVA_GROUPCODE:
         filename = "cod_groupings_interva_groupcode_true.csv"
     else:
