@@ -205,6 +205,12 @@ svg text {
   flex-direction: column;
 }
 
+.topCausesView .chartsContainer {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .trendView {
   grid-column: 4/7;
   grid-row: 3/5;
@@ -212,17 +218,12 @@ svg text {
   flex-direction: column
 }
 
-.topCausesView .chartsContainer,
 .trendView .chartsContainer {
   display: flex;
   flex-direction: column;
   height: calc(100% - var(--h2height));
 }
 
-.topCausesView .topCausesContainer {
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 
 /* ---- DEMOGRAPHICS SECTION ---- */
 .demographicsView {

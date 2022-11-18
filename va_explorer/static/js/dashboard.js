@@ -96,7 +96,7 @@ const dashboard = new Vue({
             if (this.placeOfDeathValue === "count") return this.place_of_death;
             const totalCount = d3.sum(this.place_of_death.map(item => item.count));
             return JSON.parse(JSON.stringify(this.place_of_death)).map(d => {
-                d.percentage = Math.round(d.count * 1000  / totalCount) / 10;
+                d.percentage = Math.round(d.count * 1000 / totalCount) / 10;
                 delete d.count;
                 return d;
             })
@@ -106,7 +106,7 @@ const dashboard = new Vue({
             if (this.causeOfDeathValue === "count") return this.COD_grouping;
             const totalCount = d3.sum(this.COD_grouping.map(item => item.count));
             return JSON.parse(JSON.stringify(this.COD_grouping)).map(d => {
-                d.percentage = Math.round(d.count * 1000  / totalCount) / 10;
+                d.percentage = Math.round(d.count * 1000 / totalCount) / 10;
                 delete d.count;
                 return d;
             })
@@ -305,12 +305,16 @@ const dashboard = new Vue({
             const area_name = feature.properties.area_name
             let count = 0
             if (area_level_label === 'District') {
-                let district = vm.geographic_district_sums.find(item => item.district_name.includes(area_name))
+                let district = vm.geographic_district_sums
+                    .filter(item => item.district_name)
+                    .find(item => item.district_name.includes(area_name))
                 if (district) {
                     count = district.count
                 }
             } else if (area_level_label === 'Province') {
-                let province = vm.geographic_province_sums.find(item => item.province_name.includes(area_name))
+                let province = vm.geographic_province_sums
+                    .filter(item => item.province_name)
+                    .find(item => item.province_name.includes(area_name))
                 if (province) {
                     count = province.count
                 }
@@ -330,7 +334,6 @@ const dashboard = new Vue({
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 
             this.codWidth = this.$refs.cod.clientWidth - 1
-            this.codHeight = this.$refs.cod.clientHeight - 1
         },
         async updateDataAndMap() {
             await this.getData()
