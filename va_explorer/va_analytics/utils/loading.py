@@ -59,7 +59,7 @@ def load_cod_groupings(cause_of_death: str):
 
 
 # ============ VA Data =================
-def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest):
+def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest, age, sex):
     user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
 
     # get stats on last update and last va submission date
@@ -103,6 +103,19 @@ def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest)
                 .filter(province_name=region_of_interest)
                 .select_related("location")
             )
+
+    # apply filtering for age sent in request
+    if age:
+        if age == "adult":
+            user_vas_filtered = user_vas_filtered.filter(ageInYears__gt=16)
+        if age == "child":
+            user_vas_filtered = user_vas_filtered.filter(ageInYears__lte=16)
+        if age == "neonate":
+            user_vas_filtered = user_vas_filtered.filter(ageInYears__lte=1)
+
+    # apply filtering for sex sent in request
+    if sex:
+        user_vas_filtered = user_vas_filtered.filter(Id10019=sex)
 
     uncoded_vas = user_vas.filter(causes__cause__isnull=True).count()
 

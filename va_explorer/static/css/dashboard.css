@@ -64,11 +64,11 @@ svg text {
   gap: 1rem;
 }
 
-.panelView .updatesSection span {
+.updatesSection span {
   font-weight: bold;
 }
 
-.panelView .updatesSection time {
+.updatesSection time {
   font-weight: normal;
 }
 
@@ -76,58 +76,57 @@ svg text {
   margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
   text-align: left;
 }
 
 .panelView .controls label {
-  margin-right: 8px;
+  margin-right: 0.25rem;
   margin-bottom: 0;
-  font-size: 0.82rem;
+  font-size: 0.80rem;
   width: auto;
 }
 
-.panelView .allCausesContainer {
+.mainFiltersContainer {
   display: flex;
   align-items: center;
 }
 
-.panelView .allCausesContainer #causeSelected {
+.mainFiltersContainer :is(#causeSelected, #age) {
   max-width: 10rem;
-  margin-right: 0.5rem;
+  margin-right: 0.60rem;
 }
 
-.panelView .deathDateType {
+.betweenDatesContainer {
   display: flex;
   align-items: center;
 }
 
-.panelView .betweenDatesContainer {
+.betweenDatesContainer .customDatesContainer {
+  margin-left: 0.5rem;
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.panelView .betweenDatesContainer button {
-  font-size: 0.85rem;
+.formBtnsContainer .resetBtn {
   color: white;
   border: none;
   width: min-content;
-}
-
-.updateDataBtn {
-  background-color: #28a745;
-}
-
-.updateDataBtn:hover {
-  background-color: #198a32 !important;
-}
-
-.resetBtn {
   background-color: #696969;
 }
 
 .resetBtn:hover {
   background-color: #545454 !important;
+}
+
+.formBtnsContainer .updateDataBtn {
+  background-color: #28a745;
+  color: white;
+}
+
+.updateDataBtn:hover {
+  background-color: #198a32 !important;
 }
 
 .panelView .highlightsContainer {
