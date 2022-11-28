@@ -59,7 +59,9 @@ def load_cod_groupings(cause_of_death: str):
 
 
 # ============ VA Data =================
-def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest, age, sex):
+def load_va_data(
+    user, cause_of_death, start_date, end_date, region_of_interest, age, sex
+):
     user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
 
     # get stats on last update and last va submission date
