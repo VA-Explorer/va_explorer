@@ -109,11 +109,11 @@ def load_va_data(
     # apply filtering for age sent in request
     if age:
         if age == "adult":
-            user_vas_filtered = user_vas_filtered.filter(ageInYears__gt=16)
+            user_vas_filtered = user_vas_filtered.filter(Q(isAdult="1") | Q(isAdult="1.0"))
         if age == "child":
-            user_vas_filtered = user_vas_filtered.filter(ageInYears__lte=16)
+            user_vas_filtered = user_vas_filtered.filter(Q(isChild="1") | Q(isChild="1.0"))
         if age == "neonate":
-            user_vas_filtered = user_vas_filtered.filter(ageInYears__lte=1)
+            user_vas_filtered = user_vas_filtered.filter(Q(isNeonatal="1") | Q(isNeonatal="1"))
 
     # apply filtering for sex sent in request
     if sex:
@@ -126,11 +126,12 @@ def load_va_data(
         .values(
             gender=F("Id10019"),
             age_group_named=Case(
-                When(isNeonatal1="1", then=Value("neonate")),
-                When(isChild1="1", then=Value("child")),
-                When(isAdult1="1", then=Value("adult")),
-                When(ageInYears__lte=1, then=Value("neonate")),
-                When(ageInYears__lte=16, then=Value("child")),
+                When(isNeonatal="1", then=Value("neonate")),
+                When(isNeonatal="1.0", then=Value("neonate")),
+                When(isChild="1", then=Value("child")),
+                When(isChild="1.0", then=Value("child")),
+                When(isAdult="1", then=Value("adult")),
+                When(isAdult="1.0", then=Value("adult")),
                 default=Value("Unknown"),
                 output_field=CharField(),
             ),
