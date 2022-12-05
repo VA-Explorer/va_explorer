@@ -109,11 +109,17 @@ def load_va_data(
     # apply filtering for age sent in request
     if age:
         if age == "adult":
-            user_vas_filtered = user_vas_filtered.filter(Q(isAdult="1") | Q(isAdult="1.0"))
+            user_vas_filtered = user_vas_filtered.filter(
+                Q(isAdult="1") | Q(isAdult="1.0")
+            )
         if age == "child":
-            user_vas_filtered = user_vas_filtered.filter(Q(isChild="1") | Q(isChild="1.0"))
+            user_vas_filtered = user_vas_filtered.filter(
+                Q(isChild="1") | Q(isChild="1.0")
+            )
         if age == "neonate":
-            user_vas_filtered = user_vas_filtered.filter(Q(isNeonatal="1") | Q(isNeonatal="1"))
+            user_vas_filtered = user_vas_filtered.filter(
+                Q(isNeonatal="1") | Q(isNeonatal="1")
+            )
 
     # apply filtering for sex sent in request
     if sex:
