@@ -1,4 +1,0 @@
-Deployment
-==========
-
-Content about Deployment.

@@ -1,0 +1,8 @@
+/* Remove permalinks from captioned images, we don't want this feature */
+figcaption p a.headerlink {
+  display: none;
+}
+
+img.sidebar-logo {
+  max-width: 50% ;
+}

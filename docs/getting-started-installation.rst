@@ -1,4 +1,0 @@
-Installation
-============
-
-Content about Installation.

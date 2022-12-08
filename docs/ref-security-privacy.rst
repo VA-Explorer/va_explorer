@@ -1,4 +1,0 @@
-Security
-========
-
-Content about Security.

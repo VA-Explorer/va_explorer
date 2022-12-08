@@ -1,4 +1,0 @@
-Management
-==========
-
-Content about Management.

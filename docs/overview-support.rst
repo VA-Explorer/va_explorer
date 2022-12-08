@@ -1,4 +1,0 @@
-Support
-=======
-
-Content about Support.

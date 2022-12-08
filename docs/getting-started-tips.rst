@@ -1,4 +1,0 @@
-Tips
-=====
-
-Content about Tips.
