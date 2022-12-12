@@ -129,6 +129,12 @@ svg text {
   background-color: #198a32 !important;
 }
 
+.formBtnsContainer .loadingText {
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-left: 0.5rem;
+}
+
 .panelView .highlightsContainer {
   display: flex;
   align-items: center;

@@ -63,6 +63,7 @@ const dashboard = new Vue({
                 }
             ],
 
+            loading: true,
             locations: [],
             suppressWarning: false,
             placeOfDeathValue: "count",
@@ -146,6 +147,7 @@ const dashboard = new Vue({
     methods: {
         async getData() {
             // fetch data for charts from API and assign all data variables for charts
+            this.loading = true
 
             const {age, sex} = this.getAgeAndSex()
             const {startDate, endDate} = this.getStartAndEndDates()
@@ -205,6 +207,8 @@ const dashboard = new Vue({
                 d3.sum(this.COD_grouping.map(item => item.count)) < 50) {
                 $("#small-sample-size-warning").modal().show();
             }
+
+            this.loading = false
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load

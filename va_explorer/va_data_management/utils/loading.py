@@ -20,6 +20,7 @@ from va_explorer.va_data_management.utils.location_assignment import (
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 from ..constants import _checkbox_choices
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -315,11 +316,15 @@ def get_va_summary_stats(vas, filter_fields=False):
     if filter_fields:
         vas = vas.only("created", "id", "location", "Id10023")
 
-    stats = vas.aggregate(
-        last_update=Max("created"),
-        last_submission=Max("submissiondate"),
-        total_vas=Count("id"),
-    )
+    # check cache for va summary stats and set it if not already there
+    stats = cache.get("va_summary_stats")
+    if not stats:
+        stats = vas.aggregate(
+            last_update=Max("created"),
+            last_submission=Max("submissiondate"),
+            total_vas=Count("id"),
+        )
+        cache.set("va_summary_stats", stats, timeout=60 * 60)
 
     stats["ineligible_vas"] = vas.filter(
         Q(Id10023__in=["DK", "dk"]) | Q(Id10023__isnull=True) | Q(location__isnull=True)
