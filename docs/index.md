@@ -1,6 +1,6 @@
 # VA Explorer: A Full Service VA Management Prototype
 
-```{figure} _static/img/va-interview.jpg
+```{figure} _static/img/va_interview.jpg
 :alt: Two women talking as one takes notes on a laptop
 :width: 50%
 :figclass: "none"
@@ -19,14 +19,22 @@ Explorer aims to support integration with existing civil registration and
 vital statistics (CRVS) systems at scale while simplifying the use of VAs for
 those individuals and organizations.
 
-This documentation aims to be a universal reference for everything related to VA Explorer. For example:
-- If you are interested in using VA Explorer immediately, Getting Started (link) walks users through installing and running the service.
+This documentation aims to be a universal reference for everything related to
+VA Explorer. For example:
 
-- For evaluating whether VA Explorer meets your or your organization’s needs, more information on supported features can be found in Features (link) while more info on the CRVS systems VA Explorer works with can be found in Integrations (link)
+- If you are interested in using VA Explorer immediately, Getting Started (link)
+walks users through installing and running the service.
 
-- Those running an instance of VA Explorer already who would like to become more familiar with what they can do in their system role as an Admin, Data Manager, Data Viewer, or Field Worker can do so in User Training (link)
+- For evaluating whether VA Explorer meets your or your organization’s needs,
+more information on supported features can be found in Features (link) while
+more info on the CRVS systems VA Explorer works with can be found in Integrations (link)
 
-- Users wishing to report bugs, request features, or developers wishing to contribute to the VA Explorer effort can find resources in Development (link)
+- Those running an instance of VA Explorer already who would like to become more
+familiar with what they can do in their system role as an Admin, Data Manager,
+Data Viewer, or Field Worker can do so in User Training (link)
+
+- Users wishing to report bugs, request features, or developers wishing to
+contribute to the VA Explorer effort can find resources in Development (link)
 
 
 ## Contents
@@ -47,13 +55,14 @@ usage/integrations
 ---
 maxdepth: 3
 includehidden:
-caption: Training
+caption: Guides
 ---
 
 training/general/index
 training/user_guides
 training/admin_guides
 training/it_guides
+training/troubleshooting
 ```
 
 ```{toctree}
@@ -67,16 +76,6 @@ development
 
 ```{toctree}
 ---
-maxdepth: 2
-includehidden:
-caption: Troubleshooting
----
-
-troubleshooting/index
-```
-
-```{toctree}
----
 hidden:
 caption: Project Info
 ---
@@ -84,8 +83,3 @@ caption: Project Info
 reference
 GitHub <https://github.com/VA-Explorer/va_explorer>
 ```
-
-## Indices and tables
-
-- {ref}`genindex`
-- {ref}`search`
