@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import CharField
 from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django.http import Http404, HttpResponse
@@ -28,7 +29,9 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
         queryset = (
             self.request.user.verbal_autopsies()
             .prefetch_related("location", "causes", "coding_issues")
-            .annotate(deceased=Concat("Id10017", V(" "), "Id10018"))
+            .annotate(
+                deceased=Concat("Id10017", V(" "), "Id10018", output_field=CharField())
+            )
             .order_by("id")
             .filter(duplicate=True)
         )
@@ -47,7 +50,7 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             {
                 "id": va.id,
                 "interviewer": va.Id10010,
-                "submitted": va.submissiondate,
+                "submitted": parse_date(va.submissiondate),
                 "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
                 "facility": va.location.name if va.location else "",
                 "deceased": va.deceased,

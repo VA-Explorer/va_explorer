@@ -11,6 +11,8 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", default=get_random_secret_key())
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["va_explorer.org"])
 
+CSRF_TRUSTED_ORIGINS = ["https://*.moh.gov.zm"]
+
 # Caches
 
 CACHES = {
@@ -26,11 +28,10 @@ CACHES = {
     }
 }
 
-
 # Static
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+WHITENOISE_MANIFEST_STRICT = False
 # Templates
 
 TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405

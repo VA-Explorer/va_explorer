@@ -24,8 +24,6 @@
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
     <link href="{% static 'css/fab.css' %}" rel="stylesheet">
   {% endblock %}
-  {% load plotly_dash%}
-  {% plotly_header %}
 
 </head>
 
@@ -60,6 +58,5 @@
   <footer class="container copyright-text">Copyright 2020-{% now "Y" %} The MITRE Corporation</footer>
 
 </body>
-{% plotly_footer %}
 
 </html>

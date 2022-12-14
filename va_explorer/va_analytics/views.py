@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import pandas as pd
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -6,6 +7,8 @@ from django.db.models import Count, F, Q
 from django.views.generic import ListView, TemplateView
 from numpy import round
 from pandas import to_datetime as to_dt
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
@@ -16,7 +19,28 @@ from va_explorer.va_data_management.utils.date_parsing import (
 )
 from va_explorer.va_logs.logging_utils import write_va_log
 
+from .utils.loading import load_va_data
+
 LOGGER = logging.getLogger("event_logger")
+
+
+class DashboardAPIView(APIView):
+    def get(self, request, format=None):
+        start_date = request.query_params.get("start_date") or "1901-01-01"
+        end_date = request.query_params.get("end_date") or datetime.today().strftime(
+            "%Y-%m-%d"
+        )
+        cause_of_death = request.query_params.get("cause_of_death") or None
+        region_of_interest = request.query_params.get("region_of_interest") or None
+
+        data = load_va_data(
+            request.user,
+            start_date=start_date,
+            end_date=end_date,
+            cause_of_death=cause_of_death,
+            region_of_interest=region_of_interest,
+        )
+        return Response(data)
 
 
 class DashboardView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):

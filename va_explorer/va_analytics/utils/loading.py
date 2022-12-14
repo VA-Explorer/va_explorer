@@ -1,8 +1,22 @@
-import json
+import csv
+import itertools
 import os
+from operator import itemgetter
+from pathlib import Path
 
-import pandas as pd
-from django.db.models import F
+from django.db.models import (
+    Case,
+    CharField,
+    Count,
+    DateField,
+    F,
+    OuterRef,
+    Q,
+    Subquery,
+    Value,
+    When,
+)
+from django.db.models.functions import Cast, Substr, TruncMonth
 
 from va_explorer.va_data_management.models import (
     Location,
@@ -11,181 +25,178 @@ from va_explorer.va_data_management.models import (
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 
 
-# ============ GEOJSON Data (for map) =================
-# load geojson data from flat file (will likely migrate to a database later)
-def load_geojson_data(json_file):
-    geojson = None
-    if os.path.isfile(json_file):
-        with open(json_file, "r") as jf:
-            geojson = json.loads(jf.read())
+def load_cod_groupings(cause_of_death: str):
+    INTERVA_GROUPCODE = os.environ.get("INTERVA_GROUPCODE") == "True"
+    if INTERVA_GROUPCODE:
+        filename = "cod_groupings_interva_groupcode_true.csv"
+    else:
+        filename = "cod_groupings_interva_groupcode_false.csv"
+    path = Path(__file__).parent.parent / "data" / filename
 
-        # add min and max coordinates for mapping
-        for i, g in enumerate(geojson["features"]):
-            coordinate_list = g["geometry"]["coordinates"]
-            coordinate_stat_tables = []
-            for coords in coordinate_list:
-                if len(coords) == 1:
-                    coords = coords[0]
-                coordinate_stat_tables.append(
-                    pd.DataFrame(coords, columns=["lon", "lat"]).describe()
-                )
-            g["properties"]["area_name"] += " {}".format(
-                g["properties"]["area_level_label"]
-            )
-            g["properties"]["min_x"] = min(
-                [stat_df["lon"]["min"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["max_x"] = max(
-                [stat_df["lon"]["max"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["min_y"] = min(
-                [stat_df["lat"]["min"] for stat_df in coordinate_stat_tables]
-            )
-            g["properties"]["max_y"] = max(
-                [stat_df["lat"]["max"] for stat_df in coordinate_stat_tables]
-            )
-            geojson["features"][i] = g
-        # save total districts and provinces for future use
-        geojson["district_count"] = len(
-            [
-                f
-                for f in geojson["features"]
-                if f["properties"]["area_level_label"] == "District"
-            ]
-        )
-        geojson["province_count"] = len(
-            [
-                f
-                for f in geojson["features"]
-                if f["properties"]["area_level_label"] == "Province"
-            ]
-        )
-    return geojson
+    with open(path) as csvfile:
+        filereader = csv.DictReader(csvfile)
+        remove = ["algorithm", "cod"]
+        headers = [header for header in filereader.fieldnames if header not in remove]
+
+        data = []
+        for row in filereader:
+            data.append(row)
+
+        cods = sorted([row.get("cod") for row in data] + headers)
+
+    filter_causes = []
+    if cause_of_death:
+        for row in data:
+            if row.get("cod") == cause_of_death:
+                filter_causes.append(row.get("cod"))
+                break
+
+            for key, value in row.items():
+                if cause_of_death == key and value == "1":
+                    filter_causes.append(row.get("cod"))
+
+    return {"dropdown_options": cods, "filter_causes": filter_causes}
 
 
 # ============ VA Data =================
-def load_va_data(user, geographic_levels=None, date_cutoff="1901-01-01"):
-    # the dashboard requires date of death, exclude if the date is unknown
-    # Using .values at the end lets us do select_related("causes") which drastically speeds up the query.
-    user_vas = user.verbal_autopsies(date_cutoff=date_cutoff)
+def load_va_data(user, cause_of_death, start_date, end_date, region_of_interest):
+    user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
+
     # get stats on last update and last va submission date
     update_stats = get_va_summary_stats(user_vas)
     if len(questions_to_autodetect_duplicates()) > 0:
         update_stats["duplicates"] = user_vas.filter(duplicate=True).count()
-    all_vas = (
-        user_vas.only(
-            "id",
-            "Id10019",
-            "Id10058",
-            "Id10023",
-            "ageInYears",
-            "age_group",
-            "isNeonatal1",
-            "isChild1",
-            "isAdult1",
-            "location",
-        )
-        .exclude(Id10023__in=["dk", "DK"])
-        .exclude(location__isnull=True)
-        .select_related("location")
-        .select_related("causes")
-        .values(
-            "id",
-            "Id10019",
-            "Id10058",
-            "age_group",
-            "isNeonatal1",
-            "isChild1",
-            "isAdult1",
-            "location__id",
-            "location__name",
-            "ageInYears",
-            date=F("Id10023"),
-            cause=F("causes__cause"),
-        )
+
+    user_vas_filtered = user_vas.exclude(Id10023__in=["dk", "DK"]).exclude(
+        location__isnull=True
     )
 
-    if not all_vas:
-        return json.dumps(
-            {
-                "data": {
-                    "valid": pd.DataFrame().to_json(),
-                    "invalid": pd.DataFrame().to_json(),
-                },
-                "update_stats": {update_stats},
-            }
+    # apply cause of death filtering if sent in with request
+    if cause_of_death:
+        causes = load_cod_groupings(cause_of_death=cause_of_death)["filter_causes"]
+        user_vas_filtered = user_vas_filtered.filter(causes__cause__in=causes)
+
+    # apply geographic filtering if sent in with request
+    if region_of_interest:
+        if "District" in region_of_interest:
+            user_vas_filtered = (
+                user_vas_filtered.annotate(
+                    district_name=Subquery(
+                        Location.objects.values("name").filter(
+                            Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2)
+                        )[:1]
+                    )
+                )
+                .filter(district_name=region_of_interest)
+                .select_related("location")
+            )
+
+        if "Province" in region_of_interest:
+            user_vas_filtered = (
+                user_vas_filtered.annotate(
+                    province_name=Subquery(
+                        Location.objects.values("name").filter(
+                            Q(path=Substr(OuterRef("location__path"), 1, 4)), Q(depth=1)
+                        )[:1]
+                    )
+                )
+                .filter(province_name=region_of_interest)
+                .select_related("location")
+            )
+
+    uncoded_vas = user_vas.filter(causes__cause__isnull=True).count()
+
+    demographics = (
+        user_vas_filtered.filter(causes__isnull=False)
+        .values(
+            gender=F("Id10019"),
+            age_group_named=Case(
+                When(isNeonatal1="1", then=Value("neonate")),
+                When(isChild1="1", then=Value("child")),
+                When(isAdult1="1", then=Value("adult")),
+                When(ageInYears__lte=1, then=Value("neonate")),
+                When(ageInYears__lte=16, then=Value("child")),
+                default=Value("Unknown"),
+                output_field=CharField(),
+            ),
         )
+        .annotate(count=Count("pk"))
+        .order_by("age_group_named")
+    )
 
-    # Build a dictionary of location ancestors for each facility
-    # TODO: This is not efficient (though it"s better than 2 DB queries per VA)
-    # TODO: This assumes that all VAs will occur in a facility, ok?
-    # TODO: if there is no location data, we could use the location associated with the interviewer
-    location_types = dict()
-    locations = {}
-    location_ancestors = {
-        location.id: location.get_ancestors()
-        for location in Location.objects.filter(location_type="facility")
-    }
+    demographics = [
+        {
+            "age_group": key,
+            **{item.get("gender"): item.get("count") for item in list(group)},
+        }
+        for key, group in itertools.groupby(demographics, itemgetter("age_group_named"))
+    ]
 
-    for va in all_vas:
-        # Find parents (likely district and province).
-        for ancestor in location_ancestors[va["location__id"]]:
-            va[ancestor.location_type] = ancestor.name
-            # location_types.add(ancestor.location_type)
-            location_types[ancestor.depth] = ancestor.location_type
-            locations[ancestor.name] = ancestor.location_type
+    COD_sums = (
+        user_vas_filtered.filter(causes__isnull=False)
+        .select_related("causes")
+        .values(cause=F("causes__cause"))
+        .annotate(count=Count("pk"))
+        .order_by("-count")
+    )
 
-        # Clean up location fields.
-        va["location"] = va["location__name"]
-        del va["location__name"]
-        del va["location__id"]
+    COD_trend = (
+        user_vas_filtered.annotate(
+            month=TruncMonth(Cast("Id10023", output_field=DateField()))
+        )
+        .filter(causes__isnull=False)
+        .values("month")
+        .annotate(count=Count("pk"))
+        .order_by("month")
+    )
 
-    # Convert list to dataframe.
-    va_df = pd.DataFrame.from_records(all_vas)
-    # convert dates to datetimes
-    va_df["date"] = pd.to_datetime(va_df["date"])
-    va_df["age"] = pd.to_numeric(va_df["ageInYears"], errors="coerce")
-    va_df["age_group"] = va_df.apply(assign_age_group, axis=1)
+    place_of_death = (
+        user_vas_filtered.filter(causes__isnull=False)
+        .values(place=F("Id10058"))
+        .annotate(count=Count("pk"))
+        .order_by("-count")
+    )
 
-    # need this because location types need to be sorted by depth
-    location_types = [l for _, l in sorted(location_types.items(), key=lambda x: x[0])]
+    geographic_province_sums = (
+        user_vas_filtered.annotate(
+            province_name=Subquery(
+                Location.objects.values("name").filter(
+                    Q(path=Substr(OuterRef("location__path"), 1, 4)), Q(depth=1)
+                )[:1]
+            )
+        )
+        .filter(causes__isnull=False)
+        .select_related("location")
+        .values("province_name")
+        .annotate(count=Count("pk"))
+    )
 
-    return {
-        "data": {
-            "valid": va_df[~pd.isnull(va_df["cause"])].reset_index(),
-            "invalid": va_df[pd.isnull(va_df["cause"])].reset_index(),
-        },
-        "location_types": location_types,
-        "max_depth": len(location_types) - 1,
-        "locations": locations,
+    geographic_district_sums = (
+        user_vas_filtered.annotate(
+            district_name=Subquery(
+                Location.objects.values("name").filter(
+                    Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2)
+                )[:1]
+            )
+        )
+        .filter(causes__isnull=False)
+        .select_related("location")
+        .values("district_name")
+        .annotate(count=Count("pk"))
+    )
+
+    data = {
+        "COD_grouping": COD_sums,
+        "COD_trend": COD_trend,
+        "place_of_death": place_of_death,
+        "demographics": demographics,
+        "geographic_province_sums": geographic_province_sums,
+        "geographic_district_sums": geographic_district_sums,
+        "uncoded_vas": uncoded_vas,
         "update_stats": update_stats,
+        "all_causes_list": load_cod_groupings(cause_of_death=cause_of_death)[
+            "dropdown_options"
+        ],
     }
 
-
-def assign_age_group(va):
-    # If age group is unassigned, determine age group by age group fields first, then age number, otherwise mark NA
-    # TODO determine if this is a valid check for empty or unknown values
-
-    if va["age_group"] in ["adult", "neonate", "child"]:
-        return va["age_group"]
-
-    if va["isNeonatal1"] == 1:
-        return "neonate"
-
-    if va["isChild1"] == 1:
-        return "child"
-
-    if va["isAdult1"] == 1:
-        return "adult"
-
-    # try determine group by the age in years
-    try:
-        age = int(float(va["age"]))
-        if age <= 1:
-            return "neonate"
-        if age <= 16:
-            return "child"
-        return "adult"
-    # Intent is to assign unknown
-    except:  # noqa E722
-        return "Unknown"
+    return data

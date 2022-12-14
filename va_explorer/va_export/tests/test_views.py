@@ -73,9 +73,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={CSV_ZIP_FILE_NAME}"
         )
 
@@ -99,9 +99,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={JSON_ZIP_FILE_NAME}"
         )
 
@@ -128,9 +128,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={CSV_ZIP_FILE_NAME}"
         )
 
@@ -158,9 +158,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={JSON_ZIP_FILE_NAME}"
         )
 
@@ -187,9 +187,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={CSV_ZIP_FILE_NAME}"
         )
 
@@ -215,9 +215,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={CSV_ZIP_FILE_NAME}"
         )
 
@@ -317,9 +317,9 @@ class TestAPIView:
 
         # Django 3.2 has response.headers. For now, we'll access them per below
         # See https://docs.djangoproject.com/en/4.0/ref/request-response/#django.http.HttpResponse.headers
-        assert response._headers["content-type"][1] == FILE_CONTENT_TYPE
+        assert response.headers["content-type"] == FILE_CONTENT_TYPE
         assert (
-            response._headers["content-disposition"][1]
+            response.headers["content-disposition"]
             == f"attachment; filename={JSON_ZIP_FILE_NAME}"
         )
 
