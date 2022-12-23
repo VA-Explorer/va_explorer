@@ -1,0 +1,43 @@
+name: Documentation
+
+# Only run workflow on pull requests that target /docs
+on:
+  push:
+  pull_request:
+   paths:
+     - docs
+
+# Seperate build and deploy so that deploys don't happen on failed builds
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3       # Get code
+      - uses: actions/setup-python@v4   # Get Python for dependencies
+        with:
+          python-version: '3.10'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/docs.txt
+      - name: Build Docs
+        run: |
+          sphinx-build docs docs/_build/html
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs-html
+          path: docs/_build/html
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3            # Get code
+      - uses: actions/download-artifact@v3   # Get Artifacts we're deploying
+        with:
+          name: docs-html
+          path: docs/_build/html
+      - uses: peaceiris/actions-gh-pages@v3   # Deploy to github pages
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: main
+          publish_dir: docs/_build/html
