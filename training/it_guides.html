@@ -1,0 +1,464 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Troubleshooting" href="troubleshooting.html" /><link rel="prev" title="The Admin Role" href="admin_guides.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>IT Support - VA Explorer Docs</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/tweaks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">VA Explorer Docs</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VA Explorer Docs</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../usage/getting_started/index.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../usage/getting_started/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/getting_started/config.html">Configuration &amp; Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/getting_started/tips.html">Tips &amp; Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/integrations.html">Integrations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="general/index.html">General Information</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="general/roles.html">User Roles &amp; Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general/common_actions.html">Common Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guides.html">User Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin_guides.html">The Admin Role</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">IT Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="it-support">
+<h1>IT Support<a class="headerlink" href="#it-support" title="Permalink to this heading">#</a></h1>
+<p>The VA Explorer team anticipates that there may be IT staff supporting the use
+of VA Explorer and recognizes that IT training for VA Explorer is different from
+that for day-to-day VA Explorer admins.  The guides in this section outline
+estimated level of support for interested IT groups within organizations and to
+cover guidance this final type of user and their abilities. In some cases, the
+VA Explorer administrator may also serve as the IT staff.</p>
+<section id="levels-of-support-recommended-for-va-explorer">
+<h2>Levels of Support Recommended for VA Explorer<a class="headerlink" href="#levels-of-support-recommended-for-va-explorer" title="Permalink to this heading">#</a></h2>
+<p>This section will describe the levels of support within a country needed to
+install and maintain the VA Explorer system. While VA Explorer is pre-configured
+to run on deployment, VA Explorer integrates with other systems and having a
+system administrator who has the necessary skills to maintain the system over time
+is crucial to long term success. IT support can do more compex tasks than VA
+Explorer admins characterized by overall system installation, deployment, and
+maintenance that may occur outside of VA Explorer itself.  The estimate of
+level-of-support described below is presented as reference only, and your
+jurisdiction may have specific needs that change these requirements.</p>
+<p><strong>Required:</strong></p>
+<ul class="simple">
+<li><p>Basic understanding of/experience with Docker</p></li>
+<li><p>Copy files into/out of Docker containers and exec into/out of containers</p></li>
+<li><p>Change configuration settings/environment variables</p></li>
+<li><p>Experience with Linux systems and ssh</p></li>
+</ul>
+<p><strong>Nice To Haves:</strong></p>
+<ul class="simple">
+<li><p>Basic knowledge of Django (particularly management commands)</p></li>
+<li><p>Familiarity with ODK VA form/ how to set up an ODK instance</p></li>
+</ul>
+<p><strong>Estimated time investment:</strong></p>
+<ul class="simple">
+<li><p>Initial deployment: approximately 1 day to 1 week, depending on experience</p></li>
+<li><p>Maintenance: approximately 1-8 hours a week to debug and troubleshoot</p></li>
+</ul>
+<p>Additionally, those IT teams wishing to contribute to the development of VA
+Explorer would also benefit from web development experience, particularly with
+Django. Development methods are discussed more in Development (link).</p>
+</section>
+<section id="backing-up-va-explorer">
+<h2>Backing Up VA Explorer<a class="headerlink" href="#backing-up-va-explorer" title="Permalink to this heading">#</a></h2>
+<p>VA Explorer is distributed with utilities to backup data from the built-in
+database service. However, the server itself is something left to IT Staff/Admins
+to backup if desired. Some popular options for this are taking incremental backups
+of the server filesystem via snapshot utility Rsnapshot or even simple shell script.</p>
+<p>Whichever method is chosen, establishing a regular backup method will help
+protect against critical loss of VA Explorer components such as your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file,
+https certificates, reverse proxy configurations, and other items from previous
+installation and setup.</p>
+</section>
+<section id="upgrading-va-explorer">
+<h2>Upgrading VA Explorer<a class="headerlink" href="#upgrading-va-explorer" title="Permalink to this heading">#</a></h2>
+<p>Those wanting to upgrade to the latest version of VA Explorer can do so easily
+via git, the same way they installed the software. Do another <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code>,
+ensuring that any changes you or your organization have made such as configuring
+the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file, are not erased.</p>
+<p>If IT Admins need to migrate to a newer postgres database, as is occasionally
+the case, then that process is a bit more involved:</p>
+<ol class="arabic simple" start="0">
+<li><p>(optional) If existing migration volumes exist from a past upgrade, delete
+those now:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">rm</span> <span class="n">va_explorer_migration_postgres_data</span> <span class="n">va_explorer_migration_postgres_data_backups</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Make a logical backup of all current data</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">va_explorer_vapostgres_1</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pg_dumpall</span> <span class="o">-</span><span class="n">U</span> <span class="n">postgres</span> <span class="o">&gt;</span> <span class="o">~/</span><span class="n">dumpfile</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Make backups of old volumes by cloning data</p></li>
+</ol>
+<ul class="simple">
+<li><p>Get docker-compose labels</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">inspect</span> <span class="n">va_explorer_production_postgres_data</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker volume create \
+    --label com.docker.compose.project=“va_explorer” \
+    --label com.docker.compose.version=“1.26.0&quot; \
+    --label com.docker.compose.volume=“migration_postgres_data” \
+    va_explorer_migration_postgres_data
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Clone data</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data:/from -v va_explorer_migration_postgres_data:/to alpine ash -c “cd /from ; cp -av . /to”
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Repeat for backups volumes</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">inspect</span> <span class="n">va_explorer_production_postgres_data_backups</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker volume create \
+    --label com.docker.compose.project=“va_explorer” \
+    --label com.docker.compose.version=“1.26.0&quot; \
+    --label com.docker.compose.volume=“migration_postgres_data_backups” \
+    va_explorer_migration_postgres_data_backups
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data_backups:/from -v va_explorer_migration_postgres_data_backups:/to alpine ash -c “cd /from ; cp -av . /to”
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Delete old volumes that no longer work with postgres version</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">rm</span> <span class="n">va_explorer_production_postgres_data</span> <span class="n">va_explorer_production_postgres_data_backups</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Build new VA Explorer release &amp; rebuild fresh old volumes (no data)</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">down</span> <span class="o">&amp;&amp;</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">build</span> <span class="o">&amp;&amp;</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Copy over backup dumpfile data to new container</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">cp</span> <span class="o">~/</span><span class="n">dumpfile</span> <span class="n">va_explorer_vapostgres_1</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dumpfile</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">va_explorer_vapostgres_1</span> <span class="n">bash</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psql</span> <span class="o">-</span><span class="n">U</span> <span class="n">postgres</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">DROP</span> <span class="n">DATABASE</span> <span class="n">va_explorer</span><span class="p">;</span> <span class="p">(</span><span class="n">this</span> <span class="n">may</span> <span class="n">fail</span> <span class="k">as</span> <span class="n">the</span> <span class="n">new</span> <span class="n">container</span> <span class="n">does</span> <span class="n">migrations</span><span class="p">,</span> <span class="n">just</span> <span class="n">re</span><span class="o">-</span><span class="k">try</span><span class="p">)</span>
+  <span class="n">CREATE</span> <span class="n">DATABASE</span> <span class="n">va_explorer</span><span class="p">;</span>
+  \<span class="n">q</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psql</span> <span class="o">-</span><span class="n">U</span> <span class="n">postgres</span> <span class="o">&lt;</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dumpfile</span>
+<span class="n">exit</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">restart</span></code></p></li>
+<li><p>Confirm that all data made it / backup &amp; restore appears successful</p></li>
+<li><p>Use the old volumes <code class="docutils literal notranslate"><span class="pre">va_explorer_migration_postgres_data</span></code> and
+<code class="docutils literal notranslate"><span class="pre">va_explorer_migration_postgres_data_backups</span></code> to rollback if needed.</p></li>
+</ol>
+<p>See also any release notes associated with new VA Explorer versions that may
+contain version-specific upgrade instructions in the future.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="troubleshooting.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Troubleshooting</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="admin_guides.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">The Admin Role</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">IT Support</a><ul>
+<li><a class="reference internal" href="#levels-of-support-recommended-for-va-explorer">Levels of Support Recommended for VA Explorer</a></li>
+<li><a class="reference internal" href="#backing-up-va-explorer">Backing Up VA Explorer</a></li>
+<li><a class="reference internal" href="#upgrading-va-explorer">Upgrading VA Explorer</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/js/tweaks.js"></script>
+    </body>
+</html>

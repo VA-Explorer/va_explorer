@@ -1,4 +1,0 @@
-License
-=======
-
-Content about License.

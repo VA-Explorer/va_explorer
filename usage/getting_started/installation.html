@@ -1,0 +1,439 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Configuration &amp; Deployment" href="config.html" /><link rel="prev" title="Getting Started" href="index.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Installation &amp; Setup - VA Explorer Docs</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tweaks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">VA Explorer Docs</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VA Explorer Docs</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Getting Started</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Installation &amp; Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration &amp; Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips &amp; Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../integrations.html">Integrations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../training/general/index.html">General Information</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../training/general/roles.html">User Roles &amp; Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../training/general/common_actions.html">Common Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/user_guides.html">User Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/admin_guides.html">The Admin Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/it_guides.html">IT Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="installation-setup">
+<h1>Installation &amp; Setup<a class="headerlink" href="#installation-setup" title="Permalink to this heading">#</a></h1>
+<p>VA Explorer is distributed and installed using Docker. Docker supports near
+automatic configuration and installation of VA Explorer no matter where you
+choose to install it. In general, you can expect an installation and hosting of
+VA Explorer to involve these steps:</p>
+<ol class="arabic simple">
+<li><p>Obtain a server (either your own hardware or cloud provider)</p></li>
+<li><p>Obtain a web address/domain name</p></li>
+<li><p>Prepare server to host VA Explorer</p></li>
+<li><p>Deploy and run VA Explorer via Docker</p></li>
+<li><p>Create your first Admin account and log in</p></li>
+</ol>
+<p>Depending on how many of these are already in place, feel free to skip to the
+step most relevant to you.</p>
+<section id="obtain-a-server-either-your-own-hardware-or-cloud-provider">
+<h2>Obtain a server (either your own hardware or cloud provider)<a class="headerlink" href="#obtain-a-server-either-your-own-hardware-or-cloud-provider" title="Permalink to this heading">#</a></h2>
+<p>A Linux Operating System (OS) is recommended for best ease of use and for taking
+maximal advantage of docker later. One such OS that VA Explorer has been
+reliably tested on is Ubuntu. To get a server:</p>
+<ul class="simple">
+<li><p>If using a cloud provider, select and provision one of their Ubuntu server
+instances according to their instructions.</p></li>
+<li><p>If provisioning your own server, you may be able to do so through your
+organization or hosting provider (see Step 2).</p></li>
+</ul>
+<p>While not required, hardware specifications for the server that has successfully
+hosted VA Explorer in the past had a reference baseline of 1 CPU, 16 GB RAM, and 1 TB Storage.</p>
+</section>
+<section id="obtain-a-web-address-domain-name">
+<h2>Obtain a web address/domain name<a class="headerlink" href="#obtain-a-web-address-domain-name" title="Permalink to this heading">#</a></h2>
+<p>A domain name such as <code class="docutils literal notranslate"><span class="pre">my-va-explorer.com</span></code> is required for users to navigate
+to your server from a browser. If you already own a domain, a subdomain
+(<code class="docutils literal notranslate"><span class="pre">my-va-explorer.my-website.com</span></code>) is a good approach too. If you already own a
+domain name, please proceed to the next step.</p>
+<p>For those wishing to acquire a domain name, your organization may be able to
+provide one or you can pay a commercial domain registrar for one. Please note
+that new domains can take some time to be accessible from the Internet. While
+waiting, you need to direct this domain to the hosted server from Step 1:</p>
+<ul class="simple">
+<li><p>If using a cloud provider, please follow their instructions on connecting
+domain names to their hosted server instances.</p></li>
+<li><p>If you’ve provisioned your own server through your organization or hosting
+provider but they are not able to provide a domain name, that server should
+have an IP address. You’ll need to follow the instructions of your domain
+registrar to point the newly registered domain name to your server’s IP address.</p></li>
+</ul>
+</section>
+<section id="prepare-server-to-host-va-explorer">
+<h2>Prepare server to host VA Explorer<a class="headerlink" href="#prepare-server-to-host-va-explorer" title="Permalink to this heading">#</a></h2>
+<p>To bring your server from blank slate to ready-to-host, there are final some
+steps to take before downloading VA Explorer.</p>
+<ul class="simple">
+<li><p>Install Docker Engine on Ubuntu</p></li>
+<li><p>Install Docker Compose Standalone</p></li>
+<li><p>Post Installation Setup for Docker Users on Linux</p></li>
+<li><p>Install a web server/ reverse proxy to direct web traffic to the VA Explorer
+port. Two popular options are Nginx and Apache. An example Apache configuration
+is provided in the Error! Reference source not found. (link) section</p></li>
+<li><p>If your hosting provider doesn’t already or automatically provide https
+support, you should add it now. Let’s Encrypt is a free https certificate
+provider that also provides a guides for adding https support to Apache or
+Nginx webservers, among other configurations.</p></li>
+<li><p>Tools like git and text editors like vim will also be needed. You can install
+them via <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">-y</span> <span class="pre">git</span> <span class="pre">vim</span></code> or your OS’s equivalent</p></li>
+</ul>
+</section>
+<section id="deploy-and-run-va-explorer-via-docker">
+<h2>Deploy and run VA Explorer via Docker<a class="headerlink" href="#deploy-and-run-va-explorer-via-docker" title="Permalink to this heading">#</a></h2>
+<p>VA Explorer itself is quick to deploy thanks to Docker and the default
+configurations. More on customizing this configuration can be found in
+Configuration &amp; Deployment (link).</p>
+<ul class="simple">
+<li><p>Assuming you’ve ssh’d into the server, navigate to the directory you’d like to
+install VA Explorer in.</p></li>
+<li><p>Retrieve the latest version of VA Explorer via:
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/VA-Explorer/va_explorer.git</span></code> then navigate into
+the created directory via <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">va_explorer</span></code></p></li>
+<li><p>You can provide initial configuration to supplement defaults by creating a
+<code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Do so via <code class="docutils literal notranslate"><span class="pre">mv</span> <span class="pre">.env.template</span> <span class="pre">.env</span></code> and <code class="docutils literal notranslate"><span class="pre">vim</span> <span class="pre">.env</span></code>. One variable that
+can be edited immediately is the <code class="docutils literal notranslate"><span class="pre">DJANGO_ALLOWED_HOSTS</span></code> variable by adding your
+domain name from Step 2. For more information on this, see the mentioned
+Configuration &amp; Deployment (link) section.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span> <span class="pre">--build</span></code>. If you experience any issues here, please
+consult the Troubleshooting (link) section.</p></li>
+<li><p>Additionally, the full and complete list of management commands is available
+by running <code class="docutils literal notranslate"><span class="pre">manage.py</span> <span class="pre">help</span></code>. Only some of the popular commands are described
+here or in Management Commands (link).</p></li>
+<li><p>VA Explorer should now be up and running. You can confirm services are running
+as expected via <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> which should output like below:</p></li>
+</ul>
+<figure class="align-default" id="id1">
+<img alt="Console output from `docker ps`" src="../../_images/build_output.png" />
+<figcaption>
+<p><span class="caption-text"><small>docker ps output showing the pycrossva, clereryworker,
+django, flower, interva5, redis, and postgres services running</small></span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="create-your-first-admin-account-and-log-in">
+<h2>Create your first Admin account and log in<a class="headerlink" href="#create-your-first-admin-account-and-log-in" title="Permalink to this heading">#</a></h2>
+<p>Finally, to get started in the application you should create an admin account
+for yourself. This can be done via built-in management command from within the
+main web application container. To seed an admin user for yourself:</p>
+<ul class="simple">
+<li><p>Open a shell within the main web application docker container by running
+<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">va_explorer_django_1</span> <span class="pre">bash</span></code></p></li>
+<li><p>Run the seed_admin_user command via <code class="docutils literal notranslate"><span class="pre">manage.py</span> <span class="pre">seed_admin_user</span> <span class="pre">&lt;EMAIL_ADDRESS&gt;</span></code>
+filling in your own email for the email parameter</p></li>
+<li><p>A temporary password will print to the console. Copy it. In a browser,navigate
+to the domain name you chose in Step 2 and log in with the email you provided
+plus the password you copied.</p></li>
+<li><p>You should now be logged in and immediately prompted to reset your password
+to something of your choosing. Take the opportunity to do so now.</p></li>
+</ul>
+<p>Once you have one account you do not have to repeat this process as the
+application provides admins an interface for creating and managing other users.</p>
+<p>With this basic setup in place you are ready to get started. As mentioned, if
+you are interested in reading more about basic or advanced configuration options
+like allowing an email server to handle user password resets you can find that
+in the next section Configuration &amp; Deployment (link). You may also want to
+read over IT Support Guides (link) for information on activities like setting up
+an email server, implementing server monitoring, and preparing for regular
+backups.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="config.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Configuration &amp; Deployment</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Getting Started</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Installation &amp; Setup</a><ul>
+<li><a class="reference internal" href="#obtain-a-server-either-your-own-hardware-or-cloud-provider">Obtain a server (either your own hardware or cloud provider)</a></li>
+<li><a class="reference internal" href="#obtain-a-web-address-domain-name">Obtain a web address/domain name</a></li>
+<li><a class="reference internal" href="#prepare-server-to-host-va-explorer">Prepare server to host VA Explorer</a></li>
+<li><a class="reference internal" href="#deploy-and-run-va-explorer-via-docker">Deploy and run VA Explorer via Docker</a></li>
+<li><a class="reference internal" href="#create-your-first-admin-account-and-log-in">Create your first Admin account and log in</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/js/tweaks.js"></script>
+    </body>
+</html>

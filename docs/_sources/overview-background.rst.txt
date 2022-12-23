@@ -1,4 +1,0 @@
-Background
-==========
-
-Content about Background.

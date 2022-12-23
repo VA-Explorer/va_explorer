@@ -1,0 +1,560 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Integrations" href="integrations.html" /><link rel="prev" title="Tips &amp; Best Practices" href="getting_started/tips.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Features - VA Explorer Docs</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/tweaks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">VA Explorer Docs</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VA Explorer Docs</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="getting_started/index.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/config.html">Configuration &amp; Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/tips.html">Tips &amp; Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrations.html">Integrations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../training/general/index.html">General Information</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../training/general/roles.html">User Roles &amp; Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../training/general/common_actions.html">Common Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../training/user_guides.html">User Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training/admin_guides.html">The Admin Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training/it_guides.html">IT Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../training/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h1>
+<p>VA Explorer is an open-source web application built to help individuals and
+organizations manage, analyze, and disseminate VAs while integrating with
+existing CRVS systems at scale, simplifying the use of VAs for those individuals
+and organizations. To that end, VA Explorer offers some major features:</p>
+<ul class="simple">
+<li><p>Tablet Friendly Interface</p></li>
+<li><p>User Identity &amp; Access Management</p></li>
+<li><p>VA Data Import</p></li>
+<li><p>Data Collection Supervision</p></li>
+<li><p>Processing &amp; Analyzing Cause of Death Data</p></li>
+<li><p>Repairing VA Errors</p></li>
+<li><p>VA Search &amp; Retrieval</p></li>
+<li><p>Exporting Data</p></li>
+</ul>
+<p>VA Explorer is in active development. A prototype, with the features described
+here and screenshot with fake data, has been piloted in Zambia and is expected
+to continue improving in response to new research and user feedback. If you
+would like to see something specific from VA Explorer going forward, we look
+forward to hearing from you! Please submit feedback, bug reports, feature
+requests, etc. to our open-source project page.</p>
+<p>For information on who should use VA Explorer, this documentation covers User
+Training (link) for all user and support roles. Information on potential levels
+of support that may be required to run a tool like VA Explorer is also available
+via our IT Support Guides (link) training series.</p>
+<section id="tablet-friendly-interface">
+<h2>Tablet Friendly Interface<a class="headerlink" href="#tablet-friendly-interface" title="Permalink to this heading">#</a></h2>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/tablet_friendly.png"><img alt="Picture of VA Explorer, comfortably visible on an iPad" src="../_images/tablet_friendly.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Picture of VA Explorer, comfortably visible on an iPad</small></span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>VA Explorer needs to support users on desktops and mobile devices. This support
+enables those whose roles place them in an office as well as those whose roles
+take them out to fieldwork. To that end, VA Explorer’s interfaces are designed
+to display comfortably at iPad resolution minimums (1024px x 768px) and scale
+easily to larger devices.</p>
+</section>
+<section id="user-identity-access-management">
+<h2>User Identity &amp; Access Management<a class="headerlink" href="#user-identity-access-management" title="Permalink to this heading">#</a></h2>
+<div class="table-wrapper img-sidebyside docutils container">
+<table class="img-sidebyside docutils align-default">
+<tbody>
+<tr class="row-odd"><td><figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/user_iam_1.png"><img alt="VA Explorer's Users module, showing a list of users" src="../_images/user_iam_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Users module: A list of users</small></span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/user_iam_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/user_iam_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>VA Explorer supports different user types and levels of access for those users
+to facilitate roles-based VA workflows. This means VA Explorer offers features
+like:</p>
+<ul class="simple">
+<li><p>Creation &amp; management of user accounts by administrators</p></li>
+<li><p>Ability to disable, restrict access to data by feature, role assignment, or geography</p></li>
+<li><p>Ability for users to manage their own passwords automatically</p></li>
+</ul>
+</section>
+<section id="va-data-import">
+<h2>VA Data Import<a class="headerlink" href="#va-data-import" title="Permalink to this heading">#</a></h2>
+<div class="table-wrapper img-sidebyside docutils container">
+<table class="img-sidebyside docutils align-default">
+<tbody>
+<tr class="row-odd"><td><figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/import_1.png"><img alt="VA Explorer's homepage, showing imported VAs &amp; their statuses over time" src="../_images/import_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Homepage charts showing imported VAs + statuses over time</small></span><a class="headerlink" href="#id4" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/import_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/import_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id5" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>VA Explorer has limited functionality on its own – the true value of the tool
+comes from how it helps you process your VA data. To obtain this data, VA
+Explorer currently supports different data import methods (enumerated below).
+After import, all VAs are searchable/ filterable via a number of useful
+parameters such as interviewer, name of deceased, date, facility, cause of
+death, and whether the VA has errors.</p>
+<ul class="simple">
+<li><p><strong>(Automatic) Click Import Data Button:</strong> This format is the most user friendly:
+the VA Explorer UI will detect whether you are using ODK or a more general CSV
+import and react accordingly.</p></li>
+<li><p><strong>(Manual) Import from CSV:</strong> This format allows the most flexibility: if your VAs
+can be exported from their origin in CSV form, you can import them into VA
+Explorer. See Admin Guides &gt; Data Admin (link) training for specifics on how.</p></li>
+<li><p><strong>(Manual) Import from ODK:</strong> This format implements manual support for ODK
+integration: bring your VAs directly over from ODK like clicking the data import
+button, but with more customization about how and when. See Admin Guides &gt;
+Data Admin (link) training for specifics on how.</p></li>
+</ul>
+</section>
+<section id="data-collection-supervision">
+<h2>Data Collection Supervision<a class="headerlink" href="#data-collection-supervision" title="Permalink to this heading">#</a></h2>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/supervision.png"><img alt="VA Explorer's Supervision module, showing an VA statistics grouped by facility" src="../_images/supervision.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Supervision module: VA stats grouped by facility</small></span><a class="headerlink" href="#id6" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>VA Explorer allows admins and data managers to supervise the origins of collected
+VAs. Want to know which facilities are generating the most VA errors when
+attempting to assign a COD? Want to know which interviewers/ field workers are
+collecting the most VAs? This feature helps supervisor roles answer those types
+of questions about the overall VA dataset.</p>
+<ul class="simple">
+<li><p>Overview of total VAs, total warnings/errors thrown during the CoD assignment,
+and performance stats such as VAs/week</p></li>
+<li><p>Filter VAs under supervision by dates of interest</p></li>
+<li><p>Group data by interviewers/field workers or by facility for a different set of
+insights</p></li>
+</ul>
+</section>
+<section id="processing-analyzing-cause-of-death-data">
+<h2>Processing &amp; Analyzing Cause of Death Data<a class="headerlink" href="#processing-analyzing-cause-of-death-data" title="Permalink to this heading">#</a></h2>
+<div class="table-wrapper img-sidebyside docutils container">
+<table class="img-sidebyside docutils align-default">
+<tbody>
+<tr class="row-odd"><td><figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/analysis_1.png"><img alt="VA Explorer's homepage, showing imported VAs &amp; their statuses over time" src="../_images/analysis_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Homepage charts showing imported VAs + statuses over time</small></span><a class="headerlink" href="#id7" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/analysis_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/analysis_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id8" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>After importing VA data, one of VA Explorer’s key benefits is the ability to
+quickly assign a CoD to each by running InterVA5. To enable this, VA Explorer
+currently supports two ways to process VAs via CoD assignment, enumerated below.
+The home page lists a quick reference of VAs that either contain coding errors
+to be addressed or were assigned “Indeterminate” as the cause of death and may
+require further investigation.</p>
+<ul class="simple">
+<li><p><strong>(Automatic) Click Run Coding Algorithms Button:</strong> This format is the most user
+friendly: the VA Explorer UI will detect all uncoded VAs and attempt to run
+cause of death assignment on each or report any warnings/errors associated with
+VAs that cannot receive CoD assignment.</p></li>
+<li><p><strong>(Manual) Run Coding Algorithms:</strong> This format implements manual support for
+InterVA5 integration: directly control the CoD assignment process for your VAs
+via management command. See Admin Guides &gt; Data Admin (link) training for
+specifics on how.</p></li>
+</ul>
+<p>Additionally, VA Explorer provides a dashboard of summary information,
+analytics, and charts for VAs that have successfully assigned a cause of death.
+The dashboard currently supports</p>
+<ul class="simple">
+<li><p>Showing an overview of VA processing progress with most recent dates and number
+of coded compared to uncoded VAs</p></li>
+<li><p>Understanding geographical trends via a dynamic heat map, with zoom
+capabilities to filter for regions of interest</p></li>
+<li><p>Showing cause of death plots for chosen regions</p></li>
+<li><p>Showing death distributions by age, gender, and place of death for chosen
+regions</p></li>
+<li><p>Showing trends over time for chosen regions</p></li>
+<li><p>Ability to filter dashboard data by cause of death, dates of interest, and
+geography</p></li>
+</ul>
+</section>
+<section id="working-with-va-questionnaires">
+<h2>Working with VA Questionnaires<a class="headerlink" href="#working-with-va-questionnaires" title="Permalink to this heading">#</a></h2>
+<div class="table-wrapper img-sidebyside docutils container">
+<table class="img-sidebyside docutils align-default">
+<tbody>
+<tr class="row-odd"><td><figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../_images/questionnaire_1.png"><img alt="Picture of an individual VA, showing responses" src="../_images/questionnaire_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Record view showing VA responses.</small></span><a class="headerlink" href="#id9" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-default" id="id10">
+<a class="reference internal image-reference" href="../_images/questionnaire_2.png"><img alt="Picture of an individual VA, showing identified warnings" src="../_images/questionnaire_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>VA Issues tab, showing algorithm errors preventing coding</small></span><a class="headerlink" href="#id10" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Ideally the VAs collected by you, or your organization, are free of error. But
+for occasions where they are not, VA Explorer supports troubleshooting and
+correcting individual VA warnings or errors preventing cause of death assignment,
+or those leading to an “Indeterminate” assignment by InterVA5.</p>
+<ul class="simple">
+<li><p>Field workers are able to view and edit VAs they collect</p></li>
+<li><p>Data Managers and Admins can do repairs for any VA they have access to</p></li>
+<li><p>View errors and warnings causing issues with VA from both VA Explorer and InterVA5</p></li>
+<li><p>Easily edit VA answers with VA instrument compliant responses</p></li>
+<li><p>View change history and revert changes as needed for a VA</p></li>
+</ul>
+</section>
+<section id="exporting-data">
+<h2>Exporting Data<a class="headerlink" href="#exporting-data" title="Permalink to this heading">#</a></h2>
+<figure class="align-default" id="id11">
+<a class="reference internal image-reference" href="../_images/export.png"><img alt="VA Explorer's Export module, showing an data export form" src="../_images/export.png" style="width: 50%;" /></a>
+<figcaption>
+<p><span class="caption-text"><small>Export module: options form for data export</small></span><a class="headerlink" href="#id11" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Finally, when users would like to send the VAs processed by VA Explorer onto
+another step in their analysis, or just save a copy for themselves, VA Explorer
+supports data export in both CSV and JSON formats. Additionally, if VA Explorer
+has been configured to integrate with DHIS2 then users can export their data
+directly to that service. See DHIS2 (link) for more info.</p>
+<ul class="simple">
+<li><p>Choose between CSV and JSON data download</p></li>
+<li><p>Filter data downloaded to just the VAs of interest</p></li>
+<li><p>Optionally export direct to DHIS2 if your configuration supports it</p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="integrations.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Integrations</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="getting_started/tips.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Tips &amp; Best Practices</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Features</a><ul>
+<li><a class="reference internal" href="#tablet-friendly-interface">Tablet Friendly Interface</a></li>
+<li><a class="reference internal" href="#user-identity-access-management">User Identity &amp; Access Management</a></li>
+<li><a class="reference internal" href="#va-data-import">VA Data Import</a></li>
+<li><a class="reference internal" href="#data-collection-supervision">Data Collection Supervision</a></li>
+<li><a class="reference internal" href="#processing-analyzing-cause-of-death-data">Processing &amp; Analyzing Cause of Death Data</a></li>
+<li><a class="reference internal" href="#working-with-va-questionnaires">Working with VA Questionnaires</a></li>
+<li><a class="reference internal" href="#exporting-data">Exporting Data</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/js/tweaks.js"></script>
+    </body>
+</html>

@@ -1,0 +1,373 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tips &amp; Best Practices" href="tips.html" /><link rel="prev" title="Installation &amp; Setup" href="installation.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Configuration &amp; Deployment - VA Explorer Docs</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tweaks.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">VA Explorer Docs</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VA Explorer Docs</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Getting Started</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation &amp; Setup</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Configuration &amp; Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips &amp; Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../integrations.html">Integrations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../training/general/index.html">General Information</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../training/general/roles.html">User Roles &amp; Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../training/general/common_actions.html">Common Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/user_guides.html">User Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/admin_guides.html">The Admin Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/it_guides.html">IT Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../training/troubleshooting.html">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="configuration-deployment">
+<h1>Configuration &amp; Deployment<a class="headerlink" href="#configuration-deployment" title="Permalink to this heading">#</a></h1>
+<p>VA Explorer configuration is primarily set by <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> with sensible
+defaults. Admins or IT Staff with access to the server hosting a VA Explorer
+instance can change this configuration via the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. To begin using this
+file (if you haven’t already during Installation &amp; Setup’s Step 4) you can use
+<code class="docutils literal notranslate"><span class="pre">mv</span> <span class="pre">.env.template</span> <span class="pre">.env</span></code> and <code class="docutils literal notranslate"><span class="pre">vim</span> <span class="pre">.env</span></code> to open a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file for editing. To
+give an idea for how the VA Explorer could be changed each of the options is
+documented below.</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head stub"><p><em>Variable Name</em></p></th>
+<th class="head stub"><p><em>Default Value</em></p></th>
+<th class="head"><p><em>Description</em></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DEBUG</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Will configure VA Explorer to report additional info in logs and console messages if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> for standard info.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">EMAIL_URL</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">consolemail://</span></code></p></th>
+<td><p>A <a class="inline-external" href="https://django-environ.readthedocs.io/en/latest/types.html#environ-env-email-url">Django Environ</a> <code class="docutils literal notranslate"><span class="pre">email_url</span></code> which supports various email related URL schemas. Used to allow VA Explorer to connect to an email server and send email on your behalf. Setup to print to the console (docker logs) by default. <strong>Recommended to customize.</strong></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_DEFAULT_FROM_EMAIL</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">VA</span> <span class="pre">Explorer</span> <span class="pre">&lt;noreply&#64;vaexplorer.org&gt;</span></code></p></th>
+<td><p>The email address used in the sender field when VA Explorer sends automated emails. Format options include <code class="docutils literal notranslate"><span class="pre">Name</span> <span class="pre">&lt;email&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">email</span></code>. Default is app value here instead of <a class="inline-external" href="https://docs.djangoproject.com/en/4.1/ref/settings/#std-setting-DEFAULT_FROM_EMAIL">Django default</a>. <strong>Recommended to customize.</strong></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_SECRET_KEY</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">dcc02e52ccbb649b9febe9182abfa5e03c49be6c</span></code></p></th>
+<td><p>Hash used by Django to cryptographically sign things like account recovery email urls. Defaults to hard-coded random hash. <strong>Recommended to customize.</strong></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_ALLOWED_HOSTS</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">localhost</span></code></p></th>
+<td><p>A list of comma separated ip:port or unix:path formatted strings representing the hosts or domain names that VA Explorer can serve. A security measure to prevent Host header attacks. Defaults to local computer browser only. Recommended to customize.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">CELERY_BROKER_URL</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">redis://redis:6379/0</span></code></p></th>
+<td><p>A Celery supported backend URL schema. Allows VA Explorer to support reading results from long-running tasks such as batch cause-of-death assignment. Points to built-in redis service by default.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">REDIS_URL</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">redis://redis:6379/0</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">ip</span></code> <code class="docutils literal notranslate"><span class="pre">port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for Django caching solution. Default allows VA Explorer to take advantage of same redis available as celery backend so is often the same value.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_HOST</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">vapostgres</span></code></p></th>
+<td><p>Value indicating the postgres host location. Formatted as a PostgreSQL host parameter. Default value points to built-in postgres docker container.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_PORT</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">5432</span></code></p></th>
+<td><p>Value indicating the port  postgres runs on at the host location. Formatted as a PostgreSQL port parameter. Default points to postgres port of built-in service.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_DB</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">va_explorer</span></code></p></th>
+<td><p>Value indicating the name of the database used by VA Explorer. Formatted as a PostgreSQL dbname parameter. Default is name of app.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_USER</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">postgres</span></code></p></th>
+<td><p>`Value indicating the name of the user accessing postgres. Formatted as a PostgreSQL user parameter. Defaults to standard user.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_PASSWORD</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">Pimin73y!we</span></code></p></th>
+<td><p>Value indicating the password to use for the user accessing postgres. Formatted as a PostgreSQL password parameter. Defaults to hard-coded random value. Recommended to customize.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">QUESTIONS_TO_AUTODETECT_DUPLICATES</span></code></p></th>
+<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">Id10017,</span> <span class="pre">Id10018,</span> <span class="pre">Id10019,</span> <span class="pre">Id10020,</span> <span class="pre">Id10021,</span> <span class="pre">Id10022,</span> <span class="pre">Id10023</span></code></p></th>
+<td><p>A list of comma separated fields corresponding to questions on a VA (See standard). Allows for customization of which fields VA Explorer considers when attempting to detect duplicate VAs. Defaults to fields having to do with name, sex, date of birth, and date of death.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<br/>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you update any of these configuration variables, please also run
+<code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> once more to push your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file updates to the various
+containers.</p>
+</div>
+<p>For further configuration information, particularly for integrating with
+external services such as ODK and DHIS, please see Integrations (link).</p>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="tips.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Tips &amp; Best Practices</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="installation.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Installation &amp; Setup</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/js/tweaks.js"></script>
+    </body>
+</html>
