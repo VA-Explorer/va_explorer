@@ -33,11 +33,11 @@ jobs:
       - name: Build pdf
         run: |
           make latex
-        uses: xu-cheng/latex-action@v2
+      - uses: xu-cheng/latex-action@v2
         with:
           root_file: "docs/_build/latex/*.tex"
           glob_root_file: true
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: docs-pdf
           path: docs/_build/latex/*.pdf     # Allow generic name of pdf
