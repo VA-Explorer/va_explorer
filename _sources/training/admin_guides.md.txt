@@ -8,6 +8,7 @@ there are workflows available to you as an admin to affect users as a group or
 as individuals described below.
 
 ### Loading Locations for Geographic Access Support
+
 To set up VA Explorer for the Geographic Access mentioned in that section, you
 must load location data into the system.
 
@@ -55,6 +56,7 @@ example, in the above tree a user with access to California also has access to
 Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.
 
 ### Creating & Editing Users
+
 Click “Users” in the navigation bar to visit the Users page. Click the “Create
 User” button to access the user creation form. Alternatively, click the “Edit”
 button in the table row for the user you would like to edit. Required fields are
@@ -113,6 +115,7 @@ process, from import to editing, to export has workflows available to you as an
 admin to affect it as needed.
 
 ### Manually Importing Data
+
 If you would like to manually import data from file, (perhaps if troubleshooting
 the automatic import process) VA Explorer supports this through the `load_va_csv`
 management command. Please refer to Management Commands (link) for details on
@@ -146,7 +149,7 @@ enter VA Explorer’s main Django container like so
 `docker exec -it va_explorer_django_1 bash`. From there `manage.py` is available
 for calling the following commands via:
 
-```
+```shell
 manage.py <command> --<parameter_name>=<parameter_input>
 ```
 

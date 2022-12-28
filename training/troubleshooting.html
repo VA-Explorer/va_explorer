@@ -146,10 +146,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+    <img class="sidebar-logo only-light" src="../_static/img/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/img/logo_white.png" alt="Dark Logo"/>
   </div>
   
   <span class="sidebar-brand-text">VA Explorer Docs</span>
@@ -187,10 +188,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Extras</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://va-explorer.github.io/va_explorer/_static/vaexplorerdocs.pdf">Offline Docs</a></li>
 </ul>
 
 </div>
@@ -262,7 +263,7 @@ does this mean?</p></li>
 <p>It is possible that psycopg2 is pointing at the wrong SSL installation on your
 system it is attempting to set itself up during the pip install process. Adding
 this environment variable has worked as a potential fix:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">LDFLAGS</span><span class="o">=</span><span class="s1">&#39;-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib&#39;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">LDFLAGS</span><span class="o">=</span><span class="s1">&#39;-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib&#39;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
@@ -277,37 +278,37 @@ Ensuring that pip is upgraded <code class="docutils literal notranslate"><span c
 <li><p>What is an easy configuration to use for my reverse proxy?</p></li>
 </ol>
 <p>This is a simple example apache config that utilizes letsencrypt https certificates</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;VirtualHost *:80&gt;
-    ServerName myhost.com
-    ServerAdmin admin@myhost.com
-    ServerAlias *.myhost.com
+<div class="highlight-apache notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:80</span><span class="nt">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com<span class="w"></span>
+<span class="w">    </span><span class="nb">ServerAdmin</span><span class="w"> </span>admin@myhost.com<span class="w"></span>
+<span class="w">    </span><span class="nb">ServerAlias</span><span class="w"> </span>*.myhost.com<span class="w"></span>
 
-    Redirect permanent / https://myhost.com/
+<span class="w">    </span><span class="nb">Redirect</span><span class="w"> </span>permanent<span class="w"> </span>/<span class="w"> </span>https://myhost.com/<span class="w"></span>
 
-    ErrorLog ${APACHE_LOG_DIR}/http-myhost-error.log
-    CustomLog ${APACHE_LOG_DIR}/http-myhost-access.log combined
-&lt;/VirtualHost&gt;
+<span class="w">    </span><span class="nb">ErrorLog</span><span class="w"> </span>${APACHE_LOG_DIR}/http-myhost-error.log<span class="w"></span>
+<span class="w">    </span><span class="nb">CustomLog</span><span class="w"> </span>${APACHE_LOG_DIR}/http-myhost-access.log<span class="w"> </span>combined<span class="w"></span>
+<span class="nt">&lt;/VirtualHost&gt;</span><span class="w"></span>
 
-&lt;IfModule mod_ssl.c&gt;
-    &lt;VirtualHost *:443&gt;
-        ServerName myhost.com
-        ServerAdmin admin@myhost.com
-        ServerAlias *.myhost.com
-        SSLProxyEngine on
+<span class="nt">&lt;IfModule</span><span class="w"> </span><span class="s">mod_ssl.c</span><span class="nt">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:443</span><span class="nt">&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com<span class="w"></span>
+<span class="w">        </span><span class="nb">ServerAdmin</span><span class="w"> </span>admin@myhost.com<span class="w"></span>
+<span class="w">        </span><span class="nb">ServerAlias</span><span class="w"> </span>*.myhost.com<span class="w"></span>
+<span class="w">        </span><span class="nb">SSLProxyEngine</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
 
-        ProxyPreserveHost on
-        ProxyVia on
-        ProxyPass / http://localhost:5000/
-        ProxyPassReverse / http://localhost:5000/
+<span class="w">        </span><span class="nb">ProxyPreserveHost</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
+<span class="w">        </span><span class="nb">ProxyVia</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
+<span class="w">        </span><span class="nb">ProxyPass</span><span class="w"> </span>/<span class="w"> </span>http://localhost:5000/<span class="w"></span>
+<span class="w">        </span><span class="nb">ProxyPassReverse</span><span class="w"> </span>/<span class="w"> </span>http://localhost:5000/<span class="w"></span>
 
-        ErrorLog ${APACHE_LOG_DIR}/https-myhost-error.log
-        CustomLog ${APACHE_LOG_DIR}/https-myhost-access.log combined
+<span class="w">        </span><span class="nb">ErrorLog</span><span class="w"> </span>${APACHE_LOG_DIR}/https-myhost-error.log<span class="w"></span>
+<span class="w">        </span><span class="nb">CustomLog</span><span class="w"> </span>${APACHE_LOG_DIR}/https-myhost-access.log<span class="w"> </span>combined<span class="w"></span>
 
-        SSLCertificateFile /etc/letsencrypt/live/myhost.com/fullchain.pem
-        SSLCertificateKeyFile /etc/letsencrypt/live/myhost.com/privkey.pem
-        Include /etc/letsencrypt/options-ssl-apache.conf
-    &lt;/VirtualHost&gt;
- &lt;/IfModule&gt;
+<span class="w">        </span><span class="nb">SSLCertificateFile</span><span class="w"> </span><span class="sx">/etc/letsencrypt/live/myhost.com/fullchain.pem</span><span class="w"></span>
+<span class="w">        </span><span class="nb">SSLCertificateKeyFile</span><span class="w"> </span><span class="sx">/etc/letsencrypt/live/myhost.com/privkey.pem</span><span class="w"></span>
+<span class="w">        </span><span class="nb">Include</span><span class="w"> </span><span class="sx">/etc/letsencrypt/options-ssl-apache.conf</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&lt;/VirtualHost&gt;</span><span class="w"></span>
+<span class="w"> </span><span class="nt">&lt;/IfModule&gt;</span><span class="w"></span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
@@ -368,7 +369,14 @@ service recommended by ODK Central may help identify your email delivery issues.
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/VA-Explorer/va_explorer" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+            </a>
+              
+            </div>
           </div>
         </div>
         

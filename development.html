@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Reference" href="reference.html" /><link rel="prev" title="Troubleshooting" href="training/troubleshooting.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Extras" href="reference.html" /><link rel="prev" title="Troubleshooting" href="training/troubleshooting.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>Development - VA Explorer Docs</title>
@@ -146,10 +146,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
+    <img class="sidebar-logo only-light" src="_static/img/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/img/logo_white.png" alt="Dark Logo"/>
   </div>
   
   <span class="sidebar-brand-text">VA Explorer Docs</span>
@@ -187,10 +188,10 @@
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Development</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Extras</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://va-explorer.github.io/va_explorer/_static/vaexplorerdocs.pdf">Offline Docs</a></li>
 </ul>
 
 </div>
@@ -243,52 +244,52 @@ be ready to tackle Issues (external link). We recommend the ones tagged
 <ol class="arabic simple">
 <li><p>Retrieve the application source code</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">VA</span><span class="o">-</span><span class="n">Explorer</span><span class="o">/</span><span class="n">va_explorer</span><span class="o">.</span><span class="n">git</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/VA-Explorer/va_explorer.git
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
 <li><p>Change into the new directory</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">va_explorer</span>
-</pre></div>
-</div>
-<ol class="arabic simple" start="3">
-<li><p>Create a virtual env</p></li>
-</ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">venv</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> va_explorer
+<span class="sb">```</span>pref
+
+<span class="m">3</span>. Create a virtual env
+
+<span class="sb">```</span>shell
+python -m venv venv
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Activate the virtual env:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> venv/bin/activate
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>Install application requirements</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install -r requirements/base.txt
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
 <li><p>Create the va_explorer database using your postgres user made during postgres
 download. It may be <code class="docutils literal notranslate"><span class="pre">postgres</span></code> for example.</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>createdb va_explorer -U &lt;name of Postgres user&gt; --password`
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>createdb va_explorer -U &lt;name of Postgres user&gt; --password<span class="sb">`</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="7">
 <li><p>Create a .env file at the project root with the following key/value pairs:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DATABASE_URL</span><span class="o">=</span><span class="n">psql</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">YOUR</span> <span class="n">POSTGRESUSER</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">POSTGRESUSER</span> <span class="n">PASSWORD</span><span class="o">&gt;</span><span class="nd">@localhost</span><span class="o">/</span><span class="n">va_explorer</span>
-<span class="n">CELERY_BROKER_URL</span><span class="o">=</span><span class="n">redis</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6379</span><span class="o">/</span><span class="mi">0</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">DATABASE_URL</span><span class="o">=</span><span class="s">psql://&lt;YOUR POSTGRESUSER&gt;:&lt;POSTGRESUSER PASSWORD&gt;@localhost/va_explorer</span><span class="w"></span>
+<span class="na">CELERY_BROKER_URL</span><span class="o">=</span><span class="s">redis://localhost:6379/0</span><span class="w"></span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="8">
 <li><p>Run the database migrations</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">makemigrations</span>
-<span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py makemigrations
+./manage.py migrate
 </pre></div>
 </div>
 <p>This will prepare your local development environment to run VA Explorer locally
@@ -298,39 +299,40 @@ features in action. To do that run:</p>
 <ol class="arabic simple">
 <li><p>Create user roles &amp; permissions source code</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">initialize_groups</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py initialize_groups
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>Create an admin user for yourself. The values can be fake, you just need to remember them to login</p></li>
+<li><p>Create an admin user for yourself. The values can be fake, you just need to
+remember them to login</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">seed_admin_user</span> <span class="o">&lt;</span><span class="n">EMAIL_ADDRESS</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">password</span><span class="o">=&lt;</span><span class="n">PASSWORD</span><span class="o">&gt;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py seed_admin_user &lt;EMAIL_ADDRESS&gt; --password<span class="o">=</span>&lt;PASSWORD&gt;
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Create some demo accounts if you’d like to try out the other roles too</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">seed_demo_users</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py seed_demo_users
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>If you have locations for geographic access restrictions on hand, load those via</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">load_locations</span> <span class="o">&lt;</span><span class="n">NAME</span> <span class="n">OF</span> <span class="n">CSV</span><span class="o">&gt;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py load_locations &lt;NAME OF CSV&gt;
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>If you have VAs on hand, you should also load them now</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">load_va_csv</span> <span class="o">&lt;</span><span class="n">NAME</span> <span class="n">OF</span> <span class="n">CSV</span><span class="o">&gt;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py load_va_csv &lt;NAME OF CSV&gt;
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
 <li><p>Finally, if you’d like to try out the coding algorithm assignment
 functionality, build just those docker services and run them manually via:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span> <span class="o">--</span><span class="n">build</span> <span class="n">pycrossva</span> <span class="n">interva5</span>
-<span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">run_coding_algorithms</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker-compose up -d --build pycrossva interva5
+./manage.py run_coding_algorithms
 </pre></div>
 </div>
 <p>You can also run the rest of the docker build, the part of VA Explorer that is
@@ -340,7 +342,7 @@ of the containers.</p>
 <section id="testing-running-locally">
 <h2>Testing &amp; Running Locally<a class="headerlink" href="#testing-running-locally" title="Permalink to this heading">#</a></h2>
 <p>After setup, you’re ready to run VA Explorer locally! If you’ve run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">runserver_plus</span> <span class="mf">0.0.0.0</span><span class="p">:</span><span class="mi">8000</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py runserver_plus <span class="m">0</span>.0.0.0:8000
 </pre></div>
 </div>
 <p>then you should be able to navigate to <code class="docutils literal notranslate"><span class="pre">localhost:8000</span></code> in the browser of your
@@ -453,7 +455,7 @@ by running <code class="docutils literal notranslate"><span class="pre">manage.p
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Reference</div>
+                <div class="title">Extras</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -480,7 +482,14 @@ by running <code class="docutils literal notranslate"><span class="pre">manage.p
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/VA-Explorer/va_explorer" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+            </a>
+              
+            </div>
           </div>
         </div>
         

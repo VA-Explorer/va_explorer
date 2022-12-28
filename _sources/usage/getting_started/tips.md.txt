@@ -12,6 +12,7 @@ There are also further guides along these lines in IT Support Guides (link) for
 those anxious to learn more about sustaining use of VA Explorer over time.
 
 ## Setting up a mail server
+
 If a mail server is already available, customize the `EMAIL_URL` configuration
 variable to point to it with the necessary authentication information. However,
 if your organization or cloud provider do not provide a mail server, it is
@@ -26,6 +27,7 @@ section may help.
 ```
 
 ## Implementing server monitoring
+
 After installation and setup of VA Explorer, having visibility of system
 statistics or alerts when things do not function as expected can help you
 quickly address problems before they grow. If your organization or cloud
@@ -44,17 +46,20 @@ for common VA Explorer management questions like:
 - Is VA Explorer accessible? – Monitor Endpoints (Health Checks/ Pings)
 
 ## Configuring things for better security
+
 While VA Explorer is developed with security in mind and server software may have
 a good security baseline, security is a broad and continuously evolving domain.
 No set of things can fully reduce risk in this area, but some security best
 practices to consider for your VA Explorer server include:
 
 ### Strengthening server authentication methods
+
 If your server is using password authentication, ensure they are strong passwords
 and consider enabling 2-Factor authentication. Also consider using ssh key pairs
 instead of passwords.
 
 ### Regularly updating server software
+
 Software that ships with your server, including VA Explorer, periodically release
 updates, and sometimes these updates have the sole purpose of patching security
 vulnerabilities. Failing to download these security updates leaves software open
@@ -68,6 +73,7 @@ for this, along with optional configuration to alert you if any problems arise
 during automatic updates. See Guide.
 
 ### Protecting against server attacks
+
 Servers can come under attack within minutes of going online to the wider internet.
 If you do not have an organization or cloud provider already protecting your
 server, some small tweaks that can help with this include the following. Note

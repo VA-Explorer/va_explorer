@@ -146,10 +146,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo" src="../_static/logo.png" alt="Logo"/>
+    <img class="sidebar-logo only-light" src="../_static/img/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/img/logo_white.png" alt="Dark Logo"/>
   </div>
   
   <span class="sidebar-brand-text">VA Explorer Docs</span>
@@ -187,10 +188,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Project Info</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/VA-Explorer/va_explorer">GitHub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Extras</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://va-explorer.github.io/va_explorer/_static/vaexplorerdocs.pdf">Offline Docs</a></li>
 </ul>
 
 </div>
@@ -288,13 +289,13 @@ the case, then that process is a bit more involved:</p>
 <li><p>(optional) If existing migration volumes exist from a past upgrade, delete
 those now:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">rm</span> <span class="n">va_explorer_migration_postgres_data</span> <span class="n">va_explorer_migration_postgres_data_backups</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume rm va_explorer_migration_postgres_data va_explorer_migration_postgres_data_backups
 </pre></div>
 </div>
 <ol class="arabic simple">
 <li><p>Make a logical backup of all current data</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">va_explorer_vapostgres_1</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pg_dumpall</span> <span class="o">-</span><span class="n">U</span> <span class="n">postgres</span> <span class="o">&gt;</span> <span class="o">~/</span><span class="n">dumpfile</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it va_explorer_vapostgres_1 /usr/bin/pg_dumpall -U postgres &gt; ~/dumpfile
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
@@ -303,69 +304,72 @@ those now:</p></li>
 <ul class="simple">
 <li><p>Get docker-compose labels</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">inspect</span> <span class="n">va_explorer_production_postgres_data</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume inspect va_explorer_production_postgres_data
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker volume create \
-    --label com.docker.compose.project=“va_explorer” \
-    --label com.docker.compose.version=“1.26.0&quot; \
-    --label com.docker.compose.volume=“migration_postgres_data” \
-    va_explorer_migration_postgres_data
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume create <span class="se">\</span>
+    --label com.docker.compose.project<span class="o">=</span>“va_explorer” <span class="se">\</span>
+    --label com.docker.compose.version<span class="o">=</span>“1.26.0<span class="s2">&quot; \</span>
+<span class="s2">    --label com.docker.compose.volume=“migration_postgres_data” \</span>
+<span class="s2">    va_explorer_migration_postgres_data</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Clone data</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data:/from -v va_explorer_migration_postgres_data:/to alpine ash -c “cd /from ; cp -av . /to”
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data:/from -v va_explorer_migration_postgres_data:/to alpine ash -c “cd /from <span class="p">;</span> cp -av . /to”
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Repeat for backups volumes</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">inspect</span> <span class="n">va_explorer_production_postgres_data_backups</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume inspect va_explorer_production_postgres_data_backups
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker volume create \
-    --label com.docker.compose.project=“va_explorer” \
-    --label com.docker.compose.version=“1.26.0&quot; \
-    --label com.docker.compose.volume=“migration_postgres_data_backups” \
-    va_explorer_migration_postgres_data_backups
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume create <span class="se">\</span>
+    --label com.docker.compose.project<span class="o">=</span>“va_explorer” <span class="se">\</span>
+    --label com.docker.compose.version<span class="o">=</span>“1.26.0<span class="s2">&quot; \</span>
+<span class="s2">    --label com.docker.compose.volume=“migration_postgres_data_backups” \</span>
+<span class="s2">    va_explorer_migration_postgres_data_backups</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data_backups:/from -v va_explorer_migration_postgres_data_backups:/to alpine ash -c “cd /from ; cp -av . /to”
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data_backups:/from -v va_explorer_migration_postgres_data_backups:/to alpine ash -c “cd /from <span class="p">;</span> cp -av . /to”
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Delete old volumes that no longer work with postgres version</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">volume</span> <span class="n">rm</span> <span class="n">va_explorer_production_postgres_data</span> <span class="n">va_explorer_production_postgres_data_backups</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume rm va_explorer_production_postgres_data va_explorer_production_postgres_data_backups
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Build new VA Explorer release &amp; rebuild fresh old volumes (no data)</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">down</span> <span class="o">&amp;&amp;</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">build</span> <span class="o">&amp;&amp;</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker-compose down <span class="o">&amp;&amp;</span> docker-compose build <span class="o">&amp;&amp;</span> docker-compose up -d
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>Copy over backup dumpfile data to new container</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">cp</span> <span class="o">~/</span><span class="n">dumpfile</span> <span class="n">va_explorer_vapostgres_1</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dumpfile</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker cp ~/dumpfile va_explorer_vapostgres_1:/tmp/dumpfile
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">exec</span> <span class="o">-</span><span class="n">it</span> <span class="n">va_explorer_vapostgres_1</span> <span class="n">bash</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it va_explorer_vapostgres_1 bash
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psql</span> <span class="o">-</span><span class="n">U</span> <span class="n">postgres</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psql -U postgres
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">DROP</span> <span class="n">DATABASE</span> <span class="n">va_explorer</span><span class="p">;</span> <span class="p">(</span><span class="n">this</span> <span class="n">may</span> <span class="n">fail</span> <span class="k">as</span> <span class="n">the</span> <span class="n">new</span> <span class="n">container</span> <span class="n">does</span> <span class="n">migrations</span><span class="p">,</span> <span class="n">just</span> <span class="n">re</span><span class="o">-</span><span class="k">try</span><span class="p">)</span>
-  <span class="n">CREATE</span> <span class="n">DATABASE</span> <span class="n">va_explorer</span><span class="p">;</span>
-  \<span class="n">q</span>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">DATABASE</span></code> may fail as the new container does migrations, just re-try</p>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">DROP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">va_explorer</span><span class="p">;</span><span class="w"></span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">va_explorer</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psql</span> <span class="o">-</span><span class="n">U</span> <span class="n">postgres</span> <span class="o">&lt;</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">dumpfile</span>
-<span class="n">exit</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psql -U postgres &lt; /tmp/dumpfile
+<span class="nb">exit</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
@@ -416,7 +420,14 @@ contain version-specific upgrade instructions in the future.</p>
             
           </div>
           <div class="right-details">
-            
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/VA-Explorer/va_explorer" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+            </a>
+              
+            </div>
           </div>
         </div>
         

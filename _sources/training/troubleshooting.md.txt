@@ -22,6 +22,7 @@ like `docker ps` will also help you determine if all docker services are running
 as expected.
 
 ## Frequently Asked Questions
+
 1. Is VA Explorer free?
 
 Yes, VA Explorer is free to download and use as you please under the terms of
@@ -35,7 +36,8 @@ does this mean?
 It is possible that psycopg2 is pointing at the wrong SSL installation on your
 system it is attempting to set itself up during the pip install process. Adding
 this environment variable has worked as a potential fix:
-```
+
+```shell
 export LDFLAGS='-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib'
 ```
 
@@ -51,7 +53,7 @@ Ensuring that pip is upgraded `pip install --upgrade pip` may also help.
 
 This is a simple example apache config that utilizes letsencrypt https certificates
 
-```
+```apache
 <VirtualHost *:80>
     ServerName myhost.com
     ServerAdmin admin@myhost.com
