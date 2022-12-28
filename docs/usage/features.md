@@ -132,7 +132,7 @@ and performance stats such as VAs/week
 - Group data by interviewers/field workers or by facility for a different set of
 insights
 
-## Processing & Analyzing Cause of Death Data
+## Processing & Analyzing of Cause of Death Data
 
 ```{list-table}
 :class: img-sidebyside
@@ -220,7 +220,7 @@ or those leading to an “Indeterminate” assignment by InterVA5.
 - Easily edit VA answers with VA instrument compliant responses
 - View change history and revert changes as needed for a VA
 
-## Exporting Data
+## Processed Data Export
 
 ```{figure} ../_static/img/features/export.png
 :alt: VA Explorer's Export module, showing an data export form

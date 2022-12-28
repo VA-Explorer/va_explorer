@@ -49,7 +49,10 @@ myst_heading_anchors = 3
 
 html_theme = "furo"
 html_title = project
-html_logo = "_static/img/logo.png"
+html_theme_options = {
+    "light_logo": "img/logo.png",
+    "dark_logo": "img/logo_white.png",
+}
 
 html_static_path = ["_static"]
 html_css_files = ["css/tweaks.css"]
@@ -62,6 +65,7 @@ epub_title = project
 epub_author = author
 epub_publisher = author
 epub_copyright = copyright
+epub_description = "A Full Service VA Management Prototype"
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ["search.html"]
