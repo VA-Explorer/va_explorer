@@ -1,6 +1,10 @@
 # Integrations
 
-VA Explorer supports integrations with a variety of services, some built-in, some external, in order to facilitate the quick and efficient movement or processing of VAs. In this section you will find information on these integrations as well as details on how to enable them in VA Explorer if needed.
+VA Explorer supports integrations with a variety of services, some built-in,
+some external, in order to facilitate the quick and efficient movement or
+processing of VAs. In this section you will find information on these
+integrations as well as details on how to enable them in VA Explorer if needed.
+
 - ODK Central
 - DHIS2
 - Algorithm Support
@@ -8,6 +12,7 @@ VA Explorer supports integrations with a variety of services, some built-in, som
   - InterVA5
 
 ## ODK Central
+
 VA Explorer supports integration with ODK Central to provide both manual and
 automatic import of VA questionnaire responses. You can read more about ODK
 Central via its documentation.
@@ -37,6 +42,7 @@ If you encounter any issues during integration, please reference our
 Troubleshooting (link) section.
 
 ## DHIS2
+
 VA Explorer supports integration with DHIS2 to export VAs that have been
 processed and assigned causes of death along for potential further use. You can
 read more about DHIS2 via their documentation. Details on configuring DHIS2 for
@@ -64,6 +70,7 @@ If you encounter any issues during integration, please reference our
 Troubleshooting (link) section.
 
 ## Algorithm Support
+
 VA Explorer provides built-in support for cause of death assignment via the
 InterVA5 computer coded VA ({term}`CCVA`) algorithm without additional configuration.
 If you would like to change how these services are configured (including the
@@ -72,6 +79,7 @@ instead, this section will help with that. As a future expansion, VA Explorer
 may provide built-in support for additional {term}`CCVA` algorithms.
 
 ### pyCrossVA
+
 pyCrossVA is provided as a built-in docker service to allow VA Explorer to
 transform VAs into input suitable for cause of death assignment algorithms. You
 can read more about it via its project page.
@@ -85,6 +93,7 @@ Variable Name,Default String,Description
 ```
 
 ### InterVA5
+
 InterVA5 is provided as a built-in docker service to allow VA Explorer VAs to be
 processed for likely cause of death. You can read more about it via its project
 page.

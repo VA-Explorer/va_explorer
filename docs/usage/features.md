@@ -216,7 +216,7 @@ or those leading to an “Indeterminate” assignment by InterVA5.
 
 - Field workers are able to view and edit VAs they collect
 - Data Managers and Admins can do repairs for any VA they have access to
-- View errors and warnings causing issues with VA from both VA Explorer and InterVA5 
+- View errors and warnings causing issues with VA from both VA Explorer and InterVA5
 - Easily edit VA answers with VA instrument compliant responses
 - View change history and revert changes as needed for a VA
 

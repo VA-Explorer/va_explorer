@@ -36,7 +36,6 @@ Data Viewer, or Field Worker can do so in User Training (link)
 - Users wishing to report bugs, request features, or developers wishing to
 contribute to the VA Explorer effort can find resources in Development (link)
 
-
 ## Contents
 
 ```{toctree}
@@ -77,9 +76,11 @@ development
 ```{toctree}
 ---
 hidden:
-caption: Project Info
+caption: Additional Info
 ---
 
 reference
-GitHub <https://github.com/VA-Explorer/va_explorer>
+Offline Docs <https://va-explorer.github.io/va_explorer/_static/vaexplorerdocs.pdf>
 ```
+
+> Last Updated: {sub-ref}`today`

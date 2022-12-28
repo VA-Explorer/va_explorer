@@ -20,18 +20,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements/docs.txt
-          cd docs
-
-      - name: Build ePub
-        run: |
-          make epub
-      - uses: actions/upload-artifact@v3
-        with:
-          name: docs-epub
-          path: docs/_build/epub/*.epub     # Allow generic name of epub
 
       - name: Build pdf
         run: |
+          cd docs
           make latex
       - uses: xu-cheng/latex-action@v2
         with:
@@ -44,6 +36,7 @@ jobs:
 
       - name: Build html
         run: |
+          cd docs
           make html
       - uses: actions/upload-artifact@v3
         with:
@@ -60,14 +53,10 @@ jobs:
           name: docs-html
           path: docs/_build/html
 
-      - uses: actions/download-artifact@v3  # Get offline artifacts
-        with:
-          name: docs-epub
-          path: docs/_build/html/_static/VAExplorerDocs.epub
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v3  # Get offline pdf
         with:
           name: docs-pdf
-          path: docs/_build/html/_static/VAExplorerDocs.pdf
+          path: docs/_build/html/_static/vaexplorerdocs.pdf
 
       - uses: peaceiris/actions-gh-pages@v3   # Deploy to github pages
         with:

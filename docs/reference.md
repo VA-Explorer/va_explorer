@@ -1,4 +1,4 @@
-# Reference
+# Extras
 
 ## Security & Privacy
 
@@ -8,6 +8,7 @@ software libraries. If security concerns you, you or your organization may want
 to review the third-party libraries and their source code on GitHub.
 
 ## Copyright & License
+
 Copyright 2020-2022 The MITRE Corporation
 
 The source of this information is the Data for Health Initiative, a joint
@@ -23,28 +24,40 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for specific
 language governing permissions and limitations under the License.
 
 ## Other VA Efforts
+
 - VA Standards Group at WHO
 - Other VA IT Tools
   - openVA Pipeline on GitHub
 
 ## Glossary
+
 ```{glossary}
 CCVA
   Computer-Coded Verbal Autopsy
 ```
-
-<!-- Acronym	Definition
-CCVA	
-COD	Cause of Death
-CRVS	Civil Registration and Vital Statistics
-CSV	Comma Separated Value
-DB	Database
-DHIS2	District Health Information System, Version 2
-GUI	Graphic User Interface
-IT	Information Technology
-JSON	JavaScript Object Notation
-ODK	Open Data Kit
-OS	Operating System
-PII	Personally Identifiable Information
-VA	Verbal Autopsy
-WHO	World Health Information -->
+<!-- COD
+  Cause of Death
+CRVS
+  Civil Registration and Vital Statistics
+CSV
+  Comma Separated Value
+DB
+  Database
+DHIS2
+  District Health Information System, Version 2
+GUI
+  Graphic User Interface
+IT
+  Information Technology
+JSON
+  JavaScript Object Notation
+ODK
+  Open Data Kit
+OS
+  Operating System
+PII
+  Personally Identifiable Information
+VA
+  Verbal Autopsy
+WHO
+  World Health Information -->

@@ -55,6 +55,7 @@ John Doe collect last month?). To apply a filter, enter in your parameters to
 the form at the top and click the “Go” button.
 
 ### Exporting Data
+
 Click “Export”, either in the navigation bar, search interface, or the dashboard
 to navigate to the Export page. When exporting data from VA Explorer for local use:
 
@@ -134,7 +135,7 @@ types of form elements when editing the various responses to a VA:
 
 Using this form, you may edit the VA as needed. Upon finishing, scroll or
 navigate via the bottom right floating action button to the bottom of the page
-and click “Save” to confirm your edits. 
+and click “Save” to confirm your edits.
 
 After editing a VA, the natural next step is to see if the changes have corrected
 any reported warnings or errors associated with the VA. Data Managers can complete
@@ -148,6 +149,7 @@ If you receive any error messages following this, either reach out to your admin
 or see our Troubleshooting (link) section
 
 ## Data Viewers
+
 Data viewers have the simplest set of permissions, enabling them to view data
 scoped to whichever restrictions their admins set. As a data viewer, VA Explorer
 does not currently support any features unique to your role. Please consult the
@@ -162,6 +164,7 @@ For a full listing of these, see Common Actions (link) or see below for an
 explanation of the “partial repair” workflow.
 
 ### Partially Repairing VA Errors & Warnings
+
 As a Field Worker, you have the ability to make corrections to VAs that you own
 as a way of assisting Data Managers with the correction of any warnings or errors
 reported by VA Explorer. See Repairing VA Errors & Warnings (link) for details.

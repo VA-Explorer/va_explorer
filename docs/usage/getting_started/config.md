@@ -27,7 +27,6 @@ documented below.
 `POSTGRES_PASSWORD`,`Pimin73y!we`,Value indicating the password to use for the user accessing postgres. Formatted as a PostgreSQL password parameter. Defaults to hard-coded random value. Recommended to customize.
 `QUESTIONS_TO_AUTODETECT_DUPLICATES`,`Id10017\, Id10018\, Id10019\, Id10020\, Id10021\, Id10022\, Id10023`,A list of comma separated fields corresponding to questions on a VA (See standard). Allows for customization of which fields VA Explorer considers when attempting to detect duplicate VAs. Defaults to fields having to do with name\, sex\, date of birth\, and date of death.
 ```
-<br/>
 
 ```{note}
 If you update any of these configuration variables, please also run

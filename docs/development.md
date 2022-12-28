@@ -6,6 +6,7 @@ be ready to tackle Issues (external link). We recommend the ones tagged
 `good first issue` as a starting point.
 
 As a pre-requisite you should have the following already on your system:
+
 - Python 3 + pip
 - Postgres
 - Docker
@@ -15,37 +16,52 @@ As a pre-requisite you should have the following already on your system:
 Like the process described in the VA Explorer `README.md`:
 
 1. Retrieve the application source code
-```
+
+```shell
 git clone https://github.com/VA-Explorer/va_explorer.git
 ```
+
 2. Change into the new directory
-```
+
+```shell
 cd va_explorer
-```
+```pref
+
 3. Create a virtual env
-```
+
+```shell
 python -m venv venv
 ```
+
 4. Activate the virtual env:
-```
+
+```shell
 source venv/bin/activate
 ```
+
 5. Install application requirements
-```
+
+```shell
 pip install -r requirements/base.txt
 ```
+
 6. Create the va_explorer database using your postgres user made during postgres
 download. It may be `postgres` for example.
-```
+
+```shell
 createdb va_explorer -U <name of Postgres user> --password`
 ```
+
 7. Create a .env file at the project root with the following key/value pairs:
-```
+
+```ini
 DATABASE_URL=psql://<YOUR POSTGRESUSER>:<POSTGRESUSER PASSWORD>@localhost/va_explorer
 CELERY_BROKER_URL=redis://localhost:6379/0
 ```
+
 8. Run the database migrations
-```
+
+```shell
 ./manage.py makemigrations
 ./manage.py migrate
 ```
@@ -56,28 +72,40 @@ want to seed VA Explorer with some example data so you can signin and see
 features in action. To do that run:
 
 1. Create user roles & permissions source code
-```
+
+```shell
 ./manage.py initialize_groups
 ```
-2. Create an admin user for yourself. The values can be fake, you just need to remember them to login
-```
+
+2. Create an admin user for yourself. The values can be fake, you just need to
+remember them to login
+
+```shell
 ./manage.py seed_admin_user <EMAIL_ADDRESS> --password=<PASSWORD>
 ```
+
 3. Create some demo accounts if you’d like to try out the other roles too
-```
+
+```shell
 ./manage.py seed_demo_users
 ```
+
 4. If you have locations for geographic access restrictions on hand, load those via
-```
+
+```shell
 ./manage.py load_locations <NAME OF CSV>
 ```
+
 5. If you have VAs on hand, you should also load them now
-```
+
+```shell
 ./manage.py load_va_csv <NAME OF CSV>
 ```
+
 6. Finally, if you’d like to try out the coding algorithm assignment
 functionality, build just those docker services and run them manually via:
-```
+
+```shell
 docker-compose up -d --build pycrossva interva5
 ./manage.py run_coding_algorithms
 ```
@@ -90,7 +118,7 @@ of the containers.
 
 After setup, you’re ready to run VA Explorer locally! If you’ve run:
 
-```
+```shell
 ./manage.py runserver_plus 0.0.0.0:8000
 ```
 
@@ -118,14 +146,17 @@ be required to install Firefox or geckodriver to do browser-based tests. See the
 Selenium Client Driver Documentation for more info if needed.
 
 ## Running Integrations Locally
+
 If you would like to test or contribute to the functionality of VA Explorer
 integrations and would like to use the real instances of ODK Central and DHIS2
 locally, please see to the documentation from those two services. They are the
 best reference.
+
 - ODK Central
 - DHIS2 via Docker
 
 ## Development Commands
+
 As mentioned in Management Commands (link), VA Explorer provides additional
 functionality beyond its UI-based features. This holds especially true for
 development which has relevant actions detailed here:

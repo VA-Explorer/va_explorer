@@ -15,6 +15,7 @@ Depending on how many of these are already in place, feel free to skip to the
 step most relevant to you.
 
 ## Obtain a server (either your own hardware or cloud provider)
+
 A Linux Operating System (OS) is recommended for best ease of use and for taking
 maximal advantage of docker later. One such OS that VA Explorer has been
 reliably tested on is Ubuntu. To get a server:
@@ -29,6 +30,7 @@ While not required, hardware specifications for the server that has successfully
 hosted VA Explorer in the past had a reference baseline of 1 CPU, 16 GB RAM, and 1 TB Storage.
 
 ## Obtain a web address/domain name
+
 A domain name such as `my-va-explorer.com` is required for users to navigate
 to your server from a browser. If you already own a domain, a subdomain
 (`my-va-explorer.my-website.com`) is a good approach too. If you already own a
@@ -47,6 +49,7 @@ have an IP address. You’ll need to follow the instructions of your domain
 registrar to point the newly registered domain name to your server’s IP address.
 
 ## Prepare server to host VA Explorer
+
 To bring your server from blank slate to ready-to-host, there are final some
 steps to take before downloading VA Explorer.
 
@@ -69,6 +72,7 @@ Nginx webservers, among other configurations.
 them via `sudo apt install -y git vim` or your OS’s equivalent
 
 ## Deploy and run VA Explorer via Docker
+
 VA Explorer itself is quick to deploy thanks to Docker and the default
 configurations. More on customizing this configuration can be found in
 Configuration & Deployment (link).
@@ -94,7 +98,7 @@ by running `manage.py help`. Only some of the popular commands are described
 here or in Management Commands (link).
 
 - VA Explorer should now be up and running. You can confirm services are running
-as expected via `docker ps` which should output like below: 
+as expected via `docker ps` which should output like below:
 
 ```{figure} ../../_static/img/build_output.png
 :alt: Console output from `docker ps`
@@ -104,6 +108,7 @@ django, flower, interva5, redis, and postgres services running</small>
 ```
 
 ## Create your first Admin account and log in
+
 Finally, to get started in the application you should create an admin account
 for yourself. This can be done via built-in management command from within the
 main web application container. To seed an admin user for yourself:
