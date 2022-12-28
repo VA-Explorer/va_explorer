@@ -29,6 +29,7 @@ jobs:
         with:
           root_file: "docs/_build/latex/*.tex"
           glob_root_file: true
+          working_directory: docs/_build/latex
       - uses: actions/upload-artifact@v3
         with:
           name: docs-pdf
