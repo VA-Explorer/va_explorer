@@ -73,6 +73,8 @@ caption: Development
 development
 ```
 
+% Comment: For below link: Assume deploy will upload a vaexplorerdocs.pdf to _static/
+
 ```{toctree}
 ---
 hidden:
