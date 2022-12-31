@@ -92,7 +92,8 @@ class Command(BaseCommand):
             cod = pd.DataFrame.from_records(cod)
             cod = cod[{"verbalautopsy_id", "cause"}]
 
-            # Get into CSV format, also prefixing keys with - as expected by pyCrossVA (e.g. Id10424 becomes -Id10424)
+            # Get into CSV format, also prefixing keys with - as expected by
+            # pyCrossVA (e.g. Id10424 becomes -Id10424)
             va_data = [model_to_dict(va) for va in va_data]
             va_df = pd.DataFrame.from_records(va_data)
 
@@ -102,7 +103,8 @@ class Command(BaseCommand):
             va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
 
             # Transform to algorithm format using the pyCrossVA web service
-            # TODO: Check that this service is running and provide a warning if it isn't because this will cause failure
+            # TODO: Check that this service is running and provide a warning if
+            # it isn't because this will cause failure
             # TODO: Handle failure so that UI doesn't crash
             # TODO: This can take absurdly long, lets make it into a batch async job
             transform_url = (
@@ -137,7 +139,7 @@ class Command(BaseCommand):
 
             entity_atr_data = self.generate_entity_attribute(crossva_cod)
 
-            # append a letter A to IDs; for some reason it was failing having numeric IDs
+            # append a letter A to IDs; for some reason it fails having numeric IDs
             # producing KeyError trying to compare string/integer numbers
             entity_atr_data["ID"] = ["A" + str(i) for i in entity_atr_data["ID"]]
             if os.path.exists("OpenVAFiles"):

@@ -39,10 +39,12 @@ def setup_test_db(with_vas=True):
                     print(f"Error: {err}")
 
 
-# create three dummy users for testing, each with different roles, location restrictions, and privacy privileges
+# create three dummy users for testing, each with different roles, location
+# restrictions, and privacy privileges
 def get_fake_user_data():
     return {
-        # user 1: restricted to location X, data viewer, cant view PII but can download data
+        # user 1: restricted to location X, data viewer, cant view PII but can
+        # download data
         "u1": {
             "name": "user1",
             "email": "user1@example.com",
@@ -51,7 +53,8 @@ def get_fake_user_data():
             "view_pii": False,
             "download_data": True,
         },
-        # user 2: data manager restricted to districtY, can view PII and can download data
+        # user 2: data manager restricted to districtY, can view PII and can
+        # download data
         "u2": {
             "name": "user2",
             "email": "user2@example.com",
@@ -60,7 +63,8 @@ def get_fake_user_data():
             "view_pii": True,
             "download_data": True,
         },
-        # user 3: data viewer - no location restrictions, can view PII but cannot download data
+        # user 3: data viewer - no location restrictions, can view PII but cannot
+        # download data
         "u3": {
             "name": "user3",
             "email": "user3@example.com",

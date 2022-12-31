@@ -43,14 +43,14 @@ class Command(BaseCommand):
         # Should only specify project_id or project_name, not both.
         if (not project_id and not project_name) or (project_id and project_name):
             self.stderr.write(
-                "Must specify either --project-id or --project-name arguments (not both)."
+                "Must specify either --project-id or --project-name arguments; not both"
             )
             return
 
         # Should only specify form_id or form_name, not both.
         if (not form_id and not form_name) or (form_id and form_name):
             self.stderr.write(
-                "Must specify either --form-id or --form-name arguments (not both)."
+                "Must specify either --form-id or --form-name arguments; not both"
             )
             return
 

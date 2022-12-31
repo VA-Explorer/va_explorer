@@ -36,7 +36,8 @@ def parse_date(date_str, formats=DATE_FORMATS, strict=False, return_format="%Y-%
                     return pd.to_datetime(date_str).date().strftime(return_format)
                 # Intent is only to handle exception with custom error or pass-through
                 except:  # noqa E722
-                    # if we get here, couldn't parse the date. If strict, raise error. Otherwise, return original string
+                    # if we get here, couldn't parse the date. If strict, raise error.
+                    # Otherwise, return original string
                     if strict:
                         raise ValueError(
                             f"no valid date format found for date string {date_str}"
@@ -55,8 +56,9 @@ def to_dt(dates, utc=True):
     )
 
 
-# get submissiondate for multiple vas (supports df, queryset or list of vas). First, checks for
-# submissiondate. If empty, checks for va start date (Id10011). If empty, returns empty_string
+# get submissiondate for multiple vas (supports df, queryset or list of vas).
+# First, checks for submissiondate. If empty, checks for va start date (Id10011).
+# If empty, returns empty_string
 def get_submissiondates(va_data, empty_string=None):
     # va_data is a dataframe - use vectorized logic
     if type(va_data) is pd.DataFrame:
@@ -71,7 +73,7 @@ def get_submissiondates(va_data, empty_string=None):
                     va_data["Id10011"],
                 )
 
-    # va_data is a list of va objects. Iterate through and get individual submission dates
+    # va_data is list of va objects. Iterate through & get individual submission dates
     else:
         return [get_submissiondate(va, empty_string=empty_string) for va in va_data]
 

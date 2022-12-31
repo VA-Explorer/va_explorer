@@ -63,11 +63,13 @@ class User(AbstractUser):
         Location, related_name="users", db_table="users_user_location_restrictions"
     )
 
-    # The query set of verbal autopsies that this user has access to, based on location restrictions
-    # Note: locations are organized in a tree structure, and users have access to all children of any
-    # parent location nodes they have access to
+    # The query set of verbal autopsies that this user has access to, based on
+    # location restrictions
+    # Note: locations are organized in a tree structure, and users have access
+    # to all children of any parent location nodes they have access to
     def verbal_autopsies(self, date_cutoff=None, end_date=None):
-        # only pull in VAs after certain time period. By default, everything after 1901 (i.e. everything)
+        # only pull in VAs after certain time period. By default, everything after
+        # 1901 (should be everything)
         date_cutoff = date_cutoff if date_cutoff else "1901-01-01"
         end_date = end_date if end_date else datetime.today().strftime("%Y-%m-%d")
         va_objects = VerbalAutopsy.objects.filter(
@@ -79,14 +81,16 @@ class User(AbstractUser):
                 username__in=self.vausername_set.all().values_list("va_username")
             )
         if self.location_restrictions.count() > 0:
-            # Get the query set of all locations at or below the parent nodes the user can access by joining
-            # the query sets of all the location trees; using the | operator leads to an efficient query
+            # Get the query set of all locations at or below the parent nodes
+            # the user can access by joining the query sets of all the location
+            # trees; using the | operator leads to an efficient query
             location_sets = [
                 Location.get_tree(location)
                 for location in self.location_restrictions.all()
             ]
             locations = reduce((lambda set1, set2: set1 | set2), location_sets)
-            # Return the list of all verbal autopsies associated with that query set of locations
+            # Return the list of all verbal autopsies associated with that
+            # query set of locations
             return va_objects.filter(location__in=locations)
         else:
             # No location restrictions, which implies access to all data
@@ -137,7 +141,8 @@ class User(AbstractUser):
         else:
             self.user_permissions.remove(permission)
 
-    # TODO: Update this if we are supporting more than one username; for now, allow only one
+    # TODO: Update this if we are supporting more than one username; for
+    # now, allow only one
     def set_va_username(self, new_va_username):
         # If None or blank string, delete existing username.
         if not new_va_username:
@@ -147,7 +152,8 @@ class User(AbstractUser):
         # Update or create the VaUsername for this user. There should only be one.
         self.vausername_set.update_or_create(defaults={"va_username": new_va_username})
 
-    # TODO: Update this if we are supporting more than one username; for now, allow only one
+    # TODO: Update this if we are supporting more than one username; for
+    # now, allow only one
     def get_va_username(self):
         va_username_for_user = self.vausername_set.first()
 
@@ -170,9 +176,12 @@ class User(AbstractUser):
         """
         return reverse("users:detail", kwargs={"pk": self.pk})
 
-    # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+    # TODO: Remove if we do not require email confirmation; we will no longer
+    # need the lines below
     # def add_email_address(self, request, new_email):
-    #     return EmailAddress.objects.add_email(request, self.user, new_email, confirm=True)
+    #     return EmailAddress.objects.add_email(
+    #         request, self.user, new_email, confirm=True
+    #     )
     #
     # @receiver(email_confirmed)
     # def update_user_email(sender, email_address, **kwargs):

@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if environ.get("DJANGO_SETTINGS_MODULE") != "config.settings.local":
-            message = "This functionality is for demo purposes only in the local environment. Exiting."
+            message = "This functionality is for demo purposes only (local env) Exiting"
             self.stdout.write(self.style.ERROR(message))
             sys.exit()
 

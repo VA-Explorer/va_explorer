@@ -404,7 +404,9 @@ def test_reset_without_valid_permissions(user: User):
     assert response.status_code == 403
 
 
-# Revert an updated VA and make sure 1) the data is reset to previous version and 2) the history is tracked
+# Revert an updated VA and make sure
+# 1) the data is reset to previous version
+# 2) the history is tracked
 def test_revert_latest_with_valid_permissions(user: User):
     can_edit_record = Permission.objects.filter(codename="change_verbalautopsy").first()
     can_view_pii = Permission.objects.filter(codename="view_pii").first()
@@ -488,7 +490,8 @@ def test_access_control(user: User):
     assert response.status_code == 404
 
 
-# A Field Worker can access only the Verbal Autopsies they create through the username on the Verbal Autopsy
+# A Field Worker can access only the Verbal Autopsies they create through the
+# username on the Verbal Autopsy
 def test_field_worker_access_control():
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
     can_view_pii = Permission.objects.filter(codename="view_pii").first()

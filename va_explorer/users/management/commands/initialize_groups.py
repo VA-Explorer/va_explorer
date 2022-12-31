@@ -55,7 +55,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         debug = options.get("debug", False)
-        # Loop through groups and permissions; add permissions, as applicable, to related group objects
+        # Loop through groups and permissions; add permissions, as applicable,
+        # to related group objects
         for group_name, group_permissions in GROUPS_PERMISSIONS.items():
             group, _ = Group.objects.get_or_create(name=group_name)
 
@@ -86,6 +87,7 @@ class Command(BaseCommand):
                     except Exception as instance:
                         if debug:
                             print(
-                                f"{type(instance)} error:\nargs:{instance.args}\n{instance}"
+                                f"{type(instance)} error:\nargs: \
+                                {instance.args}\n{instance}"
                             )
                         self.stderr.write(f"{codename} not found")
