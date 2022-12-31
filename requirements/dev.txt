@@ -1,5 +1,6 @@
 -r ./base.txt
 
+ruff==0.0.202   # ensure parity w/ version in .pre-commit-config.yaml
 pytest==7.2.0
 pytest-django==4.5.2
 # mypy==0.991
