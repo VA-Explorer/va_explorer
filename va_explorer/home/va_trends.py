@@ -97,7 +97,8 @@ def get_context_for_va_table(va_list):
     ]
 
 
-# NOTE: using SUBMISSIONDATE to drive stats/views. To change this, change all references to submissiondate
+# NOTE: using SUBMISSIONDATE to drive stats/views. To change this,
+# change all references to submissiondate
 def get_trends_data(user):
     user_vas = user.verbal_autopsies()
     va_table = empty_va_table()
@@ -138,8 +139,8 @@ def get_trends_data(user):
         vas_1_month = va_df[va_df["date"] >= (TODAY - relativedelta(months=1))].index
         vas_overall = va_df.sort_values(by="id").index
 
-        # Graphs of the past 12 months, not including this month (current month will almost
-        # always show the month with artificially low numbers)
+        # Graphs of the past 12 months, not including this month
+        # (current month will almost always show month with artificially low numbers)
         x = [month.strftime("%b") for month in MONTHS]
         plot_df = pd.DataFrame({"yearmonth": VA_GRAPH_X_DATA, "x": x})
 
@@ -197,7 +198,8 @@ def get_trends_data(user):
         if user.is_fieldworker():
             VA_TABLE_FIELDS.remove("Id10007")
 
-        # List the VAs that need attention; requesting certain fields and prefetching makes this more efficient
+        # List the VAs that need attention; requesting certain fields and
+        # refetching makes this more efficient
         vas_to_address = (
             user_vas.only(*VA_TABLE_FIELDS)
             .filter(causes__isnull=True)[:NUM_TABLE_ROWS]
@@ -214,7 +216,8 @@ def get_trends_data(user):
         issue_list = get_context_for_va_table(vas_to_address)
         indeterminate_cod_list = get_context_for_va_table(vas_with_indeterminate_cod)
 
-        # If there are more than NUM_TABLE_ROWS show a link to where the rest can be seen
+        # If there are more than NUM_TABLE_ROWS show a link to where
+        # the rest can be seen
         additional_issues = max(
             (len(vas_overall) - vas_coded_overall) - NUM_TABLE_ROWS, 0
         )

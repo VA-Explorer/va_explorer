@@ -26,7 +26,8 @@ class VADownloadForm(forms.Form):
         initial="download",
         widget=Select(),
         required=True,
-        help_text="Either export data to an external database (i.e. DHIS2) or download locally",
+        help_text="Either export data to an external database (i.e. DHIS2) or \
+        download locally",
     )
 
     start_date = DateField(

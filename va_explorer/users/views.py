@@ -106,16 +106,17 @@ class UserUpdateView(
 
     def get_initial(self):
         """
-        Initializes the user's group on the form, which in our case is not done by default even
-        though we are using a model-bound form. (Note that Group is a model from django.contrib.auth
-        that is m2m with User.) We want to permit a user to be assigned to one Group only and thus must
-        manually initialize the UpdateForm since we are imposing a change on the relation through how we
-        allow the user to be assigned to groups.
+        Initializes the user's group on the form, which in our case is not done
+        by default even though we are using a model-bound form. (Note that Group
+        is a model from django.contrib.auth that is m2m with User.) We want to
+        permit a user to be assigned to one Group only and thus must manually
+        initialize the UpdateForm since we are imposing a change on the relation
+        through how we allow the user to be assigned to groups.
 
         Initializes the user's geographic access on the form:
-            (1) Set the national or location-specific geographic access. If there are any locations
-            restrictions associated with the user in the database, they have location-specific access;
-            else national access.
+            (1) Set the national or location-specific geographic access. If
+            there are any locations restrictions associated with the user in the
+            database, they have location-specific access; else national access.
             (2) Set the facilities restrictions associated with the user, if any
 
         Initializes the user's VA username(s) on the form (see TODO)
@@ -141,7 +142,8 @@ class UserUpdateView(
 
         return initial
 
-    # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
+    # TODO: Remove if we do not require email confirmation; we will no longer
+    # need the lines below
     # def get_form_kwargs(self):
     #     kw = super(UserUpdateView, self).get_form_kwargs()
     #     kw["request"] = self.request  # the trick!
@@ -166,14 +168,14 @@ user_redirect_view = UserRedirectView.as_view()
 
 class UserSetPasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
     """
-    Allows the user to set a password of their choosing after logging in with a system-defined
-    random password.
+    Allows the user to set a password of their choosing after logging in with a
+    system-defined random password.
 
     If the user already has valid password, the system will redirect from this view
 
-    Note: This URL is not linked anywhere in the application. Rather, a user is redirected to it
-    if they do not have a valid password via the CustomAuthMixin. The redirect in the dispatch is
-    set up in case the user types the URL in manually
+    Note: This URL is not linked anywhere in the application. Rather, a user is
+    redirected to it if they do not have a valid password via the CustomAuthMixin.
+    The redirect in the dispatch is set up in case the user types the URL in manually
     """
 
     login_url = reverse_lazy("account_login")
@@ -204,7 +206,8 @@ user_set_password_view = UserSetPasswordView.as_view()
 
 class UserChangePasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
     """
-    Allows the user to change their password if they already have a valid (i.e., non-temporary) password.
+    Allows the user to change their password if they already have a valid
+    (i.e., non-temporary) password.
     """
 
     login_url = reverse_lazy("account_login")

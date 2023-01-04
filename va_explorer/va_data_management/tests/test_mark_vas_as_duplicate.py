@@ -18,16 +18,16 @@ def test_mark_vas_as_duplicate_with_empty_configuration(settings):
     assert (
         output.getvalue().strip()
         == "Error: Configuration, QUESTIONS_TO_AUTODETECT_DUPLICATES, is an "
-        "empty list. \n"
-        "Please update you .env file with a list of questions by Id that will be "
-        "used to autodetect duplicates."
+        "empty list.\n Please update your .env file with a list of questions "
+        "by Id that will be used to autodetect duplicates."
     )
 
 
 def test_mark_vas_as_duplicate(settings):
     settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = None
 
-    # Create some VAs, mimicking the setting where QUESTIONS_TO_AUTODETECT_DUPLICATES is None
+    # Create some VAs, mimicking the setting where
+    # QUESTIONS_TO_AUTODETECT_DUPLICATES is None
     va1 = VerbalAutopsyFactory.create(
         Id10017="Bob",
         Id10018="Jones",

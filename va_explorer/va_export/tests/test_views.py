@@ -255,7 +255,8 @@ class TestAPIView:
 
     def test_combined_filter_csv(self, user: User):
         build_test_db()
-        # 1. Download from facility A after 1/1/2020 with COD_a in CSV format. Assert only VA 4 is downloaded
+        # 1. Download from facility A after 1/1/2020 with COD_a in CSV format.
+        # Assert only VA 4 is downloaded
         start_date = "2020-01-01"
         loc_a = Location.objects.get(name="Facility1")
         cod_name = "cod_a"
@@ -289,7 +290,8 @@ class TestAPIView:
 
     def test_combined_filter_json(self, user: User):
         build_test_db()
-        # 2. Download data from facility A from before 2020 with COD b in JSON format. Assert only VA 1 is downloaded
+        # 2. Download data from facility A from before 2020 with COD b in
+        # JSON format. Assert only VA 1 is downloaded
         # NOTE: assumes records are stored in a wrapper with 'count' and 'record' keys.
         # If this structure changes, need to update this test
 

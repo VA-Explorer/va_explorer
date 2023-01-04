@@ -69,7 +69,7 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
         if not location_mapper:
             location_mapper = build_location_mapper([raw_location])
         db_location_name = location_mapper.get(raw_location, None)
-        # if matching db location, retrive it. Otherwise, record location as unknown
+        # if matching db location, retrieve it. Otherwise, record location as unknown
         if db_location_name:
             # TODO: make this more generic to other location hierarchies
             db_location = Location.objects.filter(
@@ -113,7 +113,8 @@ def fuzzy_match(
     if not pd.isnull(search):
         if not options and option_df.size == 0:
             raise ValueError(
-                "Please provide an option list or option_df (dataframe with options in 'name' column)"
+                "Please provide an option list or option_df (dataframe with \
+                options in 'name' column)"
             )
         # if options not in dataframe format, create one to store them
         if option_df.size == 0:

@@ -25,8 +25,9 @@ class Command(BaseCommand):
         if options["password"] is not None and is_production_environment:
             self.stdout.write(
                 self.style.ERROR(
-                    "Please do not supply your own password as an argument. The system will assign you a random, "
-                    "temporary password and print it to the console."
+                    "Please do not supply your own password as an argument. The "
+                    "system will assign you a random, temporary password and "
+                    "print it to the console."
                 )
             )
             exit()

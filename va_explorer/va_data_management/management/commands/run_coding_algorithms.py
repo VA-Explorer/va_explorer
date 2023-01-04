@@ -16,7 +16,8 @@ class Command(BaseCommand):
     help = "Run cause coding algorithms"
 
     def add_arguments(self, parser):
-        # whether or not to overwrite existing CODs - if True, will clear all CODs before running
+        # whether or not to overwrite existing CODs - if True, will
+        # lear all CODs before running
         parser.add_argument("--overwrite", type=bool, nargs="?", default=False)
         parser.add_argument(
             "--cod_fname", type=str, nargs="?", default="old_cod_mapping.csv"
@@ -36,19 +37,20 @@ class Command(BaseCommand):
             num_issues = len(issues)
             self.stdout.write(f"DONE. Total time: {time.time() - ti} secs")
             self.stdout.write(
-                f"Coded {num_coded} verbal autopsies (out of {num_total}) [{num_issues} issues]"
+                f"Coded {num_coded} verbal autopsies \
+                (out of {num_total}) [{num_issues} issues]"
             )
         else:
             print(
                 f"At least one invalid algorithm setting in: \n {ALGORITHM_SETTINGS}. \
-                  See va_data_management.utils.coding.py for valid setting values. \n Exiting..."
+                  See va_data_management.utils.coding.py for valid settings.\n Exiting."
             )
             exit()
 
     def clear_and_save_old_cods(self, cod_fname):
 
         print("clearing old CODs...")
-        # export original CODs (and corersponding VA IDs) to flat file
+        # export original CODs (and corresponding VA IDs) to flat file
         va_cod_df = pd.DataFrame(CauseOfDeath.objects.all().values())
         # only export if VAs have been coded
         if not va_cod_df.empty:

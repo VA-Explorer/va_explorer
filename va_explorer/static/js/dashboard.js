@@ -42,7 +42,10 @@ const dashboard = new Vue({
             endDate: "",
             causeSelected: "",
             regionSelected: "",
+            ageSelected: "",
+            sexSelected: "",
             borderType: "Province",
+
 
             colorScale: [
                 "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
@@ -60,6 +63,7 @@ const dashboard = new Vue({
                 }
             ],
 
+            loading: true,
             locations: [],
             suppressWarning: false,
             placeOfDeathValue: "count",
@@ -143,7 +147,9 @@ const dashboard = new Vue({
     methods: {
         async getData() {
             // fetch data for charts from API and assign all data variables for charts
+            this.loading = true
 
+            const {age, sex} = this.getAgeAndSex()
             const {startDate, endDate} = this.getStartAndEndDates()
 
             this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -154,6 +160,7 @@ const dashboard = new Vue({
                 end_date: endDate,
                 cause_of_death: this.causeSelected,
                 region_of_interest: this.regionSelected,
+                age, sex
             }), {
                 method: 'GET',
                 headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
@@ -200,6 +207,8 @@ const dashboard = new Vue({
                 d3.sum(this.COD_grouping.map(item => item.count)) < 50) {
                 $("#small-sample-size-warning").modal().show();
             }
+
+            this.loading = false
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load
@@ -256,6 +265,7 @@ const dashboard = new Vue({
             return new Date(year, month, 0)
         },
         getColor(feature) {
+            // Returns appropriate color for regions on map
             const {area_name, area_level_label} = feature.properties
             const area = `${area_name} ${area_level_label}`
             const geo_sums = this.borderType === 'Province' ? this.geographic_province_sums : this.geographic_district_sums
@@ -272,6 +282,13 @@ const dashboard = new Vue({
             } else {
                 return '#c0c0c0'
             }
+        },
+        getAgeAndSex(){
+            // return lower cased version of age and sex for request
+            const age = this.ageSelected.toLowerCase()
+            const sex = this.sexSelected.toLowerCase()
+
+            return {age, sex}
         },
         getStartAndEndDates() {
             // Generate start and end dates based on death date drop down options
@@ -340,12 +357,14 @@ const dashboard = new Vue({
             this.addGeoJSONToMap()
         },
         async resetAllDataToActive() {
-            // use this to reset all dashboard filters and retrieve the initial data
+            // reset all dashboard filters and retrieve the initial data
             this.startDate = ""
             this.endDate = ""
             this.causeSelected = ""
             this.deathDateSelected = "Any Time"
             this.regionSelected = ""
+            this.ageSelected = ""
+            this.sexSelected = ""
             await this.updateDataAndMap()
         },
     },
