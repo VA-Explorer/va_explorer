@@ -307,7 +307,7 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --project-id or --project-name arguments (not both)."
+            == "Must specify either --project-id or --project-name arguments; not both"
         )
 
     def test_both_project_id_and_project_name(self):
@@ -323,7 +323,7 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --project-id or --project-name arguments (not both)."
+            == "Must specify either --project-id or --project-name arguments; not both"
         )
 
     def test_missing_form(self):
@@ -338,7 +338,7 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --form-id or --form-name arguments (not both)."
+            == "Must specify either --form-id or --form-name arguments; not both"
         )
 
     def test_both_form_id_and_form_name(self):
@@ -355,7 +355,7 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --form-id or --form-name arguments (not both)."
+            == "Must specify either --form-id or --form-name arguments; not both"
         )
 
     @pytest.mark.parametrize(

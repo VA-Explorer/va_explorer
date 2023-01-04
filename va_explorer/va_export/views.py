@@ -36,7 +36,8 @@ class VaApi(CustomAuthMixin, View):
         # for nullity checks
         empty_values = (None, "None", "", [])
 
-        # NOTE: using same filters as dashboard - exclude vas w/ null locations, unknown death dates, or unknown CODs
+        # NOTE: using same filters as dashboard - exclude vas w/ null locations,
+        # unknown death dates, or unknown CODs
         matching_vas = (
             request.user.verbal_autopsies()
             .exclude(Id10023="dk")
@@ -51,7 +52,8 @@ class VaApi(CustomAuthMixin, View):
         )
 
         # =========ID FILTER LOGIC=========================#
-        # if list of VA IDs provided, only dowload VAs with matching IDs (bypassing all other logic).
+        # if list of VA IDs provided, only download VAs with matching IDs
+        # (bypassing all other logic).
         va_ids = params.get("ids", None)
         if va_ids not in empty_values:
             # if comma-separated string, split into list
@@ -71,7 +73,7 @@ class VaApi(CustomAuthMixin, View):
         # otherwise, proceed to check for other filters
         else:
             # =========LOCATION FILTER LOGIC===================#
-            # if location query, filter down to VAs within chosen location's jurisdiction
+            # if location query, filter down VAs within chosen location's jurisdiction
             loc_query = params.get("locations", None)
             if loc_query:
                 # get ids of all provided locations and their descendants
@@ -103,7 +105,8 @@ class VaApi(CustomAuthMixin, View):
             # =========COD FILTER LOGIC===================#
             cod_query = params.get("causes", None)
             if cod_query not in empty_values:
-                # get all valid cod ids (TODO - make this work with if cod names provided)
+                # get all valid cod ids
+                # #TODO - make this work with if cod names provided
                 match_list = cod_query.split(",")
                 # filter VA queryset down to just those with matching location_ids
                 matching_vas = matching_vas.filter(cause__in=match_list)
@@ -112,13 +115,15 @@ class VaApi(CustomAuthMixin, View):
         va_df = pd.DataFrame()
 
         if matching_vas.count() > 0:
-            # Build a location ancestors lookup and add location information at all levels to all vas
+            # Build a location ancestors lookup and add location information at
+            # all levels to all vas
             location_ancestors = {
                 location.id: location.get_ancestors()
                 for location in Location.objects.filter(location_type="facility")
             }
 
-            # extract COD and location-based fields for each va object and convert to dicts
+            # extract COD and location-based fields for each va object and
+            # convert to dicts
             for va in matching_vas:
                 for ancestor in location_ancestors[va["loc_id"]]:
                     va[ancestor.location_type] = ancestor.name

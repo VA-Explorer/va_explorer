@@ -92,9 +92,9 @@ demonstration data can be loaded.
   Mac: `source venv/bin/activate`
   Windows: `python -m venv /venv/bin/activate`
 
-- Install application requirements
+- Install application and local development requirements
 
-  `pip install -r requirements/base.txt`
+  `pip install -r requirements/dev.txt`
 
 - Windows only: manually uninstall and reinstall `psycopg2`
 

@@ -33,8 +33,10 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # App-specific Configuration
 
 # ==> Configuration for automatic duplicates detection
-# VA Explorer will automatically mark Verbal Autopsies as duplicates if QUESTIONS_TO_AUTODETECT_DUPLICATES is defined
-# Questions must be passed as a comma-separated list, for example, "Id10017, Id10018, Id10019, Id10020"
+# VA Explorer will automatically mark Verbal Autopsies as duplicates if
+# QUESTIONS_TO_AUTODETECT_DUPLICATES is defined
+# Questions must be passed as a comma-separated list, for example,
+# "Id10017, Id10018, Id10019, Id10020"
 # The question IDs passed into the list must match a field in the VerbalAutopsy model
 # By default, automatic duplicates detection is turned off
 QUESTIONS_TO_AUTODETECT_DUPLICATES = os.environ.get(
@@ -129,7 +131,7 @@ PASSWORD_HASHERS = [
 ]
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"  # noqa: E501
     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
@@ -152,7 +154,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "simple_history.middleware.HistoryRequestMiddleware",  # Track which user makes VA data edits
+    # Track which user makes VA data edits
+    "simple_history.middleware.HistoryRequestMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -252,7 +255,8 @@ LOGGING = {
             "%(process)d %(thread)d %(message)s"
         },
         "debug": {
-            "format": "%(asctime)s - %(name)s [%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
+            "format": "%(asctime)s - %(name)s "
+            "[%(filename)s:%(lineno)s - %(funcName)5s()]  %(message)s"
         },
         "event": {"format": "%(asctime)s - %(message)s"},
     },

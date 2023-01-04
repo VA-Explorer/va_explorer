@@ -42,7 +42,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # Figure out the common field names across the CSV and our model
     model_field_names = pd.Index([f.name for f in VerbalAutopsy._meta.get_fields()])
 
-    # But first, account for case differences in csv columns (i.e. ensure id10041 maps to Id10041)
+    # But first, account for case differences in csv columns
+    # (i.e. ensure id10041 maps to Id10041)
     field_case_mapper = {field.lower(): field for field in model_field_names}
     record_df.rename(
         columns=lambda c: field_case_mapper.get(c.lower(), c), inplace=True
@@ -58,7 +59,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         record_df = record_df.rename(columns={"key": "instanceid"})
 
     print("de-duplicating fields...")
-    # collapse fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010)
+    # collapse fields ending with _other for their normal counterparts
+    # (e.x. Id10010_other, Id10010)
     record_df = deduplicate_columns(record_df)
 
     # if field worker column available (Id10010), standardize names
@@ -70,7 +72,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
 
-    # Just keep the fields in the CSV that we have columns for in our VerbalAutopsy model
+    # Only ,eep fields in CSV that we have columns for in our VerbalAutopsy model
     if logger:
         missing_field_names = model_field_names.difference(common_field_names)
         logger.debug("Missing fields: %s", missing_field_names)
@@ -96,7 +98,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         # if no field workers with usernames, create some
         if len(valid_usernames) <= 1:
             print(
-                "WARNING: no field workers w/ usernames in system. Generating random ones now..."
+                "WARNING: no field workers w/ usernames in system. \
+                Generating random ones now..."
             )
             make_field_workers_for_facilities()
             valid_usernames = VaUsername.objects.exclude(va_username__exact="")
@@ -107,7 +110,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     if debug:
         print(
-            f"# of VAs: {record_df.shape[0]}, # of instanceIDs: {record_df.instanceid.nunique()}"
+            f"# of VAs: {record_df.shape[0]}, \
+            # of instanceIDs: {record_df.instanceid.nunique()}"
         )
 
     print("creating new VAs...")
@@ -132,7 +136,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         parsed_date = parse_date(va.Id10023, strict=False)
         if logger:
             logger.info(
-                f"va_id: {va_id} - Parsed {parsed_date} for Date of Death from {va.Id10023}"
+                f"va_id: {va_id} - Parsed {parsed_date} for \
+                Date of Death from {va.Id10023}"
             )
         va.Id10023 = parsed_date
 
@@ -141,7 +146,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         parsed_sub_date = parse_date(va.submissiondate, strict=False)
         if logger:
             logger.info(
-                f"va_id: {va_id} - Parsed {parsed_sub_date} as Submission Date from {va.submissiondate}"
+                f"va_id: {va_id} - Parsed {parsed_sub_date} as \
+                Submission Date from {va.submissiondate}"
             )
         va.submissiondate = parsed_sub_date
 
@@ -161,7 +167,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
                             {row['hospital']} to {va.location} location in DB"
                 )
 
-        # Generate a unique_identifier_hash for each VA if the application is configured to detect duplicate VAs
+        # Generate a unique_identifier_hash for each VA if the application is
+        # configured to detect duplicate VAs
         if VerbalAutopsy.auto_detect_duplicates():
             va.generate_unique_identifier_hash()
         created_vas.append(va)
@@ -200,7 +207,7 @@ def format_multi_select_fields(row):
 
 
 # load locations from a csv file into the django database. If delete_previous
-# is true, will clear location db before laoding.
+# is true, will clear location db before loading.
 def load_locations_from_file(csv_file, delete_previous=False):
     # Delete existing locations ONLY IF DELETE_PREVIOUS IS TRUE.
     if delete_previous:
@@ -228,7 +235,8 @@ def load_locations_from_file(csv_file, delete_previous=False):
     for _, row in csv_data.iterrows():
         model_data = row.loc[common_fields].dropna()
         if row["parent"]:
-            # first, check that parent exists. If not, skip location due to integrity issues
+            # first, check that parent exists. If not, skip location due to
+            # integrity issues
             parent_node = db_locations.get(row["parent"], None)
             if parent_node:
                 # update parent to get latest state
@@ -240,7 +248,8 @@ def load_locations_from_file(csv_file, delete_previous=False):
                     # if child node points to right parent
                     if row_location.get_parent().name != parent_node.name:
                         print(
-                            f"WARNING: Updating {row_location.name}'s parent to {parent_node.name}"
+                            f"WARNING: Updating {row_location.name}'s \
+                            parent to {parent_node.name}"
                         )
                         row_location.move(parent_node, pos="sorted-child")
                     # update existing location fields with data from csv
@@ -255,7 +264,8 @@ def load_locations_from_file(csv_file, delete_previous=False):
                     location_ct += 1
             else:
                 print(
-                    f"Couldn't find location {row['name']}'s parent ({row['parent']}) in system. Skipping.."
+                    f"Couldn't find location {row['name']}'s \
+                    parent ({row['parent']}) in system. Skipping.."
                 )
         else:
             # add root node if it doesn't already exist
@@ -264,7 +274,8 @@ def load_locations_from_file(csv_file, delete_previous=False):
                 db_locations[row["name"]] = Location.add_root(**model_data)
                 location_ct += 1
 
-    # if non existent, add 'Null' location to database to account for VAs with unknown locations
+    # if non existent, add 'Null' location to database to account for VAs with
+    # unknown locations
     if not Location.objects.filter(name="Unknown").exists():
         print("Adding NULL location to handle unknowns")
         Location.add_root(name="Unknown", location_type="facility")
@@ -274,7 +285,8 @@ def load_locations_from_file(csv_file, delete_previous=False):
     print(f"updated {update_ct} locations with new data")
 
 
-# combine fields ending with _other with their normal counterparts (e.x. Id10010_other, Id10010).
+# combine fields ending with _other for their normal counterparts
+# (e.x. Id10010_other, Id10010).
 # in Zambia data, often either the normal or _other field has a value but not both.
 # NOTE: currently using 'cleaned' version of other field (called filtered_<field>_other)
 # and discarding <field>-other values. verify that this is kosher.
@@ -290,7 +302,8 @@ def deduplicate_columns(record_df, drop_duplicates=True):
     )
     for original_col in original_cols:
 
-        # If original column exists, combine values from original and _other columns into a single column
+        # If original column exists, combine values from original and _other
+        # columns into a single column
         if original_col in record_df.columns:
             record_df[original_col] = (
                 record_df.filter(regex=original_col, axis=1)
@@ -302,7 +315,8 @@ def deduplicate_columns(record_df, drop_duplicates=True):
             # f pd.isnull(row[original_col]) else row[original_col], axis=1)
         else:
             print(
-                f"WARNING: couldn't find {original_col} but {original_col}_other in columns"
+                f"WARNING: couldn't find {original_col} but \
+                {original_col}_other in columns"
             )
     if drop_duplicates:
         record_df = record_df.drop(columns=other_cols)
