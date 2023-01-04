@@ -55,5 +55,6 @@ def create_demo_field_worker(worker_id, facility=None):
         user.save()
 
         print(
-            f"Successfully created field worker with username {username} for facility {facility.name}"
+            f"Successfully created field worker with username {username} for \
+            facility {facility.name}"
         )

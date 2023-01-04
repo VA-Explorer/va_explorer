@@ -32,6 +32,8 @@ class DashboardAPIView(APIView):
         )
         cause_of_death = request.query_params.get("cause_of_death") or None
         region_of_interest = request.query_params.get("region_of_interest") or None
+        age = request.query_params.get("age") or None
+        sex = request.query_params.get("sex") or None
 
         data = load_va_data(
             request.user,
@@ -39,6 +41,8 @@ class DashboardAPIView(APIView):
             end_date=end_date,
             cause_of_death=cause_of_death,
             region_of_interest=region_of_interest,
+            age=age,
+            sex=sex,
         )
         return Response(data)
 
@@ -94,7 +98,8 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         # sort by chosen field (default is count)
         sort_col = self.request.GET.get("order_by", "Total VAs")
-        # if order_by param starts with -, sort in descending order. Otherwise, ascending
+        # if order_by param starts with -, sort in descending order.
+        # Otherwise, ascending
         is_ascending = sort_col.startswith("-")
         if is_ascending:
             sort_col = sort_col.lstrip("-")

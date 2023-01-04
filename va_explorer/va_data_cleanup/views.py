@@ -89,8 +89,9 @@ class DownloadIndividual(View):
         if pk:
             try:
                 va = VerbalAutopsy.objects.get(pk=pk)
-                # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
-                # Guards against a user manually passing in an arbitrary VA ID to va_data_cleanup/download/:id
+                # Check that the VA passed in is indeed a duplicate and is a VA
+                # that the user can access. Guards against a user manually
+                # passing in an arbitrary VA ID to va_data_cleanup/download/:id
                 if (
                     not self.request.user.verbal_autopsies()
                     .filter(id=va.id, duplicate=True)

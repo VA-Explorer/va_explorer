@@ -32,12 +32,12 @@ def login_active_user(self):
 class BrowserTests(StaticLiveServerTestCase):
     """
     Group fixture created via this command:
-    python manage.py dumpdata --natural-foreign --natural-primary auth.group > group.json
+    ./manage.py dumpdata --natural-foreign --natural-primary auth.group > group.json
     """
 
     fixtures = ["fixtures/group.json"]
 
-    # TODO: Needs to be headless to run on CI. Any value to running non-headless locally?
+    # TODO: Needs to be headless to run on CI. Valuable to run non-headless locally?
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

@@ -7,7 +7,8 @@ from va_explorer.va_data_management.utils.date_parsing import get_submissiondate
 pytestmark = pytest.mark.django_db
 
 
-# ensure that when submissiondate field not available, Id10011 is used to determine date of submission
+# ensure that when submissiondate field not available, Id10011 is used to
+# determine date of submission
 def test_submissiondate_logic():
     date1 = "2021-04-19T13:53:07.928Z"
     date2 = "2020-05-19T20:18:12.124+02:00"

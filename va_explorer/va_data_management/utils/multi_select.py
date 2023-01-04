@@ -4,8 +4,9 @@ from django.db import models
 from django.utils.text import capfirst
 
 # This is a port of django-multiselectfield: https://pypi.org/project/django-multiselectfield/
-# The relevant logic has been extracted from django-multiselectfield and included in this module
-# THe MultiSelectField has been updated to subclass models.TextField instead of models.CharField
+# The relevant logic has been extracted from django-multiselectfield and included
+# in this module. MultiSelectField has been updated to subclass models.TextField
+# instead of models.CharField
 
 
 class MSFList(list):

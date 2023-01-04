@@ -628,7 +628,6 @@ _radio_choices = {
     "Id10459": _yes_no_dk_ref,
     "Id10462": _yes_no_dk_ref,
     "Id10463": _yes_no_dk_ref,
-    "Id10484": _select_531,
 }
 
 _checkbox_choices = {

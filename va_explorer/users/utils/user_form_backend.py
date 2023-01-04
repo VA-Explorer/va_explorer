@@ -41,7 +41,8 @@ def get_anonymized_user_info(user_list_file=None):
                 missing_emails = set(emails).difference(found_emails)
                 if len(missing_emails) > 0:
                     print(
-                        f"WARNING: couldn't find users for following emails: {missing_emails}"
+                        f"WARNING: couldn't find users for following emails: \
+                        {missing_emails}"
                     )
                 user_objects = filtered_users
         else:
@@ -149,11 +150,11 @@ def fill_user_form_data(user_data, debug=False):
         if hasattr(form_field, "choices"):
             if hasattr(form_field.choices, "queryset"):
                 # query the options for submitted value
-                # NOTE: this assumes queryset objects have 'name' field and are indexed as such.
-                # If not the case, need to use new field in query below
+                # NOTE: this assumes queryset objects have 'name' field and are
+                # indexed as such. If not the case, need to use new field in query below
                 qs = form_field.choices.queryset
-                # first, try (case insensitive) exact matching.
-                # If no match, then try conservative fuzzy matching
+                # first, try (case insensitive) exact matching. If no match,
+                # then try conservative fuzzy matching
                 try:
                     match = qs.filter(name__iexact=value)
                     if not match.exists():
@@ -167,13 +168,15 @@ def fill_user_form_data(user_data, debug=False):
                             match = qs.filter(name__iexact=match_name)
                 except Exception as err:
                     print(
-                        f"WARN: Unable to match due to error: {err}\n Assigning none queryset."
+                        f"WARN: Unable to match due to error: {err}\n \
+                        Assigning none queryset."
                     )
                     match = qs.none()
 
                 if debug:
                     print(
-                        f"{field_name}: searching for {value} against {qs.values_list('name', flat=True)}"
+                        f"{field_name}: searching for {value} against \
+                        {qs.values_list('name', flat=True)}"
                     )
                     print(f"match: {match}")
 
@@ -195,7 +198,8 @@ def fill_user_form_data(user_data, debug=False):
                         if debug:
                             print("trying new group logic...")
                             print(
-                                f"searched for {value} against {qs.values_list('name', flat=True)}"
+                                f"searched for {value} against \
+                                {qs.values_list('name', flat=True)}"
                             )
                             print(f"match: {match}")
 
@@ -204,7 +208,8 @@ def fill_user_form_data(user_data, debug=False):
             else:
                 # find closest match against list of choices manually
                 for _, choice in form_field.choices:
-                    # First, assume field is string. If not, fall back to non-string matching
+                    # First, assume field is string. If not, fall back to
+                    # non-string matching
                     try:
                         value, choice = value.lower(), choice.lower()
                     except Exception as err:
@@ -225,17 +230,18 @@ def fill_user_form_data(user_data, debug=False):
 
         # add parsed value to form's data
         form_data[field_name] = form_value
-    # final preprocessing for form (have to call function again to convert values to objects)
+    # final preprocessing for form (have to call function again to convert
+    # values to objects)
     final_data = prep_form_data(form_data)
 
     return ExtendedUserCreationForm(final_data)
 
 
-# assign geographic access based on group and location restrictions. Also some logic to handle
-# facility restrictions for field workers. If new groups are added to the system, need
-# to update this logic.
+# assign geographic access based on group and location restrictions. Also some
+# logic to handle facility restrictions for field workers. If new groups are
+# added to the system, need to update this logic.
 def prep_form_data(user_data, debug=False, default_group="data viewer"):
-    # if geographic_access missing, assign it based on group and/or location_restrictions
+    # if geographic_access missing, assign based on group and/or location_restrictions
     if "group" not in user_data:
         raise (ValueError("Must provide group to determine geographic access."))
     # if location_restriction key exists but value is None, convert to empty string
@@ -256,7 +262,8 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
         except Exception as err:
             print(f"Error: {err}")
 
-        # check group name against known groups. Update group_name to match if found, otherwise default to data viewer
+        # check group name against known groups. Update group_name to match if found,
+        # otherwise default to data viewer
         group_match = fuzzy_match(
             group_name, None, options=list(GROUPS_PERMISSIONS.keys())
         )
@@ -275,7 +282,8 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
     # field worker logic
     if group_name.lower().startswith("field worker"):
         geo_access = "location-specific"
-        # if no facility restriction, check for group restriction. Otherwise, drop location restriction
+        # if no facility restriction, check for group restriction. Otherwise,
+        # drop location restriction
         if user_data.get("facility_restrictions", None) in [None, [], "", [""]]:
             user_data["facility_restrictions"] = user_data["location_restrictions"]
         _ = user_data.pop("location_restrictions")
@@ -290,7 +298,8 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
             geo_access = "location-specific"
         if geo_access == "national":
             _ = user_data.pop("location_restrictions")
-        # remove facility restriction data if it exists (only field workers should have this key)
+        # remove facility restriction data if it exists (only field workers should
+        # have this key)
         if "facility_restrictions" in user_data:
             _ = user_data.pop("facility_restrictions")
 
@@ -307,7 +316,7 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
 
 
 # get schema information of a django form including field types, descriptions,
-# whether they're required, and deafult values
+# whether they're required, and default values
 def get_form_fields(form_type=ExtendedUserCreationForm, orient="v"):
     form = form_type()
     field_dict = {
