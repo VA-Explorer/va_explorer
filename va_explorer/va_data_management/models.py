@@ -51,7 +51,10 @@ class Location(MP_Node):
 class VerbalAutopsy(SoftDeletionModel):
     class Meta:
         permissions = (("bulk_delete", "Can bulk delete"),)
-        indexes = [models.Index(fields=["unique_va_identifier"])]
+        indexes = [
+            models.Index(fields=["unique_va_identifier"]),
+            models.Index(fields=["Id10023"], name="death_date_filter_idx"),
+        ]
 
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
     location = models.ForeignKey(
