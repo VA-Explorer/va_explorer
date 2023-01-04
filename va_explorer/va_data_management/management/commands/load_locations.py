@@ -7,9 +7,10 @@ from va_explorer.va_data_management.utils.loading import load_locations_from_fil
 
 class Command(BaseCommand):
 
-    # TODO: Need an approach that supports loading of country-specific location information
+    # TODO: Need approach that supports loading of country-specific location information
 
-    help = "Loads initial location data into the database from a CSV file with Name, Type, and Parent columns"
+    help = "Loads initial location data into the database from a CSV file with \
+    Name, Type, and Parent columns"
 
     def add_arguments(self, parser):
         parser.add_argument("csv_file", type=argparse.FileType("r"))

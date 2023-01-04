@@ -42,7 +42,8 @@ ALGORITHM_SETTINGS = {
     "Malaria": os.environ.get("INTERVA_MALARIA", "l"),
     # Whether to include group code in the output causes
     "groupcode": os.environ.get("INTERVA_GROUPCODE", "True"),
-    # Required parameter when calling InterVA5 via api - need not get from .env file because it should always be 'True'
+    # Required parameter when calling InterVA5 via api - need not get from .env
+    # file because it should always be 'True'
     "api": "True",
 }
 
@@ -50,7 +51,7 @@ ALGORITHM_SETTINGS = {
 # validates provided algorithm settings against algorithm param value sets. Currently
 # only works with interva5 but set up to generalize to other algorithms once supported
 def validate_algorithm_settings():
-    # TODO: turn algorithm keyname into parameter once we support other algorithms
+    # TODO: turn algorithm key name into parameter once we support other algorithms
     param_opts = ALGORITHM_PARAM_OPTIONS["INTERVA"]
     setting_keys = set(ALGORITHM_SETTINGS.keys())
     common_keys = setting_keys.intersection(param_opts.keys())
@@ -58,7 +59,8 @@ def validate_algorithm_settings():
     if len(common_keys) != len(setting_keys):
         unrecognized = setting_keys.difference(common_keys)
         print(
-            f"WARNING: options {unrecognized} not recognized (expected any of {list(param_opts.keys())}). Skipping..."
+            f"WARNING: options {unrecognized} not recognized (expected any of \
+            {list(param_opts.keys())}). Skipping..."
         )
 
     # ensure all common settings are valid
@@ -146,7 +148,8 @@ def run_interva5(verbal_autopsies_without_causes):
     causes = []
     for cause_data in interva_response_data["results"]["VA5"]:
         cause = cause_data["CAUSE1"][0].strip()
-        # Account for indeterminate cause of death, which has CAUSE1 == '', LIK1 == '', and INDET == 100
+        # Account for indeterminate cause of death, which has
+        # CAUSE1 == '', LIK1 == '', and INDET == 100
         if (
             cause == ""
             and cause_data["INDET"][0] == 100
@@ -178,7 +181,7 @@ def run_interva5(verbal_autopsies_without_causes):
             va_offset, issue_text = re.split("  +", issue, maxsplit=1)
             va_id = verbal_autopsies_without_causes[int(va_offset)].id
             # TODO: For now, clear old issues for records that are newly coded;
-            #       if we associate errors with runs we may perhaps prefer not to do this
+            #       if we associate errors w/ runs we may prefer not to do this
             # use exclude to keep errors related to the raw data
             # TODO: build out the issue model to capture non coding errors
             CauseCodingIssue.objects.filter(verbalautopsy_id=va_id).exclude(

@@ -19,8 +19,8 @@ from va_explorer.va_data_management.models import VaUsername
 pytestmark = pytest.mark.django_db
 
 
-# A utility method to retrieve the temporary password contained in the plaintext email body.
-# Update if using an html email template.
+# A utility method to retrieve the temporary password contained in the plaintext
+# email body. Update if using an html email template.
 def retrieve_password_from_email_body(body):
     lines = body.split("\n")
     for line in lines:
@@ -97,7 +97,8 @@ def test_user_creation(rf: RequestFactory):
     assert user.email in email.to
     assert reverse("account_login") in email.body
 
-    # Check the plaintext string we retrieved from the email body is the correct password for the user
+    # Check the plaintext string we retrieved from the email body is the correct
+    # password for the user
     # See: https://docs.djangoproject.com/en/3.0/ref/contrib/auth/#django.contrib.auth.models.User.check_password
     password = retrieve_password_from_email_body(email.body)
     assert user.check_password(password) is True

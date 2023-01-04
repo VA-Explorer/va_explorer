@@ -18,7 +18,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
 
         # Validate: date of death
         # Id10023 is required for the dashboard time frame filters
-        # the VA form guarantees this field is either "dk" or a valid datetime.date value
+        # VA form guarantees this field is either "dk" or a valid datetime.date value
         try:
             va.Id10023 = parse_date(va.Id10023, strict=True)
         except:  # noqa E722 - Intent is to save to db, not do anything with exception
@@ -63,8 +63,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
             try:
                 _ = int(float(va.ageInYears))
             except:  # noqa E722 - Intent is to save to db, not do anything with exception
-                issue_text = "Warning: field age_group, no relevant data was found in fields; \
-                                age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
+                issue_text = "Warning: field age_group, no relevant data was found in \
+                    fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
                 issue = CauseCodingIssue(
                     verbalautopsy_id=va.id,
                     text=issue_text,
@@ -78,7 +78,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # username associates the va record with a field worker
         username = va.username
         if username == "":
-            issue_text = "Warning: field username, the va record does not have an assigned username."
+            issue_text = "Warning: field username, the va record does not have \
+                an assigned username."
             issue = CauseCodingIssue(
                 verbalautopsy_id=va.id,
                 text=issue_text,
@@ -90,8 +91,9 @@ def validate_vas_for_dashboard(verbal_autopsies):
         else:
             va_user = VaUsername.objects.filter(va_username=username).first()
             if va_user is None:
-                # TODO move this check to the VA clean function? and make username a drop down
-                issue_text = "Warning: field username, the username provided is not a known Field Worker."
+                # TODO move this check to VA clean()? also make username a drop down
+                issue_text = "Warning: field username, the username provided is \
+                    not a known Field Worker."
                 issue = CauseCodingIssue(
                     verbalautopsy_id=va.id,
                     text=issue_text,
@@ -119,10 +121,11 @@ def validate_vas_for_dashboard(verbal_autopsies):
                 )
                 issues.append(issue)
 
-        # if location is "Unknown" (couldn't find match for provided location) record a warning
+        # if location is "Unknown" (couldn't find match for provided location)
+        # record a warning
         if va.location and va.location.name == "Unknown":
-            issue_text = "Warning: location field (parsed from hospital): \
-                            provided location was not a known facility. Set location to 'Unknown'"
+            issue_text = "Warning: location field (parsed from hospital): provided \
+                location was not a known facility. Set location to 'Unknown'"
             issue = CauseCodingIssue(
                 verbalautopsy_id=va.id,
                 text=issue_text,

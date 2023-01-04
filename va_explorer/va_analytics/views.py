@@ -94,7 +94,8 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         # sort by chosen field (default is count)
         sort_col = self.request.GET.get("order_by", "Total VAs")
-        # if order_by param starts with -, sort in descending order. Otherwise, ascending
+        # if order_by param starts with -, sort in descending order.
+        # Otherwise, ascending
         is_ascending = sort_col.startswith("-")
         if is_ascending:
             sort_col = sort_col.lstrip("-")

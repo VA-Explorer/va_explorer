@@ -55,8 +55,8 @@ class VerbalAutopsyForm(forms.ModelForm):
             for field in PII_FIELDS:
                 del self.fields[field]
 
-    # TODO: to display the error msgs properly, we need to use crispy forms in the template
-    # for now we will just display the errors at the top of the page
+    # TODO: to display the error msgs properly, we need to use crispy forms in
+    # the template for now we will just display the errors at the top of the page
     def clean(self, *args, **kwargs):
         """
         Normal cleanup

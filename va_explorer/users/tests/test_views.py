@@ -219,7 +219,7 @@ class TestUserSetPasswordView:
 
         assert response.status_code == 200
         assert {
-            b"Please type in a password of your choosing to replace your temporary password"
+            b"Please type in a password of your choosing to replace your temporary password"  # noqa: 501
             in response.content
         }
 

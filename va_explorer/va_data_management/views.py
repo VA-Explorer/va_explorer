@@ -141,7 +141,8 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
         return context
 
 
-# Mixin just for the individual verbal autopsy data management views to restrict access based on user
+# Mixin just for the individual verbal autopsy data management views to
+# restrict access based on user
 class AccessRestrictionMixin(SingleObjectMixin):
     def get_queryset(self):
         # Restrict to VAs this user can access
@@ -188,7 +189,8 @@ class Show(
 
         return context
 
-    # this function uses regex to filters out user warnings and algorithm warnings based on an observed pattern
+    # this function uses regex to filter out user warnings and algorithm
+    # warnings based on an observed pattern
     @staticmethod
     def filter_warnings(warnings):
         user_warnings = []
@@ -331,14 +333,15 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy("va_data_cleanup:index")
     success_message = "Verbal Autopsy %(id)s was deleted successfully"
     error_message = (
-        "Verbal Autopsy %(id)s could not be deleted. This Verbal Autopsy doesn't exist or "
-        "you don't have access to delete it."
+        "Verbal Autopsy %(id)s could not be deleted. This Verbal Autopsy doesn't "
+        "exist or you don't have access to delete it."
     )
 
     def form_valid(self, request, *args, **kwargs):
         obj = self.get_object()
-        # Check that the VA passed in is indeed a duplicate and is a VA that the user can access
-        # Guards against a user manually passing in an arbitrary VA ID to va_data_management/delete/:id
+        # Check that VA passed in is indeed a duplicate & is VA that the user can access
+        # Guards against a user manually passing in an arbitrary VA ID to
+        # va_data_management/delete/:id
         if (
             self.request.user.verbal_autopsies()
             .filter(id=obj.id, duplicate=True)
