@@ -106,19 +106,35 @@ def load_va_data(
                 .select_related("location")
             )
 
-    # apply filtering for age sent in request
+    # apply filtering for age sent in request, cover is<X>, is<X>1, and is<X>2
+    # from VA specification
     if age:
         if age == "adult":
             user_vas_filtered = user_vas_filtered.filter(
-                Q(isAdult="1") | Q(isAdult="1.0")
+                Q(isAdult="1")
+                | Q(isAdult="1.0")
+                | Q(isAdult1="1")
+                | Q(isAdult1="1.0")
+                | Q(isAdult2="1")
+                | Q(isAdult2="1.0")
             )
         if age == "child":
             user_vas_filtered = user_vas_filtered.filter(
-                Q(isChild="1") | Q(isChild="1.0")
+                Q(isChild="1")
+                | Q(isChild="1.0")
+                | Q(isChild1="1")
+                | Q(isChild1="1.0")
+                | Q(isChild2="1")
+                | Q(isChild2="1.0")
             )
         if age == "neonate":
             user_vas_filtered = user_vas_filtered.filter(
-                Q(isNeonatal="1") | Q(isNeonatal="1")
+                Q(isNeonatal="1")
+                | Q(isNeonatal="1")
+                | Q(isNeonatal1="1")
+                | Q(isNeonatal1="1")
+                | Q(isNeonatal2="1")
+                | Q(isNeonatal2="1")
             )
 
     # apply filtering for sex sent in request
@@ -134,10 +150,22 @@ def load_va_data(
             age_group_named=Case(
                 When(isNeonatal="1", then=Value("neonate")),
                 When(isNeonatal="1.0", then=Value("neonate")),
+                When(isNeonatal1="1", then=Value("neonate")),
+                When(isNeonatal1="1.0", then=Value("neonate")),
+                When(isNeonatal2="1", then=Value("neonate")),
+                When(isNeonatal2="1.0", then=Value("neonate")),
                 When(isChild="1", then=Value("child")),
                 When(isChild="1.0", then=Value("child")),
+                When(isChild1="1", then=Value("child")),
+                When(isChild1="1.0", then=Value("child")),
+                When(isChild2="1", then=Value("child")),
+                When(isChild2="1.0", then=Value("child")),
                 When(isAdult="1", then=Value("adult")),
                 When(isAdult="1.0", then=Value("adult")),
+                When(isAdult1="1", then=Value("adult")),
+                When(isAdult1="1.0", then=Value("adult")),
+                When(isAdult2="1", then=Value("adult")),
+                When(isAdult2="1.0", then=Value("adult")),
                 default=Value("Unknown"),
                 output_field=CharField(),
             ),
