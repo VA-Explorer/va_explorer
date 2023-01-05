@@ -19,6 +19,11 @@ urlpatterns = [
         view=views.RunCodingAlgorithm.as_view(),
         name="run_coding_algorithms",
     ),
+    path(
+        "batch_operations",
+        view=views.BatchOperations.as_view(),
+        name="batch_operations",
+    ),
     path("delete/<int:pk>", view=views.Delete.as_view(), name="delete"),
     path("delete_all", view=views.DeleteAll.as_view(), name="delete_all"),
 ]

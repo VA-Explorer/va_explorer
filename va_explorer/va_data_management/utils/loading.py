@@ -11,7 +11,12 @@ from va_explorer.users.utils.field_worker_linking import (
     assign_va_usernames,
     normalize_name,
 )
-from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
+from va_explorer.va_data_management.models import (
+    ImportBatch,
+    Location,
+    VaUsername,
+    VerbalAutopsy,
+)
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.location_assignment import (
     assign_va_location,
@@ -27,6 +32,8 @@ User = get_user_model()
 
 # load VA records into django database
 def load_records_from_dataframe(record_df, random_locations=False, debug=True):
+    # Start a new import batch
+    batch = ImportBatch.objects.create()
     logger = None if not debug else logging.getLogger("event_logger")
     if logger:
         header = "=" * 10 + "DATA INGEST" + "=" * 10
@@ -188,6 +195,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     if VerbalAutopsy.auto_detect_duplicates():
         print("Marking VAs as duplicate...")
         VerbalAutopsy.mark_duplicates()
+
+    batch.finish_import(new_vas)
 
     return {
         "ignored": ignored_vas,

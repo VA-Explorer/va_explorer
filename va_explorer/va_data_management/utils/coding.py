@@ -13,6 +13,7 @@ from simple_history.utils import bulk_create_with_history
 from va_explorer.va_data_management.models import (
     CauseCodingIssue,
     CauseOfDeath,
+    CodingBatch,
     VerbalAutopsy,
 )
 
@@ -106,6 +107,9 @@ def _run_pycross_and_interva5(verbal_autopsies):
 
 
 def run_coding_algorithms():
+    # Start a new import batch
+    interva_batch = CodingBatch.objects.create()
+
     # Load all verbal autopsies that don't have a cause coding
     # TODO: This should eventually check to see that there's a cause coding for
     # every supported algorithm
@@ -133,6 +137,7 @@ def run_coding_algorithms():
         issues_list += issues
         verbal_autopsies_without_causes_list += verbal_autopsies_without_causes
 
+    interva_batch.finish_coding(causes, issues)
     return {
         "verbal_autopsies": verbal_autopsies_without_causes_list,
         "causes": causes_list,

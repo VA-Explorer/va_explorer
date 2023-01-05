@@ -5,7 +5,7 @@ from django.core.management import BaseCommand
 from va_explorer.users.models import User
 from va_explorer.va_analytics.models import Dashboard
 from va_explorer.va_data_cleanup.models import DataCleanup
-from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import BatchOperation, VerbalAutopsy
 
 GROUPS_PERMISSIONS = {
     "Admins": {
@@ -18,6 +18,7 @@ GROUPS_PERMISSIONS = {
             "bulk_delete",
         ],
         DataCleanup: ["view_datacleanup", "download", "bulk_download"],
+        BatchOperation: ["view_batchoperations"],
     },
     "Data Managers": {
         Dashboard: ["view_dashboard", "download_data", "view_pii", "supervise_users"],
@@ -28,18 +29,21 @@ GROUPS_PERMISSIONS = {
             "delete_verbalautopsy",
         ],
         DataCleanup: ["view_datacleanup", "download", "bulk_download"],
+        BatchOperation: ["view_batchoperations"],
     },
     "Data Viewers": {
         Dashboard: ["view_dashboard"],
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"],
         DataCleanup: [],
+        BatchOperation: ["view_batchoperations"],
     },
     "Field Workers": {
         Dashboard: ["view_dashboard"],
         User: [],
         VerbalAutopsy: ["view_verbalautopsy"],
         DataCleanup: [],
+        BatchOperation: [],
     },
 }
 
@@ -64,8 +68,8 @@ class Command(BaseCommand):
             Delete the permissions if they exist
 
             Assumption:
-            If we are running this script, permissions have changed and we want to
-            recreate them
+            If we are running this script, permissions have changed and we want
+            to recreate them
             """
             if group.permissions.exists():
                 group.permissions.clear()
@@ -87,7 +91,7 @@ class Command(BaseCommand):
                     except Exception as instance:
                         if debug:
                             print(
-                                f"{type(instance)} error:\nargs: \
-                                {instance.args}\n{instance}"
+                                f"{type(instance)} error:\n \
+                                args:{instance.args}\n{instance}"
                             )
                         self.stderr.write(f"{codename} not found")

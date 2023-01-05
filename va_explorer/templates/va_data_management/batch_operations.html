@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Operations{% endblock %}
+
+{% block content %}
+
+{% load va_explorer_tags %}
+
+<a class="btn btn-light float-right" href="{% url 'home:index' %}">Available Actions</a>
+
+<h2 class="mb-4">Import Batch Operations</h2>
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th style="width: 6em;">ID</th>
+      <th style="width: 20em;">Date Started</th>
+      <th style="width: 20em;">Date Finished</th>
+      <th>Verbal Autopsies</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if import_batches|length is 0 %}
+      <tr>
+        <td colspan="4" align="center">Nothing here yet.</td>
+      </tr>
+    {% else %}
+      {% for batch in import_batches %}
+      <tr>
+        <td>{{ batch.id }}</td>
+        <td>{{ batch.date_started|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ batch.date_finished|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ batch.verbal_autopsies.count }}</td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  </tbody>
+</table>
+<br/>
+
+<h2 class="mb-4">Coding Batch Operations</h2>
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th style="width: 6em;">ID</th>
+      <th style="width: 20em;">Date Started</th>
+      <th style="width: 20em;">Date Finished</th>
+      <th>Coded</th>
+      <th>Errors</th>
+      <th>Warnings</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if import_batches|length is 0 %}
+      <tr>
+        <td colspan="6" align="center">Nothing here yet.</td>
+      </tr>
+    {% else %}
+      {% for batch in coding_batches %}
+      <tr>
+        <td>{{ batch.id }}</td>
+        <td>{{ batch.date_started|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ batch.date_finished|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ batch.cause_of_deaths.count }}</td>
+        <td>{{ batch.cause_coding_issues.with_error.count }}</td>
+        <td>{{ batch.cause_coding_issues.with_warning.count }}</td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  </tbody>
+</table>
+<br/>
+
+{% endblock %}

@@ -4,11 +4,13 @@ from io import BytesIO
 import pandas as pd
 import requests
 
-ODK_HOST = os.environ.get("ODK_HOST", "http://127.0.0.1:5002")
-# Don't verify localhost (self-signed cert)
-SSL_VERIFY = os.environ.get(
-    "ODK_SSL_VERIFY", not ODK_HOST.startswith("https://localhost")
-)
+ODK_HOST = os.environ.get("ODK_HOST", "http://localhost:80")
+if ODK_HOST.startswith("https://localhost"):
+    # Don't verify localhost (self-signed cert or test).
+    SSL_VERIFY = False
+else:
+    # Support multiple user-provided boolean representations from .env
+    SSL_VERIFY = os.environ.get("ODK_SSL_VERIFY", "TRUE").lower() in ("true", "1", "t")
 
 
 def flatten_dict(item):

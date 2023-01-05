@@ -86,7 +86,7 @@ MOCK_TEST_DOWNLOAD_JSON = (Path(__file__).parent / "odk-data.json").read_text()
 class TestLogin:
     def test_token(self, requests_mock):
         requests_mock.post(
-            "http://127.0.0.1:5002/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
+            "http://localhost:80/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
         )
 
         token = get_odk_login_token("email", "password")
@@ -94,7 +94,7 @@ class TestLogin:
         assert token == {"Authorization": "Bearer 9fee992650cf1f72273b7f3ef7d77f41"}
 
     def test_response_error(self, requests_mock):
-        requests_mock.post("http://127.0.0.1:5002/v1/sessions", status_code=400)
+        requests_mock.post("http://localhost:80/v1/sessions", status_code=400)
 
         with pytest.raises(HTTPError):
             get_odk_login_token("bad-email", "bad-password")
@@ -103,7 +103,7 @@ class TestLogin:
 class TestGetProjectID:
     def test_with_project_name(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
+            "http://localhost:80/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
         )
 
         token = {"Authorization": "Bearer test"}
@@ -113,7 +113,7 @@ class TestGetProjectID:
 
     def test_missing_project_name(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
+            "http://localhost:80/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
         )
 
         with pytest.raises(ValueError):
@@ -123,7 +123,7 @@ class TestGetProjectID:
 
 class TestGetForm:
     def test_blank_response(self, requests_mock):
-        requests_mock.get("http://127.0.0.1:5002/v1/projects/1234/forms", json=[])
+        requests_mock.get("http://localhost:80/v1/projects/1234/forms", json=[])
 
         with pytest.raises(ValueError) as e:
             token = {"Authorization": "Bearer test"}
@@ -135,7 +135,7 @@ class TestGetForm:
 
     def test_missing_name_and_id(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
 
         with pytest.raises(AttributeError) as e:
@@ -145,7 +145,7 @@ class TestGetForm:
 
     def test_get_by_id(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
 
         token = {"Authorization": "Bearer test"}
@@ -155,7 +155,7 @@ class TestGetForm:
 
     def test_get_by_name(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
 
         token = {"Authorization": "Bearer test"}
@@ -165,7 +165,7 @@ class TestGetForm:
 
     def test_id_has_precedence(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
 
         token = {"Authorization": "Bearer test"}
@@ -180,7 +180,7 @@ class TestGetForm:
 
     def test_bad_name_and_id(self, requests_mock):
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
 
         token = {"Authorization": "Bearer test"}
@@ -195,10 +195,10 @@ class TestGetForm:
 class TestDownloadResponse:
     def test_invalid_attributes(self, requests_mock):
         requests_mock.post(
-            "http://127.0.0.1:5002/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
+            "http://localhost:80/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
+            "http://localhost:80/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
         )
 
         # No project or form causes an error.
@@ -260,20 +260,20 @@ class TestDownloadResponse:
     )
     def test_download_response(self, requests_mock, kwargs):
         requests_mock.post(
-            "http://127.0.0.1:5002/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
+            "http://localhost:80/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
+            "http://localhost:80/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2/submissions.csv",
+            "http://localhost:80/v1/projects/34/forms/va_who_v1_5_2/submissions.csv",
             text=MOCK_TEST_DOWNLOAD_CSV,
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions",
+            "http://localhost:80/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions",
             text=MOCK_TEST_DOWNLOAD_JSON,
         )
 
@@ -369,20 +369,20 @@ class TestImportCommand:
     )
     def test_successful_runs(self, requests_mock, command_args):
         requests_mock.post(
-            "http://127.0.0.1:5002/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
+            "http://localhost:80/v1/sessions", json=MOCK_GET_ODK_LOGIN_TOKEN
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
+            "http://localhost:80/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
+            "http://localhost:80/v1/projects/34/forms", json=MOCK_GET_ODK_FORM
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2/submissions.csv",
+            "http://localhost:80/v1/projects/34/forms/va_who_v1_5_2/submissions.csv",
             text=MOCK_TEST_DOWNLOAD_CSV,
         )
         requests_mock.get(
-            "http://127.0.0.1:5002/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions",
+            "http://localhost:80/v1/projects/34/forms/va_who_v1_5_2.svc/Submissions",
             text=MOCK_TEST_DOWNLOAD_JSON,
         )
 

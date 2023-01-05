@@ -22,7 +22,11 @@ from django.views.generic.detail import SingleObjectMixin
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
-from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import (
+    CodingBatch,
+    ImportBatch,
+    VerbalAutopsy,
+)
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
@@ -325,6 +329,20 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         except Exception as error:
             messages.error(request, f"Unable to start background process: {str(error)}")
             return super().post(request, *args, **kwargs)
+
+
+class BatchOperations(TemplateView, PermissionRequiredMixin):
+    permission_required = [
+        "va_data_management.view_importbatch",
+        "va_data_management.view_codingbatch",
+    ]
+    template_name = "va_data_management/batch_operations.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["import_batches"] = ImportBatch.objects.all()
+        context["coding_batches"] = CodingBatch.objects.all()
+        return context
 
 
 class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):

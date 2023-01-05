@@ -20,17 +20,16 @@ from va_explorer.va_data_management.models import (
 
 DHIS_USER = os.environ.get("DHIS_USER", "admin")
 DHIS_PASS = os.environ.get("DHIS_PASS", "district")
-DHIS_URL = os.environ.get("DHIS_URL", "http://localhost:5080")
+DHIS_HOST = os.environ.get("DHIS_HOST", "http://localhost:8080")
 # Assign random default, real value should be obtained from user DHIS instance
 DHIS_ORGUNIT = os.environ.get("DHIS_ORGUNIT", "WqAFVcXewEh")
 
-DHIS2_HOST = os.environ.get("DHIS2_URL", "http://127.0.0.1:5002")
-if DHIS2_HOST.startswith("https://localhost"):
+if DHIS_HOST.startswith("https://localhost"):
     # Don't verify localhost (self-signed cert or test).
     SSL_VERIFY = False
 else:
     # Support multiple user-provided boolean representations from .env
-    SSL_VERIFY = os.environ.get("DHIS2_SSL_VERIFY", "TRUE").lower() in (
+    SSL_VERIFY = os.environ.get("DHIS_SSL_VERIFY", "TRUE").lower() in (
         "true",
         "1",
         "t",
@@ -213,7 +212,7 @@ class Command(BaseCommand):
             ntDHIS = namedtuple(
                 "ntDHIS", ["dhisURL", "dhisUser", "dhisPassword", "dhisOrgUnit"]
             )
-            settings_dhis = ntDHIS(DHIS_URL, DHIS_USER, DHIS_PASS, DHIS_ORGUNIT)
+            settings_dhis = ntDHIS(DHIS_HOST, DHIS_USER, DHIS_PASS, DHIS_ORGUNIT)
 
             cod_codes = CODCodesDHIS.objects.filter(codsource="WHO").values()
             query_cod_codes = pd.DataFrame.from_records(cod_codes)
@@ -282,7 +281,7 @@ class Command(BaseCommand):
 
     def get_events_values(self, prg, auth):
         url = (
-            DHIS_URL
+            DHIS_HOST
             + "/api/events?pageSize=0&program="
             + prg
             + "&orgUnit="
@@ -299,7 +298,7 @@ class Command(BaseCommand):
 
         events_num = self.get_events_values(prg, auth)
         url = (
-            DHIS_URL
+            DHIS_HOST
             + "/api/events?pageSize="
             + format(events_num, "0")
             + "&program="
