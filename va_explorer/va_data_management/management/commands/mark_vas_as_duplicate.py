@@ -11,9 +11,9 @@ class Command(BaseCommand):
         if not settings.QUESTIONS_TO_AUTODETECT_DUPLICATES:
             self.stdout.write(
                 self.style.ERROR(
-                    "Error: Configuration, QUESTIONS_TO_AUTODETECT_DUPLICATES, is an empty list. \n"
-                    "Please update you .env file with a list of questions by Id that will be used to autodetect "
-                    "duplicates."
+                    "Error: Configuration, QUESTIONS_TO_AUTODETECT_DUPLICATES, "
+                    "is an empty list.\n Please update your .env file with a list "
+                    "of questions by Id that will be used to autodetect duplicates."
                 )
             )
             exit()
@@ -23,7 +23,8 @@ class Command(BaseCommand):
         except Exception as err:
             self.stdout.write(
                 self.style.ERROR(
-                    "Missing required database fields in Verbal Autopsy model to mark Verbal Autopsies as duplicate."
+                    "Missing required database fields in Verbal Autopsy model to \
+                    mark Verbal Autopsies as duplicate."
                     f"Please run latest migration to add fields.\n{err}"
                 )
             )

@@ -52,7 +52,10 @@ class Location(MP_Node):
 class VerbalAutopsy(SoftDeletionModel):
     class Meta:
         permissions = (("bulk_delete", "Can bulk delete"),)
-        indexes = [models.Index(fields=["unique_va_identifier"])]
+        indexes = [
+            models.Index(fields=["unique_va_identifier"]),
+            models.Index(fields=["Id10023"], name="death_date_filter_idx"),
+        ]
 
     # Each VerbalAutopsy is associated with a facility, which is the leaf node location
     location = models.ForeignKey(
@@ -161,6 +164,14 @@ class VerbalAutopsy(SoftDeletionModel):
         blank=True,
     )
     Id10058 = models.TextField("Where did the deceased die?", blank=True)
+    Id10487 = models.TextField(
+        "In the two weeks before death, did (s)he live with, visit, or care for someone who had any COVID-19 symptoms or a positive COVID-19 test?",
+        blank=True,
+    )
+    Id10488 = models.TextField(
+        "In the two weeks before death, did (s)he travel to an area where COVID-19 is known to be present?",
+        blank=True,
+    )
     Id10051 = models.TextField(
         "Is there a need to collect additional demographic data on the deceased?",
         blank=True,
@@ -401,6 +412,14 @@ class VerbalAutopsy(SoftDeletionModel):
     Id10144 = models.TextField(
         "Was there any diagnosis by a health professional of liver disease?", blank=True
     )
+    Id10482 = models.TextField(
+        "Was there any diagnosis by a health professional of COVID-19?", blank=True
+    )
+    Id10483 = models.TextField(
+        "Did s(h)e have a recent test by a health professional for COVID-19?",
+        blank=True,
+    )
+    Id10484 = models.TextField("What was the result?", blank=True)
     Id10147 = models.TextField("Did (s)he have a fever?", blank=True)
     Id10148_a = models.TextField("How many days did the fever last?", blank=True)
     Id10148_units = models.TextField("How long did the fever last?", blank=True)
@@ -1009,6 +1028,11 @@ class VerbalAutopsy(SoftDeletionModel):
     )
     Id10290 = models.TextField(
         "Did the baby or infant appear to be healthy and then just die suddenly?",
+        blank=True,
+    )
+    Id10485 = models.TextField("Did (s)he suffer from extreme fatigue?", blank=True)
+    Id10486 = models.TextField(
+        "Did (s)he experience a new loss, change or decreased sense of smell or taste?",
         blank=True,
     )
     Id10294 = models.TextField(

@@ -1,3 +1,5 @@
+// todo: percent/count toggle
+
 Vue.use('stacked-bar-chart', 'line-chart', 'loader-spinning')
 
 const dashboard = new Vue({
@@ -40,12 +42,32 @@ const dashboard = new Vue({
             endDate: "",
             causeSelected: "",
             regionSelected: "",
+            ageSelected: "",
+            sexSelected: "",
             borderType: "Province",
+
 
             colorScale: [
                 "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                 "#fee090", "#fdae61", "#f46d43", "#d73027"
-            ]
+            ],
+
+            demographicsLegendData: [
+                {
+                    name: "Female",
+                    color: "#440154FF",
+                },
+                {
+                    name: "Male",
+                    color: "#404788FF",
+                }
+            ],
+
+            loading: true,
+            locations: [],
+            suppressWarning: false,
+            placeOfDeathValue: "count",
+            causeOfDeathValue: "count",
         }
     },
     computed: {
@@ -64,29 +86,48 @@ const dashboard = new Vue({
                 return this.geographic_district_sums
             }
         },
-        locations() {
-            // Used to generate options in "Geographic Distributions" select dropdown
-            if (!this.geographic_province_sums || !this.geographic_district_sums) return []
-            const provinces = this.geographic_province_sums.map(item => item.province_name)
-            const districts = this.geographic_district_sums.map(item => item.district_name)
-            return [...provinces, ...districts]
-        },
         geoScale() {
             // A better way to do this would be to import d3 scale and use a quanitzed scale but import is large
             if (!this.geographicSums) return
             const geoMax = Math.max(...this.geographicSums.map(item => +item.count)) + 100
-            const geoMin = 0
+            const geoMin = 1
             const n = 10
             const step = (geoMax - geoMin) / (n - 1)
-            return Array.from({length: n}, (_, i) => geoMin + step * i)
+            return Array.from({length: n}, (_, i) => Math.round(geoMin + step * i))
         },
-        dynamicCODHeight() {
-            return this.COD_grouping.length === 1 ? (1 / 2) * this.codHeight : (4 / 5) * this.codHeight
+        placeOfDeathData() {
+            if (!this.place_of_death) return [];
+            if (this.placeOfDeathValue === "count") return this.place_of_death;
+            const totalCount = d3.sum(this.place_of_death.map(item => item.count));
+            return JSON.parse(JSON.stringify(this.place_of_death)).map(d => {
+                d.percentage = Math.round(d.count * 1000 / totalCount) / 10;
+                delete d.count;
+                return d;
+            })
+        },
+        causeOfDeathData() {
+            if (!this.COD_grouping) return [];
+            if (this.causeOfDeathValue === "count") return this.COD_grouping;
+            const totalCount = d3.sum(this.COD_grouping.map(item => item.count));
+            return JSON.parse(JSON.stringify(this.COD_grouping)).map(d => {
+                d.percentage = Math.round(d.count * 1000 / totalCount) / 10;
+                delete d.count;
+                return d;
+            })
         },
     },
     async created() {
         // Request data from API endpoint
         await this.getData()
+
+        this.locations = this.geographic_province_sums.map(d => ({
+            name: d.province_name,
+            type: "Province",
+        })).concat(this.geographic_district_sums.map(d => ({
+            name: d.district_name,
+            type: "District",
+        })));
+        this.locations.sort((a, b) => a.name > b.name ? 1 : b.name > a.name ? -1 : 0);
 
         // Request geojson data
         const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/static/`
@@ -106,7 +147,9 @@ const dashboard = new Vue({
     methods: {
         async getData() {
             // fetch data for charts from API and assign all data variables for charts
+            this.loading = true
 
+            const {age, sex} = this.getAgeAndSex()
             const {startDate, endDate} = this.getStartAndEndDates()
 
             this.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -117,6 +160,7 @@ const dashboard = new Vue({
                 end_date: endDate,
                 cause_of_death: this.causeSelected,
                 region_of_interest: this.regionSelected,
+                age, sex
             }), {
                 method: 'GET',
                 headers: {'X-CSRFToken': this.csrftoken, 'Content-Type': 'application/json'},
@@ -126,13 +170,45 @@ const dashboard = new Vue({
             const jsonRes = await dataReq.json()
             this.COD_grouping = jsonRes.COD_grouping
             this.COD_trend = jsonRes.COD_trend
-            this.place_of_death = jsonRes.place_of_death
+            this.place_of_death = jsonRes.place_of_death.map(d => {
+                d.place = d.place.replace(/_/g, " ");
+                return d;
+            })
             this.demographics = jsonRes.demographics
             this.geographic_province_sums = jsonRes.geographic_province_sums
             this.geographic_district_sums = jsonRes.geographic_district_sums
             this.uncoded_vas = jsonRes.uncoded_vas
             this.update_stats = jsonRes.update_stats
             this.listOfCausesDropdownOptions = jsonRes.all_causes_list
+
+            // if one or more age groups is absent from API data, add it with counts of zero
+            // also add age ranges here (todo: modify API to do these things?)
+            const ageGroups = ["neonate", "child", "adult"]
+            for (const ageGroup of ageGroups) {
+                let index = this.demographics.map(d => d.age_group).indexOf(ageGroup);
+                if (index === -1) {
+                    this.demographics.push({
+                        female: 0,
+                        male: 0,
+                    });
+                    index = this.demographics.length - 1;
+                }
+                this.demographics[index].age_group = ageGroup === "neonate" ? "Neonate (< 28 days)" :
+                    ageGroup === "child" ? "Child (≤ 12 years)" : "Adult (> 12 years)";
+                this.demographics[index].order = ageGroups.indexOf(ageGroup);
+            }
+            this.demographics.sort((a, b) => a.order > b.order ? 1 : b.order > a.order ? -1 : 0);
+            this.demographics.forEach(d => {
+                delete d.order;
+            });
+
+            // display warning message if small sample size (allow user to stop these dialogs)
+            if (!this.suppressWarning &&
+                d3.sum(this.COD_grouping.map(item => item.count)) < 50) {
+                $("#small-sample-size-warning").modal().show();
+            }
+
+            this.loading = false
         },
         async initializeBaseMap() {
             // use to set base map with tile on initial load
@@ -142,10 +218,10 @@ const dashboard = new Vue({
                     [-20, 34],
                 ]
             }).setView([-13, 27], 6)
-            
+
             this.map.attributionControl.setPrefix('')
             this.map.keyboard.disable()
-            
+
             const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 10,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -153,7 +229,6 @@ const dashboard = new Vue({
         },
         addGeoJSONToMap() {
             // Remove any existing choropleth layer and add new layer with tooltip and coloring
-            
 
             const vm = this
             if (this.layer) this.map.removeLayer(this.layer)
@@ -190,6 +265,7 @@ const dashboard = new Vue({
             return new Date(year, month, 0)
         },
         getColor(feature) {
+            // Returns appropriate color for regions on map
             const {area_name, area_level_label} = feature.properties
             const area = `${area_name} ${area_level_label}`
             const geo_sums = this.borderType === 'Province' ? this.geographic_province_sums : this.geographic_district_sums
@@ -199,13 +275,20 @@ const dashboard = new Vue({
             if (results) {
                 const count = results.count
                 for (let i = 0; i < this.geoScale.length; i++) {
-                    if (count > this.geoScale[i] && count < this.geoScale[i + 1]) {
+                    if (count >= this.geoScale[i] && count < this.geoScale[i + 1]) {
                         return this.colorScale[i]
                     }
                 }
             } else {
                 return '#c0c0c0'
             }
+        },
+        getAgeAndSex(){
+            // return lower cased version of age and sex for request
+            const age = this.ageSelected.toLowerCase()
+            const sex = this.sexSelected.toLowerCase()
+
+            return {age, sex}
         },
         getStartAndEndDates() {
             // Generate start and end dates based on death date drop down options
@@ -237,14 +320,18 @@ const dashboard = new Vue({
 
             const area_level_label = feature.properties.area_level_label
             const area_name = feature.properties.area_name
-            let count = "N/A"
+            let count = 0
             if (area_level_label === 'District') {
-                let district = vm.geographic_district_sums.find(item => item.district_name.includes(area_name))
+                let district = vm.geographic_district_sums
+                    .filter(item => item.district_name)
+                    .find(item => item.district_name.includes(area_name))
                 if (district) {
                     count = district.count
                 }
             } else if (area_level_label === 'Province') {
-                let province = vm.geographic_province_sums.find(item => item.province_name.includes(area_name))
+                let province = vm.geographic_province_sums
+                    .filter(item => item.province_name)
+                    .find(item => item.province_name.includes(area_name))
                 if (province) {
                     count = province.count
                 }
@@ -264,19 +351,20 @@ const dashboard = new Vue({
             this.demographicsHeight = this.$refs.demographics.clientHeight - 1
 
             this.codWidth = this.$refs.cod.clientWidth - 1
-            this.codHeight = this.$refs.cod.clientHeight - 1
         },
         async updateDataAndMap() {
             await this.getData()
             this.addGeoJSONToMap()
         },
         async resetAllDataToActive() {
-            // use this to reset all dashboard filters and retrieve the initial data
+            // reset all dashboard filters and retrieve the initial data
             this.startDate = ""
             this.endDate = ""
             this.causeSelected = ""
             this.deathDateSelected = "Any Time"
             this.regionSelected = ""
+            this.ageSelected = ""
+            this.sexSelected = ""
             await this.updateDataAndMap()
         },
     },

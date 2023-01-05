@@ -6,7 +6,8 @@ from va_explorer.va_data_management.models import VaUsername, VerbalAutopsy
 from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
 
 
-# update field worker usernames by matching names against all known interviewer names from VAs
+# update field worker usernames by matching names against all known
+# interviewer names from VAs
 def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
     user_objects = User.objects
     if emails:
@@ -66,8 +67,9 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
             if debug:
                 print(f"updating user {name}'s username to {new_username}")
 
-            # Make sure all VAs with matching field worker name (Id10010) are tagged with new username
-            # get original field worker tag for query (before it was lower-cased)
+            # Make sure all VAs with matching field worker name (Id10010) are
+            # tagged with new username and get original field worker tag for
+            # query (before it was lower-cased)
             va_worker_key = va_worker_keys[new_username]
             worker_vas = VerbalAutopsy.objects.filter(Id10010=va_worker_key)
             updated_va_ct += assign_va_usernames(
@@ -75,7 +77,8 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
             )
 
         print(
-            f"DONE. Updated {len(matches)} Field Worker Usernames and tagged {updated_va_ct} VAs"
+            f"DONE. Updated {len(matches)} Field Worker Usernames and tagged \
+            {updated_va_ct} VAs"
         )
         return matches
     else:
@@ -83,8 +86,8 @@ def link_fieldworkers_to_vas(emails=None, debug=False, match_threshold=80):
         return None
 
 
-# try to assign FieldWorker Usernames to a list of VAs if their field worker can be found in system.
-# if no va list provided, will run on all vas in system.
+# try to assign FieldWorker Usernames to a list of VAs if their field worker can
+# be found in system. If no va list provided, will run on all vas in system.
 def assign_va_usernames(
     vas=None, usernames=None, match_threshold=80, debug=False, override=False
 ):
@@ -109,8 +112,9 @@ def assign_va_usernames(
     tagged_users = set()
     if len(usernames) > 0:
         for va in vas:
-            # if one username provided and override is true, skip matching and override VA's username. Otherwise,
-            # only set va username if field worker field matches a username in usernames.
+            # if one username provided and override is true, skip matching and
+            # override VA's username. Otherwise, only set va username if field
+            # worker field matches a username in usernames.
             if len(usernames) == 1 and override:
                 match = usernames[0]
             elif not pd.isnull(va.Id10010):
@@ -130,7 +134,8 @@ def assign_va_usernames(
                 tagged_users.add(match)
 
         print(
-            f"Successfully linked {success_count} VAs to {len(tagged_users)} users ({tagged_users})"
+            f"Successfully linked {success_count} VAs to {len(tagged_users)} \
+            users ({tagged_users})"
         )
     else:
         print("WARNING: no field worker Usernames in system - failed to tag any VAs")
@@ -153,7 +158,8 @@ def get_va_worker_names(vas=None):
     return va_worker_dict
 
 
-# utility method to standardize a full name to lower-case first and last name separated by _
+# utility method to standardize a full name to lower-case first and
+# last name separated by _
 def normalize_name(name):
     final_name = None
     if name not in [None, "", nan]:

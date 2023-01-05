@@ -89,7 +89,8 @@ def validate_username(form, va_username, group, user):
             )
 
 
-# core logic/steps to set user fields based on form data. Used in both UserCreation and ExtendedUserCreation forms
+# core logic/steps to set user fields based on form data. Used in both UserCreation
+# and ExtendedUserCreation forms
 def process_user_data(user, cleaned_data, run_matching_logic=True):
 
     # set user location restrictions
@@ -108,8 +109,8 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
     # they're properly linked to the right VAs
     if run_matching_logic and group.name.lower().startswith("field worker"):
 
-        # first, match provided username against VAs. # If matching va field worker name, link all
-        # VAs referencing this fieldworker to current username.
+        # first, match provided username against VAs. # If matching va field worker
+        # name, link all VAs referencing this fieldworker to current username.
         va_worker_keys = get_va_worker_names()
 
         # only run if field workers in the system!
@@ -124,14 +125,16 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
                 worker_vas = VerbalAutopsy.objects.filter(Id10010=worker_name)
                 assign_va_usernames(worker_vas, usernames=[worker_name], override=True)
             else:
-                # if no match, try setting username if User's name fuzzy matches with a va field worker name
+                # if no match, try setting username if User's name fuzzy matches
+                # with a va field worker name
                 link_fieldworkers_to_vas(emails=user.email)
 
     # if View PII permission specified in form, override user group's default permission
     if "view_pii" in cleaned_data:
         user.can_view_pii = cleaned_data["view_pii"]
 
-    # if download data permission specified in form, override user group's default permission
+    # if download data permission specified in form, override user group's
+    # default permission
     if "download_data" in cleaned_data:
         user.can_download_data = cleaned_data["download_data"]
 
@@ -204,7 +207,8 @@ class UserCommonFields(forms.ModelForm):
     )
     va_username = forms.CharField(
         required=False,
-        help_text="Username is the interviewer username collected in the Verbal Autopsy.",
+        help_text="Username is the interviewer username collected in the \
+                   Verbal Autopsy.",
     )
     view_pii = forms.BooleanField(
         label="Can View PII",
@@ -309,11 +313,12 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                     user, self.cleaned_data, run_matching_logic=True
                 )
 
-            # TODO: Remove if we do not require email confirmation; we will no longer need the lines below
-            # See allauth:
+            # TODO: Remove if we do not require email confirmation; we will no
+            # longer need the lines below. See allauth:
             # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/utils.py
             # setup_user_email(self.request, user, [])
-            # A workaround to run this script without a mail server. If True, it will send email like normal.
+            # A workaround to run this script without a mail server.
+            # If True, it will send email like normal.
             # If False, user credentials will just be printed to console.
             console_msg = (
                 "" * 20
@@ -401,8 +406,8 @@ class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
 
     See allauth:
         https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
-        If we do not want this dependency, we can write our own clean method to ensure the
-        2 typed-in passwords match.
+        If we do not want this dependency, we can write our own clean method to
+        ensure the 2 typed-in passwords match.
     """
 
     password1 = SetPasswordField(
@@ -422,13 +427,13 @@ class UserSetPasswordForm(PasswordVerificationMixin, forms.Form):
 class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
     """
     Allows the user to change their password if they already have a valid
-    (i.e., non-temporary) password.
-    Requires the user to re-type their old password and type in their new password twice.
+    (i.e., non-temporary) password. Requires the user to re-type their old
+    password and type in their new password twice.
 
     See allauth:
         https://github.com/pennersr/django-allauth/blob/master/allauth/account/forms.py#L54
-        If we do not want this dependency, we can write our own clean method to ensure the
-        2 typed-in passwords match.
+        If we do not want this dependency, we can write our own clean method to
+        ensure the 2 typed-in passwords match.
     """
 
     current_password = PasswordField(label="Current Password")

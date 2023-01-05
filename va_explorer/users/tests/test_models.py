@@ -24,7 +24,8 @@ def test_user_password_history_exists():
 
 
 def test_user_scoped_verbal_autopsies():
-    # Set up a small tree of locations; top level province, two districts, three facilities
+    # Set up a small tree of locations;
+    # top level province, two districts, three facilities
     province = LocationFactory.create()
     district1 = province.add_child(name="District1", location_type="district")
     facility1 = district1.add_child(name="Facility1", location_type="facility")

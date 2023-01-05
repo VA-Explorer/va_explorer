@@ -13,7 +13,7 @@ pytestmark = pytest.mark.django_db
 
 
 def test_loading_from_dataframe():
-    # Location gets assigned with field hospital by name or by the user's default location
+    # Location gets assigned w/ field hospital by name or by user's default location
     # TODO create a test that assigns location by the username
     loc = Location.add_root(name="test location", location_type="facility")
 
@@ -144,7 +144,7 @@ def test_loading_duplicate_vas(settings):
     )
 
     # va1 matches 2 records in 'test-duplicate-input-data.csv'
-    # This VA will not be marked as duplicate = True because it was created before loading
+    # VA will not be marked as duplicate = True because it was created before loading
     # 'test-duplicate-input-data.csv'
     va1 = VerbalAutopsyFactory.create(
         Id10017="Bob",

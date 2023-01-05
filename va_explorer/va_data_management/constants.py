@@ -342,6 +342,8 @@ _radio_choices = {
     "Id10020": _yes_no_ref,
     "Id10022": _yes_no_ref,
     "age_group": _age_group,
+    "Id10487": _yes_no_dk_ref,
+    "Id10488": _yes_no_dk_ref,
     "Id10051": _yes_no,
     "Id10052": _select_500,
     "Id10060_check": _yes_no,
@@ -402,6 +404,9 @@ _radio_choices = {
     "Id10142": _yes_no_dk_ref,
     "Id10143": _yes_no_dk_ref,
     "Id10144": _yes_no_dk_ref,
+    "Id10482": _yes_no_dk_ref,
+    "Id10483": _yes_no_dk_ref,
+    "Id10484": _select_531,
     "Id10147": _yes_no_dk_ref,
     "Id10149": _yes_no_dk_ref,
     "Id10150": _select_63,
@@ -504,6 +509,8 @@ _radio_choices = {
     "Id10288": _yes_no_dk_ref,
     "Id10289": _yes_no_dk_ref,
     "Id10290": _yes_no_dk_ref,
+    "Id10485": _yes_no_dk_ref,
+    "Id10486": _yes_no_dk_ref,
     "Id10294": _yes_no_dk_ref,
     "Id10295": _yes_no_dk_ref,
     "Id10296": _yes_no_dk_ref,
@@ -621,7 +628,6 @@ _radio_choices = {
     "Id10459": _yes_no_dk_ref,
     "Id10462": _yes_no_dk_ref,
     "Id10463": _yes_no_dk_ref,
-    "Id10484": _select_531,
 }
 
 _checkbox_choices = {
