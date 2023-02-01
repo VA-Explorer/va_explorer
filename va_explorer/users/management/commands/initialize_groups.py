@@ -46,7 +46,7 @@ GROUPS_PERMISSIONS = {
 
 class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     help = "Create default groups and permissions"
 

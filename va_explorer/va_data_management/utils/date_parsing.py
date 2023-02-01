@@ -35,13 +35,13 @@ def parse_date(date_str, formats=DATE_FORMATS, strict=False, return_format="%Y-%
                 try:
                     return pd.to_datetime(date_str).date().strftime(return_format)
                 # Intent is only to handle exception with custom error or pass-through
-                except:  # noqa E722
+                except Exception as e:
                     # if we get here, couldn't parse the date. If strict, raise error.
                     # Otherwise, return original string
                     if strict:
                         raise ValueError(
                             f"no valid date format found for date string {date_str}"
-                        )
+                        ) from e
                     else:
                         return str(date_str)
     return "dk"
@@ -80,8 +80,8 @@ def get_submissiondates(va_data, empty_string=None):
 
 # get submissiondate for single va object. Uses the same field logic as above.
 def get_submissiondate(va_data, empty_string=None, parse=False):
-    if pd.isnull(va_data.submissiondate) or va_data.submissiondate in ["", "nan", "dk"]:
-        if not pd.isnull(va_data.Id10011) and va_data.Id10011 not in ["", "nan", "dk"]:
+    if pd.isna(va_data.submissiondate) or va_data.submissiondate in ["", "nan", "dk"]:
+        if not pd.isna(va_data.Id10011) and va_data.Id10011 not in ["", "nan", "dk"]:
             return parse_date(va_data.Id10011) if parse else va_data.Id10011
         else:
             return empty_string
@@ -90,4 +90,4 @@ def get_submissiondate(va_data, empty_string=None, parse=False):
 
 
 def empty_dates(va_df, date_col="submissiondate", null_strings=NULL_STRINGS):
-    return (pd.isnull(va_df[date_col])) | (va_df[date_col].isin(null_strings))
+    return (pd.isna(va_df[date_col])) | (va_df[date_col].isin(null_strings))

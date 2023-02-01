@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.db.models import Count, Max, Q
 from simple_history.utils import bulk_create_with_history
 
@@ -20,7 +21,6 @@ from va_explorer.va_data_management.utils.location_assignment import (
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
 
 from ..constants import _checkbox_choices
-from django.core.cache import cache
 
 User = get_user_model()
 
@@ -45,9 +45,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # But first, account for case differences in csv columns
     # (i.e. ensure id10041 maps to Id10041)
     field_case_mapper = {field.lower(): field for field in model_field_names}
-    record_df.rename(
-        columns=lambda c: field_case_mapper.get(c.lower(), c), inplace=True
-    )
+    record_df = record_df.rename(columns=lambda c: field_case_mapper.get(c.lower(), c))
 
     # Lowercase the instanceID column that can come from ODK as "instanceID".
     if "instanceID" in record_df.columns:
@@ -312,7 +310,7 @@ def deduplicate_columns(record_df, drop_duplicates=True):
                 .iloc[:, 0]
             )
             # record_df[original_col] = record_df.apply(lambda row: row[other_col]
-            # f pd.isnull(row[original_col]) else row[original_col], axis=1)
+            # f pd.isna(row[original_col]) else row[original_col], axis=1)
         else:
             print(
                 f"WARNING: couldn't find {original_col} but \

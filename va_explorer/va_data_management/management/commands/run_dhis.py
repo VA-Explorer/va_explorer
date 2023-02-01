@@ -25,16 +25,11 @@ DHIS_URL = os.environ.get("DHIS_URL", "http://localhost:5080")
 DHIS_ORGUNIT = os.environ.get("DHIS_ORGUNIT", "WqAFVcXewEh")
 
 DHIS2_HOST = os.environ.get("DHIS2_URL", "http://127.0.0.1:5002")
-if DHIS2_HOST.startswith("https://localhost"):
-    # Don't verify localhost (self-signed cert or test).
-    SSL_VERIFY = False
-else:
-    # Support multiple user-provided boolean representations from .env
-    SSL_VERIFY = os.environ.get("DHIS2_SSL_VERIFY", "TRUE").lower() in (
-        "true",
-        "1",
-        "t",
-    )
+SSL_VERIFY = (
+    False
+    if DHIS2_HOST.startswith("https://localhost")
+    else os.environ.get("DHIS2_SSL_VERIFY", "TRUE").lower() in ("true", "1", "t")
+)
 
 # TODO: Temporary script to run COD assignment algorithms; this should
 # eventually become something that's handle with celery
@@ -195,8 +190,8 @@ class Command(BaseCommand):
             # Ensure all variables are formatted as required
             va_data = pd.read_csv("OpenVAFiles/recordStorage.csv")
             va_data["age"] = va_data["age"].astype(float)
-            va_data["dod"][va_data.dod.isnull()] = "1900-01-01"
-            va_data["dob"][va_data.dob.isnull()] = "1900-01-01"
+            va_data["dod"][va_data.dod.isna()] = "1900-01-01"
+            va_data["dob"][va_data.dob.isna()] = "1900-01-01"
             va_data["id"] = ["A" + str(i) for i in va_data["id"]]
             for i in range(len(va_data["sex"])):
                 va_data["dob"][i] = (

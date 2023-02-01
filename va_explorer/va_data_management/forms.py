@@ -61,7 +61,7 @@ class VerbalAutopsyForm(forms.ModelForm):
         """
         Normal cleanup
         """
-        cleaned_data = super(VerbalAutopsyForm, self).clean(*args, **kwargs)
+        cleaned_data = super().clean(*args, **kwargs)
 
         if "Id10023" in cleaned_data:
             validate_date_format(self, cleaned_data["Id10023"])

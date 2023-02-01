@@ -14,7 +14,7 @@ import sqlite3
 from math import isnan
 
 import requests
-from pandas import isnull, read_csv
+from pandas import isna, read_csv
 
 
 class API:
@@ -41,11 +41,11 @@ class API:
               e.g. --server=play.dhis2.org/demo"
             )
         if dhisURL.startswith("localhost") or dhisURL.startswith("127.0.0.1"):
-            dhisURL = "http://{}".format(dhisURL)
+            dhisURL = f"http://{dhisURL}"
         elif not dhisURL.startswith("https://") and not dhisURL.startswith("http://"):
-            dhisURL = "https://{}".format(dhisURL)
+            dhisURL = f"https://{dhisURL}"
         self.auth = (dhisUser, dhisPass)
-        self.url = "{}/api".format(dhisURL)  # possible new parameter
+        self.url = f"{dhisURL}/api"  # possible new parameter
 
     def get(self, endpoint, params=None):
         """GET method for DHIS2 API.
@@ -53,18 +53,18 @@ class API:
         :rtype: dict
         """
 
-        url = "{}/{}.json".format(self.url, endpoint)
+        url = f"{self.url}/{endpoint}.json"
         if not params:
             params = {}
         params["paging"] = False
         try:
             r = requests.get(url=url, params=params, auth=self.auth)
             if r.status_code != 200:
-                raise Exception("HTTP Code: {}".format(r.status_code))
+                raise Exception(f"HTTP Code: {r.status_code}")
             else:
                 return r.json()
-        except requests.RequestException:
-            raise Exception(str(requests.RequestException))
+        except requests.RequestException as err:
+            raise Exception(str(requests.RequestException)) from err
 
     def post(self, endpoint, data):
         """POST method for DHIS2 API.
@@ -72,19 +72,21 @@ class API:
         :rtype: dict
         """
 
-        url = "{}/{}.json".format(self.url, endpoint)
+        url = f"{self.url}/{endpoint}.json"
         try:
             r = requests.post(url=url, json=data, auth=self.auth)
             if r.status_code not in range(200, 206):
                 raise Exception(
                     "Problem with API.post..."
-                    + "HTTP Code: {}...".format(r.status_code)
+                    + f"HTTP Code: {r.status_code}..."
                     + str(r.text)
                 )
             else:
                 return r.json()
-        except requests.RequestException:
-            raise Exception("Problem with API.post..." + str(requests.RequestException))
+        except requests.RequestException as err:
+            raise Exception(
+                "Problem with API.post..." + str(requests.RequestException)
+            ) from err
 
     def post_blob(self, f):
         """Post file to DHIS2 and return created UID for that file
@@ -92,7 +94,7 @@ class API:
         :rtype: str
         """
 
-        url = "{}/fileResources".format(self.url)
+        url = f"{self.url}/fileResources"
         with open(f, "rb") as fName:
             files = {"file": (f, fName, "application/x-sqlite3", {"Expires": "0"})}
             try:
@@ -100,17 +102,17 @@ class API:
                 if r.status_code not in (200, 202):
                     raise Exception(
                         "Problem with API.post_blob..."
-                        + "HTTP Code: {}...".format(r.status_code)
+                        + f"HTTP Code: {r.status_code}..."
                         + str(r.text)
                     )
                 else:
                     response = r.json()
                     file_id = response["response"]["fileResource"]["id"]
                     return file_id
-            except requests.RequestException:
+            except requests.RequestException as err:
                 raise Exception(
                     "Problem with API.post_blob..." + str(requests.RequestException)
-                )
+                ) from err
 
 
 class VerbalAutopsyEvent:
@@ -294,8 +296,8 @@ class DHIS:
         try:
             if not os.path.isdir(dhisPath):
                 os.makedirs(dhisPath)
-        except Exception:
-            raise Exception("Unable to create directory" + dhisPath)
+        except Exception as err:
+            raise Exception("Unable to create directory" + dhisPath) from err
 
     def connect(self):
         """Setup connection to DHIS2 server.
@@ -317,7 +319,7 @@ class DHIS:
         try:
             apiDHIS = API(self.dhisURL, self.dhisUser, self.dhisPassword)
         except (requests.RequestException) as e:
-            raise Exception(str(e))
+            raise Exception(str(e)) from e
 
         vaPrograms = apiDHIS.get(
             "programs", params={"filter": "name:like:Verbal Autopsy"}
@@ -362,8 +364,8 @@ class DHIS:
         try:
             if not os.path.isdir(blobPath):
                 os.makedirs(blobPath)
-        except Exception:
-            raise Exception("Unable to create directory for DHIS blobs.")
+        except Exception as err:
+            raise Exception("Unable to create directory for DHIS blobs.") from err
 
         events = []
         export = {}
@@ -392,12 +394,14 @@ class DHIS:
 
                     try:
                         create_db(blobFile, blobEVA)
-                    except Exception:
-                        raise Exception("Unable to create blob.")
+                    except Exception as err:
+                        raise Exception("Unable to create blob.") from err
                     try:
                         fileID = apiDHIS.post_blob(blobFile)
                     except requests.RequestException as e:
-                        raise Exception("Unable to post blob to DHIS..." + str(e))
+                        raise Exception(
+                            "Unable to post blob to DHIS..." + str(e)
+                        ) from e
 
                     algorithm = row[6].split("|")[0]
                     if algorithm == "SmartVA":
@@ -411,12 +415,12 @@ class DHIS:
                             sex = "refused to answer"
                     else:
                         sex = row[1].lower()
-                    if isnull(row[2]):
+                    if isna(row[2]):
                         dob = datetime.date(9999, 9, 9)
                     else:
                         dobTemp = datetime.datetime.strptime(row[2], "%Y-%m-%d")
                         dob = datetime.date(dobTemp.year, dobTemp.month, dobTemp.day)
-                    if isnull(row[3]):
+                    if isna(row[3]):
                         eventDate = datetime.date(9999, 9, 9)
                     else:
                         dod = datetime.datetime.strptime(row[3], "%Y-%m-%d")
@@ -427,10 +431,11 @@ class DHIS:
                         age = int(row[4])
                     else:
                         age = "MISSING"
-                    if row[5] == "Undetermined":
-                        codCode = "99"
-                    else:
-                        codCode = getCODCode(self.dhisCODCodes, row[5])
+                    codCode = (
+                        "99"
+                        if row[5] == "Undetermined"
+                        else getCODCode(self.dhisCODCodes, row[5])
+                    )
                     algorithmMetadataCode = row[6]
                     odkID = row[7]
 
@@ -458,7 +463,7 @@ class DHIS:
         try:
             log = apiDHIS.post("events", data=export)
         except requests.RequestException as e:
-            raise Exception("Unable to post events to DHIS2..." + str(e))
+            raise Exception("Unable to post events to DHIS2..." + str(e)) from e
         self.nPostedRecords = len(log["response"]["importSummaries"])
         return log
 
@@ -478,15 +483,15 @@ class DHIS:
         vaReferences = list(findKeyValue("reference", d=postLog["response"]))
         try:
             dfNewStorage = read_csv(self.dirOpenVA + "/newStorage.csv")
-        except Exception:
+        except Exception as err:
             raise Exception(
                 "Problem with DHIS.verifyPost...Can't find file "
                 + self.dirOpenVA
                 + "/newStorage.csv"
-            )
+            ) from err
         try:
             for vaReference in vaReferences:
-                postedDataValues = apiDHIS.get("events/{}".format(vaReference)).get(
+                postedDataValues = apiDHIS.get(f"events/{vaReference}").get(
                     "dataValues"
                 )
                 postedVAIDIndex = next(
@@ -501,7 +506,7 @@ class DHIS:
                 rowVAID = dfNewStorage["dhisVerbalAutopsyID"] == postedVAID
                 dfNewStorage.loc[rowVAID, "pipelineOutcome"] = "Pushed to DHIS2"
             dfNewStorage.to_csv(self.dirOpenVA + "/newStorage.csv", index=False)
-        except Exception:
+        except Exception as err:
             raise Exception(
                 "Problem with DHIS.postVA...couldn't verify posted records."
-            )
+            ) from err

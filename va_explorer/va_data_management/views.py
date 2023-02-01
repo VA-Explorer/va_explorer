@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, F, Q, TextField
-from django.db.models import Value as V  # noqa: N817 - not acronym
+from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
@@ -348,7 +348,7 @@ class Delete(CustomAuthMixin, PermissionRequiredMixin, DeleteView):
             .exists()
         ):
             messages.success(self.request, self.success_message % obj.__dict__)
-            return super(Delete, self).delete(request, *args, **kwargs)
+            return super().delete(request, *args, **kwargs)
         else:
             messages.error(self.request, self.error_message % obj.__dict__)
             return redirect("va_data_cleanup:index")

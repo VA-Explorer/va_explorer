@@ -7,7 +7,7 @@ from config.settings.base import LOG_DIR, LOGGING
 
 class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     help = "Initialize log directories for event loggig and debugging"
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             except Exception as err:
                 raise FileNotFoundError(
                     f"Couldn't create log directory {LOG_DIR}: {str(err)}"
-                )
+                ) from err
 
         handlers = LOGGING["handlers"]
         for _, cfg in handlers.items():
@@ -37,4 +37,4 @@ class Command(BaseCommand):
                 except Exception as err:
                     raise FileNotFoundError(
                         f"Couldn't create log file {logfile}: {str(err)}"
-                    )
+                    ) from err

@@ -25,7 +25,7 @@ def get_anonymized_user_info(user_list_file=None):
     if user_list_file:
         if not os.path.isfile(user_list_file):
             raise FileNotFoundError(f"Couldn't find user file {user_list_file}")
-        with open(user_list_file, "r") as f:
+        with open(user_list_file) as f:
             emails = list(
                 map(
                     lambda x: x.strip().replace(",", ""),
@@ -219,10 +219,11 @@ def fill_user_form_data(user_data, debug=False):
                         break
         # boolean field
         elif type(form_field) is BooleanField:
-            if type(value) in [int, bool, float]:
-                form_value = bool(value)
-            else:
-                form_value = str(value).lower() in {"true", "1", "1.0", "yes", "y"}
+            form_value = (
+                bool(value)
+                if type(value) in [int, bool, float]
+                else str(value).lower() in {"true", "1", "1.0", "yes", "y"}
+            )
 
         # catch-all for other field types - likely freeform/text entry
         else:
@@ -270,10 +271,7 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
         if debug:
             print(f"group key for fuzzy match: {group_name}")
             print(f"group match: {group_match}")
-        if group_match:
-            group_name = group_match
-        else:
-            group_name = default_group
+        group_name = group_match if group_match else default_group
         if debug:
             print(f"final group name: {group_name}")
         # override raw group name with clean one
@@ -291,7 +289,7 @@ def prep_form_data(user_data, debug=False, default_group="data viewer"):
     else:
         geo_access = "national"
         if (
-            not pd.isnull(user_data["location_restrictions"])
+            not pd.isna(user_data["location_restrictions"])
             and len(user_data["location_restrictions"]) > 0
             and user_data["location_restrictions"][0] is not None
         ):

@@ -16,7 +16,7 @@ from va_explorer.va_data_management.models import (
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture
+@pytest.fixture()
 def questions_to_autodetect_duplicates():
     return "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
 

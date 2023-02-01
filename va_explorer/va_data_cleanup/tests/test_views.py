@@ -8,12 +8,12 @@ from va_explorer.users.models import User
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture
+@pytest.fixture()
 def questions_to_autodetect_duplicates():
     return "Id10017, Id10010"
 
 
-@pytest.fixture
+@pytest.fixture()
 def view_datacleanup_group():
     can_view_datacleanup = Permission.objects.filter(
         codename="view_datacleanup"
@@ -21,13 +21,13 @@ def view_datacleanup_group():
     return GroupFactory.create(permissions=[can_view_datacleanup])
 
 
-@pytest.fixture
+@pytest.fixture()
 def download_group():
     can_download = Permission.objects.filter(codename="download").first()
     return GroupFactory.create(permissions=[can_download])
 
 
-@pytest.fixture
+@pytest.fixture()
 def bulk_download_group():
     can_bulk_download = Permission.objects.filter(codename="bulk_download").first()
     return GroupFactory.create(permissions=[can_bulk_download])

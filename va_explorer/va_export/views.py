@@ -136,7 +136,7 @@ class VaApi(CustomAuthMixin, View):
             va_df = pd.DataFrame.from_records(matching_vas)
 
             if "index" in va_df.columns:
-                va_df.drop(columns=["index"], inplace=True)
+                va_df = va_df.drop(columns=["index"])
 
             # If user cannot view PII, redact all PII fields:
             if not request.user.can_view_pii:

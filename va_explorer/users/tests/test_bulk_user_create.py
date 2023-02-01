@@ -50,6 +50,9 @@ def test_create_users_from_file():
 
     for _, user_data in user_df.iterrows():
         user_object = list(
-            filter(lambda x: x.email == user_data["email"], res["users"])
+            filter(
+                lambda x, user_data=user_data: x.email == user_data["email"],
+                res["users"],
+            )
         )[0]
         validate_user_object(user_data, user_object)

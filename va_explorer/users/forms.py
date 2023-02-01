@@ -363,7 +363,7 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
         # TODO: Remove if we do not require email confirmation; we will no longer
         # need the lines below
 
-        super(UserUpdateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["group"].label = "Role"
         self.fields["va_username"].label = "Username"
 
@@ -390,7 +390,7 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        user = super(UserUpdateForm, self).save(commit)
+        user = super().save(commit)
 
         if commit:
             # only run va matching logic when user is first created
@@ -450,11 +450,11 @@ class UserChangePasswordForm(PasswordVerificationMixin, forms.Form):
         We need this to call user.check_password in clean_current_password
         """
         self.user = kwargs.pop("user", None)
-        super(UserChangePasswordForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_current_password(self):
         if not self.user.check_password(self.cleaned_data.get("current_password")):
-            raise forms.ValidationError(("Please type your current password."))
+            raise forms.ValidationError("Please type your current password.")
         return self.cleaned_data["current_password"]
 
     def save(self, user):

@@ -64,7 +64,7 @@ class UserCreateView(
     success_message = "User successfully created!"
 
     def get_form_kwargs(self):
-        kw = super(UserCreateView, self).get_form_kwargs()
+        kw = super().get_form_kwargs()
         kw["request"] = self.request  # the trick!
         return kw
 
@@ -121,7 +121,7 @@ class UserUpdateView(
 
         Initializes the user's VA username(s) on the form (see TODO)
         """
-        initial = super(UserUpdateView, self).get_initial()
+        initial = super().get_initial()
 
         initial["group"] = self.get_object().groups.first()
         initial["geographic_access"] = (
@@ -220,7 +220,7 @@ class UserChangePasswordView(FormView, LoginRequiredMixin, SuccessMessageMixin):
 
     # Sending user object to the form
     def get_form_kwargs(self):
-        kwargs = super(UserChangePasswordView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs.update({"user": self.request.user})
         return kwargs
 

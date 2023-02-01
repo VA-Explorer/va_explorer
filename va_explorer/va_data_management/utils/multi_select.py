@@ -12,7 +12,7 @@ from django.utils.text import capfirst
 class MSFList(list):
     def __init__(self, choices, *args, **kwargs):
         self.choices = choices
-        super(MSFList, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __str__(msgl):
         msg_list = [
@@ -31,7 +31,7 @@ class MultiSelectFormField(forms.MultipleChoiceField):
         self.max_length = kwargs.pop("max_length", None)
         self.flat_choices = kwargs.pop("flat_choices")
         self.widget.attrs = {"class": "va-check"}
-        super(MultiSelectFormField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # TODO: Uncomment if supporting max_length, max_choices, min_choices
         # self.max_length = get_max_length(self.choices, self.max_length)
         # self.validators.append(MaxValueMultiFieldValidator(self.max_length))
@@ -41,9 +41,7 @@ class MultiSelectFormField(forms.MultipleChoiceField):
         #     self.validators.append(MinChoicesValidator(self.min_choices))
 
     def to_python(self, value):
-        return MSFList(
-            dict(self.flat_choices), super(MultiSelectFormField, self).to_python(value)
-        )
+        return MSFList(dict(self.flat_choices), super().to_python(value))
 
 
 def add_metaclass(metaclass):
@@ -66,10 +64,10 @@ class MultiSelectField(models.TextField):
     def __init__(self, *args, **kwargs):
         self.min_choices = kwargs.pop("min_choices", None)
         self.max_choices = kwargs.pop("max_choices", None)
-        super(MultiSelectField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _get_flatchoices(self):
-        flat_choices = super(MultiSelectField, self)._get_flatchoices()
+        flat_choices = super()._get_flatchoices()
 
         class MSFFlatchoices(list):
             # Used to trick django.contrib.admin.utils.display_for_field into
@@ -103,7 +101,7 @@ class MultiSelectField(models.TextField):
         try:
             value = self._get_val_from_obj(obj)
         except AttributeError:
-            value = super(MultiSelectField, self).value_from_object(obj)
+            value = super().value_from_object(obj)
         return self.get_prep_value(value)
 
     def validate(self, value, model_instance):
@@ -115,7 +113,7 @@ class MultiSelectField(models.TextField):
                 )
 
     def get_default(self):
-        default = super(MultiSelectField, self).get_default()
+        default = super().get_default()
         if isinstance(default, int):
             default = str(default)
         return default
@@ -154,7 +152,7 @@ class MultiSelectField(models.TextField):
                 return value
             elif isinstance(value, str):
                 value_list = map(
-                    lambda x: x.strip(), value.replace("，", ",").split(",")
+                    lambda x: x.strip(), value.replace(",", ",").split(",")
                 )
                 return MSFList(choices, value_list)
             elif isinstance(value, (set, dict)):
@@ -167,7 +165,7 @@ class MultiSelectField(models.TextField):
         return self.to_python(value)
 
     def contribute_to_class(self, cls, name):
-        super(MultiSelectField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
         if self.choices:
 
             def get_list(obj):

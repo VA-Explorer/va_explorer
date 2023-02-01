@@ -117,7 +117,7 @@ def assign_va_usernames(
             # worker field matches a username in usernames.
             if len(usernames) == 1 and override:
                 match = usernames[0]
-            elif not pd.isnull(va.Id10010):
+            elif not pd.isna(va.Id10010):
                 field_worker = va.Id10010
                 match = fuzzy_match(
                     field_worker.lower(),
@@ -164,8 +164,5 @@ def normalize_name(name):
     final_name = None
     if name not in [None, "", nan]:
         names = name.strip().lower().replace(" ", "_").split("_")
-        if len(names) > 1:
-            final_name = "_".join([names[0], names[-1]])
-        else:
-            final_name = names[0]
+        final_name = "_".join([names[0], names[-1]]) if len(names) > 1 else names[0]
     return final_name
