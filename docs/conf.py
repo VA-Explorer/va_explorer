@@ -21,7 +21,7 @@ sys.path.insert(0, project_root)
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "VA Explorer Docs"
-copyright = "2022, MITRE Licensed under Apache 2.0"
+copyright = "2020-2023, MITRE Licensed under Apache 2.0"
 author = "MITRE"
 
 # The short X.Y version
@@ -76,4 +76,3 @@ today_fmt = "%Y-%m-%d"
 
 html_static_path = ["_static"]
 html_css_files = ["css/tweaks.css"]
-html_js_files = ["js/tweaks.js"]

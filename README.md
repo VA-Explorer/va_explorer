@@ -145,14 +145,13 @@ Thanks again, whether through suggestions/ issues, or code, it's deeply apprecia
 
 ## License
 
-Copyright © 2020, The MITRE Corporation. Licensed under Apache 2.0
+Copyright © 2020-2023, The MITRE Corporation. Licensed under Apache 2.0
 
 The source of this information is the Data for Health Initiative, a joint
 project of the CDC Foundation and Bloomberg Philanthropies.
 
-VA Explorer is actively developed and piloted in Zambia. Available publicly via
-[Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0). VA
-Explorer also includes external software that is available under a variety of
+Available publicly via [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
+VA Explorer also includes external software that is available under a variety of
 licenses. See [LICENSE](./LICENSE) for full license text(s).
 
 Unless required by applicable law or agreed to in writing, software distributed
