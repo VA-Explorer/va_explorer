@@ -25,10 +25,10 @@ view VA data, a Data Manager role would not be appropriate.
 ## Geographic Access
 
 Your admin may also associate your account with specific geographic regions or
-facilities. This assignment is called “Geographic Access” in VA Explorer. If
+facilities. This assignment is called "Geographic Access" in VA Explorer. If
 your account has this restriction, VA Explorer only shows you VAs from your
 assigned regions or facilities. The default geographic restriction is the broadest
-“National” access, which shows VAs from all regions. To support additional
+"National" access, which shows VAs from all regions. To support additional
 location restriction options beyond the default, Admins should follow the guide
 in Loading Locations for Geographic Access Support (link)
 

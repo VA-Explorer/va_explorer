@@ -9,11 +9,10 @@ give an idea for how the VA Explorer could be changed each of the options is
 documented below.
 
 ```{csv-table}
-:header-rows: 1
-:stub-columns: 2
+:header: Variable Name, Default Value, Description
+:stub-columns: 1
 :escape: \
-*Variable Name*,*Default Value*,*Description*
-`DEBUG`,`False`,`True` or `False`. Will configure VA Explorer to report additional info in logs and console messages if `True`. Defaults to `False` for standard info.
+`DEBUG`,`False`,`True` or ```{code-block}False```. Will configure VA Explorer to report additional info in logs and console messages if `True`. Defaults to `False` for standard info.
 `EMAIL_URL`,`consolemail://`,A <a class="inline-external" href="https://django-environ.readthedocs.io/en/latest/types.html#environ-env-email-url">Django Environ</a> `email_url` which supports various email related URL schemas. Used to allow VA Explorer to connect to an email server and send email on your behalf. Setup to print to the console (docker logs) by default. **Recommended to customize.**
 `DJANGO_DEFAULT_FROM_EMAIL`,`VA Explorer <noreply@vaexplorer.org>`,The email address used in the sender field when VA Explorer sends automated emails. Format options include `Name <email>` or `email`. Default is app value here instead of <a class="inline-external" href="https://docs.djangoproject.com/en/4.1/ref/settings/#std-setting-DEFAULT_FROM_EMAIL">Django default</a>. **Recommended to customize.**
 `DJANGO_SECRET_KEY`,`dcc02e52ccbb649b9febe9182abfa5e03c49be6c`,Hash used by Django to cryptographically sign things like account recovery email urls. Defaults to hard-coded random hash. **Recommended to customize.**

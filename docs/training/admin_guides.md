@@ -13,8 +13,8 @@ To set up VA Explorer for the Geographic Access mentioned in that section, you
 must load location data into the system.
 
 Locations in VA Explorer follow a hierarchical structure. A specific geographic
-region or jurisdiction has a name (“Name”), a type (“Type”), and a parent
-(“Parent”). By specifying the Parent field, you can achieve the arbitrary level
+region or jurisdiction has a name ("Name"), a type ("Type"), and a parent
+("Parent"). By specifying the Parent field, you can achieve the arbitrary level
 of nesting required to make a tree.
 
 The table below shows an example location hierarchy for States, Counties, and
@@ -57,8 +57,8 @@ Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.
 
 ### Creating & Editing Users
 
-Click “Users” in the navigation bar to visit the Users page. Click the “Create
-User” button to access the user creation form. Alternatively, click the “Edit”
+Click "Users" in the navigation bar to visit the Users page. Click the "Create
+User" button to access the user creation form. Alternatively, click the "Edit"
 button in the table row for the user you would like to edit. Required fields are
 marked with an asterisk(*). To fill in the form:
 
@@ -68,8 +68,8 @@ marked with an asterisk(*). To fill in the form:
 
 1. Choose the user’s role from the dropdown menu
 
-1. Check “Can View PII” if the user is allowed to view PII in the system. Also
-check “Can Download Data” if the should be allowed to export VA data from the
+1. Check "Can View PII" if the user is allowed to view PII in the system. Also
+check "Can Download Data" if the should be allowed to export VA data from the
 system. See Abilities to Download and View PII Data (link) for details on these
 permissions if needed
 
@@ -79,13 +79,13 @@ Users with a Field Worker role must be assigned to at least one facility
 1. If user is a Field Worker, also enter their username if known. This field is
 used to associate the field worker user with data imported from outside VA
 Explorer (from locations such as ODK or from CSV file) and allow the field worker
-to “own” their VAs
+to "own" their VAs
 
-Click “Create” to create the user or “Update” if editing a user. “Cancel” will
-ake you back to the Users page without completing the action.
+Click "Create" to create the user or "Update" if editing a user. "Cancel" will
+take you back to the Users page without completing the action.
 
-When the “Create” button is clicked during the “Create” process or the “Update”
-button is clicked during the “Edit” process, VA Explorer validates the information
+When the "Create" button is clicked during the "Create" process or the "Update"
+button is clicked during the "Edit" process, VA Explorer validates the information
 you have entered. If there are errors associated with the provided data, VA
 Explorer will not create or update the user and the system will show error messages
 in red underneath the fields that require correction. Follow instructions to
@@ -96,9 +96,9 @@ correct these errors and complete the user creation or edit process if needed.
 User accounts are deactivated rather than deleted from VA Explorer. When a user
 account is deactivated, they will no longer be able to sign into the system.
 Their associated data, however, will still be visible. To deactivate a user,
-click “Users” in the navigation bar to visit the Users page. Click the “Edit”
+click "Users" in the navigation bar to visit the Users page. Click the "Edit"
 button in the table row for the user you would like to deactivate. Uncheck the
-“Active” checkbox. Click “Update.” The user will now be deactivated.
+"Active" checkbox. Click "Update." The user will now be deactivated.
 
 ### Bulk Creating Users
 

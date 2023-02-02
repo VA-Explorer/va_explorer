@@ -80,7 +80,7 @@ server, some small tweaks that can help with this include the following. Note
 that this list is by no means exhaustive, and conducting a full cybersecurity
 review is recommended.
 
-- Reducing your “attack surface” by closing or blocking any open but unneeded
+- Reducing your "attack surface" by closing or blocking any open but unneeded
 ports. You can do so through tools like ufw, netstat, chkconfig, and others.
 
 - Consider switching popular services to non-standard ports. For example, ssh

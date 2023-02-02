@@ -156,7 +156,7 @@ After importing VA data, one of VA Explorer’s key benefits is the ability to
 quickly assign a CoD to each by running InterVA5. To enable this, VA Explorer
 currently supports two ways to process VAs via CoD assignment, enumerated below.
 The home page lists a quick reference of VAs that either contain coding errors
-to be addressed or were assigned “Indeterminate” as the cause of death and may
+to be addressed or were assigned "Indeterminate" as the cause of death and may
 require further investigation.
 
 - **(Automatic) Click Run Coding Algorithms Button:** This format is the most user
@@ -212,7 +212,7 @@ geography
 Ideally the VAs collected by you, or your organization, are free of error. But
 for occasions where they are not, VA Explorer supports troubleshooting and
 correcting individual VA warnings or errors preventing cause of death assignment,
-or those leading to an “Indeterminate” assignment by InterVA5.
+or those leading to an "Indeterminate" assignment by InterVA5.
 
 - Field workers are able to view and edit VAs they collect
 - Data Managers and Admins can do repairs for any VA they have access to
