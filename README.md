@@ -1,9 +1,9 @@
-# <img src="docs/_static/img/logo.png" width="32"/> VA Explorer
+# <img src="docs/_static/img/logo.png" width="32" alt="VA Explorer logo"/> VA Explorer
 
 [![docker-compose](https://img.shields.io/badge/Built_With-Docker-blue.svg)](https://github.com/VA-Explorer/va_explorer/blob/main/docker-compose.yml)
 [![Actions status](https://github.com/VA-Explorer/va_explorer/actions/workflows/django-ci-test.yml/badge.svg?branch=main)](https://github.com/VA-Explorer/va_explorer/actions?query=branch%3Amain)
 
-VA Explorer is full service verbal autopsy (VA) management reference implementation.
+VA Explorer is a full service verbal autopsy (VA) management reference implementation.
 It demos VA data management and analysis capabilities while exploring IT challenges
 in the VA domain. This reference implementation represents a work-in-progress,
 maturing in response to feedback from users and subject matter experts like in our
@@ -19,18 +19,20 @@ Zambia pilot program. VA Explorer currently supports the following features:
 
 for more details, see [VA Explorer's Features](https://va-explorer.github.io/va_explorer/usage/features.html)
 
-<img src="docs/_static/img/features/tablet_friendly.png" width="540" align="center"/>
-</br>
-<img src="docs/_static/img/features/analysis_2.png" width="540" align="center"/>
+<p align="center">
+  <img src="docs/_static/img/features/tablet_friendly.png" width="540" alt="VA Explorer shown on a tablet"/>
+  </br>
+  <img src="docs/_static/img/features/analysis_2.png" width="540" alt="VA Explorer's Dashboard feature"/>
+</p>
 
 ## Background
 
-VAs are [a standard WHO instrument](https://www.who.int/standards/classifications/other-classifications/verbal-autopsy-standards-ascertaining-and-attributing-causes-of-death-tool)
+VAs are [a standardized WHO instrument](https://www.who.int/standards/classifications/other-classifications/verbal-autopsy-standards-ascertaining-and-attributing-causes-of-death-tool)
 in the form of a structured interview for determining the most likely cause of
-death based on interview answers. VA Explorer aims to help users of VAs, typically
-those involved with civil registration and vital statistics, process, manage, and
+death based on interview answers. VA Explorer aims to help users of VAs (typically
+those involved in civil registration and vital statistics) process, manage, and
 analyze their collected data by integrating other VA IT tools and functionalities
-behind a single, scalable, common interface.
+behind a single, scalable, shared interface.
 
 ## Deploy Your Own
 
@@ -50,7 +52,7 @@ on to get started.
 ### Pre-requisites
 
 VA Explorer is built with Django, backed by Postgres, and packaged with Docker so
-contributors should install:
+contributors should, at a minimum, install:
 
 - [Python 3](https://www.python.org/downloads/)
 - [Postgres](http://www.postgresql.org/)
@@ -73,7 +75,7 @@ python -m venv venv && source venv/bin/activate
 3. Install app dependencies and local dev dependencies
 
 ```shell
-pip install -r requirements/base.txt
+pip install -r requirements/local.txt
 ```
 
 4. Create a database and local .env config for va_explorer (edit .env if needed)
@@ -94,7 +96,7 @@ createdb va_explorer -U postgres && cp .env.template .env
 ./manage.py initialize_groups && ./manage.py seed_admin_user <EMAIL_ADDRESS> --password
 ```
 
-Next, depending on the area of VA Explorer being contributed to there are a variety
+Next, depending on the area of VA Explorer being contributed to, there are a variety
 of management commands available to import data, seed demo users, load locations,
 and more. See:
 
@@ -139,9 +141,10 @@ docker-compose up --build && ./manage.py run_coding_algorithms
 further documentation on development, including troubleshooting of common issues
 is available on the [documentation website](https://va-explorer.github.io/va_explorer)
 and good first issues are actively tagged by current contributors
-[here](https://va-explorer.github.io/va_explorer)
+[here](https://github.com/VA-Explorer/va_explorer/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 
-Thanks again, whether through suggestions/ issues, or code, it's deeply appreciated!
+Thanks again, whether through usage, feature requests, bug reports, or pull requests,
+it's all deeply appreciated!
 
 ## License
 

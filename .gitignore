@@ -16,7 +16,7 @@ docs/_build/
 
 target/
 .python-version
-.ruff_cache
+.ruff_cache/
 .venv
 venv/
 ENV/
@@ -61,7 +61,7 @@ coverage.xml
 *.pot
 
 # User-specific stuff:
-.vscode
+.vscode/
 .idea
 *.sublime-workspace
 *.cache

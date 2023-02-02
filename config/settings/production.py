@@ -7,6 +7,9 @@ from .base import env
 
 DEBUG = env.bool("DJANGO_DEBUG", False)
 
+# Guard against error when get_random_secret_key() starts with $
+# https://github.com/joke2k/django-environ/issues/271#issuecomment-948038628
+env.escape_proxy = True
 SECRET_KEY = env("DJANGO_SECRET_KEY", default=get_random_secret_key())
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["va_explorer.org"])
