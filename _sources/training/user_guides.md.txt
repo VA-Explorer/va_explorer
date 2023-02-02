@@ -20,11 +20,11 @@ As a Data Manager, you have access to the profiles of all VA Explorer users, but
 do not have the ability to make changes to them, such as adding permissions. This
 ability may be useful in determining if users you supervise have the correct
 access, or facilities you supervise have the right amount of coverage through
-user geographic access. To view the list of Users, click “Users” in the top
-navigation bar. To view an individual user, click the “Show” button next to
+user geographic access. To view the list of Users, click "Users" in the top
+navigation bar. To view an individual user, click the "Show" button next to
 their name.
 
-Next, to view VA Explorer’s supervision information click “Supervision” in the
+Next, to view VA Explorer’s supervision information click "Supervision" in the
 navigation bar to visit the Supervision page. This page shows VAs collected in
 the system grouped by Interviewer/ Field Worker or by Facility. In each case,
 the page lists the following information to help you answer various supervision
@@ -46,17 +46,17 @@ the Facility that Field Worker is assigned to. However, when viewing data groupe
 by Facility, the names of individual Interviewers/ Field Workers go away as the
 information becomes summarized at the Facility level (e.g., John Doe and Jane
 Roe each collected 20 VAs for Example Clinic so Total VAs now shows Example
-Clinic – 40 total VAs). Changing this grouping is done by toggling the “Group by”
-dropdown in the top form and clicking “Go”
+Clinic – 40 total VAs). Changing this grouping is done by toggling the "Group by"
+dropdown in the top form and clicking "Go"
 
 Additionally, it is possible to filter the supervision data in case you’d like
 to see it for specific facilities or for certain date ranges (How many VAs did
 John Doe collect last month?). To apply a filter, enter in your parameters to
-the form at the top and click the “Go” button.
+the form at the top and click the "Go" button.
 
 ### Exporting Data
 
-Click “Export”, either in the navigation bar, search interface, or the dashboard
+Click "Export", either in the navigation bar, search interface, or the dashboard
 to navigate to the Export page. When exporting data from VA Explorer for local use:
 
 1. Either customize the data you would like to export by using the available
@@ -67,7 +67,7 @@ have permissions to access.
 
 1. Choose the export format: CSV or JSON.
 
-1. Click “Download.” A modal will appear explaining that your download is being
+1. Click "Download." A modal will appear explaining that your download is being
 prepared and compressed to a .zip file. For the download to complete, do not
 navigate away from the Export page. The modal will close automatically when the
 download has finished. Please note that large file sizes may take a while to download.
@@ -117,7 +117,7 @@ setting up or changing questions used for this process, or Management Commands
 
 Occasionally, you may need to edit an individual VA, especially in cases where
 warnings or errors have been reported for the record. You can reach the Edit
-form from the Individual VA page by clicking the “Edit Record” button. Doing so
+form from the Individual VA page by clicking the "Edit Record" button. Doing so
 transforms the VA responses into a series of form elements that are compliant to
 the WHO VA instrument standard and make data entry for specifically formatted
 values (such as datetime) easier. Questions that have already been answered will
@@ -135,11 +135,11 @@ types of form elements when editing the various responses to a VA:
 
 Using this form, you may edit the VA as needed. Upon finishing, scroll or
 navigate via the bottom right floating action button to the bottom of the page
-and click “Save” to confirm your edits.
+and click "Save" to confirm your edits.
 
 After editing a VA, the natural next step is to see if the changes have corrected
 any reported warnings or errors associated with the VA. Data Managers can complete
-this second step in the repair process by clicking “Home” in the navigation bar
+this second step in the repair process by clicking "Home" in the navigation bar
 to visit the Home page and starting a VA coding job to assign Cause of Death:
 
 - Click the "Run Coding Algorithms" button to execute the coding algorithm in
@@ -161,7 +161,7 @@ guides for more info on available actions.
 Field Workers are similar to Data Viewers. However, they only see VAs they have
 personally conducted and can partially repair VA Errors & Warnings for their VAs.
 For a full listing of these, see Common Actions (link) or see below for an
-explanation of the “partial repair” workflow.
+explanation of the "partial repair" workflow.
 
 ### Partially Repairing VA Errors & Warnings
 

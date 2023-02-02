@@ -242,7 +242,7 @@ printing to the console of the program used to run <code class="docutils literal
 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">--tail</span> <span class="pre">&lt;quantity&gt;</span> <span class="pre">va_explorer_django</span> <span class="pre">_1</span></code> where quanity can be
 something like 100 to see the last 100 lines of logs or 1m to see the last minute.</p></li>
 </ul>
-<p>As mentioned in Configuration &amp; Deployment (link), <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code>
+<p>As mentioned in Configuration &amp; Deployment (link), <code class="docutils literal notranslate"><span class="pre">DJANGO_DEBUG</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code>
 for even more useful troubleshooting information in those logs. Running commands
 like <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> will also help you determine if all docker services are running
 as expected.</p>
@@ -263,7 +263,7 @@ does this mean?</p></li>
 <p>It is possible that psycopg2 is pointing at the wrong SSL installation on your
 system it is attempting to set itself up during the pip install process. Adding
 this environment variable has worked as a potential fix:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">LDFLAGS</span><span class="o">=</span><span class="s1">&#39;-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib&#39;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span><span class="s1">&#39;-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib&#39;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
@@ -278,37 +278,37 @@ Ensuring that pip is upgraded <code class="docutils literal notranslate"><span c
 <li><p>What is an easy configuration to use for my reverse proxy?</p></li>
 </ol>
 <p>This is a simple example apache config that utilizes letsencrypt https certificates</p>
-<div class="highlight-apache notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:80</span><span class="nt">&gt;</span><span class="w"></span>
-<span class="w">    </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com<span class="w"></span>
-<span class="w">    </span><span class="nb">ServerAdmin</span><span class="w"> </span>admin@myhost.com<span class="w"></span>
-<span class="w">    </span><span class="nb">ServerAlias</span><span class="w"> </span>*.myhost.com<span class="w"></span>
+<div class="highlight-apache notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:80</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com
+<span class="w">    </span><span class="nb">ServerAdmin</span><span class="w"> </span>admin@myhost.com
+<span class="w">    </span><span class="nb">ServerAlias</span><span class="w"> </span>*.myhost.com
 
-<span class="w">    </span><span class="nb">Redirect</span><span class="w"> </span>permanent<span class="w"> </span>/<span class="w"> </span>https://myhost.com/<span class="w"></span>
+<span class="w">    </span><span class="nb">Redirect</span><span class="w"> </span>permanent<span class="w"> </span>/<span class="w"> </span>https://myhost.com/
 
-<span class="w">    </span><span class="nb">ErrorLog</span><span class="w"> </span>${APACHE_LOG_DIR}/http-myhost-error.log<span class="w"></span>
-<span class="w">    </span><span class="nb">CustomLog</span><span class="w"> </span>${APACHE_LOG_DIR}/http-myhost-access.log<span class="w"> </span>combined<span class="w"></span>
-<span class="nt">&lt;/VirtualHost&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">ErrorLog</span><span class="w"> </span>${APACHE_LOG_DIR}/http-myhost-error.log
+<span class="w">    </span><span class="nb">CustomLog</span><span class="w"> </span>${APACHE_LOG_DIR}/http-myhost-access.log<span class="w"> </span>combined
+<span class="nt">&lt;/VirtualHost&gt;</span>
 
-<span class="nt">&lt;IfModule</span><span class="w"> </span><span class="s">mod_ssl.c</span><span class="nt">&gt;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:443</span><span class="nt">&gt;</span><span class="w"></span>
-<span class="w">        </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com<span class="w"></span>
-<span class="w">        </span><span class="nb">ServerAdmin</span><span class="w"> </span>admin@myhost.com<span class="w"></span>
-<span class="w">        </span><span class="nb">ServerAlias</span><span class="w"> </span>*.myhost.com<span class="w"></span>
-<span class="w">        </span><span class="nb">SSLProxyEngine</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
+<span class="nt">&lt;IfModule</span><span class="w"> </span><span class="s">mod_ssl.c</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:443</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com
+<span class="w">        </span><span class="nb">ServerAdmin</span><span class="w"> </span>admin@myhost.com
+<span class="w">        </span><span class="nb">ServerAlias</span><span class="w"> </span>*.myhost.com
+<span class="w">        </span><span class="nb">SSLProxyEngine</span><span class="w"> </span><span class="k">on</span>
 
-<span class="w">        </span><span class="nb">ProxyPreserveHost</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<span class="w">        </span><span class="nb">ProxyVia</span><span class="w"> </span><span class="k">on</span><span class="w"></span>
-<span class="w">        </span><span class="nb">ProxyPass</span><span class="w"> </span>/<span class="w"> </span>http://localhost:5000/<span class="w"></span>
-<span class="w">        </span><span class="nb">ProxyPassReverse</span><span class="w"> </span>/<span class="w"> </span>http://localhost:5000/<span class="w"></span>
+<span class="w">        </span><span class="nb">ProxyPreserveHost</span><span class="w"> </span><span class="k">on</span>
+<span class="w">        </span><span class="nb">ProxyVia</span><span class="w"> </span><span class="k">on</span>
+<span class="w">        </span><span class="nb">ProxyPass</span><span class="w"> </span>/<span class="w"> </span>http://localhost:5000/
+<span class="w">        </span><span class="nb">ProxyPassReverse</span><span class="w"> </span>/<span class="w"> </span>http://localhost:5000/
 
-<span class="w">        </span><span class="nb">ErrorLog</span><span class="w"> </span>${APACHE_LOG_DIR}/https-myhost-error.log<span class="w"></span>
-<span class="w">        </span><span class="nb">CustomLog</span><span class="w"> </span>${APACHE_LOG_DIR}/https-myhost-access.log<span class="w"> </span>combined<span class="w"></span>
+<span class="w">        </span><span class="nb">ErrorLog</span><span class="w"> </span>${APACHE_LOG_DIR}/https-myhost-error.log
+<span class="w">        </span><span class="nb">CustomLog</span><span class="w"> </span>${APACHE_LOG_DIR}/https-myhost-access.log<span class="w"> </span>combined
 
-<span class="w">        </span><span class="nb">SSLCertificateFile</span><span class="w"> </span><span class="sx">/etc/letsencrypt/live/myhost.com/fullchain.pem</span><span class="w"></span>
-<span class="w">        </span><span class="nb">SSLCertificateKeyFile</span><span class="w"> </span><span class="sx">/etc/letsencrypt/live/myhost.com/privkey.pem</span><span class="w"></span>
-<span class="w">        </span><span class="nb">Include</span><span class="w"> </span><span class="sx">/etc/letsencrypt/options-ssl-apache.conf</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&lt;/VirtualHost&gt;</span><span class="w"></span>
-<span class="w"> </span><span class="nt">&lt;/IfModule&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="nb">SSLCertificateFile</span><span class="w"> </span><span class="sx">/etc/letsencrypt/live/myhost.com/fullchain.pem</span>
+<span class="w">        </span><span class="nb">SSLCertificateKeyFile</span><span class="w"> </span><span class="sx">/etc/letsencrypt/live/myhost.com/privkey.pem</span>
+<span class="w">        </span><span class="nb">Include</span><span class="w"> </span><span class="sx">/etc/letsencrypt/options-ssl-apache.conf</span>
+<span class="w">    </span><span class="nt">&lt;/VirtualHost&gt;</span>
+<span class="w"> </span><span class="nt">&lt;/IfModule&gt;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
@@ -361,7 +361,7 @@ service recommended by ODK Central may help identify your email delivery issues.
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+                Copyright &#169; 2020-2023, MITRE Licensed under Apache 2.0
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -418,6 +418,5 @@ service recommended by ODK Central may help identify your email delivery issues.
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
     <script src="../_static/design-tabs.js"></script>
-    <script src="../_static/js/tweaks.js"></script>
     </body>
 </html>

@@ -244,52 +244,52 @@ be ready to tackle Issues (external link). We recommend the ones tagged
 <ol class="arabic simple">
 <li><p>Retrieve the application source code</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/VA-Explorer/va_explorer.git
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/VA-Explorer/va_explorer.git
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
 <li><p>Change into the new directory</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> va_explorer
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>va_explorer
 <span class="sb">```</span>pref
 
-<span class="m">3</span>. Create a virtual env
+<span class="m">3</span>.<span class="w"> </span>Create<span class="w"> </span>a<span class="w"> </span>virtual<span class="w"> </span>env
 
 <span class="sb">```</span>shell
-python -m venv venv
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Activate the virtual env:</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> venv/bin/activate
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>venv/bin/activate
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>Install application requirements</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install -r requirements/base.txt
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/base.txt
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
 <li><p>Create the va_explorer database using your postgres user made during postgres
 download. It may be <code class="docutils literal notranslate"><span class="pre">postgres</span></code> for example.</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>createdb va_explorer -U &lt;name of Postgres user&gt; --password<span class="sb">`</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>createdb<span class="w"> </span>va_explorer<span class="w"> </span>-U<span class="w"> </span>&lt;name<span class="w"> </span>of<span class="w"> </span>Postgres<span class="w"> </span>user&gt;<span class="w"> </span>--password<span class="sb">`</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="7">
 <li><p>Create a .env file at the project root with the following key/value pairs:</p></li>
 </ol>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">DATABASE_URL</span><span class="o">=</span><span class="s">psql://&lt;YOUR POSTGRESUSER&gt;:&lt;POSTGRESUSER PASSWORD&gt;@localhost/va_explorer</span><span class="w"></span>
-<span class="na">CELERY_BROKER_URL</span><span class="o">=</span><span class="s">redis://localhost:6379/0</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">DATABASE_URL</span><span class="o">=</span><span class="s">psql://&lt;YOUR POSTGRESUSER&gt;:&lt;POSTGRESUSER PASSWORD&gt;@localhost/va_explorer</span>
+<span class="na">CELERY_BROKER_URL</span><span class="o">=</span><span class="s">redis://localhost:6379/0</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="8">
 <li><p>Run the database migrations</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py makemigrations
-./manage.py migrate
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>makemigrations
+./manage.py<span class="w"> </span>migrate
 </pre></div>
 </div>
 <p>This will prepare your local development environment to run VA Explorer locally
@@ -299,40 +299,40 @@ features in action. To do that run:</p>
 <ol class="arabic simple">
 <li><p>Create user roles &amp; permissions source code</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py initialize_groups
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>initialize_groups
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
 <li><p>Create an admin user for yourself. The values can be fake, you just need to
 remember them to login</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py seed_admin_user &lt;EMAIL_ADDRESS&gt; --password<span class="o">=</span>&lt;PASSWORD&gt;
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>seed_admin_user<span class="w"> </span>&lt;EMAIL_ADDRESS&gt;<span class="w"> </span>--password<span class="o">=</span>&lt;PASSWORD&gt;
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Create some demo accounts if you’d like to try out the other roles too</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py seed_demo_users
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>seed_demo_users
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>If you have locations for geographic access restrictions on hand, load those via</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py load_locations &lt;NAME OF CSV&gt;
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>load_locations<span class="w"> </span>&lt;NAME<span class="w"> </span>OF<span class="w"> </span>CSV&gt;
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>If you have VAs on hand, you should also load them now</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py load_va_csv &lt;NAME OF CSV&gt;
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>load_va_csv<span class="w"> </span>&lt;NAME<span class="w"> </span>OF<span class="w"> </span>CSV&gt;
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
 <li><p>Finally, if you’d like to try out the coding algorithm assignment
 functionality, build just those docker services and run them manually via:</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker-compose up -d --build pycrossva interva5
-./manage.py run_coding_algorithms
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>pycrossva<span class="w"> </span>interva5
+./manage.py<span class="w"> </span>run_coding_algorithms
 </pre></div>
 </div>
 <p>You can also run the rest of the docker build, the part of VA Explorer that is
@@ -342,7 +342,7 @@ of the containers.</p>
 <section id="testing-running-locally">
 <h2>Testing &amp; Running Locally<a class="headerlink" href="#testing-running-locally" title="Permalink to this heading">#</a></h2>
 <p>After setup, you’re ready to run VA Explorer locally! If you’ve run:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py runserver_plus <span class="m">0</span>.0.0.0:8000
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span>runserver_plus<span class="w"> </span><span class="m">0</span>.0.0.0:8000
 </pre></div>
 </div>
 <p>then you should be able to navigate to <code class="docutils literal notranslate"><span class="pre">localhost:8000</span></code> in the browser of your
@@ -474,7 +474,7 @@ by running <code class="docutils literal notranslate"><span class="pre">manage.p
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+                Copyright &#169; 2020-2023, MITRE Licensed under Apache 2.0
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -533,6 +533,5 @@ by running <code class="docutils literal notranslate"><span class="pre">manage.p
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
     <script src="_static/design-tabs.js"></script>
-    <script src="_static/js/tweaks.js"></script>
     </body>
 </html>

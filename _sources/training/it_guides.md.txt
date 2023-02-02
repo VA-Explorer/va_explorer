@@ -13,7 +13,7 @@ This section will describe the levels of support within a country needed to
 install and maintain the VA Explorer system. While VA Explorer is pre-configured
 to run on deployment, VA Explorer integrates with other systems and having a
 system administrator who has the necessary skills to maintain the system over time
-is crucial to long term success. IT support can do more compex tasks than VA
+is crucial to long term success. IT support can do more complex tasks than VA
 Explorer admins characterized by overall system installation, deployment, and
 maintenance that may occur outside of VA Explorer itself.  The estimate of
 level-of-support described below is presented as reference only, and your
@@ -85,19 +85,19 @@ docker volume inspect va_explorer_production_postgres_data
 
 ```shell
 docker volume create \
-    --label com.docker.compose.project=“va_explorer” \
-    --label com.docker.compose.version=“1.26.0" \
-    --label com.docker.compose.volume=“migration_postgres_data” \
+    --label com.docker.compose.project="va_explorer" \
+    --label com.docker.compose.version="1.26.0" \
+    --label com.docker.compose.volume="migration_postgres_data" \
     va_explorer_migration_postgres_data
 ```
 
 - Clone data
 
 ```shell
-docker container run --rm -it -v va_explorer_production_postgres_data:/from -v va_explorer_migration_postgres_data:/to alpine ash -c “cd /from ; cp -av . /to”
+docker container run --rm -it -v va_explorer_production_postgres_data:/from -v va_explorer_migration_postgres_data:/to alpine ash -c "cd /from ; cp -av . /to"
 ```
 
-- Repeat for backups volumes
+- Repeat for backup volumes
 
 ```shell
 docker volume inspect va_explorer_production_postgres_data_backups
@@ -105,14 +105,14 @@ docker volume inspect va_explorer_production_postgres_data_backups
 
 ```shell
 docker volume create \
-    --label com.docker.compose.project=“va_explorer” \
-    --label com.docker.compose.version=“1.26.0" \
-    --label com.docker.compose.volume=“migration_postgres_data_backups” \
+    --label com.docker.compose.project="va_explorer" \
+    --label com.docker.compose.version="1.26.0" \
+    --label com.docker.compose.volume="migration_postgres_data_backups" \
     va_explorer_migration_postgres_data_backups
 ```
 
 ```shell
-docker container run --rm -it -v va_explorer_production_postgres_data_backups:/from -v va_explorer_migration_postgres_data_backups:/to alpine ash -c “cd /from ; cp -av . /to”
+docker container run --rm -it -v va_explorer_production_postgres_data_backups:/from -v va_explorer_migration_postgres_data_backups:/to alpine ash -c "cd /from ; cp -av . /to"
 ```
 
 3. Delete old volumes that no longer work with postgres version

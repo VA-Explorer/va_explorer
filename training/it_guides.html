@@ -240,7 +240,7 @@ VA Explorer administrator may also serve as the IT staff.</p>
 install and maintain the VA Explorer system. While VA Explorer is pre-configured
 to run on deployment, VA Explorer integrates with other systems and having a
 system administrator who has the necessary skills to maintain the system over time
-is crucial to long term success. IT support can do more compex tasks than VA
+is crucial to long term success. IT support can do more complex tasks than VA
 Explorer admins characterized by overall system installation, deployment, and
 maintenance that may occur outside of VA Explorer itself.  The estimate of
 level-of-support described below is presented as reference only, and your
@@ -289,13 +289,13 @@ the case, then that process is a bit more involved:</p>
 <li><p>(optional) If existing migration volumes exist from a past upgrade, delete
 those now:</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume rm va_explorer_migration_postgres_data va_explorer_migration_postgres_data_backups
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>volume<span class="w"> </span>rm<span class="w"> </span>va_explorer_migration_postgres_data<span class="w"> </span>va_explorer_migration_postgres_data_backups
 </pre></div>
 </div>
 <ol class="arabic simple">
 <li><p>Make a logical backup of all current data</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it va_explorer_vapostgres_1 /usr/bin/pg_dumpall -U postgres &gt; ~/dumpfile
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>va_explorer_vapostgres_1<span class="w"> </span>/usr/bin/pg_dumpall<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>&gt;<span class="w"> </span>~/dumpfile
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
@@ -304,71 +304,71 @@ those now:</p></li>
 <ul class="simple">
 <li><p>Get docker-compose labels</p></li>
 </ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume inspect va_explorer_production_postgres_data
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>volume<span class="w"> </span>inspect<span class="w"> </span>va_explorer_production_postgres_data
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume create <span class="se">\</span>
-    --label com.docker.compose.project<span class="o">=</span>“va_explorer” <span class="se">\</span>
-    --label com.docker.compose.version<span class="o">=</span>“1.26.0<span class="s2">&quot; \</span>
-<span class="s2">    --label com.docker.compose.volume=“migration_postgres_data” \</span>
-<span class="s2">    va_explorer_migration_postgres_data</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--label<span class="w"> </span>com.docker.compose.project<span class="o">=</span><span class="s2">&quot;va_explorer&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--label<span class="w"> </span>com.docker.compose.version<span class="o">=</span><span class="s2">&quot;1.26.0&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--label<span class="w"> </span>com.docker.compose.volume<span class="o">=</span><span class="s2">&quot;migration_postgres_data&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>va_explorer_migration_postgres_data
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Clone data</p></li>
 </ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data:/from -v va_explorer_migration_postgres_data:/to alpine ash -c “cd /from <span class="p">;</span> cp -av . /to”
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>container<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>-v<span class="w"> </span>va_explorer_production_postgres_data:/from<span class="w"> </span>-v<span class="w"> </span>va_explorer_migration_postgres_data:/to<span class="w"> </span>alpine<span class="w"> </span>ash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;cd /from ; cp -av . /to&quot;</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Repeat for backups volumes</p></li>
+<li><p>Repeat for backup volumes</p></li>
 </ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume inspect va_explorer_production_postgres_data_backups
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>volume<span class="w"> </span>inspect<span class="w"> </span>va_explorer_production_postgres_data_backups
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume create <span class="se">\</span>
-    --label com.docker.compose.project<span class="o">=</span>“va_explorer” <span class="se">\</span>
-    --label com.docker.compose.version<span class="o">=</span>“1.26.0<span class="s2">&quot; \</span>
-<span class="s2">    --label com.docker.compose.volume=“migration_postgres_data_backups” \</span>
-<span class="s2">    va_explorer_migration_postgres_data_backups</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--label<span class="w"> </span>com.docker.compose.project<span class="o">=</span><span class="s2">&quot;va_explorer&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--label<span class="w"> </span>com.docker.compose.version<span class="o">=</span><span class="s2">&quot;1.26.0&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--label<span class="w"> </span>com.docker.compose.volume<span class="o">=</span><span class="s2">&quot;migration_postgres_data_backups&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>va_explorer_migration_postgres_data_backups
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker container run --rm -it -v va_explorer_production_postgres_data_backups:/from -v va_explorer_migration_postgres_data_backups:/to alpine ash -c “cd /from <span class="p">;</span> cp -av . /to”
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>container<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>-v<span class="w"> </span>va_explorer_production_postgres_data_backups:/from<span class="w"> </span>-v<span class="w"> </span>va_explorer_migration_postgres_data_backups:/to<span class="w"> </span>alpine<span class="w"> </span>ash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;cd /from ; cp -av . /to&quot;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Delete old volumes that no longer work with postgres version</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker volume rm va_explorer_production_postgres_data va_explorer_production_postgres_data_backups
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>volume<span class="w"> </span>rm<span class="w"> </span>va_explorer_production_postgres_data<span class="w"> </span>va_explorer_production_postgres_data_backups
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Build new VA Explorer release &amp; rebuild fresh old volumes (no data)</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker-compose down <span class="o">&amp;&amp;</span> docker-compose build <span class="o">&amp;&amp;</span> docker-compose up -d
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>down<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker-compose<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>Copy over backup dumpfile data to new container</p></li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker cp ~/dumpfile va_explorer_vapostgres_1:/tmp/dumpfile
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>cp<span class="w"> </span>~/dumpfile<span class="w"> </span>va_explorer_vapostgres_1:/tmp/dumpfile
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker <span class="nb">exec</span> -it va_explorer_vapostgres_1 bash
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>va_explorer_vapostgres_1<span class="w"> </span>bash
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psql -U postgres
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psql<span class="w"> </span>-U<span class="w"> </span>postgres
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code class="docutils literal notranslate"><span class="pre">DROP</span> <span class="pre">DATABASE</span></code> may fail as the new container does migrations, just re-try</p>
 </div>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">DROP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">va_explorer</span><span class="p">;</span><span class="w"></span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">va_explorer</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">DROP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">va_explorer</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">va_explorer</span><span class="p">;</span>
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psql -U postgres &lt; /tmp/dumpfile
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>&lt;<span class="w"> </span>/tmp/dumpfile
 <span class="nb">exit</span>
 </pre></div>
 </div>
@@ -412,7 +412,7 @@ contain version-specific upgrade instructions in the future.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+                Copyright &#169; 2020-2023, MITRE Licensed under Apache 2.0
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -470,6 +470,5 @@ contain version-specific upgrade instructions in the future.</p>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
     <script src="../_static/design-tabs.js"></script>
-    <script src="../_static/js/tweaks.js"></script>
     </body>
 </html>

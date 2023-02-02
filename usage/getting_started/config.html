@@ -238,67 +238,119 @@ documented below.</p>
 <div class="table-wrapper docutils container">
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head stub"><p><em>Variable Name</em></p></th>
-<th class="head stub"><p><em>Default Value</em></p></th>
-<th class="head"><p><em>Description</em></p></th>
+<tr class="row-odd"><th class="head stub"><p>Variable Name</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"></th>
+<th class="head"></th>
+<th class="head"></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DEBUG</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Will configure VA Explorer to report additional info in logs and console messages if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> for standard info.</p></td>
+<tr class="row-even"><th class="stub"><p><em>Variable Name</em></p></th>
+<td><p><em>Default Value</em></p></td>
+<td><p><em>Description</em></p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">EMAIL_URL</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">consolemail://</span></code></p></th>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_DEBUG</span></code></p></th>
+<td><p>Not Set</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Will configure VA Explorer to report additional info in logs</p></td>
+<td><p>error pages</p></td>
+<td><p>console messages</p></td>
+<td><p>and via a debug toolbar if <code class="docutils literal notranslate"><span class="pre">True</span></code>. Not set by default to allow settings.local or settings.production to handle value.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">EMAIL_URL</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">consolemail://</span></code></p></td>
 <td><p>A <a class="inline-external" href="https://django-environ.readthedocs.io/en/latest/types.html#environ-env-email-url">Django Environ</a> <code class="docutils literal notranslate"><span class="pre">email_url</span></code> which supports various email related URL schemas. Used to allow VA Explorer to connect to an email server and send email on your behalf. Setup to print to the console (docker logs) by default. <strong>Recommended to customize.</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_DEFAULT_FROM_EMAIL</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">VA</span> <span class="pre">Explorer</span> <span class="pre">&lt;noreply&#64;vaexplorer.org&gt;</span></code></p></th>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_DEFAULT_FROM_EMAIL</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">VA</span> <span class="pre">Explorer</span> <span class="pre">&lt;noreply&#64;vaexplorer.org&gt;</span></code></p></td>
 <td><p>The email address used in the sender field when VA Explorer sends automated emails. Format options include <code class="docutils literal notranslate"><span class="pre">Name</span> <span class="pre">&lt;email&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">email</span></code>. Default is app value here instead of <a class="inline-external" href="https://docs.djangoproject.com/en/4.1/ref/settings/#std-setting-DEFAULT_FROM_EMAIL">Django default</a>. <strong>Recommended to customize.</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_SECRET_KEY</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">dcc02e52ccbb649b9febe9182abfa5e03c49be6c</span></code></p></th>
-<td><p>Hash used by Django to cryptographically sign things like account recovery email urls. Defaults to hard-coded random hash. <strong>Recommended to customize.</strong></p></td>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_SECRET_KEY</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">dcc02e52ccbb649b9febe9182abfa5e03c49be6c</span></code></p></td>
+<td><p>Hash used by Django to cryptographically sign things like sessions and account recovery email urls. Defaults to the given hard-coded random hash. <strong>Recommended to customize.</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_ALLOWED_HOSTS</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">localhost</span></code></p></th>
-<td><p>A list of comma separated ip:port or unix:path formatted strings representing the hosts or domain names that VA Explorer can serve. A security measure to prevent Host header attacks. Defaults to local computer browser only. Recommended to customize.</p></td>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DJANGO_ALLOWED_HOSTS</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">localhost</span></code></p></td>
+<td><p>A list of comma separated ip:port or unix:path formatted strings representing the hosts or domain names that VA Explorer can serve. A security measure to prevent Host header attacks. Defaults to local computer browser only. <strong>Recommended to customize</strong>.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">CELERY_BROKER_URL</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">redis://redis:6379/0</span></code></p></th>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">CELERY_BROKER_URL</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">redis://redis:6379/0</span></code></p></td>
 <td><p>A Celery supported backend URL schema. Allows VA Explorer to support reading results from long-running tasks such as batch cause-of-death assignment. Points to built-in redis service by default.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">REDIS_URL</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">redis://redis:6379/0</span></code></p></th>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">REDIS_URL</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">redis://redis:6379/0</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ip</span></code> <code class="docutils literal notranslate"><span class="pre">port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for Django caching solution. Default allows VA Explorer to take advantage of same redis available as celery backend so is often the same value.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_HOST</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">vapostgres</span></code></p></th>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_HOST</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">vapostgres</span></code></p></td>
 <td><p>Value indicating the postgres host location. Formatted as a PostgreSQL host parameter. Default value points to built-in postgres docker container.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_PORT</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">5432</span></code></p></th>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_PORT</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">5432</span></code></p></td>
 <td><p>Value indicating the port  postgres runs on at the host location. Formatted as a PostgreSQL port parameter. Default points to postgres port of built-in service.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_DB</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">va_explorer</span></code></p></th>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_DB</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">va_explorer</span></code></p></td>
 <td><p>Value indicating the name of the database used by VA Explorer. Formatted as a PostgreSQL dbname parameter. Default is name of app.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_USER</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">postgres</span></code></p></th>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_USER</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">postgres</span></code></p></td>
 <td><p>`Value indicating the name of the user accessing postgres. Formatted as a PostgreSQL user parameter. Defaults to standard user.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_PASSWORD</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">Pimin73y!we</span></code></p></th>
-<td><p>Value indicating the password to use for the user accessing postgres. Formatted as a PostgreSQL password parameter. Defaults to hard-coded random value. Recommended to customize.</p></td>
+<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">POSTGRES_PASSWORD</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">postgres</span></code></p></td>
+<td><p>Value indicating the password to use for the user accessing postgres. Formatted as a PostgreSQL password parameter. Defaults to standard pass of built-in service. <strong>Recommended to customize</strong>.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">QUESTIONS_TO_AUTODETECT_DUPLICATES</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">Id10017,</span> <span class="pre">Id10018,</span> <span class="pre">Id10019,</span> <span class="pre">Id10020,</span> <span class="pre">Id10021,</span> <span class="pre">Id10022,</span> <span class="pre">Id10023</span></code></p></th>
+<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">QUESTIONS_TO_AUTODETECT_DUPLICATES</span></code></p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;Id10017,Id10018,Id10019,Id10020,Id10021,Id10022,Id10023&quot;</span></code></p></td>
 <td><p>A list of comma separated fields corresponding to questions on a VA (See standard). Allows for customization of which fields VA Explorer considers when attempting to detect duplicate VAs. Defaults to fields having to do with name, sex, date of birth, and date of death.</p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Config values are read from <code class="docutils literal notranslate"><span class="pre">.env</span></code> first, then <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> if unset,
+and finally from framework settings in <code class="docutils literal notranslate"><span class="pre">config/settings/production.py</span></code> during
+end-user docker builds when config hasn’t been set elsewhere.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you update any of these configuration variables, please also run
@@ -338,7 +390,7 @@ external services such as ODK and DHIS, please see Integrations (link).</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2022, MITRE Licensed under Apache 2.0
+                Copyright &#169; 2020-2023, MITRE Licensed under Apache 2.0
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -375,6 +427,5 @@ external services such as ODK and DHIS, please see Integrations (link).</p>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script src="../../_static/design-tabs.js"></script>
-    <script src="../../_static/js/tweaks.js"></script>
     </body>
 </html>
