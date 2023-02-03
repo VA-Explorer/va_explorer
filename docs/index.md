@@ -22,19 +22,19 @@ those individuals and organizations.
 This documentation aims to be a universal reference for everything related to
 VA Explorer. For example:
 
-- If you are interested in using VA Explorer immediately, Getting Started (link)
+- If you are interested in using VA Explorer immediately, [Getting Started](usage/getting_started/index)
 walks users through installing and running the service.
 
 - For evaluating whether VA Explorer meets your or your organization’s needs,
-more information on supported features can be found in Features (link) while
-more info on the CRVS systems VA Explorer works with can be found in Integrations (link)
+more information on supported features can be found in [Features](usage/features) while
+more info on the CRVS systems VA Explorer works with can be found in [Integrations](usage/integrations)
 
 - Those running an instance of VA Explorer already who would like to become more
 familiar with what they can do in their system role as an Admin, Data Manager,
-Data Viewer, or Field Worker can do so in User Training (link)
+Data Viewer, or Field Worker can do so in [User Training](link)
 
 - Users wishing to report bugs, request features, or developers wishing to
-contribute to the VA Explorer effort can find resources in Development (link)
+contribute to the VA Explorer effort can find resources in [Development](development)
 
 **Contents:**
 
