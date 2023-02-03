@@ -46,7 +46,7 @@ this mean?
 
 Some MacOS users have reported getting the error
 `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.`
-If you get this error, this thread (external link) may be a helpful resource.
+If you get this error, this [thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) may be a helpful resource.
 Ensuring that pip is upgraded `pip install --upgrade pip` may also help.
 
 4. What is an easy configuration to use for my reverse proxy?
