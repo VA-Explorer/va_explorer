@@ -31,7 +31,7 @@ more info on the CRVS systems VA Explorer works with can be found in [Integratio
 
 - Those running an instance of VA Explorer already who would like to become more
 familiar with what they can do in their system role as an Admin, Data Manager,
-Data Viewer, or Field Worker can do so in [User Training](training/user_roles) or [Admin Training](training/admin_guides)
+Data Viewer, or Field Worker can do so in [User Training](training/user_guides) or [Admin Training](training/admin_guides)
 
 - Users wishing to report bugs, request features, or developers wishing to
 contribute to the VA Explorer effort can find resources in [Development](development)
