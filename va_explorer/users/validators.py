@@ -30,7 +30,7 @@ class PasswordComplexityValidator:
                 ValidationError(
                     _(
                         "Password requires at least one uppercase letter from \
-                         the Latin alphabet (A–Z)"
+                         the Latin alphabet (A-Z)"
                     ),
                     code="password_no_uppercase",
                 )

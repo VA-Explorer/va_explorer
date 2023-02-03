@@ -19,7 +19,7 @@ from va_explorer.va_data_management.models import VerbalAutopsy
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture
+@pytest.fixture()
 def delete_verbalautopsy_group():
     can_delete_verbalautopsy = Permission.objects.filter(
         codename="delete_verbalautopsy"
@@ -27,7 +27,7 @@ def delete_verbalautopsy_group():
     return GroupFactory.create(permissions=[can_delete_verbalautopsy])
 
 
-@pytest.fixture
+@pytest.fixture()
 def bulk_delete_verbalautopsy_group():
     can_bulk_delete_verbalautopsy = Permission.objects.filter(
         codename="bulk_delete"
@@ -35,7 +35,7 @@ def bulk_delete_verbalautopsy_group():
     return GroupFactory.create(permissions=[can_bulk_delete_verbalautopsy])
 
 
-@pytest.fixture
+@pytest.fixture()
 def view_datacleanup_group():
     can_view_datacleanup = Permission.objects.filter(
         codename="view_datacleanup"
@@ -43,7 +43,7 @@ def view_datacleanup_group():
     return GroupFactory.create(permissions=[can_view_datacleanup])
 
 
-@pytest.fixture
+@pytest.fixture()
 def questions_to_autodetect_duplicates():
     return "Id10017, Id10010"
 

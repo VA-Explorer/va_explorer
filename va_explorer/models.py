@@ -6,7 +6,7 @@ from django.utils import timezone
 class SoftDeletionManager(models.Manager):
     def __init__(self, *args, **kwargs):
         self.alive_only = kwargs.pop("alive_only", True)
-        super(SoftDeletionManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_queryset(self):
         if self.alive_only:
@@ -31,15 +31,15 @@ class SoftDeletionModel(models.Model):
         self.save()
 
     def hard_delete(self):
-        super(SoftDeletionModel, self).delete()
+        super().delete()
 
 
 class SoftDeletionQuerySet(QuerySet):
     def delete(self):
-        return super(SoftDeletionQuerySet, self).update(deleted_at=timezone.now())
+        return super().update(deleted_at=timezone.now())
 
     def hard_delete(self):
-        return super(SoftDeletionQuerySet, self).delete()
+        return super().delete()
 
     def alive(self):
         return self.filter(deleted_at=None)

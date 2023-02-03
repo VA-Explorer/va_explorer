@@ -2,8 +2,6 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: 'v0.0.202'
+  rev: 'v0.0.239'
   hooks:
     - id: ruff
-      # Respect `exclude` and `extend-exclude` settings.
-      args: ["--force-exclude"]

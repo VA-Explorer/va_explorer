@@ -74,4 +74,4 @@ class TestPasswordHistoryValidator(TestCase):
 
         self.validator.validate("new_password", self.user)
         password_history = UserPasswordHistory.objects.filter(user_id=self.user)
-        self.assertEqual(password_history.count(), 12)
+        assert password_history.count() == 12

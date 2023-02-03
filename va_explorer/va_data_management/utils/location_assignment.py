@@ -88,7 +88,7 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
     if db_location:
         va.location = db_location
     elif (
-        not pd.isnull(raw_location)
+        not pd.isna(raw_location)
         and len(raw_location) > 0
         and raw_location.lower() not in ["dk", "nan"]
     ):
@@ -110,7 +110,7 @@ def fuzzy_match(
 ):
     option_df = pd.DataFrame() if option_df is None else option_df
     match = None
-    if not pd.isnull(search):
+    if not pd.isna(search):
         if not options and option_df.size == 0:
             raise ValueError(
                 "Please provide an option list or option_df (dataframe with \
@@ -154,11 +154,10 @@ def fuzzy_match(
             print(option_df)
 
         if option_df.size > 0:
-            if return_str:
-                # just return matching name
-                match = option_df.iloc[0]["name"]
-            else:
-                # return all data about match
-                match = option_df.iloc[0, :].to_dict()
+            match = (
+                option_df.iloc[0]["name"]
+                if return_str
+                else option_df.iloc[0, :].to_dict()
+            )
 
     return match

@@ -16,21 +16,21 @@ def media_storage(settings, tmpdir):
     settings.MEDIA_ROOT = tmpdir.strpath
 
 
-@pytest.fixture
+@pytest.fixture()
 def user() -> User:
     return UserFactory()
 
 
-@pytest.fixture
+@pytest.fixture()
 def group() -> models.Group:
     return GroupFactory()
 
 
-@pytest.fixture
+@pytest.fixture()
 def permission() -> models.Permission:
     return PermissionFactory()
 
 
-@pytest.fixture
+@pytest.fixture()
 def location() -> Location:
     return LocationFactory()

@@ -20,7 +20,7 @@ def login_active_user(self):
         is_superuser=True,
     )
 
-    self.selenium.get("%s%s" % (self.live_server_url, "/accounts/login/"))
+    self.selenium.get("{}{}".format(self.live_server_url, "/accounts/login/"))
     username_input = self.selenium.find_element(By.NAME, "login")
     username_input.send_keys(active_user.email)
     password_input = self.selenium.find_element(By.NAME, "password")
@@ -60,7 +60,7 @@ class BrowserTests(StaticLiveServerTestCase):
     def test_user_create_form(self):
         login_active_user(self)
 
-        self.selenium.get("%s%s" % (self.live_server_url, reverse("users:create")))
+        self.selenium.get("{}{}".format(self.live_server_url, reverse("users:create")))
 
         assert "Create a New User" in self.selenium.title
 

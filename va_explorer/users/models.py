@@ -50,7 +50,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     def __init__(self, *args, **kwargs):
-        super(User, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.original_password = self.password
 
     email = models.EmailField(_("email address"), unique=True)
@@ -194,7 +194,7 @@ class User(AbstractUser):
         # TODO: May need to be changed depending on how username comes in from ODK?
         if not self.username:
             self.username = self.email
-        super(User, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         if self.original_password != self.password:
             UserPasswordHistory.remember_password(self)
 

@@ -40,5 +40,5 @@ def get_loc_ids_for_filter(loc_query):
 
                 # get descendants
                 descendants = match.get_descendants().values_list("id", flat=True)
-                match_list = [match.id] + list(descendants)
+                match_list = [match.id, *list(descendants)]
     return match_list

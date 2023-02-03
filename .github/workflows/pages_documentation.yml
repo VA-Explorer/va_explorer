@@ -1,0 +1,62 @@
+name: Documentation
+
+# Only run workflow on pull requests that target /docs
+on:
+  push:
+  pull_request:
+   paths:
+     - docs
+
+# Separate build and deploy so that deploys don't happen on failed builds
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3           # Get code
+      - uses: actions/setup-python@v4       # Get Python for dependencies
+        with:
+          python-version: '3.10'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/docs.txt
+
+      - name: Build pdf
+        run: |
+          cd docs
+          sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra
+          make latexpdf
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs-pdf
+          path: docs/_build/latex/*.pdf     # Allow generic name of pdf
+
+      - name: Build html
+        run: |
+          cd docs
+          make html
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs-html
+          path: docs/_build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3           # Get code
+      - uses: actions/download-artifact@v3  # Get html we're deploying
+        with:
+          name: docs-html
+          path: docs/_build/html
+
+      - uses: actions/download-artifact@v3  # Get offline pdf
+        with:
+          name: docs-pdf
+          path: docs/_build/html/_static/   # Dump the *.pdf file in _static/
+
+      - uses: peaceiris/actions-gh-pages@v3   # Deploy to github pages
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: docs/_build/html

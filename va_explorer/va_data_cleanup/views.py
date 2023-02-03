@@ -112,8 +112,8 @@ class DownloadIndividual(View):
                 return HttpResponse(response, content_type="text/csv")
             # Encountered if user manually passes in a pk to URL that does not exist or
             # User manually passes in the pk of a soft-deleted VA
-            except VerbalAutopsy.DoesNotExist:
-                raise Http404("This Verbal Autopsy does not exist.")
+            except VerbalAutopsy.DoesNotExist as err:
+                raise Http404("This Verbal Autopsy does not exist.") from err
 
 
 download = DownloadIndividual.as_view()

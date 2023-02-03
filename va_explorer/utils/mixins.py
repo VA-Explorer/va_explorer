@@ -14,7 +14,7 @@ class CustomAuthMixin(AccessMixin):
                 request, "You must set a new password before you can view this page."
             )
             return HttpResponseRedirect(reverse("users:set_password"))
-        return super(CustomAuthMixin, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def user_has_valid_password(self, request):
         return request.user.has_valid_password
