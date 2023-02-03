@@ -70,7 +70,7 @@ caption: Development
 development
 ```
 
-% Comment: For below link: Assume deploy will upload a vaexplorerdocs.pdf to _static/
+% Comment: For below link: Assume deploy will upload a VAExplorerDocs.pdf to _static/ (CASE Sensitive)
 
 ```{toctree}
 ---
@@ -79,7 +79,7 @@ caption: Additional Info
 ---
 
 reference
-Offline Docs <https://va-explorer.github.io/va_explorer/_static/vaexplorerdocs.pdf>
+Offline Docs <https://va-explorer.github.io/va_explorer/_static/VAExplorerDocs.pdf>
 ```
 
 > Last Updated: {sub-ref}`today`
