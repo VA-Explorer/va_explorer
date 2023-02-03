@@ -44,7 +44,7 @@ easily to larger devices.
 ## User Identity & Access Management
 
 ```{list-table}
-:class: img-sidebyside
+:class: img-sidebyside borderless
 * - ```{figure} ../_static/img/features/user_iam_1.png
     :alt: VA Explorer's Users module, showing a list of users
     :width: 327.500
@@ -72,7 +72,7 @@ like:
 ## VA Data Import
 
 ```{list-table}
-:class: img-sidebyside
+:class: img-sidebyside borderless
 * - ```{figure} ../_static/img/features/import_1.png
     :alt: VA Explorer's homepage, showing imported VAs & their statuses over time
     :width: 327.500
@@ -135,7 +135,7 @@ insights
 ## Processing & Analyzing of Cause of Death Data
 
 ```{list-table}
-:class: img-sidebyside
+:class: img-sidebyside borderless
 * - ```{figure} ../_static/img/features/analysis_1.png
     :alt: VA Explorer's homepage, showing imported VAs & their statuses over time
     :width: 327.500
@@ -192,7 +192,7 @@ geography
 ## Working with VA Questionnaires
 
 ```{list-table}
-:class: img-sidebyside
+:class: img-sidebyside borderless
 * - ```{figure} ../_static/img/features/questionnaire_1.png
     :alt: Picture of an individual VA, showing responses
     :width: 327.500

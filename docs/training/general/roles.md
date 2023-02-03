@@ -7,16 +7,39 @@ Manager, Data Viewer, or Field Worker; but there may be multiple Admins, Data
 Managers, Data Viewers, and/or Field Workers). The table below provides a
 high-level description of each role.
 
-```{csv-table}
-:header-rows: 1
-:stub-columns: 1
-:escape: \
-Role,Description
-Admin,Admins oversee the VA Explorer system. By default, Admins have full access to the application. This includes data for all VAs as well access to all system functions such as managing accounts\, importing\, processing\, and exporting data.
-Data Manager,Data Managers have near full access VA Explorer, equivalent to admin access without the ability to create and manage user accounts. Has full access to VA data and system functions unless any restrictions (ex. Geographic) are placed on them by the admin.
-Data Viewer,Data Viewers have access that allows them use VA Explorer for reporting purposes – a Data Viewer can view, analyze via the dashboard\, or search through VAs but cannot modify any VAs
-Field Worker,Field Workers have similar permissions to Data Viewers, but are allowed only allowed full access to view and modify VAs for those that they have conducted. This allows them to assist data managers in repairing any cause of death errors.
-```
+````{eval-rst}
+.. tabularcolumns:: |p{\dimexpr 0.20\linewidth-2\tabcolsep}|p{\dimexpr 0.80\linewidth-2\tabcolsep}|
+.. flat-table:: List of available roles and their descriptions
+  :widths: 2 8
+  :header-rows: 1
+  :stub-columns: 1
+
+  * - Role
+    - Description
+
+  * - Admin
+    - Admins oversee the VA Explorer system. By default, Admins have full access
+      to the application. This includes data for all VAs as well access to all
+      system functions such as managing accounts, importing, processing, and
+      exporting data.
+
+  * - Data Manager
+    - Data Managers have near full access VA Explorer, equivalent to admin
+      access without the ability to create and manage user accounts. Has full
+      access to VA data and system functions unless any restrictions
+      (ex. Geographic) are placed on them by the admin.
+
+  * - Data Viewer
+    - Data Viewers have access that allows them use VA Explorer for reporting
+      purposes – a Data Viewer can view, analyze via the dashboard, or search
+      through VAs but cannot modify any VAs
+
+  * - Field Worker
+    - Field Workers have similar permissions to Data Viewers, but are allowed
+      only allowed full access to view and modify VAs for those that they have
+      conducted. This allows them to assist data managers in repairing any cause
+      of death errors.
+````
 
 Users should have a role with the fewest capabilities and least record access
 required to perform their job. For example, if a user only needs to be able to
@@ -44,7 +67,7 @@ Export feature. If users are restricted from viewing PII, the following fields
 will not appear in the application or in downloaded data. Instead, fields will
 automatically be replaced with `** redacted **`.
 
-```{csv-table}
+```{csv-table} List of VA fields redacted for users without PII viewing permissions
 :header-rows: 1
 :stub-columns: 1
 :escape: \

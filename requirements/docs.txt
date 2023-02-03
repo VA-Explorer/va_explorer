@@ -6,3 +6,5 @@ furo==2022.12.7
 myst-parser==0.18.1
 sphinx_design==0.3.0
 sphinx-copybutton==0.5.1
+linuxdoc==20221127
+sphinx-toolbox==3.4.0

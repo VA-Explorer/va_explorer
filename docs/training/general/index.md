@@ -1,14 +1,5 @@
 # General Information
 
-```{toctree}
----
-hidden:
----
-
-User Roles & Capabilities <roles>
-Common Actions <common_actions>
-```
-
 Welcome to VA Explorer, the open-source application that helps you or your
 organization manage and analyze verbal autopsies. This section will help you, as
 an end user, become familiar with VA Explorer through three simple steps.
@@ -50,5 +41,11 @@ training covers this workflow.
 If you are not an admin and you think your permissions are misconfigured,
 contact your system’s admin.
 
-- {doc}`roles`
-- {doc}`common_actions`
+```{toctree}
+---
+maxdepth: 1
+---
+
+User Roles & Capabilities <roles>
+Common Actions <common_actions>
+```

@@ -161,23 +161,82 @@ As mentioned in Management Commands (link), VA Explorer provides additional
 functionality beyond its UI-based features. This holds especially true for
 development which has relevant actions detailed here:
 
-```{csv-table}
-:header-rows: 1
-:stub-columns: 2
-:escape: \
-Command Name,Parameter Names<br/>(*) = Required,Description
-`makemigrations`,<small>See Ext. Docs</small>,A built-in django admin command used to generate new migration files based on changes detected to VA Explorer models.
-`migrate`,<small>See Ext. Docs</small>,A built-in django admin command used to sync the VA Explorer database state with the current set of models and migrations in the app code by applying migrations files.
-`shell_plus`,`None`,A django-extensions command that provides a python shell session preloaded with VA Explorer database models and other user-defined classes. Useful for running python commands that require VA Explorer components.
-`collectstatic`,<small>See Ext. Docs</small>,A built-in django admin command that collects all static files into `STATIC_ROOT`. Useful for refreshing the application during development after adding new static files.
-`runserver_plus`,`ip:port` or <small>See Ext. Docs</small>,A django-extensions command that runs a development server to serve VA Explorer locally. Has extras that support errors and debugging. Optionally specify an `ip:port` format location to run the server on a specific IP address and port number. Defaults to `127.0.0.1:8000`
-`validate_templates`,<small>See Ext. Docs</small>,A django-extensions command used to catch any invalid Django template syntax within your app. Used by VA Explorer in its testing.
-`initialize_groups`,`None`,Used to manually run or update user roles and their associated permissions.
-`seed_admin_user`,<ul><li><pre>--email (*)</pre></li><li><pre>--password</pre></li></ul>,Creates an admin user with a specific email address and password. Optionally accepts a password via `password` param\, but will create a randomly-generated password and print to the console by default.
-`seed_demo_users`,`None`,Creates demo accounts for Data manager\, Data viewer\, and Field Worker with `Password1`. Used for the local environment only for demonstration and testing purposes.
-`fake_current_va_dates`,`None`,Updates dates on all VAs to make them look more current. Used for the local environment only for demonstration and testing purposes.
-`randomize_va_dates`,`None`,Initializes demo VAs with dates. Used for the local environment only for demonstration and testing purposes.
-```
+````{eval-rst}
+.. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
+.. flat-table:: List of all configuration options when interfacing with the pyCrossVA service, plus default values and descriptions for each
+  :widths: 3 3 5
+  :header-rows: 2
+
+  * - :rspan:`1` Command Name
+    - Parameter Names
+    - :rspan:`1` Description
+
+  * - ``(*)`` = Required
+
+  * - ``makemigrations``
+    - See Ext. Docs
+    - A built-in django admin command used to generate new migration files based
+      on changes detected to VA Explorer models.
+
+  * - ``migrate``
+    - See Ext. Docs
+    - A built-in django admin command used to sync the VA Explorer database
+      state with the current set of models and migrations in the app code by
+      applying migrations files.
+
+  * - ``shell_plus``
+    - None
+    - A django-extensions command that provides a python shell session preloaded
+      with VA Explorer database models and other user-defined classes. Useful
+      for running python commands that require VA Explorer components.
+
+  * - ``collectstatic``
+    - See Ext. Docs
+    - A built-in django admin command that collects all static files into
+      ``STATIC_ROOT``. Useful for refreshing the application during development
+      after adding new static files.
+
+  * - ``runserver_plus``
+    - ``ip:port`` or See Ext. Docs
+    - A django-extensions command that runs a development server to serve VA
+      Explorer locally. Has extras that support errors and debugging. Optionally
+      specify an ``ip:port`` format location to run the server on a specific IP
+      address and port number. Defaults to ``127.0.0.1:8000``
+
+  * - ``validate_templates``
+    - See Ext. Docs
+    - A django-extensions command used to catch any invalid Django template
+      syntax within your app. Used by VA Explorer in its testing.
+
+  * - ``initialize_groups``
+    - None
+    - Used to manually run or update user roles and their associated permissions.
+
+  * - :rspan:`1` ``seed_admin_user``
+    - ``--email`` ``(*)``
+    - :rspan:`1` Creates an admin user with a specific email address and
+      password. Optionally accepts a password via `password` param, but will
+      create a randomly-generated password and print to the console by default.
+
+  * - ``--password``
+
+  * - ``seed_demo_users``
+    - None
+    - Creates demo accounts for Data manager, Data viewer, and Field Worker with
+      ``Password1``. Used for the local environment only for demonstration and
+      testing purposes.
+
+  * - ``fake_current_va_dates``
+    - None
+    - Updates dates on all VAs to make them look more current. Used for the
+      local environment only for demonstration and testing purposes.
+
+  * - ``randomize_va_dates``
+    - None
+    - Initializes demo VAs with dates. Used for the local environment only for
+      demonstration and testing purposes.
+
+````
 
 Additionally, the full and complete list of management commands (only some of
 the most popular are described here or in Management Commands (link)) is available

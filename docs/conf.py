@@ -31,6 +31,8 @@ release = "1.0.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+# https://myst-parser.readthedocs.io/en/latest/index.html
+# https://sphinx-toolbox.readthedocs.io/en/latest/index.html
 
 extensions = [
     "sphinx.ext.autosectionlabel",
@@ -39,6 +41,9 @@ extensions = [
     "myst_parser",
     "sphinx_design",
     "sphinx_copybutton",
+    "linuxdoc.rstFlatTable",
+    "sphinx_toolbox.latex.layout",
+    "sphinx_toolbox.latex.toc",
 ]
 
 templates_path = ["_templates"]
@@ -54,8 +59,11 @@ myst_enable_extensions = [
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+# https://pygments.org/styles/
 
 html_theme = "furo"
+pygments_style = "tango"
+pygments_dark_style = "one-dark"
 html_title = project
 html_theme_options = {
     "light_logo": "img/logo.png",
@@ -73,6 +81,24 @@ html_theme_options = {
     ],
 }
 today_fmt = "%Y-%m-%d"
+numfig = False
 
 html_static_path = ["_static"]
 html_css_files = ["css/tweaks.css"]
+
+# -- Options for PDF output --------------------------------------------------
+# https://www.sphinx-doc.org/en/master/latex.html
+# flat-table solution inspo: https://opensocdebug.readthedocs.io/en/latest/04_implementer/styleguides/docwriting.html#tables
+
+latex_documents = [
+    ("index", "VAExplorerDocs.tex", "VA Explorer Documentation", "MITRE", "manual"),
+]
+
+latex_elements = {
+    "preamble": r"""
+\let\cleardoublepage\clearpage
+""",
+}
+
+latex_show_urls = "footnote"
+latex_show_pagerefs = True
