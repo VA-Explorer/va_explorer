@@ -38,7 +38,7 @@ __Estimated time investment:__
 
 Additionally, those IT teams wishing to contribute to the development of VA
 Explorer would also benefit from web development experience, particularly with
-Django. Development methods are discussed more in Development (link).
+Django. Development methods are discussed more in [Development](../development).
 
 ## Backing Up VA Explorer
 

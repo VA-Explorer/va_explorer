@@ -242,7 +242,7 @@ printing to the console of the program used to run <code class="docutils literal
 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">--tail</span> <span class="pre">&lt;quantity&gt;</span> <span class="pre">va_explorer_django</span> <span class="pre">_1</span></code> where quanity can be
 something like 100 to see the last 100 lines of logs or 1m to see the last minute.</p></li>
 </ul>
-<p>As mentioned in Configuration &amp; Deployment (link), <code class="docutils literal notranslate"><span class="pre">DJANGO_DEBUG</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code>
+<p>As mentioned in <a class="reference internal" href="../usage/getting_started/config.html"><span class="doc std std-doc">Configuration &amp; Deployment</span></a>, <code class="docutils literal notranslate"><span class="pre">DJANGO_DEBUG</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code>
 for even more useful troubleshooting information in those logs. Running commands
 like <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> will also help you determine if all docker services are running
 as expected.</p>
@@ -272,7 +272,7 @@ this mean?</p></li>
 </ol>
 <p>Some MacOS users have reported getting the error
 <code class="docutils literal notranslate"><span class="pre">numpy.distutils.system_info.NotFoundError:</span> <span class="pre">No</span> <span class="pre">lapack/blas</span> <span class="pre">resources</span> <span class="pre">found.</span> <span class="pre">Note:</span> <span class="pre">Accelerate</span> <span class="pre">is</span> <span class="pre">no</span> <span class="pre">longer</span> <span class="pre">supported.</span></code>
-If you get this error, this thread (external link) may be a helpful resource.
+If you get this error, this <a class="reference external" href="https://github.com/scipy/scipy/issues/13102#issuecomment-962468269">thread</a> may be a helpful resource.
 Ensuring that pip is upgraded <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code> may also help.</p>
 <ol class="arabic simple" start="4">
 <li><p>What is an easy configuration to use for my reverse proxy?</p></li>

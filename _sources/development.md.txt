@@ -2,7 +2,7 @@
 
 Thank you for your interest in helping to make VA Explorer even better! These
 guides should help you get setup for local development. Afterwards, you should
-be ready to tackle Issues (external link). We recommend the ones tagged
+be ready to tackle [Issues](https://github.com/VA-Explorer/va_explorer/issues). We recommend the ones tagged
 `good first issue` as a starting point.
 
 As a pre-requisite you should have the following already on your system:
@@ -67,7 +67,7 @@ CELERY_BROKER_URL=redis://localhost:6379/0
 ```
 
 This will prepare your local development environment to run VA Explorer locally
-via the `runserver_plus` command (see Development Commands (link)). Next you will
+via the `runserver_plus` command (see [Development Commands](#development-commands)). Next you will
 want to seed VA Explorer with some example data so you can signin and see
 features in action. To do that run:
 
@@ -125,7 +125,7 @@ After setup, you’re ready to run VA Explorer locally! If you’ve run:
 then you should be able to navigate to `localhost:8000` in the browser of your
 choice and be presented with the sign in screen. Signing in here with the admin
 user you seeded earlier should open up access to the rest of the features, as
-described in Features (link).
+described in [Features](usage/features).
 
 ```{note}
 Data seeded for local instances of VA Explorer lives in your local installation
@@ -157,7 +157,7 @@ best reference.
 
 ## Development Commands
 
-As mentioned in Management Commands (link), VA Explorer provides additional
+As mentioned in [Management Commands](training/admin_guides.md#management-commands), VA Explorer provides additional
 functionality beyond its UI-based features. This holds especially true for
 development which has relevant actions detailed here:
 
@@ -239,5 +239,5 @@ development which has relevant actions detailed here:
 ````
 
 Additionally, the full and complete list of management commands (only some of
-the most popular are described here or in Management Commands (link)) is available
+the most popular are described here or in [Management Commands](training/admin_guides.md#management-commands)) is available
 by running `manage.py help`.

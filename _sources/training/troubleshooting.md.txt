@@ -16,7 +16,7 @@ printing to the console of the program used to run `runserver_plus`
 `docker logs --tail <quantity> va_explorer_django _1` where quanity can be
 something like 100 to see the last 100 lines of logs or 1m to see the last minute.
 
-As mentioned in Configuration & Deployment (link), `DJANGO_DEBUG` can be set to `True`
+As mentioned in [Configuration & Deployment](../usage/getting_started/config), `DJANGO_DEBUG` can be set to `True`
 for even more useful troubleshooting information in those logs. Running commands
 like `docker ps` will also help you determine if all docker services are running
 as expected.
@@ -46,7 +46,7 @@ this mean?
 
 Some MacOS users have reported getting the error
 `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.`
-If you get this error, this thread (external link) may be a helpful resource.
+If you get this error, this [thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) may be a helpful resource.
 Ensuring that pip is upgraded `pip install --upgrade pip` may also help.
 
 4. What is an easy configuration to use for my reverse proxy?

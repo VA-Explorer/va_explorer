@@ -17,7 +17,7 @@ VA Explorer supports integration with ODK Central to provide both manual and
 automatic import of VA questionnaire responses. You can read more about ODK
 Central via its documentation.
 
-- To perform manual imports of ODK Central data, please see Data Admin (link)
+- To perform manual imports of ODK Central data, please see [Data Admin](../training/admin_guides.md#data-admin)
 in the Admin training guides.
 
 - To configure VA Explorer for automatic import of VAs, the relevant `.env`
@@ -71,7 +71,7 @@ now appear and function.
 ````
 
 If you encounter any issues during integration, please reference our
-Troubleshooting (link) section.
+[Troubleshooting](../training/troubleshooting) section.
 
 ## DHIS2
 
@@ -128,7 +128,7 @@ now appear and function.
 ````
 
 If you encounter any issues during integration, please reference our
-Troubleshooting (link) section.
+[Troubleshooting](../training/troubleshooting) section.
 
 ## Algorithm Support
 
