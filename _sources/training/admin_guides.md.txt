@@ -22,10 +22,8 @@ Cities in the United States. In this example, we have one state (California), tw
 counties (Marin and Los Angeles), and three cities (Sausalito, San Rafael, and
 Los Angeles).
 
-```{csv-table}
+```{csv-table} An example geographic hierarchy in tabular format
 :header-rows: 1
-:stub-columns: 2
-:escape: \
 Name,Type,Parent
 California,State,
 Marin County,County,California
@@ -36,10 +34,9 @@ Los Angeles,City,Los Angeles County
 ```
 
 ```{figure} ../_static/img/geo_hierarchy.png
-:alt: A tree data structure showing a hierarchy. California State, Marin County, then Sausalito City and San Rafael City for example.
 :width: 75%
 
-<small>An example geographic hierarchy</small>
+<small> A tree data structure showing the example geographic hierarchy from the previous table</small>
 ```
 
 The input is similarly structured to support any number of geographic hierarchies
@@ -157,32 +154,155 @@ from within the container. Below is a selection of management commands,
 generally useful to admins. An even fuller list of these can be found under
 Development Commands (link)
 
-```{csv-table}
-:header-rows: 1
-:stub-columns: 2
-:escape: \
-Command Name,Parameter Names<br/>(*) = Required,Description
-`load_va_csv`,<ul><li><pre>--csv_file (*)</pre></li><li><pre>--random_locations</pre></li></ul>,Used to manually import data from file to into VA Explorer’s database. `csv_file` is a filename in the local folder or `unix:path` format location of the file. Can be used with `random_locations` for test or demo data to randomly assign the VA to a field worker with specific location restrictions. `True` or `False`; defaults to `False`
-`load_locations`,<ul><li><pre>--csv_file (*)</pre></li><li><pre>--delete_previous</pre></li></ul>,Used to load initial location date data needed to support Geographic access. `csv_file` is a filename in the local folder or `unix:path` format location of the file. Can be used with `delete_previous` to delete existing location data and start fresh with the new locations being loaded. `True` or `False`; defaults to `False`
-`run_coding_algorithms`,<ul><li><pre>--overwrite</pre></li><li><pre>--cod_fname</pre></li></ul>,Used to call supported algorithms for assignment of cause of death to all VAs. `overwrite` allows this command to clear (and save) all existing CoD assignments before running. `True` or `False`; defaults to `False` `cod_fname` is a filename or unix:path format location to save the old CoDs to. Defaults to `old_cod_mapping.csv`
-`get_user_form_template`,`--output_file`,Utility to obtain a bulk user creation template csv with header fields corresponding to fields of the current User model. `output_file` is a filename or `unix:path` format location to save template to. Default is `user_form_fields.csv`
-`bulk_load_users`,<ul><li><pre>--user_list_file (*)</pre></li><li><pre>--email_confirmation</pre></li></ul>,Used to bulk create user accounts\, assigning a temporary password to each. `user_list_file` is a filename in the local folder or `unix:path` format location of the users file. Can be used with `email_confirmation` if an email server has been setup to automatically send an email with the new temporary password to each created user. `True` or `False`; defaults to `False` (prints to console instead so passwords must manually be passed to users somehow)
-`export_user_info`,<ul><li><pre>--output_file</pre></li><li><pre>--user_file</pre></li></ul>,Used to export an anonymized (No PII) list of all users in the system along with their roles and permissions. Useful for non-invasively correlating user activity in VA Explorer logs. `output_file` is a filename in the local folder or `unix:path` format location of the file to export user info to. Defaults to `user_list.csv` `user_file` is a separate filename in the local folder or `unix:path` format location of a .txt file containing emails (one per line) of specific users to export. Defaults to all users if no file.
-`link_fieldworkers_to_vas`,<ul><li><pre>--emails</pre></li><li><pre>--match_threshold</pre></li></ul>,Used to manually link a group of field workers to their VAs via `Id10010` on the VA and `username` on the User. Matches are persisted by setting the VA's `username` field to the matching field on User. `emails` is a comma separated\, no spaces\, string of emails that can be used to specify specific field workers to match. By default\, all field workers are considered for matching. `match_threshold` is also available to adjust desired match similarity (ranging from any [incorrect] match at 0% to allowing full matches only at 100%). Default is 80%.
-`mark_vas_as_duplicate`,`None`,Used to manually run (or re-run if config is changed) duplicate checking within VA Explorer. Contains no parameters as behavior is determined by the configuration variable QUESTIONS_TO_AUTODETECT_DUPLICATES see Configuration & Deployment (link)
-```
+````{eval-rst}
+.. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
+.. flat-table:: Descriptions and lists of parameters for select management commands related to administration of VA Explorer
+  :widths: 3 3 5
+  :header-rows: 2
+
+  * - :rspan:`1` Command Name
+    - Parameter Names
+    - :rspan:`1` Description
+
+  * - ``(*)`` = Required
+
+  * - :rspan:`1` ``load_va_csv``
+    - ``--csv_file`` ``(*)``
+    - :rspan:`1` Used to manually import data from file to into VA Explorer’s
+      database. ``csv_file`` is a filename in the local folder or ``unix:path``
+      format location of the file. Can be used with ``random_locations`` for
+      test or demo data to randomly assign the VA to a field worker with
+      specific location restrictions. ``True`` or ``False``; defaults to
+      ``False``
+
+  * - ``--random_locations``
+
+  * - :rspan:`1` ``load_locations``
+    - ``--csv_file`` (*)
+    - :rspan:`1` Used to load initial location date data needed to support
+      Geographic access. ``csv_file`` is a filename in the local folder or
+      ``unix:path`` format location of the file. Can be used with
+      ``delete_previous`` to delete existing location data and start fresh with
+      the new locations being loaded. ``True`` or ``False``; defaults to
+      ``False``
+
+  * - ``--delete_previous``
+
+  * - :rspan:`1` ``run_coding_algorithms``
+    - ``--overwrite``
+    - :rspan:`1` Used to call supported algorithms for assignment of cause of
+      death to all VAs. ``overwrite`` allows this command to clear (and save)
+      all existing CoD assignments before running. ``True`` or ``False``;
+      defaults to ``False`` ``cod_fname`` is a filename or unix:path format
+      location to save the old CoDs to. Defaults to ``old_cod_mapping.csv``
+
+  * - ``--cod_fname``
+
+  * - ``get_user_form
+      _template``
+    - ``--output_file``
+    - Utility to obtain a bulk user creation template csv with header fields
+      corresponding to fields of the current User model. ``output_file`` is a
+      filename or ``unix:path`` format location to save template to. Default is
+      ``user_form_fields.csv``
+
+  * - :rspan:`1` ``bulk_load_users``
+    - ``--user_list_file`` ``(*)``
+    - :rspan:`1` Used to bulk create user accounts, assigning a temporary
+      password to each. ``user_list_file`` is a filename in the local folder or
+      ``unix:path`` format location of the users file. Can be used with
+      ``email_confirmation`` if an email server has been setup to automatically
+      send an email with the new temporary password to each created user.
+      ``True`` or ``False``; defaults to ``False`` (prints to console instead so
+      passwords must manually be passed to users somehow)
+
+  * - ``--email_confirmation``
+````
+
+% Comment: We break the table here because the pdf rendering was flying off the page
+
+````{eval-rst}
+.. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
+.. flat-table::
+  :widths: 3 3 5
+  :header-rows: 0
+
+  * - :rspan:`1` ``export_user_info``
+    - ``--output_file``
+    - :rspan:`1` Used to export an anonymized (No PII) list of all users in the
+      system along with their roles and permissions. Useful for non-invasively
+      correlating user activity in VA Explorer logs. ``output_file`` is a
+      filename in the local folder or ``unix:path`` format location of the file
+      to export user info to. Defaults to ``user_list.csv``. ``user_file`` is a
+      separate filename in the local folder or ``unix:path`` format location of
+      a ``.txt`` file containing emails (one per line) of specific users to
+      export. Defaults to all users if no file.
+
+  * - ``--user_file``
+
+  * - :rspan:`1` ``link_fieldworkers
+      _to_vas``
+    - ``--emails``
+    - :rspan:`1` Used to manually link a group of field workers to their VAs via
+      ``Id10010`` on the VA and ``username`` on the User. Matches are persisted
+      by setting the VA's ``username`` field to the matching field on User.
+      ``emails`` is a comma separated\, no spaces\, string of emails that can be
+      used to specify specific field workers to match. By default\, all field
+      workers are considered for matching. ``match_threshold`` is also available
+      to adjust desired match similarity (ranging from any [incorrect] match at
+      0% to allowing full matches only at 100%). Default is 80%.
+
+  * - ``--match_threshold``
+
+  * - ``mark_vas_as
+      _duplicate``
+    - None
+    - Used to manually run (or re-run if config is changed) duplicate checking
+      within VA Explorer. Contains no parameters as behavior is determined by
+      the configuration variable ``QUESTIONS_TO_AUTODETECT_DUPLICATES`` see
+      Configuration & Deployment (link)
+````
 
 Additionally, if VA Explorer has been configured with integrations, the following
 additional management commands are available. If the environment variables (see
 Integrations (link)) that enable these integrations to work automatically are not
 defined, consider all parameters required for these management commands.
 
-```{csv-table}
-:header-rows: 1
-:stub-columns: 2
-:escape: \
-Command Name,Parameter Names,Description
-`import_from_odk`,<ul><li><pre>--email</pre></li><li><pre>--password</pre></li><li><pre>--project_name</pre></li><li><pre>--project_id</pre></li><li><pre>--form_id</pre></li><li><pre>--form_name</pre></li></ul>,Used to manually import VA data from ODK Central. Parameters are as described for the equivalent environment variables listed in Integrations > ODK Central (link)
-`load_dhis_cod_codes`,`--csv_file`,Used to manually setup VA Explorer to report WHO CoD Codes in the format expected by DHIS2 and must be run before first export will succeed. `csv_file` is a filename in the local folder or `unix:path` format location of the csv file. csv file has the header `codsource\,codcode\,codname\,codid`
-`run_dhis`,<ul><li><pre>--dhis_user</pre></li><li><pre>--dhis_pass</pre></li><li><pre>--dhis_url</pre></li><li><pre>--dhis_orgunit</pre></li></ul>,Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in Integrations > DHIS2 (link)
-```
+````{eval-rst}
+.. tabularcolumns:: |p{\dimexpr 0.30\linewidth-2\tabcolsep}|p{\dimexpr 0.20\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
+.. flat-table:: Descriptions and lists of parameters for select management commands related to integrations
+  :header-rows: 1
+  :widths: 3 2 5
+
+  * - Command Name
+    - Parameter Names
+    - Description
+
+  * - :rspan:`5` ``import_from_odk``
+    - ``--email``
+    - :rspan:`5` Used to manually import VA data from ODK Central. Parameters
+      are as described for the equivalent environment variables listed in
+      Integrations > ODK Central (link)
+  
+  * - ``--password``
+  * - ``--project_name``
+  * - ``--project_id``
+  * - ``--form_id``
+  * - ``--form_name``
+
+  * - ``load_dhis_cod_codes``
+    - ``--csv_file``
+    - Used to manually setup VA Explorer to report WHO CoD Codes in the format
+      expected by DHIS2 and must be run before first export will succeed.
+      ``csv_file`` is a filename in the local folder or ``unix:path`` format
+      location of the csv file. csv file has the header
+      ``codsource,codcode,codname,codid``
+
+  * - :rspan:`3` ``run_dhis``
+    - ``--dhis_user``
+    - :rspan:`3` Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in Integrations > DHIS2 (link)
+
+  * - ``--dhis_pass``
+  * - ``--dhis_url``
+  * - ``--dhis_orgunit``
+````

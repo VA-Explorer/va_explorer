@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="General Information" href="../training/general/index.html" /><link rel="prev" title="Features" href="features.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
@@ -25,14 +25,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
       }
     }
@@ -255,38 +255,53 @@ variables are detailed below. Once properly set, run <code class="docutils liter
 push the new configuration. ODK integration features within VA Explorer should
 now appear and function.</p></li>
 </ul>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">List of all configuration options when integrating with ODK Central, plus default values and descriptions for each</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Variable Name</p></th>
-<th class="head stub"><p>Default String</p></th>
+<th class="head"><p>Default Value</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ODK_HOST</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the ODK Central instance to connect to. Defaults to an empty string for no connection. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the ODK Central instance
+to connect to. Defaults to an empty string for no connection.
+<strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ODK_SSL_VERIFY</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used by VA Explorer determine enforcement of valid ssl/https connections. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> for enforcement.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used by VA Explorer determine enforcement of valid
+ssl/https connections. Defaults to <cite>True</cite> for enforcement.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ODK_PROJECT_ID</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></th>
-<td><p>Value indicating the ID of the project in ODK Central that holds Verbal Autopsy forms or data. Typically, a number found in the url when viewing the project in ODK. Defaults to <code class="docutils literal notranslate"><span class="pre">2</span></code> (ex. <code class="docutils literal notranslate"><span class="pre">/#/projects/2</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>Value indicating the ID of the project in ODK Central that holds Verbal
+Autopsy forms or data. Typically, a number found in the url when viewing
+the project in ODK. Defaults to <code class="docutils literal notranslate"><span class="pre">2</span></code> (ex. <code class="docutils literal notranslate"><span class="pre">/#/projects/2</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ODK_FORM_ID</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">va_who_v1_5_3</span></code></p></th>
-<td><p>Value indicating the ID of the Verbal Autopsy form within the given project. Typically, found in the form list under the “ID and Version” column. Defaults to the ID of an example VA form.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">va_who_v1_5_3</span></code></p></td>
+<td><p>Value indicating the ID of the Verbal Autopsy form within the given
+project. Typically, found in the form list under the “ID and Version”
+column. Defaults to the ID of an example VA form.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ODK_EMAIL</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">user&#64;example.com</span></code></p></th>
-<td><p>Value indicating the email of the account you wish to use to login to ODK Central. Defaults to an example email. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user&#64;example.com</span></code></p></td>
+<td><p>Value indicating the email of the account you wish to use to login to ODK
+Central. Defaults to an example email. <strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ODK_PASSWORD</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></th>
-<td><p>Value indicating the password for the provided email’s account. Defaults to a blank string. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p>Value indicating the password for the provided email’s account. Defaults
+to a blank string. <strong>Recommended to customize.</strong></p></td>
 </tr>
 </tbody>
 </table>
@@ -305,34 +320,49 @@ open-source project.</p>
 variables are detailed below. Once properly set, run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> to
 push the new configuration. DHIS integration features within VA Explorer should
 now appear and function.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">List of all configuration options when integrating with DHIS2, plus default values and descriptions for each</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Variable Name</p></th>
-<th class="head stub"><p>Default String</p></th>
+<th class="head"><p>Default Value</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_HOST</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the DHIS2 instance to connect to. Defaults to an empty string for no connection. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the DHIS2 instance to
+connect to. Defaults to an empty string for no connection.
+<strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_SSL_VERIFY</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used by VA Explorer determine enforcement of valid ssl/https connections. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> for enforcement.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used by VA Explorer determine enforcement of valid
+ssl/https connections. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> for enforcement.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_ORGUNIT</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">wEVB21sQaHu</span></code></p></th>
-<td><p>Value indicating the root Organization Unit UID within your DHIS organizational hierarchy. Should be available using the DHIS API Query: <code class="docutils literal notranslate"><span class="pre">/api/organisationUnits?level=1</span></code>. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wEVB21sQaHu</span></code></p></td>
+<td><p>Value indicating the root Organization Unit UID within your DHIS
+organizational hierarchy. Should be available using the DHIS API Query:
+<code class="docutils literal notranslate"><span class="pre">/api/organisationUnits?level=1</span></code>. <strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_USER</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">admin</span></code></p></th>
-<td><p>Value indicating the username of the account you wish to use to login to DHIS. Defaults to DHIS2’s existing default username credential. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">admin</span></code></p></td>
+<td><p>Value indicating the username of the account you wish to use to login to
+DHIS. Defaults to DHIS2’s existing default username credential.
+<strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_PASS</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">district</span></code></p></th>
-<td><p>Value indicating the password for the provided username’s account. Defaults to the default credentials for DHIS2’s default admin account. <strong>Recommended to customize.</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">district</span></code></p></td>
+<td><p>Value indicating the password for the provided username’s account.
+Defaults to the default credentials for DHIS2’s default admin account.
+<strong>Recommended to customize.</strong></p></td>
 </tr>
 </tbody>
 </table>
@@ -353,18 +383,26 @@ may provide built-in support for additional <a class="reference internal" href="
 <p>pyCrossVA is provided as a built-in docker service to allow VA Explorer to
 transform VAs into input suitable for cause of death assignment algorithms. You
 can read more about it via its project page.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id3">
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">List of all configuration options when interfacing with the pyCrossVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Variable Name</p></th>
-<th class="head stub"><p>Default String</p></th>
+<th class="head"><p>Default Value</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">PYCROSS_HOST</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">http://pycrossva:80</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the pyCrossVA service used by VA Explorer to prepare VAs for algorithm input. Defaults to built-in pyCrossVA docker service.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">http://pycrossva:80</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the pyCrossVA service
+used by VA Explorer to prepare VAs for algorithm input. Defaults to
+built-in pyCrossVA docker service.</p></td>
 </tr>
 </tbody>
 </table>
@@ -375,30 +413,43 @@ can read more about it via its project page.</p>
 <p>InterVA5 is provided as a built-in docker service to allow VA Explorer VAs to be
 processed for likely cause of death. You can read more about it via its project
 page.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id4">
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">List of all configuration options when interfacing with the InterVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Variable Name</p></th>
-<th class="head stub"><p>Default String</p></th>
+<th class="head"><p>Default Value</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">INTERVA_HOST</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">http://interva5:5002</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the InterVA service used by VA Explorer to assign causes of death. Defaults to built-in InterVA docker service.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">http://interva5:5002</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location for the InterVA service used
+by VA Explorer to assign causes of death. Defaults to built-in InterVA
+docker service.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">INTERVA_MALARIA</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">l</span></code></p></th>
-<td><p>One of the enumerations “h” (high), “l” (low), or “v” (very low). Used to indicate the prevalence of Malaria within the population. Defaults to “l” for low.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">l</span></code></p></td>
+<td><p>One of the enumerations “h” (high), “l” (low), or “v” (very low). Used to
+indicate the prevalence of Malaria within the population. Defaults to “l”
+for low.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">INTERVA_HIV</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p></th>
-<td><p>One of the enumerations “h” (high), “l” (low), or “v” (very low). Used to indicate the prevalence of HIV within the population. Defaults to “v” for very low.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p></td>
+<td><p>One of the enumerations “h” (high), “l” (low), or “v” (very low). Used to
+indicate the prevalence of HIV within the population. Defaults to “v” for
+very low.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">INTERVA_GROUPCODE</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used to set whether the InterVA cause grouping code is included with cause of death output. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used to set whether the InterVA cause grouping code
+is included with cause of death output. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 </tr>
 </tbody>
 </table>

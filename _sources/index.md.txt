@@ -36,12 +36,11 @@ Data Viewer, or Field Worker can do so in User Training (link)
 - Users wishing to report bugs, request features, or developers wishing to
 contribute to the VA Explorer effort can find resources in Development (link)
 
-## Contents
+**Contents:**
 
 ```{toctree}
 ---
 maxdepth: 3
-includehidden:
 caption: Usage
 ---
 
@@ -53,7 +52,6 @@ usage/integrations
 ```{toctree}
 ---
 maxdepth: 3
-includehidden:
 caption: Guides
 ---
 
@@ -66,7 +64,6 @@ training/troubleshooting
 
 ```{toctree}
 ---
-includehidden:
 caption: Development
 ---
 

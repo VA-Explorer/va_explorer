@@ -95,18 +95,37 @@ To manage what is done with these VAs flagged as potential duplicates, you may
 delete them or edit the possible duplicate VAs to remove them from detection.
 See the table below for all actions you can take on the data cleanup page.
 
-```{csv-table}
-:header-rows: 1
-:stub-columns: 1
-:escape: \
-Action,Description
-Download All,Download all potential duplicate VAs to a CSV file for examination.
-Delete All,Delete all potential duplicate VAs. The oldest VA (by created timestamp) amongst a set of matching VAs is designated as the non-duplicate and kept in the system.
-View,View a single VA flagged as a possible duplicate.
-Download Individual,Download an individual VA and VAs flagged as its potential duplicate(s) to a CSV file for examination.
-Delete Individual,Delete an individual VA from the system.
-View question list,View the list of questions used by your system to autodetect duplicates.
-```
+````{eval-rst}
+.. tabularcolumns:: |p{\dimexpr 0.3\linewidth-2\tabcolsep}|p{\dimexpr 0.7\linewidth-2\tabcolsep}|
+.. flat-table:: List of actions available through the data cleanup UI and what they accomplish
+  :widths: 3 7
+  :header-rows: 1
+  :stub-columns: 1
+
+  * - Action
+    - Description
+
+  * - Download All
+    - Download all potential duplicate VAs to a CSV file for examination.
+
+  * - Delete All
+    - Delete all potential duplicate VAs. The oldest VA (by created timestamp)
+      amongst a set of matching VAs is designated as the non-duplicate and kept
+      in the system.
+
+  * - View
+    - View a single VA flagged as a possible duplicate.
+
+  * - Download Individual
+    - Download an individual VA and VAs flagged as its potential duplicate(s)
+      to a CSV file for examination.
+
+  * - Delete Individual
+    - Delete an individual VA from the system.
+
+  * - View question list
+    - View the list of questions used by your system to autodetect duplicates.
+````
 
 For further information relating to the identification of duplicates, please
 either ask your admin, consult Configuration & Deployment (link) for info on

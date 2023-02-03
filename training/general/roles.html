@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Common Actions Across User Roles" href="common_actions.html" /><link rel="prev" title="General Information" href="index.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
@@ -25,14 +25,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
       }
     }
@@ -234,30 +234,41 @@ users assigned to each type of role (e.g., a user can only be one of Admin, Data
 Manager, Data Viewer, or Field Worker; but there may be multiple Admins, Data
 Managers, Data Viewers, and/or Field Workers). The table below provides a
 high-level description of each role.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">List of available roles and their descriptions</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Role</p></th>
 <th class="head"><p>Description</p></th>
-<th class="head"></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><p>Admin</p></th>
-<td><p>Admins oversee the VA Explorer system. By default</p></td>
-<td><p>Admins have full access to the application. This includes data for all VAs as well access to all system functions such as managing accounts, importing, processing, and exporting data.</p></td>
+<td><p>Admins oversee the VA Explorer system. By default, Admins have full access
+to the application. This includes data for all VAs as well access to all
+system functions such as managing accounts, importing, processing, and
+exporting data.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p>Data Manager</p></th>
-<td><p>Data Managers have near full access VA Explorer</p></td>
-<td><p>equivalent to admin access without the ability to create and manage user accounts. Has full access to VA data and system functions unless any restrictions (ex. Geographic) are placed on them by the admin.</p></td>
+<td><p>Data Managers have near full access VA Explorer, equivalent to admin
+access without the ability to create and manage user accounts. Has full
+access to VA data and system functions unless any restrictions
+(ex. Geographic) are placed on them by the admin.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p>Data Viewer</p></th>
-<td><p>Data Viewers have access that allows them use VA Explorer for reporting purposes – a Data Viewer can view</p></td>
-<td><p>analyze via the dashboard, or search through VAs but cannot modify any VAs</p></td>
+<td><p>Data Viewers have access that allows them use VA Explorer for reporting
+purposes – a Data Viewer can view, analyze via the dashboard, or search
+through VAs but cannot modify any VAs</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p>Field Worker</p></th>
-<td><p>Field Workers have similar permissions to Data Viewers</p></td>
-<td><p>but are allowed only allowed full access to view and modify VAs for those that they have conducted. This allows them to assist data managers in repairing any cause of death errors.</p></td>
+<td><p>Field Workers have similar permissions to Data Viewers, but are allowed
+only allowed full access to view and modify VAs for those that they have
+conducted. This allows them to assist data managers in repairing any cause
+of death errors.</p></td>
 </tr>
 </tbody>
 </table>
@@ -286,8 +297,9 @@ If users have the download data restriction, they will not be able to use the
 Export feature. If users are restricted from viewing PII, the following fields
 will not appear in the application or in downloaded data. Instead, fields will
 automatically be replaced with <code class="docutils literal notranslate"><span class="pre">**</span> <span class="pre">redacted</span> <span class="pre">**</span></code>.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">List of VA fields redacted for users without PII viewing permissions</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>VA Field</p></th>
 <th class="head"><p>Meaning/Information Protected</p></th>

@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Extras" href="reference.html" /><link rel="prev" title="Troubleshooting" href="training/troubleshooting.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
@@ -25,14 +25,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
       }
     }
@@ -382,59 +382,85 @@ best reference.</p>
 <p>As mentioned in Management Commands (link), VA Explorer provides additional
 functionality beyond its UI-based features. This holds especially true for
 development which has relevant actions detailed here:</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">List of all configuration options when interfacing with the pyCrossVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
 <thead>
-<tr class="row-odd"><th class="head stub"><p>Command Name</p></th>
-<th class="head stub"><p>Parameter Names<br/>(*) = Required</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head" rowspan="2"><p> Command Name</p></th>
+<th class="head"><p>Parameter Names</p></th>
+<th class="head" rowspan="2"><p> Description</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">(*)</span></code> = Required</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">makemigrations</span></code></p></th>
-<th class="stub"><p><small>See Ext. Docs</small></p></th>
-<td><p>A built-in django admin command used to generate new migration files based on changes detected to VA Explorer models.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">makemigrations</span></code></p></td>
+<td><p>See Ext. Docs</p></td>
+<td><p>A built-in django admin command used to generate new migration files based
+on changes detected to VA Explorer models.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">migrate</span></code></p></th>
-<th class="stub"><p><small>See Ext. Docs</small></p></th>
-<td><p>A built-in django admin command used to sync the VA Explorer database state with the current set of models and migrations in the app code by applying migrations files.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">migrate</span></code></p></td>
+<td><p>See Ext. Docs</p></td>
+<td><p>A built-in django admin command used to sync the VA Explorer database
+state with the current set of models and migrations in the app code by
+applying migrations files.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">shell_plus</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
-<td><p>A django-extensions command that provides a python shell session preloaded with VA Explorer database models and other user-defined classes. Useful for running python commands that require VA Explorer components.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">shell_plus</span></code></p></td>
+<td><p>None</p></td>
+<td><p>A django-extensions command that provides a python shell session preloaded
+with VA Explorer database models and other user-defined classes. Useful
+for running python commands that require VA Explorer components.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">collectstatic</span></code></p></th>
-<th class="stub"><p><small>See Ext. Docs</small></p></th>
-<td><p>A built-in django admin command that collects all static files into <code class="docutils literal notranslate"><span class="pre">STATIC_ROOT</span></code>. Useful for refreshing the application during development after adding new static files.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">collectstatic</span></code></p></td>
+<td><p>See Ext. Docs</p></td>
+<td><p>A built-in django admin command that collects all static files into
+<code class="docutils literal notranslate"><span class="pre">STATIC_ROOT</span></code>. Useful for refreshing the application during development
+after adding new static files.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">runserver_plus</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <small>See Ext. Docs</small></p></th>
-<td><p>A django-extensions command that runs a development server to serve VA Explorer locally. Has extras that support errors and debugging. Optionally specify an <code class="docutils literal notranslate"><span class="pre">ip:port</span></code> format location to run the server on a specific IP address and port number. Defaults to <code class="docutils literal notranslate"><span class="pre">127.0.0.1:8000</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">runserver_plus</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or See Ext. Docs</p></td>
+<td><p>A django-extensions command that runs a development server to serve VA
+Explorer locally. Has extras that support errors and debugging. Optionally
+specify an <code class="docutils literal notranslate"><span class="pre">ip:port</span></code> format location to run the server on a specific IP
+address and port number. Defaults to <code class="docutils literal notranslate"><span class="pre">127.0.0.1:8000</span></code></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">validate_templates</span></code></p></th>
-<th class="stub"><p><small>See Ext. Docs</small></p></th>
-<td><p>A django-extensions command used to catch any invalid Django template syntax within your app. Used by VA Explorer in its testing.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">validate_templates</span></code></p></td>
+<td><p>See Ext. Docs</p></td>
+<td><p>A django-extensions command used to catch any invalid Django template
+syntax within your app. Used by VA Explorer in its testing.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">initialize_groups</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">initialize_groups</span></code></p></td>
+<td><p>None</p></td>
 <td><p>Used to manually run or update user roles and their associated permissions.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">seed_admin_user</span></code></p></th>
-<th class="stub"><ul><li><pre>--email (*)</pre></li><li><pre>--password</pre></li></ul>
-</th>
-<td><p>Creates an admin user with a specific email address and password. Optionally accepts a password via <code class="docutils literal notranslate"><span class="pre">password</span></code> param, but will create a randomly-generated password and print to the console by default.</p></td>
+<tr class="row-even"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">seed_admin_user</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--email</span></code> <code class="docutils literal notranslate"><span class="pre">(*)</span></code></p></td>
+<td rowspan="2"><p> Creates an admin user with a specific email address and
+password. Optionally accepts a password via <cite>password</cite> param, but will
+create a randomly-generated password and print to the console by default.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">seed_demo_users</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
-<td><p>Creates demo accounts for Data manager, Data viewer, and Field Worker with <code class="docutils literal notranslate"><span class="pre">Password1</span></code>. Used for the local environment only for demonstration and testing purposes.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--password</span></code></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">fake_current_va_dates</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
-<td><p>Updates dates on all VAs to make them look more current. Used for the local environment only for demonstration and testing purposes.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">seed_demo_users</span></code></p></td>
+<td><p>None</p></td>
+<td><p>Creates demo accounts for Data manager, Data viewer, and Field Worker with
+<code class="docutils literal notranslate"><span class="pre">Password1</span></code>. Used for the local environment only for demonstration and
+testing purposes.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">randomize_va_dates</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
-<td><p>Initializes demo VAs with dates. Used for the local environment only for demonstration and testing purposes.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fake_current_va_dates</span></code></p></td>
+<td><p>None</p></td>
+<td><p>Updates dates on all VAs to make them look more current. Used for the
+local environment only for demonstration and testing purposes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">randomize_va_dates</span></code></p></td>
+<td><p>None</p></td>
+<td><p>Initializes demo VAs with dates. Used for the local environment only for
+demonstration and testing purposes.</p></td>
 </tr>
 </tbody>
 </table>

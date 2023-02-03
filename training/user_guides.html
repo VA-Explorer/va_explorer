@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="The Admin Role" href="admin_guides.html" /><link rel="prev" title="Common Actions Across User Roles" href="general/common_actions.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
@@ -25,14 +25,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
       }
     }
@@ -323,8 +323,13 @@ administrator may set and update them.</p>
 <p>To manage what is done with these VAs flagged as potential duplicates, you may
 delete them or edit the possible duplicate VAs to remove them from detection.
 See the table below for all actions you can take on the data cleanup page.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">List of actions available through the data cleanup UI and what they accomplish</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 70%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head stub"><p>Action</p></th>
 <th class="head"><p>Description</p></th>
@@ -335,13 +340,16 @@ See the table below for all actions you can take on the data cleanup page.</p>
 <td><p>Download all potential duplicate VAs to a CSV file for examination.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p>Delete All</p></th>
-<td><p>Delete all potential duplicate VAs. The oldest VA (by created timestamp) amongst a set of matching VAs is designated as the non-duplicate and kept in the system.</p></td>
+<td><p>Delete all potential duplicate VAs. The oldest VA (by created timestamp)
+amongst a set of matching VAs is designated as the non-duplicate and kept
+in the system.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p>View</p></th>
 <td><p>View a single VA flagged as a possible duplicate.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p>Download Individual</p></th>
-<td><p>Download an individual VA and VAs flagged as its potential duplicate(s) to a CSV file for examination.</p></td>
+<td><p>Download an individual VA and VAs flagged as its potential duplicate(s)
+to a CSV file for examination.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p>Delete Individual</p></th>
 <td><p>Delete an individual VA from the system.</p></td>

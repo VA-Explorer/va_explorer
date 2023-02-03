@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="IT Support" href="it_guides.html" /><link rel="prev" title="User Roles" href="user_guides.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
@@ -25,14 +25,14 @@
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #282C34;
+  --color-code-foreground: #ABB2BF;
   
       }
     }
@@ -246,46 +246,47 @@ of nesting required to make a tree.</p>
 Cities in the United States. In this example, we have one state (California), two
 counties (Marin and Los Angeles), and three cities (Sausalito, San Rafael, and
 Los Angeles).</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">An example geographic hierarchy in tabular format</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head stub"><p>Name</p></th>
-<th class="head stub"><p>Type</p></th>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
 <th class="head"><p>Parent</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><p>California</p></th>
-<th class="stub"><p>State</p></th>
+<tr class="row-even"><td><p>California</p></td>
+<td><p>State</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p>Marin County</p></th>
-<th class="stub"><p>County</p></th>
+<tr class="row-odd"><td><p>Marin County</p></td>
+<td><p>County</p></td>
 <td><p>California</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p>Sausalito</p></th>
-<th class="stub"><p>City</p></th>
+<tr class="row-even"><td><p>Sausalito</p></td>
+<td><p>City</p></td>
 <td><p>Marin County</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p>San Rafael</p></th>
-<th class="stub"><p>City</p></th>
+<tr class="row-odd"><td><p>San Rafael</p></td>
+<td><p>City</p></td>
 <td><p>Marin County</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p>Los Angeles County</p></th>
-<th class="stub"><p>County</p></th>
+<tr class="row-even"><td><p>Los Angeles County</p></td>
+<td><p>County</p></td>
 <td><p>California</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p>Los Angeles</p></th>
-<th class="stub"><p>City</p></th>
+<tr class="row-odd"><td><p>Los Angeles</p></td>
+<td><p>City</p></td>
 <td><p>Los Angeles County</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/geo_hierarchy.png"><img alt="A tree data structure showing a hierarchy. California State, Marin County, then Sausalito City and San Rafael City for example." src="../_images/geo_hierarchy.png" style="width: 75%;" /></a>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/geo_hierarchy.png"><img alt="../_images/geo_hierarchy.png" src="../_images/geo_hierarchy.png" style="width: 75%;" /></a>
 <figcaption>
-<p><span class="caption-text"><small>An example geographic hierarchy</small></span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small> A tree data structure showing the example geographic hierarchy from the previous table</small></span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
 <p>The input is similarly structured to support any number of geographic hierarchies
@@ -392,52 +393,120 @@ for calling the following commands via:</p>
 <p>from within the container. Below is a selection of management commands,
 generally useful to admins. An even fuller list of these can be found under
 Development Commands (link)</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id3">
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Descriptions and lists of parameters for select management commands related to administration of VA Explorer</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
 <thead>
-<tr class="row-odd"><th class="head stub"><p>Command Name</p></th>
-<th class="head stub"><p>Parameter Names<br/>(*) = Required</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head" rowspan="2"><p> Command Name</p></th>
+<th class="head"><p>Parameter Names</p></th>
+<th class="head" rowspan="2"><p> Description</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">(*)</span></code> = Required</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">load_va_csv</span></code></p></th>
-<th class="stub"><ul><li><pre>--csv_file (*)</pre></li><li><pre>--random_locations</pre></li></ul>
-</th>
-<td><p>Used to manually import data from file to into VA Explorer’s database. <code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the file. Can be used with <code class="docutils literal notranslate"><span class="pre">random_locations</span></code> for test or demo data to randomly assign the VA to a field worker with specific location restrictions. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">load_va_csv</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--csv_file</span></code> <code class="docutils literal notranslate"><span class="pre">(*)</span></code></p></td>
+<td rowspan="2"><p> Used to manually import data from file to into VA Explorer’s
+database. <code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code>
+format location of the file. Can be used with <code class="docutils literal notranslate"><span class="pre">random_locations</span></code> for
+test or demo data to randomly assign the VA to a field worker with
+specific location restrictions. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to
+<code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">load_locations</span></code></p></th>
-<th class="stub"><ul><li><pre>--csv_file (*)</pre></li><li><pre>--delete_previous</pre></li></ul>
-</th>
-<td><p>Used to load initial location date data needed to support Geographic access. <code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the file. Can be used with <code class="docutils literal notranslate"><span class="pre">delete_previous</span></code> to delete existing location data and start fresh with the new locations being loaded. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--random_locations</span></code></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">run_coding_algorithms</span></code></p></th>
-<th class="stub"><ul><li><pre>--overwrite</pre></li><li><pre>--cod_fname</pre></li></ul>
-</th>
-<td><p>Used to call supported algorithms for assignment of cause of death to all VAs. <code class="docutils literal notranslate"><span class="pre">overwrite</span></code> allows this command to clear (and save) all existing CoD assignments before running. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> <code class="docutils literal notranslate"><span class="pre">cod_fname</span></code> is a filename or unix:path format location to save the old CoDs to. Defaults to <code class="docutils literal notranslate"><span class="pre">old_cod_mapping.csv</span></code></p></td>
+<tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">load_locations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--csv_file</span></code> (*)</p></td>
+<td rowspan="2"><p> Used to load initial location date data needed to support
+Geographic access. <code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or
+<code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the file. Can be used with
+<code class="docutils literal notranslate"><span class="pre">delete_previous</span></code> to delete existing location data and start fresh with
+the new locations being loaded. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to
+<code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">get_user_form_template</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">--output_file</span></code></p></th>
-<td><p>Utility to obtain a bulk user creation template csv with header fields corresponding to fields of the current User model. <code class="docutils literal notranslate"><span class="pre">output_file</span></code> is a filename or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location to save template to. Default is <code class="docutils literal notranslate"><span class="pre">user_form_fields.csv</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--delete_previous</span></code></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">bulk_load_users</span></code></p></th>
-<th class="stub"><ul><li><pre>--user_list_file (*)</pre></li><li><pre>--email_confirmation</pre></li></ul>
-</th>
-<td><p>Used to bulk create user accounts, assigning a temporary password to each. <code class="docutils literal notranslate"><span class="pre">user_list_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the users file. Can be used with <code class="docutils literal notranslate"><span class="pre">email_confirmation</span></code> if an email server has been setup to automatically send an email with the new temporary password to each created user. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> (prints to console instead so passwords must manually be passed to users somehow)</p></td>
+<tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">run_coding_algorithms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--overwrite</span></code></p></td>
+<td rowspan="2"><p> Used to call supported algorithms for assignment of cause of
+death to all VAs. <code class="docutils literal notranslate"><span class="pre">overwrite</span></code> allows this command to clear (and save)
+all existing CoD assignments before running. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>;
+defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> <code class="docutils literal notranslate"><span class="pre">cod_fname</span></code> is a filename or unix:path format
+location to save the old CoDs to. Defaults to <code class="docutils literal notranslate"><span class="pre">old_cod_mapping.csv</span></code></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">export_user_info</span></code></p></th>
-<th class="stub"><ul><li><pre>--output_file</pre></li><li><pre>--user_file</pre></li></ul>
-</th>
-<td><p>Used to export an anonymized (No PII) list of all users in the system along with their roles and permissions. Useful for non-invasively correlating user activity in VA Explorer logs. <code class="docutils literal notranslate"><span class="pre">output_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the file to export user info to. Defaults to <code class="docutils literal notranslate"><span class="pre">user_list.csv</span></code> <code class="docutils literal notranslate"><span class="pre">user_file</span></code> is a separate filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of a .txt file containing emails (one per line) of specific users to export. Defaults to all users if no file.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--cod_fname</span></code></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">link_fieldworkers_to_vas</span></code></p></th>
-<th class="stub"><ul><li><pre>--emails</pre></li><li><pre>--match_threshold</pre></li></ul>
-</th>
-<td><p>Used to manually link a group of field workers to their VAs via <code class="docutils literal notranslate"><span class="pre">Id10010</span></code> on the VA and <code class="docutils literal notranslate"><span class="pre">username</span></code> on the User. Matches are persisted by setting the VA’s <code class="docutils literal notranslate"><span class="pre">username</span></code> field to the matching field on User. <code class="docutils literal notranslate"><span class="pre">emails</span></code> is a comma separated, no spaces, string of emails that can be used to specify specific field workers to match. By default, all field workers are considered for matching. <code class="docutils literal notranslate"><span class="pre">match_threshold</span></code> is also available to adjust desired match similarity (ranging from any [incorrect] match at 0% to allowing full matches only at 100%). Default is 80%.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">get_user_form</span>
+<span class="pre">_template</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--output_file</span></code></p></td>
+<td><p>Utility to obtain a bulk user creation template csv with header fields
+corresponding to fields of the current User model. <code class="docutils literal notranslate"><span class="pre">output_file</span></code> is a
+filename or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location to save template to. Default is
+<code class="docutils literal notranslate"><span class="pre">user_form_fields.csv</span></code></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">mark_vas_as_duplicate</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
-<td><p>Used to manually run (or re-run if config is changed) duplicate checking within VA Explorer. Contains no parameters as behavior is determined by the configuration variable QUESTIONS_TO_AUTODETECT_DUPLICATES see Configuration &amp; Deployment (link)</p></td>
+<tr class="row-even"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">bulk_load_users</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--user_list_file</span></code> <code class="docutils literal notranslate"><span class="pre">(*)</span></code></p></td>
+<td rowspan="2"><p> Used to bulk create user accounts, assigning a temporary
+password to each. <code class="docutils literal notranslate"><span class="pre">user_list_file</span></code> is a filename in the local folder or
+<code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the users file. Can be used with
+<code class="docutils literal notranslate"><span class="pre">email_confirmation</span></code> if an email server has been setup to automatically
+send an email with the new temporary password to each created user.
+<code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> (prints to console instead so
+passwords must manually be passed to users somehow)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--email_confirmation</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">export_user_info</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--output_file</span></code></p></td>
+<td rowspan="2"><p> Used to export an anonymized (No PII) list of all users in the
+system along with their roles and permissions. Useful for non-invasively
+correlating user activity in VA Explorer logs. <code class="docutils literal notranslate"><span class="pre">output_file</span></code> is a
+filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the file
+to export user info to. Defaults to <code class="docutils literal notranslate"><span class="pre">user_list.csv</span></code>. <code class="docutils literal notranslate"><span class="pre">user_file</span></code> is a
+separate filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of
+a <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file containing emails (one per line) of specific users to
+export. Defaults to all users if no file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--user_file</span></code></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">link_fieldworkers</span>
+<span class="pre">_to_vas</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--emails</span></code></p></td>
+<td rowspan="2"><p> Used to manually link a group of field workers to their VAs via
+<code class="docutils literal notranslate"><span class="pre">Id10010</span></code> on the VA and <code class="docutils literal notranslate"><span class="pre">username</span></code> on the User. Matches are persisted
+by setting the VA’s <code class="docutils literal notranslate"><span class="pre">username</span></code> field to the matching field on User.
+<code class="docutils literal notranslate"><span class="pre">emails</span></code> is a comma separated, no spaces, string of emails that can be
+used to specify specific field workers to match. By default, all field
+workers are considered for matching. <code class="docutils literal notranslate"><span class="pre">match_threshold</span></code> is also available
+to adjust desired match similarity (ranging from any [incorrect] match at
+0% to allowing full matches only at 100%). Default is 80%.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--match_threshold</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mark_vas_as</span>
+<span class="pre">_duplicate</span></code></p></td>
+<td><p>None</p></td>
+<td><p>Used to manually run (or re-run if config is changed) duplicate checking
+within VA Explorer. Contains no parameters as behavior is determined by
+the configuration variable <code class="docutils literal notranslate"><span class="pre">QUESTIONS_TO_AUTODETECT_DUPLICATES</span></code> see
+Configuration &amp; Deployment (link)</p></td>
 </tr>
 </tbody>
 </table>
@@ -446,28 +515,54 @@ Development Commands (link)</p>
 additional management commands are available. If the environment variables (see
 Integrations (link)) that enable these integrations to work automatically are not
 defined, consider all parameters required for these management commands.</p>
-<div class="table-wrapper docutils container">
-<table class="docutils align-default">
+<div class="table-wrapper colwidths-given docutils container" id="id4">
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Descriptions and lists of parameters for select management commands related to integrations</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 20%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
-<tr class="row-odd"><th class="head stub"><p>Command Name</p></th>
-<th class="head stub"><p>Parameter Names</p></th>
+<tr class="row-odd"><th class="head"><p>Command Name</p></th>
+<th class="head"><p>Parameter Names</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">import_from_odk</span></code></p></th>
-<th class="stub"><ul><li><pre>--email</pre></li><li><pre>--password</pre></li><li><pre>--project_name</pre></li><li><pre>--project_id</pre></li><li><pre>--form_id</pre></li><li><pre>--form_name</pre></li></ul>
-</th>
-<td><p>Used to manually import VA data from ODK Central. Parameters are as described for the equivalent environment variables listed in Integrations &gt; ODK Central (link)</p></td>
+<tr class="row-even"><td rowspan="6"><p> <code class="docutils literal notranslate"><span class="pre">import_from_odk</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--email</span></code></p></td>
+<td rowspan="6"><p> Used to manually import VA data from ODK Central. Parameters
+are as described for the equivalent environment variables listed in
+Integrations &gt; ODK Central (link)</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">load_dhis_cod_codes</span></code></p></th>
-<th class="stub"><p><code class="docutils literal notranslate"><span class="pre">--csv_file</span></code></p></th>
-<td><p>Used to manually setup VA Explorer to report WHO CoD Codes in the format expected by DHIS2 and must be run before first export will succeed. <code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the csv file. csv file has the header <code class="docutils literal notranslate"><span class="pre">codsource,codcode,codname,codid</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--password</span></code></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">run_dhis</span></code></p></th>
-<th class="stub"><ul><li><pre>--dhis_user</pre></li><li><pre>--dhis_pass</pre></li><li><pre>--dhis_url</pre></li><li><pre>--dhis_orgunit</pre></li></ul>
-</th>
-<td><p>Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in Integrations &gt; DHIS2 (link)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--project_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--project_id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--form_id</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--form_name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">load_dhis_cod_codes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--csv_file</span></code></p></td>
+<td><p>Used to manually setup VA Explorer to report WHO CoD Codes in the format
+expected by DHIS2 and must be run before first export will succeed.
+<code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format
+location of the csv file. csv file has the header
+<code class="docutils literal notranslate"><span class="pre">codsource,codcode,codname,codid</span></code></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><p> <code class="docutils literal notranslate"><span class="pre">run_dhis</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--dhis_user</span></code></p></td>
+<td rowspan="4"><p> Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in Integrations &gt; DHIS2 (link)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--dhis_pass</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dhis_url</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--dhis_orgunit</span></code></p></td>
 </tr>
 </tbody>
 </table>
