@@ -1,9 +1,9 @@
 # User Roles
 
-In addition to the training previously detailed for Common Actions (link), users
+In addition to the training previously detailed for [Common Actions](general/common_actions), users
 may want to read training specific to their role. This section offers guidance
 for Data Managers, Data Viewers, and Field Workers. For Admins, please see the
-next section Admin Guides (link) which covers your more expansive abilities.
+next section [Admin Guides](admin_guides) which covers your more expansive abilities.
 
 ## Data Managers
 
@@ -128,9 +128,8 @@ See the table below for all actions you can take on the data cleanup page.
 ````
 
 For further information relating to the identification of duplicates, please
-either ask your admin, consult Configuration & Deployment (link) for info on
-setting up or changing questions used for this process, or Management Commands
-(link) for admin guidance on running the process manually.
+either ask your admin, consult [Configuration & Deployment](../usage/getting_started/config) for info on
+setting up or changing questions used for this process, or [Management Commands](admin_guides.md#management-commands) for admin guidance on running the process manually.
 
 ### Repairing VA Errors & Warnings
 
@@ -165,28 +164,29 @@ to visit the Home page and starting a VA coding job to assign Cause of Death:
 the background
 
 If you receive any error messages following this, either reach out to your admin
-or see our Troubleshooting (link) section
+or see our [Troubleshooting](#troubleshooting) section
 
 ## Data Viewers
 
 Data viewers have the simplest set of permissions, enabling them to view data
 scoped to whichever restrictions their admins set. As a data viewer, VA Explorer
 does not currently support any features unique to your role. Please consult the
-Common Actions (link) section, particularly the Dashboard and VA Search interface
+[Common Actions](general/common_actions) section, particularly the Dashboard and VA Search interface
 guides for more info on available actions.
 
 ## Field Workers
 
 Field Workers are similar to Data Viewers. However, they only see VAs for their 
 own location and can partially repair VA Errors & Warnings for those VAs. For a 
-full listing of these, see Common Actions (link) or see below for an explanation 
-of the "partial repair" workflow.
+full listing of these, see [Common Actions](general/common_actions) or see below
+for an explanation  of the "partial repair" workflow.
 
 ### Partially Repairing VA Errors & Warnings
 
 As a Field Worker, you have the ability to make corrections to VAs for your own 
 location as a way of assisting Data Managers with the correction of any warnings 
-or errors reported by VA Explorer. See Repairing VA Errors & Warnings (link) for 
-details. However, you will not be able to create any VA coding jobs to re-run 
+or errors reported by VA Explorer. See [Repairing VA Errors & Warnings](#repairing-va-errors--warnings)
+for details. However, you will not be able to create any VA coding jobs to re-run 
 cause of death assignment. Please reach out to the appropriate Data Manager or 
 Admin to do this for you.
+
