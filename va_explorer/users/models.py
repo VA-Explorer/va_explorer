@@ -76,10 +76,6 @@ class User(AbstractUser):
             Id10023__gte=date_cutoff, Id10023__lte=end_date
         )
 
-        if self.is_fieldworker():
-            return va_objects.filter(
-                username__in=self.vausername_set.all().values_list("va_username")
-            )
         if self.location_restrictions.count() > 0:
             # Get the query set of all locations at or below the parent nodes
             # the user can access by joining the query sets of all the location

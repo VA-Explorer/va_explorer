@@ -16,13 +16,7 @@ from django.forms import (
 )
 from django.utils.crypto import get_random_string
 
-from va_explorer.users.utils.field_worker_linking import (
-    assign_va_usernames,
-    get_va_worker_names,
-    link_fieldworkers_to_vas,
-)
-from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
-from va_explorer.va_data_management.utils.location_assignment import fuzzy_match
+from va_explorer.va_data_management.models import Location, VaUsername
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 
@@ -103,32 +97,7 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
 
     # set username
     user.set_va_username(cleaned_data.get("va_username"))
-
-    # =======Fieldworker-VA linking logic===================#
-    # if run_linking_logic and field worker, go through series of steps to ensure
-    # they're properly linked to the right VAs
-    if run_matching_logic and group.name.lower().startswith("field worker"):
-
-        # first, match provided username against VAs. # If matching va field worker
-        # name, link all VAs referencing this fieldworker to current username.
-        va_worker_keys = get_va_worker_names()
-
-        # only run if field workers in the system!
-        if len(va_worker_keys) > 0:
-            va_worker_names = list(va_worker_keys.keys())
-
-            # match current username against va worker names
-            match = fuzzy_match(user.get_va_username(), None, options=va_worker_names)
-            if match:
-                worker_name = va_worker_keys[match]
-                # VAs with matching fieldworker names
-                worker_vas = VerbalAutopsy.objects.filter(Id10010=worker_name)
-                assign_va_usernames(worker_vas, usernames=[worker_name], override=True)
-            else:
-                # if no match, try setting username if User's name fuzzy matches
-                # with a va field worker name
-                link_fieldworkers_to_vas(emails=user.email)
-
+ 
     # if View PII permission specified in form, override user group's default permission
     if "view_pii" in cleaned_data:
         user.can_view_pii = cleaned_data["view_pii"]
