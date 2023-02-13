@@ -28,7 +28,7 @@ data shown on the Home page depends on your assigned role and geographic access.
 
 Your profile shows the role you have been assigned, your geographic access, and
 actions you can take in VA Explorer, such as viewing PII and downloading data.
-These account settings are described in [User Roles and Capabilities](../user_guides.md) To
+These account settings are described in User Roles and Capabilities (link) To
 view your account profile:
 
 1. Click your name in the upper righthand corner of the navigation bar; a
@@ -119,7 +119,7 @@ page.
 
 The Data Management page shows a paginated table of all the VAs in the system
 your account is eligible to see. For more information about your account and
-eligibility, see [Viewing Your Account Profile](#viewing-your-account-profile). On the Data Management
+eligibility, see Viewing Your Account Profile (link). On the Data Management
 page, you can search or filter available VAs with the following parameters:
 
 ````{eval-rst}
@@ -182,8 +182,8 @@ details below.
 
 When viewing a specific VA, the resulting page may show a couple of tabs at the
 top below the VAs ID. Users with permission to change VAs will also see the
-option to repair the VA via an "Edit Record" button. See [Repairing VA Errors &
-Warnings](../user_guides.md#repairing-va-errors--warnings) for details on editing VAs. Quick navigation options to
+option to repair the VA via an "Edit Record" button. See Repairing VA Errors &
+Warnings (link) for details on editing VAs. Quick navigation options to
 automatically scroll to the top or bottom of the VA responses is available via
 the floating action button in the bottom right.
 

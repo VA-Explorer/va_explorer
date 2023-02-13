@@ -8,7 +8,7 @@ This section covers some of these additional steps as a good starting set:
 - Configuring for better security
 - Implementing server monitoring
 
-There are also further guides along these lines in [IT Support Guides](../../training/it_guides) for
+There are also further guides along these lines in IT Support Guides (link) for
 those anxious to learn more about sustaining use of VA Explorer over time.
 
 ## Setting up a mail server
@@ -22,7 +22,7 @@ Once this process has finished, `EMAIL_URL` can similarly be customized to point
 to `localhost`.
 
 ```{note}
-If users are reporting non-receipt of emails, the [Frequently Asked Questions](../..training/troubleshooting.md#frequently-asked-questions)
+If users are reporting non-receipt of emails, the Frequently Asked Questions (link)
 section may help.
 ```
 
@@ -65,7 +65,7 @@ updates, and sometimes these updates have the sole purpose of patching security
 vulnerabilities. Failing to download these security updates leaves software open
 to known vulnerabilities. To update server software, regularly run
 `sudo apt update && sudo apt upgrade` or your OS equivalent. To update VA
-Explorer, refer to the [IT Support Guides > Upgrading VA Explorer](../../training/it_guides.md#upgrading-va-explorer) guide.
+Explorer, refer to the IT Support Guides > Upgrading VA Explorer (link) guide.
 
 You may also consider setting your server up for automatic security updates.
 Debian-based Linux systems like Ubuntu provide the `unattended-upgrade` utility

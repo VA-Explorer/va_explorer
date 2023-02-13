@@ -53,7 +53,7 @@ your account has this restriction, VA Explorer only shows you VAs from your
 assigned regions or facilities. The default geographic restriction is the broadest
 "National" access, which shows VAs from all regions. To support additional
 location restriction options beyond the default, Admins should follow the guide
-in [Loading Locations for Geographic Access Support](../admin_guides.md#loading-locations-for-geographic-access-support)
+in Loading Locations for Geographic Access Support (link)
 
 ## Abilities to Download and View PII Data
 

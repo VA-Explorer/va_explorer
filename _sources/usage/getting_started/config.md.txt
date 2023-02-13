@@ -134,4 +134,4 @@ containers.
 ```
 
 For further configuration information, particularly for integrating with
-external services such as ODK and DHIS, please see [Integrations](../integrations.md).
+external services such as ODK and DHIS, please see Integrations (link).
