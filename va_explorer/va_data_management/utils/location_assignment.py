@@ -3,7 +3,7 @@ import re
 import pandas as pd
 from fuzzywuzzy import fuzz
 
-from va_explorer.va_data_management.models import Location, VaUsername
+from va_explorer.va_data_management.models import Location
 
 
 def build_location_mapper(
@@ -75,14 +75,6 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
             db_location = Location.objects.filter(
                 location_type="facility", name=db_location_name
             ).first()
-
-    # if no db location found, and va username defined, try setting username's location
-    if not db_location and va.username and len(va.username) > 0:
-        va_user = VaUsername.objects.filter(va_username=va.username).first()
-        if va_user:
-            user_locations = va_user.user.location_restrictions
-            if user_locations:
-                db_location = user_locations.first()
 
     # if any db location found, update VA with found location
     if db_location:

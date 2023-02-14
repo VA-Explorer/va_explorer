@@ -8,7 +8,7 @@ from django.db.models import Count, Max, Q
 from simple_history.utils import bulk_create_with_history
 
 from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
-from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.location_assignment import (
     assign_va_location,
@@ -82,15 +82,14 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     # if random locations, assign random locations via a random field worker.
     if random_locations:
-        valid_usernames = VaUsername.objects.exclude(va_username__exact="")
-        # if no field workers with usernames, create some
-        if len(valid_usernames) <= 1:
+        field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
+        if len(field_workers) <= 1:
             print(
                 "WARNING: no field workers w/ usernames in system. \
                 Generating random ones now..."
             )
             make_field_workers_for_facilities()
-            valid_usernames = VaUsername.objects.exclude(va_username__exact="")
+            field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
 
     # pull in all existing VA instanceIDs from db for de-duping purposes
     print("pulling in instance ids...")
@@ -143,9 +142,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         # to determine location.
         # Otherwise, try assigning location based on hospital field.
         if random_locations:
-            username = valid_usernames.order_by("?").first()
-            user = User.objects.get(pk=username.user_id)
-            va.username = username.va_username
+            user = field_workers.order_by("?").first()
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
