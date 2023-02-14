@@ -14,7 +14,6 @@ pytestmark = pytest.mark.django_db
 
 def test_loading_from_dataframe():
     # Location gets assigned w/ field hospital by name or by user's default location
-    # TODO create a test that assigns location by the username
     loc = Location.add_root(name="test location", location_type="facility")
 
     data = [

@@ -151,7 +151,6 @@ $(document).ready(function() {
    *  1. the geographic access radio button
    *  2. the location restrictions select2 dropdown
    *  3. the facility restrictions select2 dropdown (visible for Field Worker role only)
-   *  4. the Field Worker username input field (tied to username on Verbal Autopsy)
    */
   function updateFormForActionSelected() {
     let elemToHide = [];

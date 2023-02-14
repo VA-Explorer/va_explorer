@@ -137,24 +137,6 @@ class User(AbstractUser):
         else:
             self.user_permissions.remove(permission)
 
-    # TODO: Update this if we are supporting more than one username; for
-    # now, allow only one
-    def set_va_username(self, new_va_username):
-        # If None or blank string, delete existing username.
-        if not new_va_username:
-            self.vausername_set.all().delete()
-            return
-
-        # Update or create the VaUsername for this user. There should only be one.
-        self.vausername_set.update_or_create(defaults={"va_username": new_va_username})
-
-    # TODO: Update this if we are supporting more than one username; for
-    # now, allow only one
-    def get_va_username(self):
-        va_username_for_user = self.vausername_set.first()
-
-        return va_username_for_user.va_username if va_username_for_user else ""
-
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 

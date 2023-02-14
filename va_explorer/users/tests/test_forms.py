@@ -2,7 +2,6 @@ import pytest
 from django.test import RequestFactory
 
 from va_explorer.tests.factories import (
-    AdminGroupFactory,
     FacilityFactory,
     FieldWorkerFactory,
     FieldWorkerGroupFactory,
@@ -10,7 +9,6 @@ from va_explorer.tests.factories import (
     LocationFactory,
     NewUserFactory,
     UserFactory,
-    VaUsernameFactory,
 )
 from va_explorer.users.forms import (
     ExtendedUserCreationForm,
@@ -87,81 +85,6 @@ class TestUserCreationForm:
         form.request = request
 
         assert form.is_valid()
-
-    def test_valid_form_with_username(self, rf: RequestFactory):
-        proto_user = NewUserFactory.build()
-        group = FieldWorkerGroupFactory.create()
-        location = FacilityFactory.create()
-
-        form = ExtendedUserCreationForm(
-            {
-                "name": proto_user.name,
-                "email": proto_user.email,
-                "group": group,
-                "geographic_access": "location-specific",
-                "location_restrictions": [],
-                "facility_restrictions": [location],
-                "va_username": "user1234",
-            }
-        )
-
-        # Note: The form expects a request object to be set in order to save it
-        request = rf.get("/fake-url/")
-        form.request = request
-
-        assert form.is_valid()
-
-    def test_invalid_form_with_duplicate_username(self, rf: RequestFactory):
-        proto_user = NewUserFactory.build()
-        existing_user = UserFactory.create()
-        existing_va_username = VaUsernameFactory.create(user=existing_user)
-
-        group = FieldWorkerGroupFactory.create()
-        location = FacilityFactory.create()
-
-        form = ExtendedUserCreationForm(
-            {
-                "name": proto_user.name,
-                "email": proto_user.email,
-                "group": group,
-                "geographic_access": "location-specific",
-                "location_restrictions": [],
-                "facility_restrictions": [location],
-                "va_username": existing_va_username.va_username,
-            }
-        )
-
-        # Note: The form expects a request object to be set in order to save it
-        request = rf.get("/fake-url/")
-        form.request = request
-
-        assert not form.is_valid()
-        assert len(form.errors) == 1
-        assert "va_username" in form.errors
-
-    def test_invalid_form_with_username_for_non_field_worker(self, rf: RequestFactory):
-        proto_user = NewUserFactory.build()
-        group = AdminGroupFactory.create()
-
-        form = ExtendedUserCreationForm(
-            {
-                "name": proto_user.name,
-                "email": proto_user.email,
-                "group": group,
-                "geographic_access": "national",
-                "location_restrictions": [],
-                "facility_restrictions": [],
-                "va_username": "user1234",
-            }
-        )
-
-        # Note: The form expects a request object to be set in order to save it
-        request = rf.get("/fake-url/")
-        form.request = request
-
-        assert not form.is_valid()
-        assert len(form.errors) == 1
-        assert "va_username" in form.errors
 
     def test_email_uniqueness(self):
         # A user with existing_user params exists already.
@@ -292,13 +215,12 @@ class TestUserUpdateForm:
                 "is_active": True,
                 "geographic_access": "location-specific",
                 "location_restrictions": [],
-                "va_username": "Should not have username",
             }
         )
 
         assert not form.is_valid()
-        assert len(form.errors) == 2
-        assert "location_restrictions" and "va_username" in form.errors
+        assert len(form.errors) == 1
+        assert "location_restrictions" in form.errors
 
     def test_valid_field_worker_form(self, rf: RequestFactory):
         field_worker_group = FieldWorkerGroupFactory.create()
@@ -311,8 +233,7 @@ class TestUserUpdateForm:
                 "group": field_worker_group,
                 "is_active": True,
                 "geographic_access": "location-specific",
-                "location_restrictions": [facility],
-                "va_username": "user1234",
+                "location_restrictions": [facility]
             }
         )
 
@@ -320,8 +241,7 @@ class TestUserUpdateForm:
 
     def test_invalid_field_worker_form(self, rf: RequestFactory):
         field_worker_group = FieldWorkerGroupFactory.create()
-        another_user = FieldWorkerFactory.create()
-        another_user_va_username = VaUsernameFactory.create(user=another_user)
+        FieldWorkerFactory.create()
 
         form = UserUpdateForm(
             {
@@ -330,14 +250,13 @@ class TestUserUpdateForm:
                 "group": field_worker_group,
                 "is_active": True,
                 "geographic_access": "national",
-                "location_restrictions": [],
-                "va_username": another_user_va_username.va_username,
+                "location_restrictions": []
             }
         )
 
         assert not form.is_valid()
-        assert len(form.errors) == 2
-        assert "facility_restrictions" and "va_username" in form.errors
+        assert len(form.errors) == 1
+        assert "facility_restrictions" in form.errors
 
     def test_group_required(self):
         # A user with proto_user params does not exist yet.
@@ -357,45 +276,6 @@ class TestUserUpdateForm:
         assert not form.is_valid()
         assert len(form.errors) == 1
         assert "group" in form.errors
-
-    def test_blank_usernames(self):
-        # At the time of writing, this is testing a bug.
-        # The UserUpdateForm will create a VaUsername with a blank username.
-        # This means that the below would fail since it's a unique field and 2 users
-        # cannot have the same "blank" username.
-        # So I added this test and then fixed the code to verify.
-
-        field_worker_group = FieldWorkerGroupFactory.create()
-        location = LocationFactory.create()
-
-        user1 = NewUserFactory.build()
-        user2 = NewUserFactory.build()
-
-        form = UserUpdateForm(
-            {
-                "name": user1.name,
-                "email": user1.email,
-                "group": field_worker_group,
-                "geographic_access": "location-specific",
-                "location_restrictions": [location],
-                "va_username": "",
-            }
-        )
-
-        assert form.save()
-
-        form = UserUpdateForm(
-            {
-                "name": user2.name,
-                "email": user2.email,
-                "group": field_worker_group,
-                "geographic_access": "location-specific",
-                "location_restrictions": [location],
-                "va_username": "",
-            }
-        )
-
-        assert form.save()
 
 
 class TestUserSetPasswordForm:

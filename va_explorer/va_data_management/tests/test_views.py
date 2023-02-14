@@ -8,7 +8,6 @@ from va_explorer.tests.factories import (
     GroupFactory,
     LocationFactory,
     UserFactory,
-    VaUsernameFactory,
     VerbalAutopsyFactory,
 )
 from va_explorer.users.models import User
@@ -497,7 +496,6 @@ def test_field_worker_access_control():
         permissions=[can_view_record, can_view_pii]
     )
     field_worker = FieldWorkerFactory.create(groups=[field_worker_group])
-    field_worker_username = VaUsernameFactory.create(user=field_worker)
 
     province = LocationFactory.create()
     district1 = province.add_child(name="District1", location_type="district")
@@ -507,19 +505,17 @@ def test_field_worker_access_control():
     field_worker.location_restrictions.add(*[facility1])
 
     field_worker.save()
-    field_worker_username.save()
 
     va = VerbalAutopsyFactory.create(
         Id10017="deceased_name_1",
         Id10010="Role specific value",
         location=facility1,
-        username=field_worker_username.va_username,
     )
     va2 = VerbalAutopsyFactory.create(
-        Id10017="deceased_name_2", location=facility1, username=""
+        Id10017="deceased_name_2", location=facility1
     )
     va3 = VerbalAutopsyFactory.create(
-        Id10017="deceased_name_3", location=facility2, username=""
+        Id10017="deceased_name_3", location=facility2
     )
 
     client = Client()

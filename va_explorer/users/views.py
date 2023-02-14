@@ -118,8 +118,6 @@ class UserUpdateView(
             there are any locations restrictions associated with the user in the
             database, they have location-specific access; else national access.
             (2) Set the facilities restrictions associated with the user, if any
-
-        Initializes the user's VA username(s) on the form (see TODO)
         """
         initial = super().get_initial()
 
@@ -135,10 +133,6 @@ class UserUpdateView(
 
         initial["view_pii"] = self.get_object().can_view_pii
         initial["download_data"] = self.get_object().can_download_data
-
-        # TODO: Update this if we are supporting more than one username;
-        #  For now, we only ever allow one, so we will display one
-        initial["va_username"] = self.get_object().get_va_username()
 
         return initial
 

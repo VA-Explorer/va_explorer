@@ -16,7 +16,7 @@ from django.forms import (
 )
 from django.utils.crypto import get_random_string
 
-from va_explorer.va_data_management.models import Location, VaUsername
+from va_explorer.va_data_management.models import Location
 
 # from allauth.account.utils import send_email_confirmation, setup_user_email
 
@@ -63,26 +63,6 @@ def validate_location_access(form, geographic_access, location_restrictions, gro
             )
 
 
-def validate_username(form, va_username, group, user):
-    """
-    Custom form validations related to the Field Worker va_username assignment
-    """
-    if group.name != "Field Workers" and va_username:
-        form.errors["va_username"] = form.error_class(
-            ["Only Field Workers can be assigned a username."]
-        )
-    else:
-        if (
-            va_username
-            and VaUsername.objects.filter(va_username=va_username)
-            .exclude(user_id=user.id)
-            .exists()
-        ):
-            form.errors["va_username"] = form.error_class(
-                ["This username is already assigned to another Field Worker."]
-            )
-
-
 # core logic/steps to set user fields based on form data. Used in both UserCreation
 # and ExtendedUserCreation forms
 def process_user_data(user, cleaned_data, run_matching_logic=True):
@@ -94,9 +74,6 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
     # set user group
     group = cleaned_data["group"]
     user.groups.set([group])
-
-    # set username
-    user.set_va_username(cleaned_data.get("va_username"))
  
     # if View PII permission specified in form, override user group's default permission
     if "view_pii" in cleaned_data:
@@ -174,11 +151,6 @@ class UserCommonFields(forms.ModelForm):
         widget=RadioSelect(),
         required=True,
     )
-    va_username = forms.CharField(
-        required=False,
-        help_text="Username is the interviewer username collected in the \
-                   Verbal Autopsy.",
-    )
     view_pii = forms.BooleanField(
         label="Can View PII",
         help_text="Determines whether user can view PII. Only applies if group \
@@ -197,7 +169,6 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
     """
     Extends the built in UserCreationForm in several ways:
 
-    * The username is not visible.
     * Name field is added.
     * Group model from django.contrib.auth.models is represented as a ModelChoiceField
     * Non-model field geographic_access added to toggle between national and
@@ -219,7 +190,6 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
-            "va_username",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -232,7 +202,6 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         super(UserCreationForm, self).__init__(*args, **kwargs)
 
         self.fields["group"].label = "Role"
-        self.fields["va_username"].label = "Username"
 
     def clean(self, *args, **kwargs):
         """
@@ -248,10 +217,6 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
                 cleaned_data["geographic_access"],
                 location_restrictions,
                 cleaned_data["group"],
-            )
-
-            validate_username(
-                self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
 
         return cleaned_data
@@ -325,7 +290,6 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
             "geographic_access",
             "location_restrictions",
             "facility_restrictions",
-            "va_username",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -334,7 +298,6 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields["group"].label = "Role"
-        self.fields["va_username"].label = "Username"
 
     def clean(self, *args, **kwargs):
         """
@@ -350,10 +313,6 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
                 cleaned_data["geographic_access"],
                 location_restrictions,
                 cleaned_data["group"],
-            )
-
-            validate_username(
-                self, cleaned_data["va_username"], cleaned_data["group"], self.instance
             )
 
         return cleaned_data

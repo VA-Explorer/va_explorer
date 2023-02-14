@@ -67,7 +67,6 @@ class VerbalAutopsy(SoftDeletionModel):
     instanceid = models.TextField("Instance ID", blank=True, editable=False)
     phonenumber = models.TextField("Phone Number", blank=True)
     simserial = models.TextField("SIM Serial", blank=True)
-    username = models.TextField("Username", blank=True)
     bid = models.TextField("BID", blank=True)
     bid2 = models.TextField("BID2", blank=True)
     bid_check = models.TextField("BID Check", blank=True)
@@ -1873,8 +1872,3 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
-
-
-class VaUsername(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    va_username = models.TextField("va_username", unique=True)

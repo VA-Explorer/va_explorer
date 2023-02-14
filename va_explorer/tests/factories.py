@@ -10,7 +10,6 @@ from va_explorer.va_data_management.models import (
     CauseOfDeath,
     DhisStatus,
     Location,
-    VaUsername,
     VerbalAutopsy,
 )
 
@@ -73,7 +72,6 @@ class VerbalAutopsyFactory(DjangoModelFactory):
     Id10023 = "1901-01-01"
     Id10058 = "hospital"
     location = factory.SubFactory(LocationFacilityFactory)
-    username = ""
 
 
 class CauseOfDeathFactory(DjangoModelFactory):
@@ -148,13 +146,6 @@ class AdminGroupFactory(GroupFactory):
 
 class FacilityFactory(LocationFactory):
     location_type = "facility"
-
-
-class VaUsernameFactory(DjangoModelFactory):
-    class Meta:
-        model = VaUsername
-
-    va_username = Faker("user_name")
 
 
 class CauseCodingIssueFactory(DjangoModelFactory):

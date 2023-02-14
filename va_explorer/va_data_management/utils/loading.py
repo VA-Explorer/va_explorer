@@ -85,7 +85,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
         if len(field_workers) <= 1:
             print(
-                "WARNING: no field workers w/ usernames in system. \
+                "WARNING: no field workers in system. \
                 Generating random ones now..."
             )
             make_field_workers_for_facilities()
