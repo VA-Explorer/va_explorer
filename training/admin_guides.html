@@ -317,10 +317,6 @@ system. See Abilities to Download and View PII Data (link) for details on these
 permissions if needed</p></li>
 <li><p>Select the geographic region(s), facility, facilities this user can access.
 Users with a Field Worker role must be assigned to at least one facility</p></li>
-<li><p>If user is a Field Worker, also enter their username if known. This field is
-used to associate the field worker user with data imported from outside VA
-Explorer (from locations such as ODK or from CSV file) and allow the field worker
-to “own” their VAs</p></li>
 </ol>
 <p>Click “Create” to create the user or “Update” if editing a user. “Cancel” will
 take you back to the Users page without completing the action.</p>
@@ -486,21 +482,9 @@ export. Defaults to all users if no file.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--user_file</span></code></p></td>
 </tr>
-<tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">link_fieldworkers</span>
-<span class="pre">_to_vas</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">--emails</span></code></p></td>
-<td rowspan="2"><p> Used to manually link a group of field workers to their VAs via
-<code class="docutils literal notranslate"><span class="pre">Id10010</span></code> on the VA and <code class="docutils literal notranslate"><span class="pre">username</span></code> on the User. Matches are persisted
-by setting the VA’s <code class="docutils literal notranslate"><span class="pre">username</span></code> field to the matching field on User.
-<code class="docutils literal notranslate"><span class="pre">emails</span></code> is a comma separated, no spaces, string of emails that can be
-used to specify specific field workers to match. By default, all field
-workers are considered for matching. <code class="docutils literal notranslate"><span class="pre">match_threshold</span></code> is also available
-to adjust desired match similarity (ranging from any [incorrect] match at
-0% to allowing full matches only at 100%). Default is 80%.</p></td>
+<tr class="row-odd"><td colspan="3"><p><code class="docutils literal notranslate"><span class="pre">--match_threshold</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--match_threshold</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mark_vas_as</span>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mark_vas_as</span>
 <span class="pre">_duplicate</span></code></p></td>
 <td><p>None</p></td>
 <td><p>Used to manually run (or re-run if config is changed) duplicate checking
