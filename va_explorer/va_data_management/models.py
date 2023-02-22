@@ -67,6 +67,7 @@ class VerbalAutopsy(SoftDeletionModel):
     instanceid = models.TextField("Instance ID", blank=True, editable=False)
     phonenumber = models.TextField("Phone Number", blank=True)
     simserial = models.TextField("SIM Serial", blank=True)
+    username = models.TextField("Username", blank=True)
     bid = models.TextField("BID", blank=True)
     bid2 = models.TextField("BID2", blank=True)
     bid_check = models.TextField("BID Check", blank=True)
