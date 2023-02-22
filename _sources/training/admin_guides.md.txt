@@ -235,8 +235,6 @@ Development Commands (link)
 
   * - ``--user_file``
 
-  * - ``--match_threshold``
-
   * - ``mark_vas_as
       _duplicate``
     - None
