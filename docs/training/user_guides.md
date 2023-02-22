@@ -179,7 +179,7 @@ guides for more info on available actions.
 
 Field Workers are similar to Data Viewers. However, they only see VAs for their 
 own location and can partially repair VA Errors & Warnings for those VAs. For a 
-full listing of these, see Common Actions (link) or see below for anexplanation 
+full listing of these, see Common Actions (link) or see below for an explanation 
 of the "partial repair" workflow.
 
 ### Partially Repairing VA Errors & Warnings
