@@ -3,13 +3,11 @@ from django.contrib.auth.models import Permission
 from django.test import Client
 
 from va_explorer.tests.factories import (
-    FacilityFactory,
     FieldWorkerFactory,
     FieldWorkerGroupFactory,
     GroupFactory,
     LocationFactory,
     UserFactory,
-    VaUsernameFactory,
     VerbalAutopsyFactory,
 )
 from va_explorer.users.models import User
@@ -490,8 +488,7 @@ def test_access_control(user: User):
     assert response.status_code == 404
 
 
-# A Field Worker can access only the Verbal Autopsies they create through the
-# username on the Verbal Autopsy
+# A Field Worker can access only the Verbal Autopsies from their own facility
 def test_field_worker_access_control():
     can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
     can_view_pii = Permission.objects.filter(codename="view_pii").first()
@@ -499,22 +496,26 @@ def test_field_worker_access_control():
         permissions=[can_view_record, can_view_pii]
     )
     field_worker = FieldWorkerFactory.create(groups=[field_worker_group])
-    field_worker_username = VaUsernameFactory.create(user=field_worker)
 
-    facility = FacilityFactory.create()
-    field_worker.location_restrictions.add(*[facility])
+    province = LocationFactory.create()
+    district1 = province.add_child(name="District1", location_type="district")
+    district2 = province.add_child(name="District2", location_type="district")
+    facility1 = district1.add_child(name="Facility1", location_type="facility")
+    facility2 = district2.add_child(name="Facility2", location_type="facility")
+    field_worker.location_restrictions.add(*[facility1])
 
     field_worker.save()
-    field_worker_username.save()
 
     va = VerbalAutopsyFactory.create(
         Id10017="deceased_name_1",
         Id10010="Role specific value",
-        location=facility,
-        username=field_worker_username.va_username,
+        location=facility1,
     )
     va2 = VerbalAutopsyFactory.create(
-        Id10017="deceased_name_2", location=facility, username=""
+        Id10017="deceased_name_2", location=facility1
+    )
+    va3 = VerbalAutopsyFactory.create(
+        Id10017="deceased_name_3", location=facility2
     )
 
     client = Client()
@@ -526,10 +527,18 @@ def test_field_worker_access_control():
     assert (
         str(va.Id10010).encode("utf_8") not in response.content
     )  # field workers see deceased, not interviewer
-    assert str(va2.Id10017).encode("utf_8") not in response.content
+    assert (
+        str(va2.Id10017).encode("utf_8") in response.content
+     ) # field workers see their own facility VAs 
+    assert (
+        str(va3.Id10017).encode("utf_8") not in response.content 
+    ) # field workers cannot see other facility VAs
 
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200
 
     response = client.get(f"/va_data_management/show/{va2.id}")
+    assert response.status_code == 200
+
+    response = client.get(f"/va_data_management/show/{va3.id}")
     assert response.status_code == 404

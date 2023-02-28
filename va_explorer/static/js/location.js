@@ -58,7 +58,6 @@ $(document).ready(function() {
   const geographicAccessID = 'div_id_geographic_access';
   const locationRestrictionsID= 'div_id_location_restrictions';
   const facilityRestrictionsID = 'div_id_facility_restrictions';
-  const vaUsernameID = 'div_id_va_username';
 
   const locationRestrictionsClass = 'location-restrictions-select';
   const facilityRestrictionsClass = 'facility-restrictions-select';
@@ -183,7 +182,6 @@ $(document).ready(function() {
    *  1. the geographic access radio button
    *  2. the location restrictions select2 dropdown
    *  3. the facility restrictions select2 dropdown (visible for Field Worker role only)
-   *  4. the Field Worker username input field (tied to username on Verbal Autopsy)
    */
   function updateFormForRoleSelected() {
     let elemToHide = [];
@@ -196,17 +194,15 @@ $(document).ready(function() {
       elemToHide.push(
           geographicAccessID,
           locationRestrictionsID,
-          facilityRestrictionsID,
-          vaUsernameID
+          facilityRestrictionsID
       );
       select2ToClear.push(locationRestrictionsClass, facilityRestrictionsClass);
-      fieldToClear.push('id_va_username');
     }
 
     // Role selected is Field Worker
     else if($('#id_group option:selected').text() === "Field Workers") {
       elemToHide.push(geographicAccessID, locationRestrictionsID);
-      elemToShow.push(facilityRestrictionsID, vaUsernameID);
+      elemToShow.push(facilityRestrictionsID);
       select2ToClear.push(locationRestrictionsClass);
 
       // Add asterisk to facility restrictions select2 indicating it is required
@@ -218,10 +214,9 @@ $(document).ready(function() {
 
     // Role selected is not Field Worker (Admin, Data Manager, Data Viewer)
     else {
-      elemToHide.push(facilityRestrictionsID, vaUsernameID);
+      elemToHide.push(facilityRestrictionsID);
       elemToShow.push(geographicAccessID);
       select2ToClear.push(facilityRestrictionsClass);
-      fieldToClear.push('id_va_username');
 
       // This method will determine if the locationRestrictions select2 should be shown/hidden
       updateFormForGeographicAccess();

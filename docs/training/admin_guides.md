@@ -73,11 +73,6 @@ permissions if needed
 1. Select the geographic region(s), facility, facilities this user can access.
 Users with a Field Worker role must be assigned to at least one facility
 
-1. If user is a Field Worker, also enter their username if known. This field is
-used to associate the field worker user with data imported from outside VA
-Explorer (from locations such as ODK or from CSV file) and allow the field worker
-to "own" their VAs
-
 Click "Create" to create the user or "Update" if editing a user. "Cancel" will
 take you back to the Users page without completing the action.
 
@@ -239,20 +234,6 @@ Development Commands (link)
       export. Defaults to all users if no file.
 
   * - ``--user_file``
-
-  * - :rspan:`1` ``link_fieldworkers
-      _to_vas``
-    - ``--emails``
-    - :rspan:`1` Used to manually link a group of field workers to their VAs via
-      ``Id10010`` on the VA and ``username`` on the User. Matches are persisted
-      by setting the VA's ``username`` field to the matching field on User.
-      ``emails`` is a comma separated\, no spaces\, string of emails that can be
-      used to specify specific field workers to match. By default\, all field
-      workers are considered for matching. ``match_threshold`` is also available
-      to adjust desired match similarity (ranging from any [incorrect] match at
-      0% to allowing full matches only at 100%). Default is 80%.
-
-  * - ``--match_threshold``
 
   * - ``mark_vas_as
       _duplicate``

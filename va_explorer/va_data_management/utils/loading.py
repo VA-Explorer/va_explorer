@@ -8,11 +8,7 @@ from django.db.models import Count, Max, Q
 from simple_history.utils import bulk_create_with_history
 
 from va_explorer.users.utils.demo_users import make_field_workers_for_facilities
-from va_explorer.users.utils.field_worker_linking import (
-    assign_va_usernames,
-    normalize_name,
-)
-from va_explorer.va_data_management.models import Location, VaUsername, VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.location_assignment import (
     assign_va_location,
@@ -61,12 +57,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # (e.x. Id10010_other, Id10010)
     record_df = deduplicate_columns(record_df)
 
-    # if field worker column available (Id10010), standardize names
-    if "Id10010" in record_df.columns:
-        record_df["Id10010"] = (
-            record_df["Id10010"].apply(normalize_name).replace(np.nan, "UNKNOWN")
-        )
-
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
 
@@ -92,15 +82,14 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     # if random locations, assign random locations via a random field worker.
     if random_locations:
-        valid_usernames = VaUsername.objects.exclude(va_username__exact="")
-        # if no field workers with usernames, create some
-        if len(valid_usernames) <= 1:
+        field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
+        if len(field_workers) <= 1:
             print(
-                "WARNING: no field workers w/ usernames in system. \
+                "WARNING: no field workers in system. \
                 Generating random ones now..."
             )
             make_field_workers_for_facilities()
-            valid_usernames = VaUsername.objects.exclude(va_username__exact="")
+            field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
 
     # pull in all existing VA instanceIDs from db for de-duping purposes
     print("pulling in instance ids...")
@@ -153,9 +142,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         # to determine location.
         # Otherwise, try assigning location based on hospital field.
         if random_locations:
-            username = valid_usernames.order_by("?").first()
-            user = User.objects.get(pk=username.user_id)
-            va.username = username.va_username
+            user = field_workers.order_by("?").first()
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
@@ -173,10 +160,6 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     print("populating DB...")
     new_vas = bulk_create_with_history(created_vas, VerbalAutopsy)
-
-    # link VAs to known field workers in the system
-    print("assigning VA usernames to known field workers...")
-    assign_va_usernames(new_vas)
 
     print("Validating VAs...")
     # Add any errors to the db

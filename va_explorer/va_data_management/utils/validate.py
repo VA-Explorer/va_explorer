@@ -1,4 +1,4 @@
-from va_explorer.va_data_management.models import CauseCodingIssue, VaUsername
+from va_explorer.va_data_management.models import CauseCodingIssue
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.location_assignment import assign_va_location
 
@@ -65,35 +65,6 @@ def validate_vas_for_dashboard(verbal_autopsies):
             except:  # noqa E722 - Intent is to save to db, not do anything with exception
                 issue_text = "Warning: field age_group, no relevant data was found in \
                     fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
-                issue = CauseCodingIssue(
-                    verbalautopsy_id=va.id,
-                    text=issue_text,
-                    severity="warning",
-                    algorithm="",
-                    settings="",
-                )
-                issues.append(issue)
-
-        # Validate: username
-        # username associates the va record with a field worker
-        username = va.username
-        if username == "":
-            issue_text = "Warning: field username, the va record does not have \
-                an assigned username."
-            issue = CauseCodingIssue(
-                verbalautopsy_id=va.id,
-                text=issue_text,
-                severity="warning",
-                algorithm="",
-                settings="",
-            )
-            issues.append(issue)
-        else:
-            va_user = VaUsername.objects.filter(va_username=username).first()
-            if va_user is None:
-                # TODO move this check to VA clean()? also make username a drop down
-                issue_text = "Warning: field username, the username provided is \
-                    not a known Field Worker."
                 issue = CauseCodingIssue(
                     verbalautopsy_id=va.id,
                     text=issue_text,

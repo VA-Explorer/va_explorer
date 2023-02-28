@@ -76,10 +76,6 @@ class User(AbstractUser):
             Id10023__gte=date_cutoff, Id10023__lte=end_date
         )
 
-        if self.is_fieldworker():
-            return va_objects.filter(
-                username__in=self.vausername_set.all().values_list("va_username")
-            )
         if self.location_restrictions.count() > 0:
             # Get the query set of all locations at or below the parent nodes
             # the user can access by joining the query sets of all the location
@@ -140,24 +136,6 @@ class User(AbstractUser):
             self.user_permissions.add(permission)
         else:
             self.user_permissions.remove(permission)
-
-    # TODO: Update this if we are supporting more than one username; for
-    # now, allow only one
-    def set_va_username(self, new_va_username):
-        # If None or blank string, delete existing username.
-        if not new_va_username:
-            self.vausername_set.all().delete()
-            return
-
-        # Update or create the VaUsername for this user. There should only be one.
-        self.vausername_set.update_or_create(defaults={"va_username": new_va_username})
-
-    # TODO: Update this if we are supporting more than one username; for
-    # now, allow only one
-    def get_va_username(self):
-        va_username_for_user = self.vausername_set.first()
-
-        return va_username_for_user.va_username if va_username_for_user else ""
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

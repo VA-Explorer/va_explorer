@@ -214,7 +214,7 @@ for occasions where they are not, VA Explorer supports troubleshooting and
 correcting individual VA warnings or errors preventing cause of death assignment,
 or those leading to an "Indeterminate" assignment by InterVA5.
 
-- Field workers are able to view and edit VAs they collect
+- Field workers are able to view and edit VAs for their location
 - Data Managers and Admins can do repairs for any VA they have access to
 - View errors and warnings causing issues with VA from both VA Explorer and InterVA5
 - Easily edit VA answers with VA instrument compliant responses

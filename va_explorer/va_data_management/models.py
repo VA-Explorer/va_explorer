@@ -1873,8 +1873,3 @@ class CauseCodingIssue(models.Model):
 
     def __str__(self):
         return self.text
-
-
-class VaUsername(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    va_username = models.TextField("va_username", unique=True)

@@ -12,7 +12,6 @@ User = get_user_model()
 def login_active_user(self):
     password = "Password123!"
     active_user = User.objects.create_user(
-        username="test2",
         password=password,
         email="test2@gmail.com",
         is_active=True,
@@ -80,20 +79,16 @@ class BrowserTests(StaticLiveServerTestCase):
             By.XPATH, '//input[@value="location-specific"]'
         )
 
-        va_username_input = self.selenium.find_element(By.NAME, "va_username")
-
         # Before a role is chosen
         assert not facility_restrictions_dropdown.is_displayed()
         assert not location_restrictions_dropdown.is_displayed()
         assert not national_access_radio.is_displayed()
         assert not location_specific_radio.is_displayed()
-        assert not va_username_input.is_displayed()
 
         # When Field Workers role is chosen
         select.select_by_visible_text("Field Workers")
 
         assert facility_restrictions_dropdown.is_displayed()
-        assert va_username_input.is_displayed()
         assert not location_restrictions_dropdown.is_displayed()
         assert not national_access_radio.is_displayed()
         assert not location_specific_radio.is_displayed()
@@ -102,7 +97,6 @@ class BrowserTests(StaticLiveServerTestCase):
         select.select_by_visible_text("Admins")
 
         assert not facility_restrictions_dropdown.is_displayed()
-        assert not va_username_input.is_displayed()
         assert location_restrictions_dropdown.is_displayed()
         assert national_access_radio.is_displayed()
         assert location_specific_radio.is_displayed()
@@ -112,7 +106,6 @@ class BrowserTests(StaticLiveServerTestCase):
         select.select_by_visible_text("Data Viewers")
 
         assert not facility_restrictions_dropdown.is_displayed()
-        assert not va_username_input.is_displayed()
         assert location_restrictions_dropdown.is_displayed()
         assert national_access_radio.is_displayed()
         assert location_specific_radio.is_displayed()
@@ -122,7 +115,6 @@ class BrowserTests(StaticLiveServerTestCase):
         select.select_by_visible_text("Data Managers")
 
         assert not facility_restrictions_dropdown.is_displayed()
-        assert not va_username_input.is_displayed()
         assert location_restrictions_dropdown.is_displayed()
         assert national_access_radio.is_displayed()
         assert location_specific_radio.is_displayed()

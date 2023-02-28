@@ -177,16 +177,16 @@ guides for more info on available actions.
 
 ## Field Workers
 
-Field Workers are similar to Data Viewers. However, they only see VAs they have
-personally conducted and can partially repair VA Errors & Warnings for their VAs.
-For a full listing of these, see Common Actions (link) or see below for an
-explanation of the "partial repair" workflow.
+Field Workers are similar to Data Viewers. However, they only see VAs for their 
+own location and can partially repair VA Errors & Warnings for those VAs. For a 
+full listing of these, see Common Actions (link) or see below for an explanation 
+of the "partial repair" workflow.
 
 ### Partially Repairing VA Errors & Warnings
 
-As a Field Worker, you have the ability to make corrections to VAs that you own
-as a way of assisting Data Managers with the correction of any warnings or errors
-reported by VA Explorer. See Repairing VA Errors & Warnings (link) for details.
-However, you will not be able to create any VA coding jobs to re-run cause of
-death assignment. Please reach out to the appropriate Data Manager or Admin to
-do this for you.
+As a Field Worker, you have the ability to make corrections to VAs for your own 
+location as a way of assisting Data Managers with the correction of any warnings 
+or errors reported by VA Explorer. See Repairing VA Errors & Warnings (link) for 
+details. However, you will not be able to create any VA coding jobs to re-run 
+cause of death assignment. Please reach out to the appropriate Data Manager or 
+Admin to do this for you.

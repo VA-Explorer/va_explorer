@@ -20,7 +20,7 @@ coding issues and VAs coded with Indeterminate cause of death. The scope of VA
 data shown on the Home page depends on your assigned role and geographic access.
 
 - **For Field Workers:** If you are assigned the Field Worker role, the Homepage
-  shows trends and data on the VAs that you have conducted.
+  shows trends and data on the VAs for your location.
 - **For All Other Roles:** For all other roles, data on the Home page are
   limited to the specific regions or facilities you can access.
 

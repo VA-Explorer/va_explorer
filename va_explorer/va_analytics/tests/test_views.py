@@ -82,18 +82,15 @@ class TestSupervisionView:
         province = LocationFactory.create()
         district1 = province.add_child(name="District1", location_type="district")
         facility1 = district1.add_child(name="Facility1", location_type="facility")
-        field_worker = UserFactory.create(location_restrictions=[facility1])
+        UserFactory.create(location_restrictions=[facility1])
         username = "field_worker"
-        field_worker.set_va_username(username)
         VerbalAutopsyFactory.create(
             location=facility1,
-            username=username,
             Id10010=username,
             submissiondate=str(date.today() - timedelta(days=8)),
         )
         VerbalAutopsyFactory.create(
             location=facility1,
-            username=username,
             Id10010=username,
             submissiondate=str(date.today()),
         )

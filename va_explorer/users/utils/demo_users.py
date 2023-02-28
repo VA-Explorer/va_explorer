@@ -34,9 +34,6 @@ def create_demo_field_worker(worker_id, facility=None):
         user.set_password("Password1")
         user.save()
 
-        # set their username
-        user.set_va_username(*[username])
-
         # assign new user to field worker group
         user_group = Group.objects.get(name="Field Workers")
         user_group.user_set.add(user)
