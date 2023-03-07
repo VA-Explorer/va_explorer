@@ -1,8 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import Q
 from django.forms import Select, TextInput
 from django_filters import BooleanFilter, CharFilter, DateFilter, FilterSet
+from fuzzywuzzy import fuzz
 
 from .models import VerbalAutopsy
 
@@ -78,9 +78,17 @@ class VAFilter(FilterSet):
 
     def filter_deceased(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                Q(Id10017__icontains=value) | Q(Id10018__icontains=value)
-            )
+            threshold = 75
+            vas = queryset.values("id", "Id10017", "Id10018")
+            matches = [ 
+                va.get("id") 
+                for va in vas 
+                if fuzz.token_set_ratio(
+                    value, 
+                    " ".join([va.get("Id10017"), va.get("Id10018")])
+                ) > threshold 
+            ]
+            return queryset.filter(id__in=matches)
         return queryset
 
     def filter_errors(self, queryset, name, value):
