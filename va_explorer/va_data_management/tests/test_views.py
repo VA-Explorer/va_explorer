@@ -76,7 +76,6 @@ def test_index_redacted(user: User):
     assert bytes(REDACTED_STRING, "utf-8") in response.content
     assert bytes(va.Id10023, "utf-8") not in response.content
 
-
 # Request the index without permissions and make sure its forbidden
 def test_index_without_valid_permission(user: User):
     client = Client()
@@ -85,6 +84,36 @@ def test_index_without_valid_permission(user: User):
     response = client.get("/va_data_management/")
     assert response.status_code == 403
 
+# Filter VAs by deceased using a search term without spaces
+def test_index_deceased_filter_no_space(user: User):
+    can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_view_record_group = GroupFactory.create(
+        permissions=[can_view_record, can_view_pii]
+    )
+    user = UserFactory.create(groups=[can_view_record_group])
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create(Id10017="Victim", Id10018="Name")
+    response = client.get("/va_data_management/", {'deceased': 'Victim'})
+    assert response.status_code == 200
+    assert bytes(va.Id10017, "utf-8") in response.content
+
+# Filter VAs by deceased using a search term with spaces
+def test_index_deceased_filter_with_space(user: User):
+    can_view_record = Permission.objects.filter(codename="view_verbalautopsy").first()
+    can_view_pii = Permission.objects.filter(codename="view_pii").first()
+    can_view_record_group = GroupFactory.create(
+        permissions=[can_view_record, can_view_pii]
+    )
+    user = UserFactory.create(groups=[can_view_record_group])
+    client = Client()
+    client.force_login(user=user)
+    va = VerbalAutopsyFactory.create(Id10017="Victim", Id10018="Name")
+    response = client.get("/va_data_management/", {'deceased': 'Victim Name'})
+    assert response.status_code == 200
+    assert bytes(va.Id10017, "utf-8") in response.content
+    assert bytes(va.Id10018, "utf-8") in response.content
 
 # Show a VA and make sure the data is as expected
 def test_show(user: User):
