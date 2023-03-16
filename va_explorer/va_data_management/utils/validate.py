@@ -53,26 +53,36 @@ def validate_vas_for_dashboard(verbal_autopsies):
         # age group can be determined from multiple fields, it's required for
         # filtering demographics
         if (
-            va.age_group != "adult"
-            and va.age_group != "neonate"
-            and va.age_group != "child"
+            va.isNeonatal != 1
+            and va.isNeonatal != 1.0
             and va.isNeonatal1 != 1
+            and va.isNeonatal1 != 1.0
+            and va.isNeonatal2 != 1
+            and va.isNeonatal2 != 1.0
+            and va.isChild != 1
+            and va.isChild != 1.0
             and va.isChild1 != 1
+            and va.isChild1 != 1.0
+            and va.isChild2 != 1
+            and va.isChild2 != 1.0
+            and va.isAdult != 1
+            and va.isAdult != 1.0
             and va.isAdult1 != 1
+            and va.isAdult1 != 1.0
+            and va.isAdult2 != 1
+            and va.isAdult2 != 1.0
         ):
-            try:
-                _ = int(float(va.ageInYears))
-            except:  # noqa E722 - Intent is to save to db, not do anything with exception
-                issue_text = "Warning: field age_group, no relevant data was found in \
-                    fields; age_group, isNeonatal1, isChild1, isAdult1, or ageInYears."
-                issue = CauseCodingIssue(
-                    verbalautopsy_id=va.id,
-                    text=issue_text,
-                    severity="warning",
-                    algorithm="",
-                    settings="",
-                )
-                issues.append(issue)
+            issue_text = "Warning: field age_group, no relevant data was found in \
+                fields; isNeonatal, isNeonatal1, isNeonatal2, isChild, isChild1, \
+                isChild2 isAdult, isAdult1, or isAdult2."
+            issue = CauseCodingIssue(
+                verbalautopsy_id=va.id,
+                text=issue_text,
+                severity="warning",
+                algorithm="",
+                settings="",
+            )
+            issues.append(issue)
 
         # Validate: location
         # location is used to display the record on the map
