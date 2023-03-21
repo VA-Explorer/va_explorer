@@ -6,7 +6,7 @@
   <div class="col">
     {% include 'partials/_va_update_stats.html' %}
     {% if not user.is_fieldworker %}
-      {% if last_update or last_submission %}
+      {% if last_update or last_interview %}
         <h2 class="mb-4">VA Collection Overview for {{ locations }}</h2>
       {% else %}
         <h2 class="mb-4">No VAs found for {{ locations }}</h2>

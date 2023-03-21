@@ -207,7 +207,6 @@ const dashboard = new Vue({
             this.demographics.forEach(d => {
                 delete d.order;
             });
-            console.log(this.demographics)
 
             // display warning message if small sample size (allow user to stop these dialogs)
             if (!this.suppressWarning &&
