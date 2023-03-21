@@ -5,7 +5,7 @@ from django.db.models import F
 from pandas._libs.tslibs.offsets import relativedelta
 
 from va_explorer.va_data_management.utils.date_parsing import (
-    get_submissiondates,
+    get_interview_dates,
     parse_date,
     to_dt,
 )
@@ -19,7 +19,7 @@ VA_DF_FIELDS = [
     "Id10023",
     "location",
     "Id10011",
-    "submissiondate",
+    "Id10012",
     "created",
     "Id10010",
     "Id10011",
@@ -31,7 +31,7 @@ VA_TABLE_FIELDS = [
     "Id10010",
     "Id10017",
     "Id10018",
-    "submissiondate",
+    "Id10012",
     "Id10011",
     "Id10023",
 ]
@@ -76,8 +76,8 @@ def get_context_for_va_table(va_list):
             "id": va.id,
             "deceased": f"{va.Id10017} {va.Id10018}",
             "interviewer": va.Id10010,
-            "submitted": parse_date(va.submissiondate)
-            if (va.submissiondate != "dk")
+            "interviewed": parse_date(va.Id10012)
+            if (va.Id10012 != "dk")
             else "Unknown",  # django stores the date in yyyy-mm-dd
             "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
             "facility": va.location.name if va.location else "",
@@ -97,8 +97,8 @@ def get_context_for_va_table(va_list):
     ]
 
 
-# NOTE: using SUBMISSIONDATE to drive stats/views. To change this,
-# change all references to submissiondate
+# NOTE: using Id10012 (Interview date) to drive stats/views. submissiondate is
+# unreliable or inaccurate due to bulk submissions
 def get_trends_data(user):
     user_vas = user.verbal_autopsies()
     va_table = empty_va_table()
@@ -118,16 +118,17 @@ def get_trends_data(user):
                 "Id10023",
                 "created",
                 "Id10011",
-                "submissiondate",
+                "Id10012",
                 name=F("Id10010"),
                 facility=F("location__name"),
                 cause=F("causes__cause"),
             )
         )
 
-        va_df["date"] = get_submissiondates(va_df)
+        va_df["date"] = get_interview_dates(va_df)
 
-        # clean date fields - strip timezones from submissiondate and created dates
+        # clean date fields - strip timezones from Id10012 (Interview date
+        # created dates
         va_df["date"] = to_dt(va_df["date"])
         va_df["created"] = to_dt(va_df["created"])
         va_df["Id10023"] = to_dt(va_df["Id10023"])

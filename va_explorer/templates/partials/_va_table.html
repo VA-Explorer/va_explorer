@@ -4,11 +4,11 @@
   <thead>
     <tr>
       <th><a href="?{% sort_url 'id' direction='-' %}">ID</a></th>
-      <th><a href="?{% sort_url 'submissiondate' direction='-' %}">Submitted</a></th>
+      <th><a href="?{% sort_url 'Id10012' direction='-' %}">Interviewed</a></th>
       {% if not user.is_fieldworker %}
-        <th><a href="?{% sort_url 'submissiondate' direction='-' %}">Interviewer</a></th>
+        <th><a href="?{% sort_url 'Id10010' direction='-' %}">Interviewer</a></th>
       {% endif %}
-      <th><a href="?{% sort_url 'Id10010' direction='-' %}">Facility</a></th>
+      <th><a href="?{% sort_url 'facility' direction='-' %}">Facility</a></th>
       <th><a href="?{% sort_url 'deceased' direction='-' %}">Deceased</a></th>
       <th><a href="?{% sort_url 'Id10023' direction='-' %}">Deathdate</a></th>
       <th><a href="?{% sort_url 'cause' direction='-' %}">Cause</a></th>
@@ -36,7 +36,7 @@
       {% for va in va_list %}
         <tr>
           <td>{{ va.id }}</td>
-          <td>{% pii_filter "submissiondate" va.submitted|default:"Date Unknown" %}</td>
+          <td>{% pii_filter "Id10012" va.interviewed|default:"Date Unknown" %}</td>
           {% if not user.is_fieldworker %}
             <td>{% pii_filter "Id10010" va.interviewer|default:"Not Listed" %}</td>
           {% endif %}

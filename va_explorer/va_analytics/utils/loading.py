@@ -64,7 +64,7 @@ def load_va_data(
 ):
     user_vas = user.verbal_autopsies(date_cutoff=start_date, end_date=end_date)
 
-    # get stats on last update and last va submission date
+    # get stats on last update and last va interview date
     update_stats = get_va_summary_stats(user_vas)
     if len(questions_to_autodetect_duplicates()) > 0:
         update_stats["duplicates"] = user_vas.filter(duplicate=True).count()

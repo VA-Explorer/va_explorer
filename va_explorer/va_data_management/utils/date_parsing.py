@@ -56,38 +56,38 @@ def to_dt(dates, utc=True):
     )
 
 
-# get submissiondate for multiple vas (supports df, queryset or list of vas).
-# First, checks for submissiondate. If empty, checks for va start date (Id10011).
+# get interview date for multiple vas (supports df, queryset or list of vas).
+# First, checks for Id10012 (interview). If empty, checks for va start date (Id10011).
 # If empty, returns empty_string
-def get_submissiondates(va_data, empty_string=None):
+def get_interview_dates(va_data, empty_string=None):
     # va_data is a dataframe - use vectorized logic
     if type(va_data) is pd.DataFrame:
         if not va_data.empty:
             assert "Id10011" in va_data.columns
-            if "submissiondate" not in va_data.columns:
+            if "Id10012" not in va_data.columns:
                 return va_data["Id10011"]
             else:
                 return np.where(
-                    ~empty_dates(va_data, "submissiondate"),
-                    va_data["submissiondate"],
+                    ~empty_dates(va_data, "Id10012"),
+                    va_data["Id10012"],
                     va_data["Id10011"],
                 )
 
-    # va_data is list of va objects. Iterate through & get individual submission dates
+    # va_data is list of va objects. Iterate through & get individual interview dates
     else:
-        return [get_submissiondate(va, empty_string=empty_string) for va in va_data]
+        return [get_interview_date(va, empty_string=empty_string) for va in va_data]
 
 
-# get submissiondate for single va object. Uses the same field logic as above.
-def get_submissiondate(va_data, empty_string=None, parse=False):
-    if pd.isna(va_data.submissiondate) or va_data.submissiondate in ["", "nan", "dk"]:
+# get interview date for single va object. Uses the same field logic as above.
+def get_interview_date(va_data, empty_string=None, parse=False):
+    if pd.isna(va_data.Id10012) or va_data.Id10012 in ["", "nan", "dk"]:
         if not pd.isna(va_data.Id10011) and va_data.Id10011 not in ["", "nan", "dk"]:
             return parse_date(va_data.Id10011) if parse else va_data.Id10011
         else:
             return empty_string
     else:
-        return parse_date(va_data.submissiondate) if parse else va_data.submissiondate
+        return parse_date(va_data.Id10012) if parse else va_data.Id10012
 
 
-def empty_dates(va_df, date_col="submissiondate", null_strings=NULL_STRINGS):
+def empty_dates(va_df, date_col="Id10012", null_strings=NULL_STRINGS):
     return (pd.isna(va_df[date_col])) | (va_df[date_col].isin(null_strings))

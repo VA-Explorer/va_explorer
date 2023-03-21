@@ -7,10 +7,10 @@ GRAPH_OPTIONS = {
 BORDER_COLOR = "#037BFE"
 
 const setVATrendsTableData = (vaTableData) => {
-  document.getElementById('submitted-past-24-hours').innerHTML = vaTableData.collected["24"];
-  document.getElementById('submitted-past-week').innerHTML = vaTableData.collected["1 week"];
-  document.getElementById('submitted-past-month').innerHTML =  vaTableData.collected["1 month"];
-  document.getElementById('submitted-overall').innerHTML = vaTableData.collected["Overall"];
+  document.getElementById('interviewed-past-24-hours').innerHTML = vaTableData.collected["24"];
+  document.getElementById('interviewed-past-week').innerHTML = vaTableData.collected["1 week"];
+  document.getElementById('interviewed-past-month').innerHTML =  vaTableData.collected["1 month"];
+  document.getElementById('interviewed-overall').innerHTML = vaTableData.collected["Overall"];
 
   document.getElementById('coded-past-24-hours').innerHTML = vaTableData.coded["24"];
   document.getElementById('coded-past-week').innerHTML = vaTableData.coded["1 week"];
@@ -28,7 +28,7 @@ const setVARow = (root, row, isFieldWorker) => {
     root.insertAdjacentHTML('beforebegin',
 `<tr>
         <td>${row.id}</td>
-        <td>${row.submitted}</td>
+        <td>${row.interviewed}</td>
         <td>${row.facility}</td>
         <td>${row.deceased}</td>
         <td>${row.dod}</td>
@@ -43,7 +43,7 @@ const setVARow = (root, row, isFieldWorker) => {
     root.insertAdjacentHTML('beforebegin',
 `<tr>
         <td>${row.id}</td>
-        <td>${row.submitted}</td>
+        <td>${row.interviewed}</td>
         <td>${row.interviewer}</td>
         <td>${row.facility}</td>
         <td>${row.deceased}</td>
@@ -82,11 +82,11 @@ const setVAChart = (x, y, ctx) => {
 }
 
 const setVACharts = (graphData) => {
-  const submittedCtx = document.getElementById("submittedChart").getContext("2d");
+  const interviewedCtx = document.getElementById("interviewedChart").getContext("2d");
   const codedCtx = document.getElementById("codedChart").getContext("2d");
   const notYetCodedCtx = document.getElementById("notYetCodedChart").getContext("2d");
 
-  setVAChart(graphData.collected.x, graphData.collected.y, submittedCtx);
+  setVAChart(graphData.collected.x, graphData.collected.y, interviewedCtx);
   setVAChart(graphData.coded.x, graphData.coded.y,codedCtx);
   setVAChart(graphData.uncoded.x, graphData.uncoded.y, notYetCodedCtx);
 }
