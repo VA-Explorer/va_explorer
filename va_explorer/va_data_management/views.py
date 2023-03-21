@@ -54,7 +54,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "causes__cause",
                 "Id10023",
                 "Id10010",
-                "submissiondate",
+                "Id10012",
                 "deceased",
                 errors=Count(
                     F("coding_issues"), filter=Q(coding_issues__severity="error")
@@ -76,7 +76,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             "dod": "Id10023",
             "facility": "location__name",
             "cause": "causes__cause",
-            "submitted": "submissiondate",
+            "interviewed": "Id10012",
             "deceased": "deceased",
         }
         sort_field = sort_key_to_field.get(sort_key, sort_key)
@@ -125,7 +125,7 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "id": va["id"],
                 "deceased": va["deceased"],
                 "interviewer": va["Id10010"],
-                "submitted": parse_date(va["submissiondate"]),
+                "interviewed": parse_date(va["Id10012"]),
                 "dod": parse_date(va["Id10023"])
                 if (va["Id10023"] != "dk")
                 else "Unknown",

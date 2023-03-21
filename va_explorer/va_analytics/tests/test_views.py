@@ -87,12 +87,12 @@ class TestSupervisionView:
         VerbalAutopsyFactory.create(
             location=facility1,
             Id10010=username,
-            submissiondate=str(date.today() - timedelta(days=8)),
+            Id10012=str(date.today() - timedelta(days=8)),
         )
         VerbalAutopsyFactory.create(
             location=facility1,
             Id10010=username,
-            submissiondate=str(date.today()),
+            Id10012=str(date.today()),
         )
 
         request = rf.get("/va_analytics/supervision/")
@@ -103,5 +103,5 @@ class TestSupervisionView:
         supervision_stats = response.context_data["supervision_stats"][0]
         assert supervision_stats["Total VAs"] == 2
         assert supervision_stats["Weeks of Data"] == 2
-        assert supervision_stats["Last Submission"] == date.today()
+        assert supervision_stats["Last Interview"] == date.today()
         assert supervision_stats["VAs / week"] == 1.0

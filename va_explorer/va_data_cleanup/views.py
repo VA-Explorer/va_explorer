@@ -50,7 +50,7 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
             {
                 "id": va.id,
                 "interviewer": va.Id10010,
-                "submitted": parse_date(va.submissiondate),
+                "interviewed": parse_date(va.Id10012),
                 "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
                 "facility": va.location.name if va.location else "",
                 "deceased": va.deceased,

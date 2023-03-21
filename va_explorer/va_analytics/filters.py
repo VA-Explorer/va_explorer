@@ -24,13 +24,13 @@ class SupervisionFilter(FilterSet):
         field_name="location__name", lookup_expr="icontains", label="Facility"
     )
     start_date = DateFilter(
-        field_name="submissiondate",
+        field_name="Id10012",
         lookup_expr="gte",
         label="Earliest Date",
         widget=DateInput(attrs={"class": "datepicker"}),
     )
     end_date = DateFilter(
-        field_name="submissiondate",
+        field_name="Id10012",
         lookup_expr="lte",
         label="Latest Date",
         widget=DateInput(attrs={"class": "datepicker"}),
