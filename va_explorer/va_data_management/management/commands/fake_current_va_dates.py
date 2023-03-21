@@ -26,9 +26,6 @@ class Command(BaseCommand):
         # TODO: The date fields should really be stored as dates in the database,
         #       his fails on different string formats for dates
         # TODO: We need a clear picture of all the date fields in the system
-        # TODO: 10011 is labeled as "start" and 10012 is labeled as "today" in the
-        #       questionnaire, are those collection dates?
-        # TODO: submissiondate seems all the same in one of the sample files
         most_recent = max(
             [
                 datetime.strptime(date, "%m/%d/%y").date()

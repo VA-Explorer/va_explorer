@@ -6,6 +6,7 @@ from random import randint
 import pytz
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from tqdm import tqdm
 
 from va_explorer.va_data_management.models import VerbalAutopsy
 
@@ -36,8 +37,10 @@ class Command(BaseCommand):
             dates_list.append(date)
 
         dates_list.sort()
-        for va, new_date in zip(VerbalAutopsy.objects.all(), dates_list):
+        for va, new_date in tqdm(
+            zip(VerbalAutopsy.objects.all(), dates_list), total=count
+        ):
             # Set Id10023 and created and updated all to same date
-            va.Id10023 = va.created = va.updated = va.submissiondate = new_date
+            va.Id10023 = va.created = va.updated = va.Id10012 = new_date
             va.skip_history_when_saving = True
             va.save()
