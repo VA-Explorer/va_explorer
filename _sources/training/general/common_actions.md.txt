@@ -31,7 +31,7 @@ actions you can take in VA Explorer, such as viewing PII and downloading data.
 These account settings are described in User Roles and Capabilities (link) To
 view your account profile:
 
-1. Click your name in the upper righthand corner of the navigation bar; a
+1. Click your name in the upper right-hand corner of the navigation bar; a
 dropdown menu will open.
 
 1. Click the "My Profile" option within the dropdown menu.
@@ -44,7 +44,7 @@ update user accounts.
 
 To change your password while signed into VA Explorer:
 
-1. Click your name in the upper righthand corner of the navigation bar; a
+1. Click your name in the upper right-hand corner of the navigation bar; a
 dropdown menu will open.
 
 1. Click the "Change Password" option within the dropdown menu.
@@ -82,8 +82,8 @@ page and directly above the heatmap. The global filters include:
     - How to Use
 
   * - Death Date
-    - View analytics for a specific date of death timeframe
-    - Choose the timeframe you want to explore from the Time Period dropdown
+    - View analytics for a specific date of death time frame
+    - Choose the time frame you want to explore from the Time Period dropdown
       menu (ex. Within 1 Month, Within 1 Year, or Custom)
 
   * - Cause of Death
@@ -135,21 +135,21 @@ page, you can search or filter available VAs with the following parameters:
   * - ID
     - The unique numeric identifier assigned to the specific VA in VA Explorer.
 
-  * - Submitted
-    - The date the VA was submitted. If your account does not have PII access,
-      you will see "Date Unknown.
+  * - Interviewed
+    - The date the VA interview was conducted. If your account does not have PII access,
+      you will see "Date Unknown".
 
   * - Facility
     - The facility where the VA was collected. If facility information is
-      missing, you will see "Location Unknown.
+      missing, you will see "Location Unknown".
 
   * - Deceased
     - The name of the deceased individual. If your account does not have PII
-      access, you will see "Subject Unknown.
+      access, you will see "Subject Unknown".
 
   * - Deathdate
     - The date of the individual’s death. If your account does not have PII
-      access, you will see "Date Unknown.
+      access, you will see "Date Unknown".
 
   * - Cause
     - The cause of death assigned by coding algorithm. If the VA has not yet
