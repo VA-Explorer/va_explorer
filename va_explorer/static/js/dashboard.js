@@ -193,6 +193,12 @@ const dashboard = new Vue({
                     });
                     index = this.demographics.length - 1;
                 }
+                if (!this.demographics[index].hasOwnProperty("female")) {
+                    this.demographics[index].female = 0
+                }
+                if (!this.demographics[index].hasOwnProperty("male")) {
+                    this.demographics[index].male = 0
+                }
                 this.demographics[index].age_group = ageGroup === "neonate" ? "Neonate (< 28 days)" :
                     ageGroup === "child" ? "Child (≤ 12 years)" : "Adult (> 12 years)";
                 this.demographics[index].order = ageGroups.indexOf(ageGroup);

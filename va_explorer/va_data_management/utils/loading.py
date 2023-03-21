@@ -1,4 +1,5 @@
 import logging
+import random
 
 import numpy as np
 import pandas as pd
@@ -142,7 +143,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         # to determine location.
         # Otherwise, try assigning location based on hospital field.
         if random_locations:
-            user = field_workers.order_by("?").first()
+            user = random.choice(field_workers)
             va.location = user.location_restrictions.first()
         else:
             assign_va_location(va, location_map)
