@@ -14,7 +14,7 @@ from va_explorer.users.models import User
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_analytics.filters import SupervisionFilter
 from va_explorer.va_data_management.utils.date_parsing import (
-    get_submissiondates,
+    get_interview_dates,
     parse_date,
 )
 from va_explorer.va_logs.logging_utils import write_va_log
@@ -106,13 +106,13 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
         all_vas = (
             context["object_list"]
-            .only("id", "submissiondate", "Id10011", "Id10010")
+            .only("id", "Id10012", "Id10011", "Id10010")
             .select_related("location")
             .select_related("causes")
             .select_related("coding_issues")
             .values(
                 "id",
-                "submissiondate",
+                "Id10012",
                 "Id10011",
                 interviewer=F("Id10010"),
                 facility=F("location__name"),
@@ -128,11 +128,11 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
         va_df = pd.DataFrame(all_vas)
 
         if not va_df.empty:
-            va_df["date"] = get_submissiondates(va_df)
+            va_df["date"] = get_interview_dates(va_df)
             context["supervision_stats"] = (
                 va_df.assign(date=lambda df: df["date"].apply(parse_date))
                 .assign(date=lambda df: to_dt(df["date"], errors="coerce"))
-                # only analyze vas with valid submission dates
+                # only analyze vas with valid interview dates
                 .query("date == date")
                 .assign(
                     week_hash=lambda df: df["date"].dt.isocalendar().week
@@ -148,7 +148,7 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                         "date": "max",
                     }
                 )
-                .assign(submission_rate=lambda df: round(df["id"] / df["week_hash"], 2))
+                .assign(interview_rate=lambda df: round(df["id"] / df["week_hash"], 2))
                 .reset_index()
                 .merge(va_df[index_cols].drop_duplicates())
                 .assign(date=lambda df: df["date"].dt.date)
@@ -156,8 +156,8 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                     columns={
                         "id": "Total VAs",
                         "week_hash": "Weeks of Data",
-                        "submission_rate": "VAs / week",
-                        "date": "Last Submission",
+                        "interview_rate": "VAs / week",
+                        "date": "Last Interview",
                     }
                 )
                 .sort_values(by=sort_col, ascending=is_ascending)

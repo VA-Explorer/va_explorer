@@ -28,23 +28,23 @@ def test_trends(user: User):
 
     today = date.today()
 
-    # Other submission dates
+    # Other interview dates
     today_minus_one_month = datetime.now() - relativedelta(months=1)
     today_minus_six_months = datetime.now() - relativedelta(months=6)
     today_minus_one_year = datetime.now() - relativedelta(months=12)
 
     # VAs collected today = 2
-    coded_va = VerbalAutopsyFactory.create(submissiondate=today, Id10023=today)
-    uncoded_va = VerbalAutopsyFactory.create(submissiondate=today, Id10023=today)
+    coded_va = VerbalAutopsyFactory.create(Id10012=today, Id10023=today)
+    uncoded_va = VerbalAutopsyFactory.create(Id10012=today, Id10023=today)
     # VAs collected at other points in time = 3
     VerbalAutopsyFactory.create(
-        submissiondate=today_minus_one_month, Id10023=today_minus_one_month
+        Id10012=today_minus_one_month, Id10023=today_minus_one_month
     )
     VerbalAutopsyFactory.create(
-        submissiondate=today_minus_six_months, Id10023=today_minus_six_months
+        Id10012=today_minus_six_months, Id10023=today_minus_six_months
     )
     VerbalAutopsyFactory.create(
-        submissiondate=today_minus_one_year, Id10023=today_minus_one_year
+        Id10012=today_minus_one_year, Id10023=today_minus_one_year
     )
 
     CauseOfDeathFactory.create(cause="Indeterminate", verbalautopsy=coded_va)
@@ -126,7 +126,7 @@ def test_trends(user: User):
     assert len(json_data["issueList"]) == 4
     assert uncoded_va.Id10017 in json_data["issueList"][0]["deceased"]
     assert json_data["additionalIssues"] == 0
-    # VAs in indeterminate COD list includes VAs with inderminate COD
+    # VAs in indeterminate COD list includes VAs with indeterminate COD
     assert len(json_data["indeterminateCodList"]) == 1
     assert json_data["indeterminateCodList"][0]["id"] == coded_va.id
     assert json_data["additionalIndeterminateCods"] == 0

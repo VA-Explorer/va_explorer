@@ -24,7 +24,7 @@ const dashboard = new Vue({
             uncoded_vas: 0,
             update_stats: {
                 last_update: 0,
-                last_submission: 0,
+                last_interview: 0,
             },
 
             // chart sizes
@@ -74,7 +74,7 @@ const dashboard = new Vue({
         highlightsSummaries() {
             return {
                 "Last Data Update": this.update_stats.last_update,
-                "Last VA Submission": this.update_stats.last_submission,
+                "Last VA Interview": this.update_stats.last_interview,
                 "Coded VAs": d3.sum(this.COD_grouping.map(item => item.count)),
                 "Uncoded VAs": this.uncoded_vas,
             }

@@ -6,7 +6,7 @@
   <div class="col">
     {% include 'partials/_va_update_stats.html' %}
     {% if not user.is_fieldworker %}
-      {% if last_update or last_submission %}
+      {% if last_update or last_interview %}
         <h2 class="mb-4">VA Collection Overview for {{ locations }}</h2>
       {% else %}
         <h2 class="mb-4">No VAs found for {{ locations }}</h2>
@@ -23,17 +23,17 @@
           <th scope="col">1 week</th>
           <th scope="col">1 month</th>
           <th scope="col">Overall</th>
-          <th scope="col">Submission Trends</th>
+          <th scope="col">Interview Trends</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <th scope="row">Submitted</th>
-          <td id="submitted-past-24-hours"></td>
-          <td id="submitted-past-week"></td>
-          <td id="submitted-past-month"></td>
-          <td id="submitted-overall"></td>
-          <td><canvas id="submittedChart"></canvas></td>
+          <th scope="row">Interviewed</th>
+          <td id="interviewed-past-24-hours"></td>
+          <td id="interviewed-past-week"></td>
+          <td id="interviewed-past-month"></td>
+          <td id="interviewed-overall"></td>
+          <td><canvas id="interviewedChart"></canvas></td>
         </tr>
         <tr>
           <th scope="row">Coded</th>
@@ -75,7 +75,7 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Submitted</th>
+          <th>Interviewed</th>
           {% if not user.is_fieldworker %}<th>Interviewer</th>{% endif %}
           <th>Facility</th>
           <th>Deceased</th>
@@ -109,7 +109,7 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Submitted</th>
+          <th>Interviewed</th>
           {% if not user.is_fieldworker %}<th>Interviewer</th>{% endif %}
           <th>Facility</th>
           <th>Deceased</th>

@@ -1,5 +1,5 @@
 {% load va_explorer_tags %}
-{% if last_update or last_submission %}
+{% if last_update or last_interview %}
   <div class="row">
     {% if last_update %}
         <p class='msg-header'> <b>Last Data Update:</b> {{ last_update }}</p>
@@ -7,8 +7,8 @@
         <p class='msg-header'>No VAs found</p>
     {% endif %}
 
-    {% if last_submission %}
-        <p class='msg-header'><b>Last VA submission:</b> {{ last_submission }}</p>
+    {% if last_interview %}
+        <p class='msg-header'><b>Last VA Interview:</b> {{ last_interview }}</p>
     {% endif %}
 
     {% if AUTO_DETECT_DUPLICATES %}

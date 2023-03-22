@@ -83,14 +83,14 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     # if random locations, assign random locations via a random field worker.
     if random_locations:
-        field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
+        field_workers = [u for u in User.objects.all() if u.is_fieldworker()]
         if len(field_workers) <= 1:
             print(
                 "WARNING: no field workers in system. \
                 Generating random ones now..."
             )
             make_field_workers_for_facilities()
-            field_workers = [ u for u in User.objects.all() if u.is_fieldworker() ] 
+            field_workers = [u for u in User.objects.all() if u.is_fieldworker()]
 
     # pull in all existing VA instanceIDs from db for de-duping purposes
     print("pulling in instance ids...")
@@ -129,15 +129,15 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             )
         va.Id10023 = parsed_date
 
-        # Try to parse submission date as as datetime. Otherwise, record string and
+        # Try to parse interview date as as datetime. Otherwise, record string and
         # add record issue during validation
-        parsed_sub_date = parse_date(va.submissiondate, strict=False)
+        parsed_sub_date = parse_date(va.Id10012, strict=False)
         if logger:
             logger.info(
                 f"va_id: {va_id} - Parsed {parsed_sub_date} as \
-                Submission Date from {va.submissiondate}"
+                Interview Date from {va.Id10012}"
             )
-        va.submissiondate = parsed_sub_date
+        va.Id10012 = parsed_sub_date
 
         # if random_locations, assign random field worker to VA which can be used
         # to determine location.
@@ -317,7 +317,7 @@ def get_va_summary_stats(vas, filter_fields=False):
     if not stats:
         stats = vas.aggregate(
             last_update=Max("created"),
-            last_submission=Max("submissiondate"),
+            last_interview=Max("Id10012"),
             total_vas=Count("id"),
         )
         cache.set("va_summary_stats", stats, timeout=60 * 60)
@@ -330,11 +330,11 @@ def get_va_summary_stats(vas, filter_fields=False):
     if stats["last_update"] and type(stats["last_update"]) is not str:
         stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
 
-    if stats["last_submission"]:
-        # Handle datetimes and Text (which can occur since submissiondate is TextField)
-        if type(stats["last_submission"]) is not str:
-            stats["last_submission"] = stats["last_submission"].strftime("%Y-%m-%d")
+    if stats["last_interview"]:
+        # Handle datetimes and Text (which can occur since interview is TextField)
+        if type(stats["last_interview"]) is not str:
+            stats["last_interview"] = stats["last_interview"].strftime("%Y-%m-%d")
         else:
-            stats["last_submission"] = parse_date(stats["last_submission"])
+            stats["last_interview"] = parse_date(stats["last_interview"])
     return stats
     # TODO is it likely or possible to return no VAs? if yes, return empty stats
