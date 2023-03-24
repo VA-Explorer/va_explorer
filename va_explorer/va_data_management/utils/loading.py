@@ -53,6 +53,10 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     if "instanceid" not in record_df.columns and "key" in record_df.columns:
         record_df = record_df.rename(columns={"key": "instanceid"})
 
+    # Patch VAs that are missing Id10010 (Interviewer Name) with custom field
+    if "Id10010" not in record_df.columns and "SubmitterName" in record_df.columns:
+        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})
+
     print("de-duplicating fields...")
     # collapse fields ending with _other for their normal counterparts
     # (e.x. Id10010_other, Id10010)
