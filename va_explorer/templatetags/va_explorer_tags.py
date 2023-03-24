@@ -1,3 +1,4 @@
+import numbers
 import re
 
 from django import template
@@ -35,6 +36,11 @@ def active(context, pattern_or_url):
     if re.search(pattern, path):
         return "active"
     return ""
+
+
+@register.filter
+def is_numeric(value):
+    return isinstance(value, numbers.Number)
 
 
 @register.simple_tag(takes_context=True)

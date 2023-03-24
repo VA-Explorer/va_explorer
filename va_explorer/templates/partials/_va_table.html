@@ -18,14 +18,14 @@
       {% if va_data_cleanup and perms.va_data_cleanup.download %}
         <th>
           <span class="info-tooltip" data-toggle="tooltip" data-placement="top" title="Downloads this VA and VAs flagged as its potential duplicate(s) to CSV">
-            Download<i class="icon-info-circled"></i>
+            Download<i class="fas fa-circle-info"></i>
           </span>
         </th>
       {% endif %}
       {% if va_data_cleanup and perms.va_data_management.delete_verbalautopsy %}
         <th>
           <span class="info-tooltip" data-toggle="tooltip" data-placement="top" title="Deletes this VA">
-            Delete<i class="icon-info-circled"></i>
+            Delete<i class="fas fa-circle-info"></i>
            </span>
         </th>
       {% endif %}
@@ -50,14 +50,14 @@
           {% if va_data_cleanup and perms.va_data_cleanup.download %}
             <td>
               <a class="btn btn-primary" href="{% url 'data_cleanup:download' va.id %}">
-                <i class="icon-download"></i>
+                <i class="fas fa-download"></i>
               </a>
             </td>
           {% endif %}
           {% if va_data_cleanup and perms.va_data_management.delete_verbalautopsy %}
             <td>
               <a class="btn btn-danger" href="{% url 'data_management:delete' va.id %}">
-                <i class="icon-trash"></i>
+                <i class="fas fa-trash"></i>
               </a>
             </td>
           {% endif %}
