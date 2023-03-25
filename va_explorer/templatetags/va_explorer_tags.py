@@ -1,4 +1,5 @@
 import numbers
+import os
 import re
 
 from django import template
@@ -7,6 +8,11 @@ from django.urls import NoReverseMatch, reverse
 from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
 
 register = template.Library()
+
+
+@register.filter
+def is_production(settings):
+    return os.environ.get("DJANGO_SETTINGS_MODULE") == "config.settings.production"
 
 
 @register.filter

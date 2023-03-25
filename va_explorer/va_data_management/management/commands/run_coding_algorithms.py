@@ -31,14 +31,15 @@ class Command(BaseCommand):
                 self.clear_and_save_old_cods(options["cod_fname"])
 
             print("coding all eligible VAs... ")
-            verbal_autopsies, causes, issues = run_coding_algorithms()
-            num_coded = len(causes)
-            num_total = len(verbal_autopsies)
-            num_issues = len(issues)
+            stats = run_coding_algorithms()
+            num_coded = len(stats["causes"])
+            num_total = len(stats["verbal_autopsies"])
+            num_issues = len(stats["issues"])
             self.stdout.write(f"DONE. Total time: {time.time() - ti} secs")
             self.stdout.write(
-                f"Coded {num_coded} verbal autopsies \
-                (out of {num_total}) [{num_issues} issues]"
+                "Coded {} verbal autopsies (out of {}) [{} issues]".format(
+                    num_coded, num_total, num_issues
+                )
             )
         else:
             print(
