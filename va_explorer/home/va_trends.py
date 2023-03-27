@@ -196,20 +196,24 @@ def get_trends_data(user):
         va_table["uncoded"]["1 month"] = len(vas_1_month) - vas_coded_1_month
         va_table["uncoded"]["Overall"] = len(vas_overall) - vas_coded_overall
 
+        # Use a local scope copy of VA_TABLE_FIELDS to avoid modifying the
+        # original which would impact all future requests made by any user and
+        # cause a ValueError: list.remove(x): x not in list
+        user_va_table_fields = list(VA_TABLE_FIELDS)
         if user.is_fieldworker():
-            VA_TABLE_FIELDS.remove("Id10007")
+            user_va_table_fields.remove("Id10007")
 
         # List the VAs that need attention; requesting certain fields and
         # refetching makes this more efficient
         vas_to_address = (
-            user_vas.only(*VA_TABLE_FIELDS)
+            user_vas.only(*user_va_table_fields)
             .filter(causes__isnull=True)[:NUM_TABLE_ROWS]
             .prefetch_related("causes", "coding_issues", "location")
         )
 
         # List the VAs with Indeterminate COD
         vas_with_indeterminate_cod = (
-            user_vas.only(*VA_TABLE_FIELDS)
+            user_vas.only(*user_va_table_fields)
             .filter(causes__cause="Indeterminate")[:NUM_TABLE_ROWS]
             .prefetch_related("causes", "coding_issues", "location")
         )
