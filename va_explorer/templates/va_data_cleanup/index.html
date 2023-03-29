@@ -26,9 +26,9 @@
           <tbody>
             <tr>
               <td class="duplicates-table-text ">{{total_duplicate_records}} potential duplicate Verbal Autopsies</td>
-              <td><a class="btn btn-primary" href="{% url 'data_cleanup:download_all' %}"><i class="icon-download"></i>Download All</a></td>
+              <td><a class="btn btn-primary" href="{% url 'data_cleanup:download_all' %}"><i class="fas fa-download"></i>Download All</a></td>
               {% if perms.va_data_management.bulk_delete %}
-                <td><a class="btn btn-danger" href="{% url 'data_management:delete_all' %}"><i class="icon-trash"></i>Delete All</a></td>
+                <td><a class="btn btn-danger" href="{% url 'data_management:delete_all' %}"><i class="fas fa-trash"></i>Delete All</a></td>
               {% endif %}
             </tr>
           </tbody>

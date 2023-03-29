@@ -32,13 +32,13 @@ def validate_vas_for_dashboard(verbal_autopsies):
             )
             issues.append(issue)
 
-        # Validate: ageInYears
-        # ageInYears is required for calculating mean age of death
+        # Validate: ageInYears2
+        # ageInYears2 is required for calculating mean age of death
         try:
-            _ = int(float(va.ageInYears))
+            _ = int(float(va.ageInYears2))
         except:  # noqa E722 - Intent is to save to db, not do anything with exception
             issue_text = (
-                "Warning: field ageInYears, age was not provided or not a number."
+                "Warning: field ageInYears2, age was not provided or not a number."
             )
             issue = CauseCodingIssue(
                 verbalautopsy_id=va.id,
