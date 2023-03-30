@@ -1,11 +1,11 @@
 # IT Support
 
-The VA Explorer team anticipates that there may be IT staff supporting the use
-of VA Explorer and recognizes that IT training for VA Explorer is different from
+The VA Explorer team anticipates that there may be {term}`IT` staff supporting the use
+of VA Explorer and recognizes that {term}`IT` training for VA Explorer is different from
 that for day-to-day VA Explorer admins.  The guides in this section outline
-estimated level of support for interested IT groups within organizations and to
+estimated level of support for interested {term}`IT` groups within organizations and to
 cover guidance this final type of user and their abilities. In some cases, the
-VA Explorer administrator may also serve as the IT staff.
+VA Explorer administrator may also serve as the {term}`IT` staff.
 
 ## Levels of Support Recommended for VA Explorer
 
@@ -13,7 +13,7 @@ This section will describe the levels of support within a country needed to
 install and maintain the VA Explorer system. While VA Explorer is pre-configured
 to run on deployment, VA Explorer integrates with other systems and having a
 system administrator who has the necessary skills to maintain the system over time
-is crucial to long term success. IT support can do more complex tasks than VA
+is crucial to long term success. {term}`IT` support can do more complex tasks than VA
 Explorer admins characterized by overall system installation, deployment, and
 maintenance that may occur outside of VA Explorer itself.  The estimate of
 level-of-support described below is presented as reference only, and your
@@ -29,21 +29,21 @@ __Required:__
 __Nice To Haves:__
 
 - Basic knowledge of Django (particularly management commands)
-- Familiarity with ODK VA form/ how to set up an ODK instance
+- Familiarity with {term}`ODK` {term}`VA` form/ how to set up an {term}`ODK` instance
 
 __Estimated time investment:__
 
 - Initial deployment: approximately 1 day to 1 week, depending on experience
 - Maintenance: approximately 1-8 hours a week to debug and troubleshoot
 
-Additionally, those IT teams wishing to contribute to the development of VA
+Additionally, those {term}`IT` teams wishing to contribute to the development of VA
 Explorer would also benefit from web development experience, particularly with
-Django. Development methods are discussed more in Development (link).
+Django. Development methods are discussed more in [Development](../develop).
 
 ## Backing Up VA Explorer
 
 VA Explorer is distributed with utilities to backup data from the built-in
-database service. However, the server itself is something left to IT Staff/Admins
+database service. However, the server itself is something left to {term}`IT` Staff/Admins
 to backup if desired. Some popular options for this are taking incremental backups
 of the server filesystem via snapshot utility Rsnapshot or even simple shell script.
 
@@ -59,7 +59,7 @@ via git, the same way they installed the software. Do another `git pull`,
 ensuring that any changes you or your organization have made such as configuring
 the `.env` file, are not erased.
 
-If IT Admins need to migrate to a newer postgres database, as is occasionally
+If {term}`IT` Admins need to migrate to a newer postgres database, as is occasionally
 the case, then that process is a bit more involved:
 
 0. (optional) If existing migration volumes exist from a past upgrade, delete

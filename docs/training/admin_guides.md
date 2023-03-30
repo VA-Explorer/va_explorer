@@ -3,7 +3,7 @@
 ## User Admin
 
 As admin, you can create and manage user accounts. Each of these accounts will
-have a role as described in User Roles and Capabilities (link). Additionally,
+have a role as described in [User Roles and Capabilities](user_guides). Additionally,
 there are workflows available to you as an admin to affect users as a group or
 as individuals described below.
 
@@ -40,10 +40,9 @@ Los Angeles,City,Los Angeles County
 ```
 
 The input is similarly structured to support any number of geographic hierarchies
-for VA Explorer users. An example of this in CSV form can be downloaded here
-(external link). With a CSV file in hand, you can now supplement your initial
+for VA Explorer users. With a {term}`CSV` file in hand, you can now supplement your initial
 system set up with the `load_locations` management command. Full usage details
-for this are provided in Management Commands (link).
+for this are provided in [Management Commands](#management-commands).
 
 Following this command, VA Explorer should support geographic restrictions to any
 area or facility you’ve provide, making them available during user creation and
@@ -65,10 +64,10 @@ marked with an asterisk(*). To fill in the form:
 
 1. Choose the user’s role from the dropdown menu
 
-1. Check "Can View PII" if the user is allowed to view PII in the system. Also
-check "Can Download Data" if the should be allowed to export VA data from the
-system. See Abilities to Download and View PII Data (link) for details on these
-permissions if needed
+1. Check "Can View PII" if the user is allowed to view {term}`PII` in the system. Also
+check "Can Download Data" if the should be allowed to export {term}`VA` data from the
+system. See [Abilities to Download and View PII Data](general/roles.md#abilities-to-download-and-view-pii-data)
+for details on these permissions if needed
 
 1. Select the geographic region(s), facility, facilities this user can access.
 Users with a Field Worker role must be assigned to at least one facility
@@ -96,7 +95,7 @@ button in the table row for the user you would like to deactivate. Uncheck the
 
 If you would like to create multiple users at once, particularly during initial
 system set up, VA Explorer provides that functionality as a management command.
-Please refer to Management Commands (link) for details on running
+Please refer to [Management Commands](#management-commands) for details on running
 `get_user_form_template` and `bulk_load_users` to obtain a bulk user creation
 template and to create your set of users based on that input file.
 
@@ -110,33 +109,34 @@ admin to affect it as needed.
 
 If you would like to manually import data from file, (perhaps if troubleshooting
 the automatic import process) VA Explorer supports this through the `load_va_csv`
-management command. Please refer to Management Commands (link) for details on
-usage.
+management command. Please refer to [Management Commands](#management-commands)
+for details on usage.
 
-Similarly, if you have configured VA Explorer to integrate with ODK and would
-like to manually import data from ODK, VA Explorer also supports this. Use
-`import_from_odk` similarly detailed in Management Commands (link)
+Similarly, if you have configured VA Explorer to integrate with {term}`ODK` and would
+like to manually import data from {term}`ODK`, VA Explorer also supports this. Use
+`import_from_odk` similarly detailed in [Management Commands](#management-commands)
 
 ### Manually Running Coding Algorithms
 
 VA Explorer currently supports the InterVA5 coding algorithm and its associated
-settings to assign cause of death (COD) and may support other coding algorithms
+settings to assign cause of death ({term}`COD`) and may support other coding algorithms
 in the future such as InSilicoVA. The InterVA5 coding algorithm depends on the
-docker services as described in Algorithm Support (link)
+docker services as described in [Algorithm Support](../usage/integrations.md#algorithm-support)
 
 To run InterVA5 manually, use `run_coding_algorithms` or see the entry for it in
-Management Commands (link) for full usage details. After the command has finished
-execution, a brief report of results should be printed to console used to run the
-management command (ex. Coded 24 verbal autopsies (out of 30) [6 issues]) or an
-error message if pyCrossVA or InterVA5 are somehow unavailable; if that is the
-case, please refer to the Troubleshooting (link) section.
+[Management Commands](#management-commands) for full usage details. After the
+command has finished execution, a brief report of results should be printed to
+console used to run the management command (ex. Coded 24 verbal autopsies
+(out of 30) [6 issues]) or an error message if pyCrossVA or InterVA5 are somehow
+unavailable; if that is the case, please refer to the
+[Troubleshooting](./troubleshooting) section.
 
 ## Management Commands
 
 Beyond actions supported by the VA Explorer interface, there are a series of
-management commands available exclusively to developers, admins, and IT staff
+management commands available exclusively to developers, admins, and {term}`IT` staff
 helping to maintain the service. To take advantage of these special commands,
-admins and IT staff need to, from the server hosting the VA Explorer instance,
+admins and {term}`IT` staff need to, from the server hosting the VA Explorer instance,
 enter VA Explorer’s main Django container like so
 `docker exec -it va_explorer_django_1 bash`. From there `manage.py` is available
 for calling the following commands via:
@@ -147,7 +147,7 @@ manage.py <command> --<parameter_name>=<parameter_input>
 
 from within the container. Below is a selection of management commands,
 generally useful to admins. An even fuller list of these can be found under
-Development Commands (link)
+[Development Commands](../develop.md#development-commands)
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
@@ -186,10 +186,11 @@ Development Commands (link)
   * - :rspan:`1` ``run_coding_algorithms``
     - ``--overwrite``
     - :rspan:`1` Used to call supported algorithms for assignment of cause of
-      death to all VAs. ``overwrite`` allows this command to clear (and save)
-      all existing CoD assignments before running. ``True`` or ``False``;
-      defaults to ``False`` ``cod_fname`` is a filename or unix:path format
-      location to save the old CoDs to. Defaults to ``old_cod_mapping.csv``
+      death to all uncoded verbal autopsies. ``overwrite`` allows this command
+      to clear (and save) all existing CoD assignments before running on
+      every verbal autopsy regardless of whether it's coded or not. ``True`` or
+      ``False``; defaults to ``False`` ``cod_fname`` is a filename or unix:path
+      format location to save the old CoDs to. Defaults to ``old_cod_mapping.csv``
 
   * - ``--cod_fname``
 
@@ -241,13 +242,14 @@ Development Commands (link)
     - Used to manually run (or re-run if config is changed) duplicate checking
       within VA Explorer. Contains no parameters as behavior is determined by
       the configuration variable ``QUESTIONS_TO_AUTODETECT_DUPLICATES`` see
-      Configuration & Deployment (link)
+      :ref:`Configuration & Deployment`
 ````
 
 Additionally, if VA Explorer has been configured with integrations, the following
 additional management commands are available. If the environment variables (see
-Integrations (link)) that enable these integrations to work automatically are not
-defined, consider all parameters required for these management commands.
+[Integrations](../usage/integrations)) that enable these integrations to work
+automatically are not defined, consider all parameters required for these
+management commands.
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.30\linewidth-2\tabcolsep}|p{\dimexpr 0.20\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
@@ -263,7 +265,7 @@ defined, consider all parameters required for these management commands.
     - ``--email``
     - :rspan:`5` Used to manually import VA data from ODK Central. Parameters
       are as described for the equivalent environment variables listed in
-      Integrations > ODK Central (link)
+      :ref:`Integrations` > :ref:`ODK Central`
   
   * - ``--password``
   * - ``--project_name``
@@ -281,7 +283,9 @@ defined, consider all parameters required for these management commands.
 
   * - :rspan:`3` ``run_dhis``
     - ``--dhis_user``
-    - :rspan:`3` Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in Integrations > DHIS2 (link)
+    - :rspan:`3` Used to manually export VA data to DHIS2. Parameters are as
+      described for the equivalent environment variables listed in
+      :ref:`Integrations` > :ref:`DHIS2`
 
   * - ``--dhis_pass``
   * - ``--dhis_url``

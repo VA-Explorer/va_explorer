@@ -43,27 +43,27 @@ high-level description of each role.
 
 Users should have a role with the fewest capabilities and least record access
 required to perform their job. For example, if a user only needs to be able to
-view VA data, a Data Manager role would not be appropriate.
+view {term}`VA` data, a Data Manager role would not be appropriate.
 
 ## Geographic Access
 
 Your admin may also associate your account with specific geographic regions or
 facilities. This assignment is called "Geographic Access" in VA Explorer. If
-your account has this restriction, VA Explorer only shows you VAs from your
+your account has this restriction, VA Explorer only shows you {term}`VA`s from your
 assigned regions or facilities. The default geographic restriction is the broadest
-"National" access, which shows VAs from all regions. To support additional
+"National" access, which shows {term}`VA`s from all regions. To support additional
 location restriction options beyond the default, Admins should follow the guide
-in Loading Locations for Geographic Access Support (link)
+in [Loading Locations for Geographic Access Support](../admin_guides.md#loading-locations-for-geographic-access-support)
 
 ## Abilities to Download and View PII Data
 
-Personally Identifiable Information (PII) is a category of information that can
+Personally Identifiable Information ({term}`PII`) is a category of information that can
 be used to identify an individual. Some users may be further restricted from
-viewing or downloading certain data such as PII or, separately, from downloading
+viewing or downloading certain data such as {term}`PII` or, separately, from downloading
 data altogether for privacy or policy reasons. Users do not have these restrictions
 by default, so Admins will determine if individual users have this restriction.
 If users have the download data restriction, they will not be able to use the
-Export feature. If users are restricted from viewing PII, the following fields
+Export feature. If users are restricted from viewing {term}`PII`, the following fields
 will not appear in the application or in downloaded data. Instead, fields will
 automatically be replaced with `** redacted **`.
 

@@ -2,7 +2,7 @@
 
 VA Explorer supports integrations with a variety of services, some built-in,
 some external, in order to facilitate the quick and efficient movement or
-processing of VAs. In this section you will find information on these
+processing of {term}`VA`s. In this section you will find information on these
 integrations as well as details on how to enable them in VA Explorer if needed.
 
 - ODK Central
@@ -13,16 +13,16 @@ integrations as well as details on how to enable them in VA Explorer if needed.
 
 ## ODK Central
 
-VA Explorer supports integration with ODK Central to provide both manual and
-automatic import of VA questionnaire responses. You can read more about ODK
-Central via its documentation.
+VA Explorer supports integration with {term}`ODK` Central to provide both manual and
+automatic import of {term}`VA` questionnaire responses. You can read more about {term}`ODK`
+Central via [its documentation](https://docs.getodk.org/central-intro/).
 
-- To perform manual imports of ODK Central data, please see Data Admin (link)
-in the Admin training guides.
+- To perform manual imports of {term}`ODK` Central data, please see
+[Data Admin](../training/admin_guides.md#data-admin) in the Admin training guides.
 
-- To configure VA Explorer for automatic import of VAs, the relevant `.env`
+- To configure VA Explorer for automatic import of {term}`VA`s, the relevant `.env`
 variables are detailed below. Once properly set, run `docker-compose up -d` to
-push the new configuration. ODK integration features within VA Explorer should
+push the new configuration. {term}`ODK` integration features within VA Explorer should
 now appear and function.
 
 ````{eval-rst}
@@ -71,19 +71,19 @@ now appear and function.
 ````
 
 If you encounter any issues during integration, please reference our
-Troubleshooting (link) section.
+[Troubleshooting](../training/troubleshooting) section.
 
 ## DHIS2
 
-VA Explorer supports integration with DHIS2 to export VAs that have been
+VA Explorer supports integration with {term}`DHIS2` to export {term}`VA`s that have been
 processed and assigned causes of death along for potential further use. You can
-read more about DHIS2 via their documentation. Details on configuring DHIS2 for
-use with Verbal Autopsies metadata is also available via the DHIS2 VA program
-open-source project.
+read more about {term}`DHIS2` via their documentation. Details on configuring
+{term}`DHIS2` for use with Verbal Autopsies metadata is also available via the
+[DHIS2 VA program open-source project](https://github.com/verbal-autopsy-software/DHIS2_VA_program).
 
-To configure VA Explorer for automatic export of VAs, the relevant `.env`
+To configure VA Explorer for automatic export of {term}`VA`s, the relevant `.env`
 variables are detailed below. Once properly set, run `docker-compose up -d` to
-push the new configuration. DHIS integration features within VA Explorer should
+push the new configuration. {term}`DHIS2` integration features within VA Explorer should
 now appear and function.
 
 ````{eval-rst}
@@ -110,14 +110,14 @@ now appear and function.
 
   * - ``DHIS_ORGUNIT``
     - ``wEVB21sQaHu``
-    - Value indicating the root Organization Unit UID within your DHIS
-      organizational hierarchy. Should be available using the DHIS API Query:
-      ``/api/organisationUnits?level=1``. **Recommended to customize.**
+    - Value indicating the root Organization Unit UID within your DHIS2
+      organizational hierarchy. Should be available using the DHIS2 API Query:
+      ``/api/organizationUnits?level=1``. **Recommended to customize.**
 
   * - ``DHIS_USER``
     - ``admin``
     - Value indicating the username of the account you wish to use to login to
-      DHIS. Defaults to DHIS2's existing default username credential.
+      DHIS2 Defaults to DHIS2's existing default username credential.
       **Recommended to customize.**
 
   * - ``DHIS_PASS``
@@ -128,7 +128,7 @@ now appear and function.
 ````
 
 If you encounter any issues during integration, please reference our
-Troubleshooting (link) section.
+[Troubleshooting](../training/troubleshooting) section.
 
 ## Algorithm Support
 
@@ -142,7 +142,7 @@ may provide built-in support for additional {term}`CCVA` algorithms.
 ### pyCrossVA
 
 pyCrossVA is provided as a built-in docker service to allow VA Explorer to
-transform VAs into input suitable for cause of death assignment algorithms. You
+transform {term}`VA`s into input suitable for cause of death assignment algorithms. You
 can read more about it via its project page.
 
 ````{eval-rst}
@@ -165,9 +165,9 @@ can read more about it via its project page.
 
 ### InterVA5
 
-InterVA5 is provided as a built-in docker service to allow VA Explorer VAs to be
-processed for likely cause of death. You can read more about it via its project
-page.
+InterVA5 is provided as a built-in docker service to allow VA Explorer {term}`VA`s
+to be processed for likely cause of death. You can read more about it via its
+project page.
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
