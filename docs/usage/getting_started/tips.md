@@ -22,7 +22,7 @@ Once this process has finished, `EMAIL_URL` can similarly be customized to point
 to `localhost`.
 
 ```{note}
-If users are reporting non-receipt of emails, the [Frequently Asked Questions](../..training/troubleshooting.md#frequently-asked-questions)
+If users are reporting non-receipt of emails, the [Frequently Asked Questions](training/troubleshooting.md#frequently-asked-questions)
 section may help.
 ```
 
@@ -40,7 +40,7 @@ are also supported.
 NetData and other monitoring solutions should cover metrics that provide insight
 for common VA Explorer management questions like:
 
-- Are backups, VAs, etc. overflowing storage? – Monitor Disk Space Utilization
+- Are backups, {term}`VA`s, etc. overflowing storage? – Monitor Disk Space Utilization
 - Is software running efficiently? – Monitor CPU & RAM Usage
 - How well is the network/ server handling user traffic? Monitor Network Traffic/ Latency
 - Is VA Explorer accessible? – Monitor Endpoints (Health Checks/ Pings)
@@ -64,7 +64,7 @@ Software that ships with your server, including VA Explorer, periodically releas
 updates, and sometimes these updates have the sole purpose of patching security
 vulnerabilities. Failing to download these security updates leaves software open
 to known vulnerabilities. To update server software, regularly run
-`sudo apt update && sudo apt upgrade` or your OS equivalent. To update VA
+`sudo apt update && sudo apt upgrade` or your {term}`OS` equivalent. To update VA
 Explorer, refer to the [IT Support Guides > Upgrading VA Explorer](../../training/it_guides.md#upgrading-va-explorer)
 guide.
 

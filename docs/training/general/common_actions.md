@@ -15,19 +15,19 @@ prompted to choose a new password on the next page. Follow the instructions to
 create a strong password that will help protect your VA Explorer account.
 
 1. After signing in, the application will take you to the Home page. The Homepage
-shows trends of VAs collected and coded, as well as a snapshot of VAs with
-coding issues and VAs coded with Indeterminate cause of death. The scope of VA
+shows trends of {term}`VA`s collected and coded, as well as a snapshot of {term}`VA`s with
+coding issues and {term}`VA`s coded with Indeterminate cause of death. The scope of {term}`VA`
 data shown on the Home page depends on your assigned role and geographic access.
 
 - **For Field Workers:** If you are assigned the Field Worker role, the Homepage
-  shows trends and data on the VAs for your location.
+  shows trends and data on the {term}`VA`s for your location.
 - **For All Other Roles:** For all other roles, data on the Home page are
   limited to the specific regions or facilities you can access.
 
 ## Viewing Your Account Profile
 
 Your profile shows the role you have been assigned, your geographic access, and
-actions you can take in VA Explorer, such as viewing PII and downloading data.
+actions you can take in VA Explorer, such as viewing {term}`PII` and downloading data.
 These account settings are described in [User Roles and Capabilities](../user_guides.md)
 To view your account profile:
 
@@ -60,12 +60,12 @@ to reset it.
 
 ## Using the Analytics Dashboard
 
-All users can view the VA Analytics Dashboard to see information on the VAs
+All users can view the {term}`VA` Analytics Dashboard to see information on the {term}`VA`s
 (filtered to their level of permissions and access) that have successfully been
 assigned a cause of death. To do so, click "Dashboard" in the navigation bar to
 view it.
 
-The VA Analytics Dashboard is a dynamic, visualization-based dashboard that helps
+The {term}`VA` Analytics Dashboard is a dynamic, visualization-based dashboard that helps
 you explore cause of death data. It has three global filters that simultaneously
 update all graphs, maps, and statistics found in the top left of the dashboard
 page and directly above the heatmap. The global filters include:
@@ -113,14 +113,14 @@ Found in the bottom right of the dashboard page.
 
 ## Searching for and Reviewing Specific VAs
 
-All roles have some level of access to search for and review specific VAs. To do
+All roles have some level of access to search for and review specific {term}`VA`s. To do
 so, click "Data Management" in the navigation bar to view the Data Management
 page.
 
-The Data Management page shows a paginated table of all the VAs in the system
+The Data Management page shows a paginated table of all the {term}`VA`s in the system
 your account is eligible to see. For more information about your account and
 eligibility, see [Viewing Your Account Profile](#viewing-your-account-profile).
-On the Data Management page, you can search or filter available VAs with the
+On the Data Management page, you can search or filter available {term}`VA`s with the
 following parameters:
 
 ````{eval-rst}
@@ -170,30 +170,30 @@ following parameters:
 In addition to searching and filtering, users may also have access to the
 following actions depending on their permissions:
 
-- Sort VA table data by column value by clicking any of the column headers.
+- Sort {term}`VA` table data by column value by clicking any of the column headers.
 Clicking again reverses the sort order of the column
 
-- Download VA table data by clicking the "Export" button to be directed to the
+- Download {term}`VA` table data by clicking the "Export" button to be directed to the
 Export page with your search parameters automatically filled into the export form.
 
-- View VA details by clicking the "View" button on any individual VA. See
+- View {term}`VA` details by clicking the "View" button on any individual {term}`VA`. See
 details below.
 
 ## Viewing Details for Individual VAs
 
-When viewing a specific VA, the resulting page may show a couple of tabs at the
-top below the VAs ID. Users with permission to change VAs will also see the
-option to repair the VA via an "Edit Record" button. See
+When viewing a specific {term}`VA`, the resulting page may show a couple of tabs at the
+top below the {term}`VA`s ID. Users with permission to change {term}`VA`s will also see the
+option to repair the {term}`VA` via an "Edit Record" button. See
 [Repairing VA Errors & Warnings](../user_guides.md#repairing-va-errors--warnings)
-for details on editing VAs. Quick navigation options to automatically scroll to
-the top or bottom of the VA responses is available via the floating action
+for details on editing {term}`VA`s. Quick navigation options to automatically scroll to
+the top or bottom of the {term}`VA` responses is available via the floating action
 button in the bottom right.
 
 ### Record
 
-This tab is always visible and shows the VA questionnaire data, including:
+This tab is always visible and shows the {term}`VA` questionnaire data, including:
 
-- The question ID corresponding to the WHO standard instrument
+- The question ID corresponding to the {term}`WHO` standard instrument
 - The text of question associate that pairs with each question ID
 - The response or calculation for each question
 
@@ -203,29 +203,29 @@ the top right of this tab.
 
 ### Coding Issues
 
-This tab will become visible if the individual VA has any warnings or errors
+This tab will become visible if the individual {term}`VA` has any warnings or errors
 associated with it.
 
 These warnings and errors can be applied during data import or, more often,
-after processing the VA for cause of death.
+after processing the {term}`VA` for cause of death.
 
 - **(Errors)** these are issues that either VA Explorer or a coding algorithm
-has determined is severe enough to totally prevent CoD assignment. They will
+has determined is severe enough to totally prevent {term}`CoD` assignment. They will
 need to be corrected.
 
 - **(User Warnings)** these are issues that should be addressed because they
-potentially block CoD assignment or the accuracy of the assigned CoD but are
-not quite as severe.
+potentially block {term}`CoD` assignment or the accuracy of the assigned {term}`CoD`
+but are not quite as severe.
 
 - **(Algorithm Warnings)** these are warnings specifically provided by the
-algorithm after assigning a CoD that indicate the assignment may not be accurate.
-Fixing these increases the accuracy of CoD assignment. This tab will be visible
-if the individual VA has been edited or updated in any way since its initial import.
+algorithm after assigning a {term}`CoD` that indicate the assignment may not be accurate.
+Fixing these increases the accuracy of {term}`CoD` assignment. This tab will be visible
+if the individual {term}`VA` has been edited or updated in any way since its initial import.
 
 ### Change History
 
 This history provides for transparency, record integrity, and protection from
-misuse for VAs and will take the form of an audit trail, a table of all changes,
+misuse for {term}`VA`s and will take the form of an audit trail, a table of all changes,
 with each row showing
 
 - The date of the change
@@ -234,7 +234,7 @@ with each row showing
 
 Additionally, this tab will contain two action buttons:
 
-- **(Reset to Original)** To completely reset the VA to the state it was in at
+- **(Reset to Original)** To completely reset the {term}`VA` to the state it was in at
 the time of original import. (Note that for this action, change history is still
 preserved)
 
@@ -242,9 +242,9 @@ preserved)
 top of the change history table (organized by most recent changes first)
 
 ```{admonition} Duplicate VAs
-If your system is configured to automatically flag potential duplicate VAs, you
+If your system is configured to automatically flag potential duplicate {term}`VA`s, you
 may also see a yellow warning banner above these tabs. This banner alerts you
-that VA Explorer has flagged this VA as a possible duplicate. Please consult
+that VA Explorer has flagged this {term}`VA` as a possible duplicate. Please consult
 with an administrator or data manager to determine any actions to take for
-potential duplicate VAs.
+potential duplicate {term}`VA`s.
 ```

@@ -16,8 +16,8 @@ step most relevant to you.
 
 ## Obtain a server (either your own hardware or cloud provider)
 
-A Linux Operating System (OS) is recommended for best ease of use and for taking
-maximal advantage of docker later. One such OS that VA Explorer has been
+A Linux Operating System ({term}`OS`) is recommended for best ease of use and for taking
+maximal advantage of docker later. One such {term}`OS` that VA Explorer has been
 reliably tested on is Ubuntu. To get a server:
 
 - If using a cloud provider, select and provision one of their Ubuntu server

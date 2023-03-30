@@ -15,22 +15,22 @@ an end user, become familiar with VA Explorer through three simple steps.
 1. **Practice taking supported actions**\
   Whatever your role, you have the power to take action in VA Explorer! Try some
   of the actions out as you learn about them in this training, and you will
-  build a solid foundation for working with VAs in VA Explorer going forward.
+  build a solid foundation for working with {term}`VA`s in VA Explorer going forward.
 
 Outside of these three steps (which reference this training), modules are
-organized into general guidance, role-specific user guides, admin guides, IT
+organized into general guidance, role-specific user guides, admin guides, {term}`IT`
 guides, and finally, frequently asked questions. Please feel free to submit
 feedback if you find anything missing after reading and know that the VA Explorer
-team wishes you all the best in your VA management experience!
+team wishes you all the best in your {term}`VA` management experience!
 
 ## The VA Questionnaire
 
-VA Explorer’s foundation centers around the management of Verbal Autopsies (VAs)
+VA Explorer’s foundation centers around the management of Verbal Autopsies ({term}`VA`s)
 which are conducted by people and organizations around the world according to the
-2016 World Health Organization (WHO) verbal autopsy instrument. VA Explorer will
-support the 2022 WHO verbal autopsy instrument in the future, when the {term}`CCVA`
-algorithms also support the 2022 questionnaire. Use of non-standard VA instruments
-may cause issues in VA Explorer if attempted.
+2016 World Health Organization ({term}`WHO`) verbal autopsy instrument. VA Explorer will
+support the 2022 {term}`WHO` verbal autopsy instrument in the future, when the {term}`CCVA`
+algorithms also support the 2022 questionnaire. Use of non-standard {term}`VA`
+instruments may cause issues in VA Explorer if attempted.
 
 ## Your VA Explorer Account
 

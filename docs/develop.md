@@ -96,7 +96,7 @@ remember them to login
 ./manage.py load_locations <NAME OF CSV>
 ```
 
-5. If you have VAs on hand, you should also load them now
+5. If you have {term}`VA`s on hand, you should also load them now
 
 ```shell
 ./manage.py load_va_csv <NAME OF CSV>
@@ -148,18 +148,19 @@ Selenium Client Driver Documentation for more info if needed.
 ## Running Integrations Locally
 
 If you would like to test or contribute to the functionality of VA Explorer
-integrations and would like to use the real instances of ODK Central and DHIS2
-locally, please see to the documentation from those two services. They are the
-best reference.
+integrations and would like to use the real instances of {term}`ODK` Central
+and {term}`DHIS2` locally, please see to the documentation from those two
+services. They are the best reference.
 
-- ODK Central
-- DHIS2 via Docker
+- [ODK Central](https://docs.getodk.org/central-intro/)
+- [DHIS2](https://developers.dhis2.org/docs)
+  - [via Docker](https://hub.docker.com/r/dhis2/core)
 
 ## Development Commands
 
-As mentioned in [Management Commands](training/admin_guides.md#management-commands), VA Explorer provides additional
-functionality beyond its UI-based features. This holds especially true for
-development which has relevant actions detailed here:
+As mentioned in [Management Commands](training/admin_guides.md#management-commands),
+VA Explorer provides additional functionality beyond its UI-based features. This
+holds especially true for development which has relevant actions detailed here:
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|

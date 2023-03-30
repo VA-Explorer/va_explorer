@@ -26,9 +26,10 @@ determine if all docker services are running as expected.
 1. Is VA Explorer free?
 
 Yes, VA Explorer is free to download and use as you please under the terms of
-the open-source Apache V2 license. If installed on a linux-based OS, users also
-do not need to worry about any costs associated with using docker. We expect the
-only costs associated with VA Explorer to be hosting and domain name registration.
+the open-source Apache V2 license. If installed on a linux-based {term}`OS`,
+users also do not need to worry about any costs associated with using docker.
+We expect the only costs associated with VA Explorer to be hosting and domain
+name registration.
 
 2. I’m getting an error related to psycopg2 when setting up VA Explorer. What
 does this mean?
@@ -105,4 +106,4 @@ used for sending spam and is therefore blocked by many mail recipients
 messages from it may be blocked or marked as spam
 
 If you want to troubleshoot sending emails from your mail server, the mail-tester
-service recommended by ODK Central may help identify your email delivery issues.
+service recommended by {term}`ODK` Central may help identify your email delivery issues.

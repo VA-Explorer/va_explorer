@@ -40,7 +40,7 @@ Los Angeles,City,Los Angeles County
 ```
 
 The input is similarly structured to support any number of geographic hierarchies
-for VA Explorer users. With a CSV file in hand, you can now supplement your initial
+for VA Explorer users. With a {term}`CSV` file in hand, you can now supplement your initial
 system set up with the `load_locations` management command. Full usage details
 for this are provided in [Management Commands](#management-commands).
 
@@ -64,8 +64,8 @@ marked with an asterisk(*). To fill in the form:
 
 1. Choose the user’s role from the dropdown menu
 
-1. Check "Can View PII" if the user is allowed to view PII in the system. Also
-check "Can Download Data" if the should be allowed to export VA data from the
+1. Check "Can View PII" if the user is allowed to view {term}`PII` in the system. Also
+check "Can Download Data" if the should be allowed to export {term}`VA` data from the
 system. See [Abilities to Download and View PII Data](general/roles.md#abilities-to-download-and-view-pii-data)
 for details on these permissions if needed
 
@@ -112,14 +112,14 @@ the automatic import process) VA Explorer supports this through the `load_va_csv
 management command. Please refer to [Management Commands](#management-commands)
 for details on usage.
 
-Similarly, if you have configured VA Explorer to integrate with ODK and would
-like to manually import data from ODK, VA Explorer also supports this. Use
+Similarly, if you have configured VA Explorer to integrate with {term}`ODK` and would
+like to manually import data from {term}`ODK`, VA Explorer also supports this. Use
 `import_from_odk` similarly detailed in [Management Commands](#management-commands)
 
 ### Manually Running Coding Algorithms
 
 VA Explorer currently supports the InterVA5 coding algorithm and its associated
-settings to assign cause of death (COD) and may support other coding algorithms
+settings to assign cause of death ({term}`COD`) and may support other coding algorithms
 in the future such as InSilicoVA. The InterVA5 coding algorithm depends on the
 docker services as described in [Algorithm Support](../usage/integrations.md#algorithm-support)
 
@@ -129,14 +129,14 @@ command has finished execution, a brief report of results should be printed to
 console used to run the management command (ex. Coded 24 verbal autopsies
 (out of 30) [6 issues]) or an error message if pyCrossVA or InterVA5 are somehow
 unavailable; if that is the case, please refer to the
-[Troubleshooting](troubleshooting) section.
+[Troubleshooting](./troubleshooting) section.
 
 ## Management Commands
 
 Beyond actions supported by the VA Explorer interface, there are a series of
-management commands available exclusively to developers, admins, and IT staff
+management commands available exclusively to developers, admins, and {term}`IT` staff
 helping to maintain the service. To take advantage of these special commands,
-admins and IT staff need to, from the server hosting the VA Explorer instance,
+admins and {term}`IT` staff need to, from the server hosting the VA Explorer instance,
 enter VA Explorer’s main Django container like so
 `docker exec -it va_explorer_django_1 bash`. From there `manage.py` is available
 for calling the following commands via:
@@ -147,7 +147,7 @@ manage.py <command> --<parameter_name>=<parameter_input>
 
 from within the container. Below is a selection of management commands,
 generally useful to admins. An even fuller list of these can be found under
-[Development Commands](../development.md#development-commands)
+[Development Commands](../develop.md#development-commands)
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
@@ -186,10 +186,11 @@ generally useful to admins. An even fuller list of these can be found under
   * - :rspan:`1` ``run_coding_algorithms``
     - ``--overwrite``
     - :rspan:`1` Used to call supported algorithms for assignment of cause of
-      death to all VAs. ``overwrite`` allows this command to clear (and save)
-      all existing CoD assignments before running. ``True`` or ``False``;
-      defaults to ``False`` ``cod_fname`` is a filename or unix:path format
-      location to save the old CoDs to. Defaults to ``old_cod_mapping.csv``
+      death to all uncoded verbal autopsies. ``overwrite`` allows this command
+      to clear (and save) all existing CoD assignments before running on
+      every verbal autopsy regardless of whether it's coded or not. ``True`` or
+      ``False``; defaults to ``False`` ``cod_fname`` is a filename or unix:path
+      format location to save the old CoDs to. Defaults to ``old_cod_mapping.csv``
 
   * - ``--cod_fname``
 
@@ -241,7 +242,7 @@ generally useful to admins. An even fuller list of these can be found under
     - Used to manually run (or re-run if config is changed) duplicate checking
       within VA Explorer. Contains no parameters as behavior is determined by
       the configuration variable ``QUESTIONS_TO_AUTODETECT_DUPLICATES`` see
-      :ref:`Configuration & Deployment<../usage/getting_started/config>`
+      :ref:`Configuration & Deployment`
 ````
 
 Additionally, if VA Explorer has been configured with integrations, the following
@@ -264,7 +265,7 @@ management commands.
     - ``--email``
     - :rspan:`5` Used to manually import VA data from ODK Central. Parameters
       are as described for the equivalent environment variables listed in
-      :ref:`Integrations > ODK Central<../usage/integrations#odk-central>`
+      :ref:`Integrations` > :ref:`ODK Central`
   
   * - ``--password``
   * - ``--project_name``
@@ -282,7 +283,9 @@ management commands.
 
   * - :rspan:`3` ``run_dhis``
     - ``--dhis_user``
-    - :rspan:`3` Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in :ref:`Integrations > DHIS2<../usage/integrations.md#dhis2>`
+    - :rspan:`3` Used to manually export VA data to DHIS2. Parameters are as
+      described for the equivalent environment variables listed in
+      :ref:`Integrations` > :ref:`DHIS2`
 
   * - ``--dhis_pass``
   * - ``--dhis_url``

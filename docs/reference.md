@@ -23,41 +23,58 @@ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the [License](https://github.com/VA-Explorer/va_explorer/blob/main/LICENSE)
 for specific language governing permissions and limitations under the License.
 
-## Other VA Efforts
+## Other VA Resources
 
-- VA Standards Group at WHO
+- [VA Standards Group at WHO](https://www.who.int/standards/classifications/other-classifications/verbal-autopsy-standards-ascertaining-and-attributing-causes-of-death-tool)
 - Other VA IT Tools
-  - openVA Pipeline on GitHub
+  - [OpenVA.net](https://openva.net/#info)
+    - [VA Software on GitHub](https://github.com/verbal-autopsy-software)
+    - [OpenVA Pipeline](https://github.com/verbal-autopsy-software/openva_pipeline)
+  <!-- - [SmartVA](https://www.healthdata.org/data-tools-practices/verbal-autopsy)
+  - [EasyVA](https://www.idmod.org/tools#easyva) -->
+
+<small>Is your resource missing? Please let us know, and we'll include it!</small>
 
 ## Glossary
 
 ```{glossary}
 CCVA
   Computer-Coded Verbal Autopsy
-```
-<!-- COD
+
+COD
   Cause of Death
+
 CRVS
   Civil Registration and Vital Statistics
+
 CSV
   Comma Separated Value
+
 DB
   Database
+
 DHIS2
   District Health Information System, Version 2
-GUI
-  Graphic User Interface
+
 IT
   Information Technology
+
 JSON
   JavaScript Object Notation
+
 ODK
   Open Data Kit
+
 OS
   Operating System
+
 PII
   Personally Identifiable Information
+
 VA
   Verbal Autopsy
+
 WHO
-  World Health Information -->
+  World Health Information
+
+```
