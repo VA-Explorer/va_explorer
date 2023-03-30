@@ -2,7 +2,7 @@
 
 Thank you for your interest in helping to make VA Explorer even better! These
 guides should help you get setup for local development. Afterwards, you should
-be ready to tackle Issues (external link). We recommend the ones tagged
+be ready to tackle [Issues](https://github.com/VA-Explorer/va_explorer/issues). We recommend the ones tagged
 `good first issue` as a starting point.
 
 As a pre-requisite you should have the following already on your system:
@@ -67,9 +67,9 @@ CELERY_BROKER_URL=redis://localhost:6379/0
 ```
 
 This will prepare your local development environment to run VA Explorer locally
-via the `runserver_plus` command (see Development Commands (link)). Next you will
-want to seed VA Explorer with some example data so you can signin and see
-features in action. To do that run:
+via the `runserver_plus` command (see [Development Commands](#development-commands)).
+Next you will want to seed VA Explorer with some example data so you can login
+and see its features in action. To do that run:
 
 1. Create user roles & permissions source code
 
@@ -96,7 +96,7 @@ remember them to login
 ./manage.py load_locations <NAME OF CSV>
 ```
 
-5. If you have VAs on hand, you should also load them now
+5. If you have {term}`VA`s on hand, you should also load them now
 
 ```shell
 ./manage.py load_va_csv <NAME OF CSV>
@@ -125,7 +125,7 @@ After setup, you’re ready to run VA Explorer locally! If you’ve run:
 then you should be able to navigate to `localhost:8000` in the browser of your
 choice and be presented with the sign in screen. Signing in here with the admin
 user you seeded earlier should open up access to the rest of the features, as
-described in Features (link).
+described in [Features](usage/features).
 
 ```{note}
 Data seeded for local instances of VA Explorer lives in your local installation
@@ -148,18 +148,19 @@ Selenium Client Driver Documentation for more info if needed.
 ## Running Integrations Locally
 
 If you would like to test or contribute to the functionality of VA Explorer
-integrations and would like to use the real instances of ODK Central and DHIS2
-locally, please see to the documentation from those two services. They are the
-best reference.
+integrations and would like to use the real instances of {term}`ODK` Central
+and {term}`DHIS2` locally, please see to the documentation from those two
+services. They are the best reference.
 
-- ODK Central
-- DHIS2 via Docker
+- [ODK Central](https://docs.getodk.org/central-intro/)
+- [DHIS2](https://developers.dhis2.org/docs)
+  - [via Docker](https://hub.docker.com/r/dhis2/core)
 
 ## Development Commands
 
-As mentioned in Management Commands (link), VA Explorer provides additional
-functionality beyond its UI-based features. This holds especially true for
-development which has relevant actions detailed here:
+As mentioned in [Management Commands](training/admin_guides.md#management-commands),
+VA Explorer provides additional functionality beyond its UI-based features. This
+holds especially true for development which has relevant actions detailed here:
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
@@ -239,5 +240,5 @@ development which has relevant actions detailed here:
 ````
 
 Additionally, the full and complete list of management commands (only some of
-the most popular are described here or in Management Commands (link)) is available
+the most popular are described here or in [Management Commands](training/admin_guides.md#management-commands)) is available
 by running `manage.py help`.

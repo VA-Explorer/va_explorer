@@ -186,7 +186,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop.html">Development</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
@@ -230,7 +230,7 @@
 <h1>Integrations<a class="headerlink" href="#integrations" title="Permalink to this heading">#</a></h1>
 <p>VA Explorer supports integrations with a variety of services, some built-in,
 some external, in order to facilitate the quick and efficient movement or
-processing of VAs. In this section you will find information on these
+processing of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s. In this section you will find information on these
 integrations as well as details on how to enable them in VA Explorer if needed.</p>
 <ul class="simple">
 <li><p>ODK Central</p></li>
@@ -244,15 +244,15 @@ integrations as well as details on how to enable them in VA Explorer if needed.<
 </ul>
 <section id="odk-central">
 <h2>ODK Central<a class="headerlink" href="#odk-central" title="Permalink to this heading">#</a></h2>
-<p>VA Explorer supports integration with ODK Central to provide both manual and
-automatic import of VA questionnaire responses. You can read more about ODK
-Central via its documentation.</p>
+<p>VA Explorer supports integration with <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a> Central to provide both manual and
+automatic import of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a> questionnaire responses. You can read more about <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a>
+Central via <a class="reference external" href="https://docs.getodk.org/central-intro/">its documentation</a>.</p>
 <ul class="simple">
-<li><p>To perform manual imports of ODK Central data, please see Data Admin (link)
-in the Admin training guides.</p></li>
-<li><p>To configure VA Explorer for automatic import of VAs, the relevant <code class="docutils literal notranslate"><span class="pre">.env</span></code>
+<li><p>To perform manual imports of <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a> Central data, please see
+<a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-doc">Data Admin</span></a> in the Admin training guides.</p></li>
+<li><p>To configure VA Explorer for automatic import of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s, the relevant <code class="docutils literal notranslate"><span class="pre">.env</span></code>
 variables are detailed below. Once properly set, run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> to
-push the new configuration. ODK integration features within VA Explorer should
+push the new configuration. <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a> integration features within VA Explorer should
 now appear and function.</p></li>
 </ul>
 <div class="table-wrapper colwidths-given docutils container" id="id1">
@@ -307,18 +307,18 @@ to a blank string. <strong>Recommended to customize.</strong></p></td>
 </table>
 </div>
 <p>If you encounter any issues during integration, please reference our
-Troubleshooting (link) section.</p>
+<a class="reference internal" href="../training/troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> section.</p>
 </section>
 <section id="dhis2">
 <h2>DHIS2<a class="headerlink" href="#dhis2" title="Permalink to this heading">#</a></h2>
-<p>VA Explorer supports integration with DHIS2 to export VAs that have been
+<p>VA Explorer supports integration with <a class="reference internal" href="../reference.html#term-DHIS2"><span class="xref std std-term">DHIS2</span></a> to export <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s that have been
 processed and assigned causes of death along for potential further use. You can
-read more about DHIS2 via their documentation. Details on configuring DHIS2 for
-use with Verbal Autopsies metadata is also available via the DHIS2 VA program
-open-source project.</p>
-<p>To configure VA Explorer for automatic export of VAs, the relevant <code class="docutils literal notranslate"><span class="pre">.env</span></code>
+read more about <a class="reference internal" href="../reference.html#term-DHIS2"><span class="xref std std-term">DHIS2</span></a> via their documentation. Details on configuring
+<a class="reference internal" href="../reference.html#term-DHIS2"><span class="xref std std-term">DHIS2</span></a> for use with Verbal Autopsies metadata is also available via the
+<a class="reference external" href="https://github.com/verbal-autopsy-software/DHIS2_VA_program">DHIS2 VA program open-source project</a>.</p>
+<p>To configure VA Explorer for automatic export of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s, the relevant <code class="docutils literal notranslate"><span class="pre">.env</span></code>
 variables are detailed below. Once properly set, run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> to
-push the new configuration. DHIS integration features within VA Explorer should
+push the new configuration. <a class="reference internal" href="../reference.html#term-DHIS2"><span class="xref std std-term">DHIS2</span></a> integration features within VA Explorer should
 now appear and function.</p>
 <div class="table-wrapper colwidths-given docutils container" id="id2">
 <table class="docutils align-default" id="id2">
@@ -348,14 +348,14 @@ ssl/https connections. Defaults to <code class="docutils literal notranslate"><s
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_ORGUNIT</span></code></p></th>
 <td><p><code class="docutils literal notranslate"><span class="pre">wEVB21sQaHu</span></code></p></td>
-<td><p>Value indicating the root Organization Unit UID within your DHIS
-organizational hierarchy. Should be available using the DHIS API Query:
-<code class="docutils literal notranslate"><span class="pre">/api/organisationUnits?level=1</span></code>. <strong>Recommended to customize.</strong></p></td>
+<td><p>Value indicating the root Organization Unit UID within your DHIS2
+organizational hierarchy. Should be available using the DHIS2 API Query:
+<code class="docutils literal notranslate"><span class="pre">/api/organizationUnits?level=1</span></code>. <strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_USER</span></code></p></th>
 <td><p><code class="docutils literal notranslate"><span class="pre">admin</span></code></p></td>
 <td><p>Value indicating the username of the account you wish to use to login to
-DHIS. Defaults to DHIS2’s existing default username credential.
+DHIS2 Defaults to DHIS2’s existing default username credential.
 <strong>Recommended to customize.</strong></p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">DHIS_PASS</span></code></p></th>
@@ -368,7 +368,7 @@ Defaults to the default credentials for DHIS2’s default admin account.
 </table>
 </div>
 <p>If you encounter any issues during integration, please reference our
-Troubleshooting (link) section.</p>
+<a class="reference internal" href="../training/troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> section.</p>
 </section>
 <section id="algorithm-support">
 <h2>Algorithm Support<a class="headerlink" href="#algorithm-support" title="Permalink to this heading">#</a></h2>
@@ -381,7 +381,7 @@ may provide built-in support for additional <a class="reference internal" href="
 <section id="pycrossva">
 <h3>pyCrossVA<a class="headerlink" href="#pycrossva" title="Permalink to this heading">#</a></h3>
 <p>pyCrossVA is provided as a built-in docker service to allow VA Explorer to
-transform VAs into input suitable for cause of death assignment algorithms. You
+transform <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s into input suitable for cause of death assignment algorithms. You
 can read more about it via its project page.</p>
 <div class="table-wrapper colwidths-given docutils container" id="id3">
 <table class="docutils align-default" id="id3">
@@ -410,9 +410,9 @@ built-in pyCrossVA docker service.</p></td>
 </section>
 <section id="interva5">
 <h3>InterVA5<a class="headerlink" href="#interva5" title="Permalink to this heading">#</a></h3>
-<p>InterVA5 is provided as a built-in docker service to allow VA Explorer VAs to be
-processed for likely cause of death. You can read more about it via its project
-page.</p>
+<p>InterVA5 is provided as a built-in docker service to allow VA Explorer <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s
+to be processed for likely cause of death. You can read more about it via its
+project page.</p>
 <div class="table-wrapper colwidths-given docutils container" id="id4">
 <table class="docutils align-default" id="id4">
 <caption><span class="caption-text">List of all configuration options when interfacing with the InterVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>

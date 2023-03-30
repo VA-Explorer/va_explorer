@@ -8,7 +8,7 @@ This section covers some of these additional steps as a good starting set:
 - Configuring for better security
 - Implementing server monitoring
 
-There are also further guides along these lines in IT Support Guides (link) for
+There are also further guides along these lines in [IT Support Guides](../../training/it_guides) for
 those anxious to learn more about sustaining use of VA Explorer over time.
 
 ## Setting up a mail server
@@ -22,7 +22,7 @@ Once this process has finished, `EMAIL_URL` can similarly be customized to point
 to `localhost`.
 
 ```{note}
-If users are reporting non-receipt of emails, the Frequently Asked Questions (link)
+If users are reporting non-receipt of emails, the [Frequently Asked Questions](training/troubleshooting.md#frequently-asked-questions)
 section may help.
 ```
 
@@ -40,7 +40,7 @@ are also supported.
 NetData and other monitoring solutions should cover metrics that provide insight
 for common VA Explorer management questions like:
 
-- Are backups, VAs, etc. overflowing storage? – Monitor Disk Space Utilization
+- Are backups, {term}`VA`s, etc. overflowing storage? – Monitor Disk Space Utilization
 - Is software running efficiently? – Monitor CPU & RAM Usage
 - How well is the network/ server handling user traffic? Monitor Network Traffic/ Latency
 - Is VA Explorer accessible? – Monitor Endpoints (Health Checks/ Pings)
@@ -64,13 +64,14 @@ Software that ships with your server, including VA Explorer, periodically releas
 updates, and sometimes these updates have the sole purpose of patching security
 vulnerabilities. Failing to download these security updates leaves software open
 to known vulnerabilities. To update server software, regularly run
-`sudo apt update && sudo apt upgrade` or your OS equivalent. To update VA
-Explorer, refer to the IT Support Guides > Upgrading VA Explorer (link) guide.
+`sudo apt update && sudo apt upgrade` or your {term}`OS` equivalent. To update VA
+Explorer, refer to the [IT Support Guides > Upgrading VA Explorer](../../training/it_guides.md#upgrading-va-explorer)
+guide.
 
 You may also consider setting your server up for automatic security updates.
 Debian-based Linux systems like Ubuntu provide the `unattended-upgrade` utility
 for this, along with optional configuration to alert you if any problems arise
-during automatic updates. See Guide.
+during automatic updates. See [Guide](https://help.ubuntu.com/community/AutomaticSecurityUpdates).
 
 ### Protecting against server attacks
 

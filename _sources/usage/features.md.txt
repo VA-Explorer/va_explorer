@@ -1,9 +1,10 @@
 # Features
 
 VA Explorer is an open-source web application built to help individuals and
-organizations manage, analyze, and disseminate VAs while integrating with
-existing CRVS systems at scale, simplifying the use of VAs for those individuals
-and organizations. To that end, VA Explorer offers some major features:
+organizations manage, analyze, and disseminate {term}`VA`s while integrating with
+existing {term}`CRVS` systems at scale, simplifying the use of {term}`VA`s for
+those individuals and organizations. To that end, VA Explorer offers some major
+features:
 
 - Tablet Friendly Interface
 - User Identity & Access Management
@@ -21,10 +22,11 @@ would like to see something specific from VA Explorer going forward, we look
 forward to hearing from you! Please submit feedback, bug reports, feature
 requests, etc. to our open-source project page.
 
-For information on who should use VA Explorer, this documentation covers User
-Training (link) for all user and support roles. Information on potential levels
-of support that may be required to run a tool like VA Explorer is also available
-via our IT Support Guides (link) training series.
+For information on who should use VA Explorer, this documentation covers
+[User Training](../training/user_guides) for all user and support roles.
+Information on potential levels of support that may be required to run a tool
+like VA Explorer is also available via our [IT Support Guides](../training/it_guides)
+training series.
 
 ## Tablet Friendly Interface
 
@@ -62,7 +64,7 @@ easily to larger devices.
 ```
 
 VA Explorer supports different user types and levels of access for those users
-to facilitate roles-based VA workflows. This means VA Explorer offers features
+to facilitate roles-based {term}`VA` workflows. This means VA Explorer offers features
 like:
 
 - Creation & management of user accounts by administrators
@@ -90,24 +92,26 @@ like:
 ```
 
 VA Explorer has limited functionality on its own – the true value of the tool
-comes from how it helps you process your VA data. To obtain this data, VA
+comes from how it helps you process your {term}`VA` data. To obtain this data, VA
 Explorer currently supports different data import methods (enumerated below).
-After import, all VAs are searchable/ filterable via a number of useful
+After import, all {term}`VA`s are searchable/ filterable via a number of useful
 parameters such as interviewer, name of deceased, date, facility, cause of
-death, and whether the VA has errors.
+death, and whether the {term}`VA` has errors.
 
 - **(Automatic) Click Import Data Button:** This format is the most user friendly:
-the VA Explorer UI will detect whether you are using ODK or a more general CSV
-import and react accordingly.
+the VA Explorer UI will detect whether you are using {term}`ODK` or a more
+general {term}`CSV` import and react accordingly.
 
-- **(Manual) Import from CSV:** This format allows the most flexibility: if your VAs
-can be exported from their origin in CSV form, you can import them into VA
-Explorer. See Admin Guides > Data Admin (link) training for specifics on how.
+- **(Manual) Import from CSV:** This format allows the most flexibility: if your {term}`VA`s
+can be exported from their origin in {term}`CSV` form, you can import them into VA
+Explorer. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin)
+training for specifics on how.
 
-- **(Manual) Import from ODK:** This format implements manual support for ODK
-integration: bring your VAs directly over from ODK like clicking the data import
-button, but with more customization about how and when. See Admin Guides >
-Data Admin (link) training for specifics on how.
+- **(Manual) Import from ODK:** This format implements manual support for {term}`ODK`
+integration: bring your {term}`VA`s directly over from {term}`ODK` like clicking the
+data import button, but with more customization about how and when. See
+[Admin Guides > Data Admin](../training/admin_guides.md#data-admin) training for
+specifics on how.
 
 ## Data Collection Supervision
 
@@ -119,15 +123,15 @@ Data Admin (link) training for specifics on how.
 ```
 
 VA Explorer allows admins and data managers to supervise the origins of collected
-VAs. Want to know which facilities are generating the most VA errors when
-attempting to assign a COD? Want to know which interviewers/ field workers are
-collecting the most VAs? This feature helps supervisor roles answer those types
-of questions about the overall VA dataset.
+{term}`VA`s. Want to know which facilities are generating the most {term}`VA` errors when
+attempting to assign a {term}`COD`? Want to know which interviewers/ field workers are
+collecting the most {term}`VA`s? This feature helps supervisor roles answer those types
+of questions about the overall {term}`VA` dataset.
 
-- Overview of total VAs, total warnings/errors thrown during the CoD assignment,
+- Overview of total {term}`VA`s, total warnings/errors thrown during the {term}`CoD` assignment,
 and performance stats such as VAs/week
 
-- Filter VAs under supervision by dates of interest
+- Filter {term}`VA`s under supervision by dates of interest
 
 - Group data by interviewers/field workers or by facility for a different set of
 insights
@@ -152,29 +156,29 @@ insights
     ```
 ```
 
-After importing VA data, one of VA Explorer’s key benefits is the ability to
-quickly assign a CoD to each by running InterVA5. To enable this, VA Explorer
-currently supports two ways to process VAs via CoD assignment, enumerated below.
-The home page lists a quick reference of VAs that either contain coding errors
+After importing {term}`VA` data, one of VA Explorer’s key benefits is the ability to
+quickly assign a {term}`CoD` to each by running InterVA5. To enable this, VA Explorer
+currently supports two ways to process {term}`VA`s via {term}`CoD` assignment, enumerated below.
+The home page lists a quick reference of {term}`VA`s that either contain coding errors
 to be addressed or were assigned "Indeterminate" as the cause of death and may
 require further investigation.
 
 - **(Automatic) Click Run Coding Algorithms Button:** This format is the most user
-friendly: the VA Explorer UI will detect all uncoded VAs and attempt to run
+friendly: the VA Explorer UI will detect all uncoded {term}`VA`s and attempt to run
 cause of death assignment on each or report any warnings/errors associated with
-VAs that cannot receive CoD assignment.
+{term}`VA`s that cannot receive {term}`CoD` assignment.
 
 - **(Manual) Run Coding Algorithms:** This format implements manual support for
-InterVA5 integration: directly control the CoD assignment process for your VAs
-via management command. See Admin Guides > Data Admin (link) training for
-specifics on how.
+InterVA5 integration: directly control the {term}`CoD` assignment process for your {term}`VA`s
+via management command. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin)
+training for specifics on how.
 
 Additionally, VA Explorer provides a dashboard of summary information,
-analytics, and charts for VAs that have successfully assigned a cause of death.
+analytics, and charts for {term}`VA`s that have successfully assigned a cause of death.
 The dashboard currently supports
 
-- Showing an overview of VA processing progress with most recent dates and number
-of coded compared to uncoded VAs
+- Showing an overview of {term}`VA` processing progress with most recent dates and number
+of coded compared to uncoded {term}`VA`s
 
 - Understanding geographical trends via a dynamic heat map, with zoom
 capabilities to filter for regions of interest
@@ -209,16 +213,16 @@ geography
     ```
 ```
 
-Ideally the VAs collected by you, or your organization, are free of error. But
+Ideally the {term}`VA`s collected by you, or your organization, are free of error. But
 for occasions where they are not, VA Explorer supports troubleshooting and
-correcting individual VA warnings or errors preventing cause of death assignment,
+correcting individual {term}`VA` warnings or errors preventing cause of death assignment,
 or those leading to an "Indeterminate" assignment by InterVA5.
 
-- Field workers are able to view and edit VAs for their location
-- Data Managers and Admins can do repairs for any VA they have access to
-- View errors and warnings causing issues with VA from both VA Explorer and InterVA5
-- Easily edit VA answers with VA instrument compliant responses
-- View change history and revert changes as needed for a VA
+- Field workers are able to view and edit {term}`VA`s for their location
+- Data Managers and Admins can do repairs for any {term}`VA` they have access to
+- View errors and warnings causing issues with {term}`VA` from both VA Explorer and InterVA5
+- Easily edit {term}`VA` answers with {term}`VA` instrument compliant responses
+- View change history and revert changes as needed for a {term}`VA`
 
 ## Processed Data Export
 
@@ -229,12 +233,13 @@ or those leading to an "Indeterminate" assignment by InterVA5.
 <small>Export module: options form for data export</small>
 ```
 
-Finally, when users would like to send the VAs processed by VA Explorer onto
+Finally, when users would like to send the {term}`VA`s processed by VA Explorer onto
 another step in their analysis, or just save a copy for themselves, VA Explorer
-supports data export in both CSV and JSON formats. Additionally, if VA Explorer
-has been configured to integrate with DHIS2 then users can export their data
-directly to that service. See DHIS2 (link) for more info.
+supports data export in both {term}`CSV` and {term}`JSON` formats. Additionally,
+if VA Explorer has been configured to integrate with {term}`DHIS2` then users
+can export their data directly to that service. See [DHIS2](integrations.md#dhis2) 
+for more info.
 
-- Choose between CSV and JSON data download
-- Filter data downloaded to just the VAs of interest
-- Optionally export direct to DHIS2 if your configuration supports it
+- Choose between {term}`CSV` and {term}`JSON` data download
+- Filter data downloaded to just the {term}`VA`s of interest
+- Optionally export direct to {term}`DHIS2` if your configuration supports it

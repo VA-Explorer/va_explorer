@@ -186,7 +186,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop.html">Development</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
@@ -231,7 +231,7 @@
 <section id="user-admin">
 <h2>User Admin<a class="headerlink" href="#user-admin" title="Permalink to this heading">#</a></h2>
 <p>As admin, you can create and manage user accounts. Each of these accounts will
-have a role as described in User Roles and Capabilities (link). Additionally,
+have a role as described in <a class="reference internal" href="user_guides.html"><span class="doc std std-doc">User Roles and Capabilities</span></a>. Additionally,
 there are workflows available to you as an admin to affect users as a group or
 as individuals described below.</p>
 <section id="loading-locations-for-geographic-access-support">
@@ -290,10 +290,9 @@ Los Angeles).</p>
 </figcaption>
 </figure>
 <p>The input is similarly structured to support any number of geographic hierarchies
-for VA Explorer users. An example of this in CSV form can be downloaded here
-(external link). With a CSV file in hand, you can now supplement your initial
+for VA Explorer users. With a <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> file in hand, you can now supplement your initial
 system set up with the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command. Full usage details
-for this are provided in Management Commands (link).</p>
+for this are provided in <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a>.</p>
 <p>Following this command, VA Explorer should support geographic restrictions to any
 area or facility you’ve provide, making them available during user creation and
 editing. Note that access to geographies higher up in the given tree equates to
@@ -311,10 +310,10 @@ marked with an asterisk(*). To fill in the form:</p>
 <li><p>Enter the user’s name</p></li>
 <li><p>Enter the user’s email address. An email address can be used in the system once</p></li>
 <li><p>Choose the user’s role from the dropdown menu</p></li>
-<li><p>Check “Can View PII” if the user is allowed to view PII in the system. Also
-check “Can Download Data” if the should be allowed to export VA data from the
-system. See Abilities to Download and View PII Data (link) for details on these
-permissions if needed</p></li>
+<li><p>Check “Can View PII” if the user is allowed to view <a class="reference internal" href="../reference.html#term-PII"><span class="xref std std-term">PII</span></a> in the system. Also
+check “Can Download Data” if the should be allowed to export <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a> data from the
+system. See <a class="reference internal" href="general/roles.html#abilities-to-download-and-view-pii-data"><span class="std std-doc">Abilities to Download and View PII Data</span></a>
+for details on these permissions if needed</p></li>
 <li><p>Select the geographic region(s), facility, facilities this user can access.
 Users with a Field Worker role must be assigned to at least one facility</p></li>
 </ol>
@@ -340,7 +339,7 @@ button in the table row for the user you would like to deactivate. Uncheck the
 <h3>Bulk Creating Users<a class="headerlink" href="#bulk-creating-users" title="Permalink to this heading">#</a></h3>
 <p>If you would like to create multiple users at once, particularly during initial
 system set up, VA Explorer provides that functionality as a management command.
-Please refer to Management Commands (link) for details on running
+Please refer to <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a> for details on running
 <code class="docutils literal notranslate"><span class="pre">get_user_form_template</span></code> and <code class="docutils literal notranslate"><span class="pre">bulk_load_users</span></code> to obtain a bulk user creation
 template and to create your set of users based on that input file.</p>
 </section>
@@ -354,32 +353,33 @@ admin to affect it as needed.</p>
 <h3>Manually Importing Data<a class="headerlink" href="#manually-importing-data" title="Permalink to this heading">#</a></h3>
 <p>If you would like to manually import data from file, (perhaps if troubleshooting
 the automatic import process) VA Explorer supports this through the <code class="docutils literal notranslate"><span class="pre">load_va_csv</span></code>
-management command. Please refer to Management Commands (link) for details on
-usage.</p>
-<p>Similarly, if you have configured VA Explorer to integrate with ODK and would
-like to manually import data from ODK, VA Explorer also supports this. Use
-<code class="docutils literal notranslate"><span class="pre">import_from_odk</span></code> similarly detailed in Management Commands (link)</p>
+management command. Please refer to <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a>
+for details on usage.</p>
+<p>Similarly, if you have configured VA Explorer to integrate with <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a> and would
+like to manually import data from <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a>, VA Explorer also supports this. Use
+<code class="docutils literal notranslate"><span class="pre">import_from_odk</span></code> similarly detailed in <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a></p>
 </section>
 <section id="manually-running-coding-algorithms">
 <h3>Manually Running Coding Algorithms<a class="headerlink" href="#manually-running-coding-algorithms" title="Permalink to this heading">#</a></h3>
 <p>VA Explorer currently supports the InterVA5 coding algorithm and its associated
-settings to assign cause of death (COD) and may support other coding algorithms
+settings to assign cause of death (<a class="reference internal" href="../reference.html#term-COD"><span class="xref std std-term">COD</span></a>) and may support other coding algorithms
 in the future such as InSilicoVA. The InterVA5 coding algorithm depends on the
-docker services as described in Algorithm Support (link)</p>
+docker services as described in <a class="reference internal" href="../usage/integrations.html#algorithm-support"><span class="std std-doc">Algorithm Support</span></a></p>
 <p>To run InterVA5 manually, use <code class="docutils literal notranslate"><span class="pre">run_coding_algorithms</span></code> or see the entry for it in
-Management Commands (link) for full usage details. After the command has finished
-execution, a brief report of results should be printed to console used to run the
-management command (ex. Coded 24 verbal autopsies (out of 30) [6 issues]) or an
-error message if pyCrossVA or InterVA5 are somehow unavailable; if that is the
-case, please refer to the Troubleshooting (link) section.</p>
+<a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a> for full usage details. After the
+command has finished execution, a brief report of results should be printed to
+console used to run the management command (ex. Coded 24 verbal autopsies
+(out of 30) [6 issues]) or an error message if pyCrossVA or InterVA5 are somehow
+unavailable; if that is the case, please refer to the
+<a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> section.</p>
 </section>
 </section>
 <section id="management-commands">
 <h2>Management Commands<a class="headerlink" href="#management-commands" title="Permalink to this heading">#</a></h2>
 <p>Beyond actions supported by the VA Explorer interface, there are a series of
-management commands available exclusively to developers, admins, and IT staff
+management commands available exclusively to developers, admins, and <a class="reference internal" href="../reference.html#term-IT"><span class="xref std std-term">IT</span></a> staff
 helping to maintain the service. To take advantage of these special commands,
-admins and IT staff need to, from the server hosting the VA Explorer instance,
+admins and <a class="reference internal" href="../reference.html#term-IT"><span class="xref std std-term">IT</span></a> staff need to, from the server hosting the VA Explorer instance,
 enter VA Explorer’s main Django container like so
 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">va_explorer_django_1</span> <span class="pre">bash</span></code>. From there <code class="docutils literal notranslate"><span class="pre">manage.py</span></code> is available
 for calling the following commands via:</p>
@@ -388,7 +388,7 @@ for calling the following commands via:</p>
 </div>
 <p>from within the container. Below is a selection of management commands,
 generally useful to admins. An even fuller list of these can be found under
-Development Commands (link)</p>
+<a class="reference internal" href="../develop.html#development-commands"><span class="std std-doc">Development Commands</span></a></p>
 <div class="table-wrapper colwidths-given docutils container" id="id3">
 <table class="docutils align-default" id="id3">
 <caption><span class="caption-text">Descriptions and lists of parameters for select management commands related to administration of VA Explorer</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
@@ -431,10 +431,11 @@ the new locations being loaded. <code class="docutils literal notranslate"><span
 <tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">run_coding_algorithms</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">--overwrite</span></code></p></td>
 <td rowspan="2"><p> Used to call supported algorithms for assignment of cause of
-death to all VAs. <code class="docutils literal notranslate"><span class="pre">overwrite</span></code> allows this command to clear (and save)
-all existing CoD assignments before running. <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>;
-defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> <code class="docutils literal notranslate"><span class="pre">cod_fname</span></code> is a filename or unix:path format
-location to save the old CoDs to. Defaults to <code class="docutils literal notranslate"><span class="pre">old_cod_mapping.csv</span></code></p></td>
+death to all uncoded verbal autopsies. <code class="docutils literal notranslate"><span class="pre">overwrite</span></code> allows this command
+to clear (and save) all existing CoD assignments before running on
+every verbal autopsy regardless of whether it’s coded or not. <code class="docutils literal notranslate"><span class="pre">True</span></code> or
+<code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> <code class="docutils literal notranslate"><span class="pre">cod_fname</span></code> is a filename or unix:path
+format location to save the old CoDs to. Defaults to <code class="docutils literal notranslate"><span class="pre">old_cod_mapping.csv</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--cod_fname</span></code></p></td>
 </tr>
@@ -488,15 +489,16 @@ export. Defaults to all users if no file.</p></td>
 <td><p>Used to manually run (or re-run if config is changed) duplicate checking
 within VA Explorer. Contains no parameters as behavior is determined by
 the configuration variable <code class="docutils literal notranslate"><span class="pre">QUESTIONS_TO_AUTODETECT_DUPLICATES</span></code> see
-Configuration &amp; Deployment (link)</p></td>
+<a class="reference internal" href="../usage/getting_started/config.html#configuration-deployment"><span class="std std-ref">Configuration &amp; Deployment</span></a></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>Additionally, if VA Explorer has been configured with integrations, the following
 additional management commands are available. If the environment variables (see
-Integrations (link)) that enable these integrations to work automatically are not
-defined, consider all parameters required for these management commands.</p>
+<a class="reference internal" href="../usage/integrations.html"><span class="doc std std-doc">Integrations</span></a>) that enable these integrations to work
+automatically are not defined, consider all parameters required for these
+management commands.</p>
 <div class="table-wrapper colwidths-given docutils container" id="id4">
 <table class="docutils align-default" id="id4">
 <caption><span class="caption-text">Descriptions and lists of parameters for select management commands related to integrations</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
@@ -516,7 +518,7 @@ defined, consider all parameters required for these management commands.</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">--email</span></code></p></td>
 <td rowspan="6"><p> Used to manually import VA data from ODK Central. Parameters
 are as described for the equivalent environment variables listed in
-Integrations &gt; ODK Central (link)</p></td>
+<a class="reference internal" href="../usage/integrations.html#integrations"><span class="std std-ref">Integrations</span></a> &gt; <a class="reference internal" href="../usage/integrations.html#odk-central"><span class="std std-ref">ODK Central</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--password</span></code></p></td>
 </tr>
@@ -538,7 +540,9 @@ location of the csv file. csv file has the header
 </tr>
 <tr class="row-odd"><td rowspan="4"><p> <code class="docutils literal notranslate"><span class="pre">run_dhis</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">--dhis_user</span></code></p></td>
-<td rowspan="4"><p> Used to manually export VA data to DHIS2. Parameters are as described for the equivalent environment variables listed in Integrations &gt; DHIS2 (link)</p></td>
+<td rowspan="4"><p> Used to manually export VA data to DHIS2. Parameters are as
+described for the equivalent environment variables listed in
+<a class="reference internal" href="../usage/integrations.html#integrations"><span class="std std-ref">Integrations</span></a> &gt; <a class="reference internal" href="../usage/integrations.html#dhis2"><span class="std std-ref">DHIS2</span></a></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--dhis_pass</span></code></p></td>
 </tr>

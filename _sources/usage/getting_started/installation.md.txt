@@ -16,8 +16,8 @@ step most relevant to you.
 
 ## Obtain a server (either your own hardware or cloud provider)
 
-A Linux Operating System (OS) is recommended for best ease of use and for taking
-maximal advantage of docker later. One such OS that VA Explorer has been
+A Linux Operating System ({term}`OS`) is recommended for best ease of use and for taking
+maximal advantage of docker later. One such {term}`OS` that VA Explorer has been
 reliably tested on is Ubuntu. To get a server:
 
 - If using a cloud provider, select and provision one of their Ubuntu server
@@ -61,12 +61,13 @@ steps to take before downloading VA Explorer.
 
 - Install a web server/ reverse proxy to direct web traffic to the VA Explorer
 port. Two popular options are Nginx and Apache. An example Apache configuration
-is provided in the Error! Reference source not found. (link) section
+is provided in the [Troubleshooting](../../training/troubleshooting.md#frequently-asked-questions)
+section
 
 - If your hosting provider doesn’t already or automatically provide https
 support, you should add it now. Let’s Encrypt is a free https certificate
 provider that also provides a guides for adding https support to Apache or
-Nginx webservers, among other configurations.
+Nginx web servers, among other configurations.
 
 - Tools like git and text editors like vim will also be needed. You can install
 them via `sudo apt install -y git vim` or your OS’s equivalent
@@ -75,7 +76,7 @@ them via `sudo apt install -y git vim` or your OS’s equivalent
 
 VA Explorer itself is quick to deploy thanks to Docker and the default
 configurations. More on customizing this configuration can be found in
-Configuration & Deployment (link).
+[Configuration & Deployment](config).
 
 - Assuming you’ve ssh’d into the server, navigate to the directory you’d like to
 install VA Explorer in.
@@ -88,14 +89,14 @@ the created directory via `cd va_explorer`
 `.env` file. Do so via `mv .env.template .env` and `vim .env`. One variable that
 can be edited immediately is the `DJANGO_ALLOWED_HOSTS` variable by adding your
 domain name from Step 2. For more information on this, see the mentioned
-Configuration & Deployment (link) section.
+[Configuration & Deployment](config) section.
 
 - Run `docker-compose up -d --build`. If you experience any issues here, please
-consult the Troubleshooting (link) section.
+consult the [Troubleshooting](../../training/troubleshooting) section.
 
 - Additionally, the full and complete list of management commands is available
 by running `manage.py help`. Only some of the popular commands are described
-here or in Management Commands (link).
+here or in [Management Commands](../../training/admin_guides.md#management-commands).
 
 - VA Explorer should now be up and running. You can confirm services are running
 as expected via `docker ps` which should output like below:
@@ -131,7 +132,7 @@ application provides admins an interface for creating and managing other users.
 With this basic setup in place you are ready to get started. As mentioned, if
 you are interested in reading more about basic or advanced configuration options
 like allowing an email server to handle user password resets you can find that
-in the next section Configuration & Deployment (link). You may also want to
-read over IT Support Guides (link) for information on activities like setting up
-an email server, implementing server monitoring, and preparing for regular
-backups.
+in the next section [Configuration & Deployment](config). You may also want to
+read over [IT Support Guides](../../training/it_guides) for information on
+activities like setting up an email server, implementing server monitoring, and
+preparing for regular backups.

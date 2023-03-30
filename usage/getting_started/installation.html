@@ -186,7 +186,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../develop.html">Development</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
@@ -243,8 +243,8 @@ VA Explorer to involve these steps:</p>
 step most relevant to you.</p>
 <section id="obtain-a-server-either-your-own-hardware-or-cloud-provider">
 <h2>Obtain a server (either your own hardware or cloud provider)<a class="headerlink" href="#obtain-a-server-either-your-own-hardware-or-cloud-provider" title="Permalink to this heading">#</a></h2>
-<p>A Linux Operating System (OS) is recommended for best ease of use and for taking
-maximal advantage of docker later. One such OS that VA Explorer has been
+<p>A Linux Operating System (<a class="reference internal" href="../../reference.html#term-OS"><span class="xref std std-term">OS</span></a>) is recommended for best ease of use and for taking
+maximal advantage of docker later. One such <a class="reference internal" href="../../reference.html#term-OS"><span class="xref std std-term">OS</span></a> that VA Explorer has been
 reliably tested on is Ubuntu. To get a server:</p>
 <ul class="simple">
 <li><p>If using a cloud provider, select and provision one of their Ubuntu server
@@ -284,11 +284,12 @@ steps to take before downloading VA Explorer.</p>
 <li><p>Post Installation Setup for Docker Users on Linux</p></li>
 <li><p>Install a web server/ reverse proxy to direct web traffic to the VA Explorer
 port. Two popular options are Nginx and Apache. An example Apache configuration
-is provided in the Error! Reference source not found. (link) section</p></li>
+is provided in the <a class="reference internal" href="../../training/troubleshooting.html#frequently-asked-questions"><span class="std std-doc">Troubleshooting</span></a>
+section</p></li>
 <li><p>If your hosting provider doesn’t already or automatically provide https
 support, you should add it now. Let’s Encrypt is a free https certificate
 provider that also provides a guides for adding https support to Apache or
-Nginx webservers, among other configurations.</p></li>
+Nginx web servers, among other configurations.</p></li>
 <li><p>Tools like git and text editors like vim will also be needed. You can install
 them via <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">-y</span> <span class="pre">git</span> <span class="pre">vim</span></code> or your OS’s equivalent</p></li>
 </ul>
@@ -297,7 +298,7 @@ them via <code class="docutils literal notranslate"><span class="pre">sudo</span
 <h2>Deploy and run VA Explorer via Docker<a class="headerlink" href="#deploy-and-run-va-explorer-via-docker" title="Permalink to this heading">#</a></h2>
 <p>VA Explorer itself is quick to deploy thanks to Docker and the default
 configurations. More on customizing this configuration can be found in
-Configuration &amp; Deployment (link).</p>
+<a class="reference internal" href="config.html"><span class="doc std std-doc">Configuration &amp; Deployment</span></a>.</p>
 <ul class="simple">
 <li><p>Assuming you’ve ssh’d into the server, navigate to the directory you’d like to
 install VA Explorer in.</p></li>
@@ -308,12 +309,12 @@ the created directory via <code class="docutils literal notranslate"><span class
 <code class="docutils literal notranslate"><span class="pre">.env</span></code> file. Do so via <code class="docutils literal notranslate"><span class="pre">mv</span> <span class="pre">.env.template</span> <span class="pre">.env</span></code> and <code class="docutils literal notranslate"><span class="pre">vim</span> <span class="pre">.env</span></code>. One variable that
 can be edited immediately is the <code class="docutils literal notranslate"><span class="pre">DJANGO_ALLOWED_HOSTS</span></code> variable by adding your
 domain name from Step 2. For more information on this, see the mentioned
-Configuration &amp; Deployment (link) section.</p></li>
+<a class="reference internal" href="config.html"><span class="doc std std-doc">Configuration &amp; Deployment</span></a> section.</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span> <span class="pre">--build</span></code>. If you experience any issues here, please
-consult the Troubleshooting (link) section.</p></li>
+consult the <a class="reference internal" href="../../training/troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> section.</p></li>
 <li><p>Additionally, the full and complete list of management commands is available
 by running <code class="docutils literal notranslate"><span class="pre">manage.py</span> <span class="pre">help</span></code>. Only some of the popular commands are described
-here or in Management Commands (link).</p></li>
+here or in <a class="reference internal" href="../../training/admin_guides.html#management-commands"><span class="std std-doc">Management Commands</span></a>.</p></li>
 <li><p>VA Explorer should now be up and running. You can confirm services are running
 as expected via <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> which should output like below:</p></li>
 </ul>
@@ -346,10 +347,10 @@ application provides admins an interface for creating and managing other users.<
 <p>With this basic setup in place you are ready to get started. As mentioned, if
 you are interested in reading more about basic or advanced configuration options
 like allowing an email server to handle user password resets you can find that
-in the next section Configuration &amp; Deployment (link). You may also want to
-read over IT Support Guides (link) for information on activities like setting up
-an email server, implementing server monitoring, and preparing for regular
-backups.</p>
+in the next section <a class="reference internal" href="config.html"><span class="doc std std-doc">Configuration &amp; Deployment</span></a>. You may also want to
+read over <a class="reference internal" href="../../training/it_guides.html"><span class="doc std std-doc">IT Support Guides</span></a> for information on
+activities like setting up an email server, implementing server monitoring, and
+preparing for regular backups.</p>
 </section>
 </section>
 

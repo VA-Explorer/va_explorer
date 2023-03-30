@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Development" href="../development.html" /><link rel="prev" title="IT Support" href="it_guides.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Development" href="../develop.html" /><link rel="prev" title="IT Support" href="it_guides.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>Troubleshooting - VA Explorer Docs</title>
@@ -186,7 +186,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop.html">Development</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Info</span></p>
 <ul>
@@ -239,13 +239,13 @@ questions, when attempting to diagnose a potential issue.</p>
 <li><p>For local instances of VA Explorer, logs should be readily available and
 printing to the console of the program used to run <code class="docutils literal notranslate"><span class="pre">runserver_plus</span></code></p></li>
 <li><p>For operators, you can view logs through Docker. Run
-<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">--tail</span> <span class="pre">&lt;quantity&gt;</span> <span class="pre">va_explorer_django</span> <span class="pre">_1</span></code> where quanity can be
+<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">--tail</span> <span class="pre">&lt;quantity&gt;</span> <span class="pre">va_explorer_django_1</span></code> where quantity can be
 something like 100 to see the last 100 lines of logs or 1m to see the last minute.</p></li>
 </ul>
-<p>As mentioned in Configuration &amp; Deployment (link), <code class="docutils literal notranslate"><span class="pre">DJANGO_DEBUG</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code>
-for even more useful troubleshooting information in those logs. Running commands
-like <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> will also help you determine if all docker services are running
-as expected.</p>
+<p>As mentioned in <a class="reference internal" href="../usage/getting_started/config.html"><span class="doc std std-doc">Configuration &amp; Deployment</span></a>,
+<code class="docutils literal notranslate"><span class="pre">DJANGO_DEBUG</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> for even more useful troubleshooting
+information in those logs. Running commands like <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> will also help you
+determine if all docker services are running as expected.</p>
 </section>
 <section id="frequently-asked-questions">
 <h2>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">#</a></h2>
@@ -253,9 +253,10 @@ as expected.</p>
 <li><p>Is VA Explorer free?</p></li>
 </ol>
 <p>Yes, VA Explorer is free to download and use as you please under the terms of
-the open-source Apache V2 license. If installed on a linux-based OS, users also
-do not need to worry about any costs associated with using docker. We expect the
-only costs associated with VA Explorer to be hosting and domain name registration.</p>
+the open-source Apache V2 license. If installed on a linux-based <a class="reference internal" href="../reference.html#term-OS"><span class="xref std std-term">OS</span></a>,
+users also do not need to worry about any costs associated with using docker.
+We expect the only costs associated with VA Explorer to be hosting and domain
+name registration.</p>
 <ol class="arabic simple" start="2">
 <li><p>I’m getting an error related to psycopg2 when setting up VA Explorer. What
 does this mean?</p></li>
@@ -272,7 +273,7 @@ this mean?</p></li>
 </ol>
 <p>Some MacOS users have reported getting the error
 <code class="docutils literal notranslate"><span class="pre">numpy.distutils.system_info.NotFoundError:</span> <span class="pre">No</span> <span class="pre">lapack/blas</span> <span class="pre">resources</span> <span class="pre">found.</span> <span class="pre">Note:</span> <span class="pre">Accelerate</span> <span class="pre">is</span> <span class="pre">no</span> <span class="pre">longer</span> <span class="pre">supported.</span></code>
-If you get this error, this thread (external link) may be a helpful resource.
+If you get this error, this <a class="reference external" href="https://github.com/scipy/scipy/issues/13102#issuecomment-962468269">thread</a> may be a helpful resource.
 Ensuring that pip is upgraded <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code> may also help.</p>
 <ol class="arabic simple" start="4">
 <li><p>What is an easy configuration to use for my reverse proxy?</p></li>
@@ -328,7 +329,7 @@ used for sending spam and is therefore blocked by many mail recipients</p></li>
 messages from it may be blocked or marked as spam</p></li>
 </ul>
 <p>If you want to troubleshoot sending emails from your mail server, the mail-tester
-service recommended by ODK Central may help identify your email delivery issues.</p>
+service recommended by <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a> Central may help identify your email delivery issues.</p>
 </section>
 </section>
 
@@ -337,7 +338,7 @@ service recommended by ODK Central may help identify your email delivery issues.
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../development.html">
+          <a class="next-page" href="../develop.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>

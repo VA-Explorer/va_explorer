@@ -13,22 +13,23 @@ questions, when attempting to diagnose a potential issue.
 printing to the console of the program used to run `runserver_plus`
 
 - For operators, you can view logs through Docker. Run
-`docker logs --tail <quantity> va_explorer_django _1` where quanity can be
+`docker logs --tail <quantity> va_explorer_django_1` where quantity can be
 something like 100 to see the last 100 lines of logs or 1m to see the last minute.
 
-As mentioned in Configuration & Deployment (link), `DJANGO_DEBUG` can be set to `True`
-for even more useful troubleshooting information in those logs. Running commands
-like `docker ps` will also help you determine if all docker services are running
-as expected.
+As mentioned in [Configuration & Deployment](../usage/getting_started/config),
+`DJANGO_DEBUG` can be set to `True` for even more useful troubleshooting
+information in those logs. Running commands like `docker ps` will also help you
+determine if all docker services are running as expected.
 
 ## Frequently Asked Questions
 
 1. Is VA Explorer free?
 
 Yes, VA Explorer is free to download and use as you please under the terms of
-the open-source Apache V2 license. If installed on a linux-based OS, users also
-do not need to worry about any costs associated with using docker. We expect the
-only costs associated with VA Explorer to be hosting and domain name registration.
+the open-source Apache V2 license. If installed on a linux-based {term}`OS`,
+users also do not need to worry about any costs associated with using docker.
+We expect the only costs associated with VA Explorer to be hosting and domain
+name registration.
 
 2. I’m getting an error related to psycopg2 when setting up VA Explorer. What
 does this mean?
@@ -46,7 +47,7 @@ this mean?
 
 Some MacOS users have reported getting the error
 `numpy.distutils.system_info.NotFoundError: No lapack/blas resources found. Note: Accelerate is no longer supported.`
-If you get this error, this thread (external link) may be a helpful resource.
+If you get this error, this [thread](https://github.com/scipy/scipy/issues/13102#issuecomment-962468269) may be a helpful resource.
 Ensuring that pip is upgraded `pip install --upgrade pip` may also help.
 
 4. What is an easy configuration to use for my reverse proxy?
@@ -105,4 +106,4 @@ used for sending spam and is therefore blocked by many mail recipients
 messages from it may be blocked or marked as spam
 
 If you want to troubleshoot sending emails from your mail server, the mail-tester
-service recommended by ODK Central may help identify your email delivery issues.
+service recommended by {term}`ODK` Central may help identify your email delivery issues.

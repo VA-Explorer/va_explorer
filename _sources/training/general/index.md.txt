@@ -8,28 +8,29 @@ an end user, become familiar with VA Explorer through three simple steps.
   Where did you or your admin setup VA Explorer on the web? Go there in your
   browser and sign in or request an account from your admin as needed.
 1. **Explore features based on your role**\
-  Read through our Features (link) section to get an idea what VA Explorer
-  offers. You should have a role from when you created your account or from when
-  one was created for you. See the User Guides (link) here for role-specific guidance.
+  Read through our [Features](../../usage/features) section to get an idea what
+  VA Explorer offers. You should have a role from when you created your account
+  or from when one was created for you. See the [User Guides](../user_guides)
+  here for role-specific guidance.
 1. **Practice taking supported actions**\
   Whatever your role, you have the power to take action in VA Explorer! Try some
   of the actions out as you learn about them in this training, and you will
-  build a solid foundation for working with VAs in VA Explorer going forward.
+  build a solid foundation for working with {term}`VA`s in VA Explorer going forward.
 
 Outside of these three steps (which reference this training), modules are
-organized into general guidance, role-specific user guides, admin guides, IT
+organized into general guidance, role-specific user guides, admin guides, {term}`IT`
 guides, and finally, frequently asked questions. Please feel free to submit
 feedback if you find anything missing after reading and know that the VA Explorer
-team wishes you all the best in your VA management experience!
+team wishes you all the best in your {term}`VA` management experience!
 
 ## The VA Questionnaire
 
-VA Explorer’s foundation centers around the management of Verbal Autopsies (VAs)
+VA Explorer’s foundation centers around the management of Verbal Autopsies ({term}`VA`s)
 which are conducted by people and organizations around the world according to the
-2016 World Health Organization (WHO) verbal autopsy instrument. VA Explorer will
-support the 2022 WHO verbal autopsy instrument in the future, when the {term}`CCVA`
-algorithms also support the 2022 questionnaire. Use of non-standard VA instruments
-may cause issues in VA Explorer if attempted.
+2016 World Health Organization ({term}`WHO`) verbal autopsy instrument. VA Explorer will
+support the 2022 {term}`WHO` verbal autopsy instrument in the future, when the {term}`CCVA`
+algorithms also support the 2022 questionnaire. Use of non-standard {term}`VA`
+instruments may cause issues in VA Explorer if attempted.
 
 ## Your VA Explorer Account
 

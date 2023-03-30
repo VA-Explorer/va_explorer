@@ -1,7 +1,7 @@
 # Configuration & Deployment
 
 VA Explorer configuration is primarily set by `docker-compose.yml` with sensible
-defaults. Admins or IT Staff with access to the server hosting a VA Explorer
+defaults. Admins or {term}`IT` Staff with access to the server hosting a VA Explorer
 instance can change this configuration via the `.env` file. To begin using this
 file (if you haven’t already during Installation & Setup’s Step 4) you can use
 `mv .env.template .env` and `vim .env` to open a `.env` file for editing. To
@@ -134,4 +134,4 @@ containers.
 ```
 
 For further configuration information, particularly for integrating with
-external services such as ODK and DHIS, please see Integrations (link).
+external services such as {term}`ODK` and {term}`DHIS2`, please see [Integrations](../integrations.md).
