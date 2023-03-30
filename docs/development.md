@@ -67,9 +67,9 @@ CELERY_BROKER_URL=redis://localhost:6379/0
 ```
 
 This will prepare your local development environment to run VA Explorer locally
-via the `runserver_plus` command (see [Development Commands](#development-commands)). Next you will
-want to seed VA Explorer with some example data so you can signin and see
-features in action. To do that run:
+via the `runserver_plus` command (see [Development Commands](#development-commands)).
+Next you will want to seed VA Explorer with some example data so you can login
+and see its features in action. To do that run:
 
 1. Create user roles & permissions source code
 

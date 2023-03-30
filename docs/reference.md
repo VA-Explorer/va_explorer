@@ -20,8 +20,8 @@ LICENSE for full license text(s).
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, either express or implied. See the License for specific
-language governing permissions and limitations under the License.
+CONDITIONS OF ANY KIND, either express or implied. See the [License](https://github.com/VA-Explorer/va_explorer/blob/main/LICENSE)
+for specific language governing permissions and limitations under the License.
 
 ## Other VA Efforts
 

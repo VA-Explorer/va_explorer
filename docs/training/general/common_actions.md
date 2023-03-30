@@ -28,8 +28,8 @@ data shown on the Home page depends on your assigned role and geographic access.
 
 Your profile shows the role you have been assigned, your geographic access, and
 actions you can take in VA Explorer, such as viewing PII and downloading data.
-These account settings are described in [User Roles and Capabilities](../user_guides.md) To
-view your account profile:
+These account settings are described in [User Roles and Capabilities](../user_guides.md)
+To view your account profile:
 
 1. Click your name in the upper right-hand corner of the navigation bar; a
 dropdown menu will open.
@@ -119,8 +119,9 @@ page.
 
 The Data Management page shows a paginated table of all the VAs in the system
 your account is eligible to see. For more information about your account and
-eligibility, see [Viewing Your Account Profile](#viewing-your-account-profile). On the Data Management
-page, you can search or filter available VAs with the following parameters:
+eligibility, see [Viewing Your Account Profile](#viewing-your-account-profile).
+On the Data Management page, you can search or filter available VAs with the
+following parameters:
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.3\linewidth-2\tabcolsep}|p{\dimexpr 0.7\linewidth-2\tabcolsep}|
@@ -182,10 +183,11 @@ details below.
 
 When viewing a specific VA, the resulting page may show a couple of tabs at the
 top below the VAs ID. Users with permission to change VAs will also see the
-option to repair the VA via an "Edit Record" button. See [Repairing VA Errors &
-Warnings](../user_guides.md#repairing-va-errors--warnings) for details on editing VAs. Quick navigation options to
-automatically scroll to the top or bottom of the VA responses is available via
-the floating action button in the bottom right.
+option to repair the VA via an "Edit Record" button. See
+[Repairing VA Errors & Warnings](../user_guides.md#repairing-va-errors--warnings)
+for details on editing VAs. Quick navigation options to automatically scroll to
+the top or bottom of the VA responses is available via the floating action
+button in the bottom right.
 
 ### Record
 

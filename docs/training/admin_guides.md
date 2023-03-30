@@ -66,8 +66,8 @@ marked with an asterisk(*). To fill in the form:
 
 1. Check "Can View PII" if the user is allowed to view PII in the system. Also
 check "Can Download Data" if the should be allowed to export VA data from the
-system. See [Abilities to Download and View PII Data](general/roles.md#abilities-to-download-and-view-pii-data) for details on these
-permissions if needed
+system. See [Abilities to Download and View PII Data](general/roles.md#abilities-to-download-and-view-pii-data)
+for details on these permissions if needed
 
 1. Select the geographic region(s), facility, facilities this user can access.
 Users with a Field Worker role must be assigned to at least one facility
@@ -109,8 +109,8 @@ admin to affect it as needed.
 
 If you would like to manually import data from file, (perhaps if troubleshooting
 the automatic import process) VA Explorer supports this through the `load_va_csv`
-management command. Please refer to [Management Commands](#management-commands) for details on
-usage.
+management command. Please refer to [Management Commands](#management-commands)
+for details on usage.
 
 Similarly, if you have configured VA Explorer to integrate with ODK and would
 like to manually import data from ODK, VA Explorer also supports this. Use
@@ -124,11 +124,12 @@ in the future such as InSilicoVA. The InterVA5 coding algorithm depends on the
 docker services as described in [Algorithm Support](../usage/integrations.md#algorithm-support)
 
 To run InterVA5 manually, use `run_coding_algorithms` or see the entry for it in
-[Management Commands](#management-commands) for full usage details. After the command has finished
-execution, a brief report of results should be printed to console used to run the
-management command (ex. Coded 24 verbal autopsies (out of 30) [6 issues]) or an
-error message if pyCrossVA or InterVA5 are somehow unavailable; if that is the
-case, please refer to the [Troubleshooting](troubleshooting) section.
+[Management Commands](#management-commands) for full usage details. After the
+command has finished execution, a brief report of results should be printed to
+console used to run the management command (ex. Coded 24 verbal autopsies
+(out of 30) [6 issues]) or an error message if pyCrossVA or InterVA5 are somehow
+unavailable; if that is the case, please refer to the
+[Troubleshooting](troubleshooting) section.
 
 ## Management Commands
 
@@ -245,8 +246,9 @@ generally useful to admins. An even fuller list of these can be found under
 
 Additionally, if VA Explorer has been configured with integrations, the following
 additional management commands are available. If the environment variables (see
-[Integrations](../usage/integrations)) that enable these integrations to work automatically are not
-defined, consider all parameters required for these management commands.
+[Integrations](../usage/integrations)) that enable these integrations to work
+automatically are not defined, consider all parameters required for these
+management commands.
 
 ````{eval-rst}
 .. tabularcolumns:: |p{\dimexpr 0.30\linewidth-2\tabcolsep}|p{\dimexpr 0.20\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|

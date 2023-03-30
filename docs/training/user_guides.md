@@ -1,7 +1,7 @@
 # User Roles
 
-In addition to the training previously detailed for [Common Actions](general/common_actions), users
-may want to read training specific to their role. This section offers guidance
+In addition to the training previously detailed for [Common Actions](general/common_actions),
+users may want to read training specific to their role. This section offers guidance
 for Data Managers, Data Viewers, and Field Workers. For Admins, please see the
 next section [Admin Guides](admin_guides) which covers your more expansive abilities.
 
@@ -37,7 +37,7 @@ questions such as:
   - VAs / week
     - Total VAs
     - Total Weeks of Data
-  - Date of Last Submission
+  - Date of Last Interview
 
 When viewing data grouped by Interviewer/ Field Worker, this information (each
 sub-bullet beneath the questions) is available for each individual Field Worker
@@ -83,7 +83,7 @@ menu item and think you should, contact your system administrator for more
 information.
 
 As an example of how this feature works, let’s say your system is configured to
-identify VAs as duplicates if they match submission date, name, gender, and age
+identify VAs as duplicates if they match interview date, name, gender, and age
 of the deceased person. When VA Explorer detects two (or more) VAs that match
 across these fields, it leaves the oldest one unmarked and flags all others as
 possible duplicates.
@@ -128,8 +128,10 @@ See the table below for all actions you can take on the data cleanup page.
 ````
 
 For further information relating to the identification of duplicates, please
-either ask your admin, consult [Configuration & Deployment](../usage/getting_started/config) for info on
-setting up or changing questions used for this process, or [Management Commands](admin_guides.md#management-commands) for admin guidance on running the process manually.
+either ask your admin, consult [Configuration & Deployment](../usage/getting_started/config)
+for info on setting up or changing questions used for this process, or
+[Management Commands](admin_guides.md#management-commands) for admin guidance on
+running the process manually.
 
 ### Repairing VA Errors & Warnings
 

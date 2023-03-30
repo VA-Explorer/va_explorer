@@ -61,12 +61,13 @@ steps to take before downloading VA Explorer.
 
 - Install a web server/ reverse proxy to direct web traffic to the VA Explorer
 port. Two popular options are Nginx and Apache. An example Apache configuration
-is provided in the [Troubleshooting](../../training/troubleshooting.md#frequently-asked-questions) section
+is provided in the [Troubleshooting](../../training/troubleshooting.md#frequently-asked-questions)
+section
 
 - If your hosting provider doesn’t already or automatically provide https
 support, you should add it now. Let’s Encrypt is a free https certificate
 provider that also provides a guides for adding https support to Apache or
-Nginx webservers, among other configurations.
+Nginx web servers, among other configurations.
 
 - Tools like git and text editors like vim will also be needed. You can install
 them via `sudo apt install -y git vim` or your OS’s equivalent
@@ -132,6 +133,6 @@ With this basic setup in place you are ready to get started. As mentioned, if
 you are interested in reading more about basic or advanced configuration options
 like allowing an email server to handle user password resets you can find that
 in the next section [Configuration & Deployment](config). You may also want to
-read over [IT Support Guides](../../training/it_guides) for information on activities like setting up
-an email server, implementing server monitoring, and preparing for regular
-backups.
+read over [IT Support Guides](../../training/it_guides) for information on
+activities like setting up an email server, implementing server monitoring, and
+preparing for regular backups.

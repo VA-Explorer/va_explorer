@@ -65,12 +65,13 @@ updates, and sometimes these updates have the sole purpose of patching security
 vulnerabilities. Failing to download these security updates leaves software open
 to known vulnerabilities. To update server software, regularly run
 `sudo apt update && sudo apt upgrade` or your OS equivalent. To update VA
-Explorer, refer to the [IT Support Guides > Upgrading VA Explorer](../../training/it_guides.md#upgrading-va-explorer) guide.
+Explorer, refer to the [IT Support Guides > Upgrading VA Explorer](../../training/it_guides.md#upgrading-va-explorer)
+guide.
 
 You may also consider setting your server up for automatic security updates.
 Debian-based Linux systems like Ubuntu provide the `unattended-upgrade` utility
 for this, along with optional configuration to alert you if any problems arise
-during automatic updates. See Guide.
+during automatic updates. See [Guide](https://help.ubuntu.com/community/AutomaticSecurityUpdates).
 
 ### Protecting against server attacks
 

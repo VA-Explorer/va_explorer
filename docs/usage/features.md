@@ -21,9 +21,11 @@ would like to see something specific from VA Explorer going forward, we look
 forward to hearing from you! Please submit feedback, bug reports, feature
 requests, etc. to our open-source project page.
 
-For information on who should use VA Explorer, this documentation covers [User Training](../training/user_guides) for all user and support roles. Information on potential levels
-of support that may be required to run a tool like VA Explorer is also available
-via our [IT Support Guides](../training/it_guides) training series.
+For information on who should use VA Explorer, this documentation covers
+[User Training](../training/user_guides) for all user and support roles.
+Information on potential levels of support that may be required to run a tool
+like VA Explorer is also available via our [IT Support Guides](../training/it_guides)
+training series.
 
 ## Tablet Friendly Interface
 
@@ -101,11 +103,14 @@ import and react accordingly.
 
 - **(Manual) Import from CSV:** This format allows the most flexibility: if your VAs
 can be exported from their origin in CSV form, you can import them into VA
-Explorer. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin) training for specifics on how.
+Explorer. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin)
+training for specifics on how.
 
 - **(Manual) Import from ODK:** This format implements manual support for ODK
 integration: bring your VAs directly over from ODK like clicking the data import
-button, but with more customization about how and when. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin) training for specifics on how.
+button, but with more customization about how and when. See
+[Admin Guides > Data Admin](../training/admin_guides.md#data-admin) training for
+specifics on how.
 
 ## Data Collection Supervision
 
@@ -164,8 +169,8 @@ VAs that cannot receive CoD assignment.
 
 - **(Manual) Run Coding Algorithms:** This format implements manual support for
 InterVA5 integration: directly control the CoD assignment process for your VAs
-via management command. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin) training for
-specifics on how.
+via management command. See [Admin Guides > Data Admin](../training/admin_guides.md#data-admin)
+training for specifics on how.
 
 Additionally, VA Explorer provides a dashboard of summary information,
 analytics, and charts for VAs that have successfully assigned a cause of death.

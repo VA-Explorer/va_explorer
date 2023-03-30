@@ -17,8 +17,8 @@ VA Explorer supports integration with ODK Central to provide both manual and
 automatic import of VA questionnaire responses. You can read more about ODK
 Central via its documentation.
 
-- To perform manual imports of ODK Central data, please see [Data Admin](../training/admin_guides.md#data-admin)
-in the Admin training guides.
+- To perform manual imports of ODK Central data, please see
+[Data Admin](../training/admin_guides.md#data-admin) in the Admin training guides.
 
 - To configure VA Explorer for automatic import of VAs, the relevant `.env`
 variables are detailed below. Once properly set, run `docker-compose up -d` to
@@ -112,7 +112,7 @@ now appear and function.
     - ``wEVB21sQaHu``
     - Value indicating the root Organization Unit UID within your DHIS
       organizational hierarchy. Should be available using the DHIS API Query:
-      ``/api/organisationUnits?level=1``. **Recommended to customize.**
+      ``/api/organizationUnits?level=1``. **Recommended to customize.**
 
   * - ``DHIS_USER``
     - ``admin``

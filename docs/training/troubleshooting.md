@@ -13,13 +13,13 @@ questions, when attempting to diagnose a potential issue.
 printing to the console of the program used to run `runserver_plus`
 
 - For operators, you can view logs through Docker. Run
-`docker logs --tail <quantity> va_explorer_django _1` where quanity can be
+`docker logs --tail <quantity> va_explorer_django_1` where quantity can be
 something like 100 to see the last 100 lines of logs or 1m to see the last minute.
 
-As mentioned in [Configuration & Deployment](../usage/getting_started/config), `DJANGO_DEBUG` can be set to `True`
-for even more useful troubleshooting information in those logs. Running commands
-like `docker ps` will also help you determine if all docker services are running
-as expected.
+As mentioned in [Configuration & Deployment](../usage/getting_started/config),
+`DJANGO_DEBUG` can be set to `True` for even more useful troubleshooting
+information in those logs. Running commands like `docker ps` will also help you
+determine if all docker services are running as expected.
 
 ## Frequently Asked Questions
 
