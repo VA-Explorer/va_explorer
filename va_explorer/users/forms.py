@@ -65,7 +65,7 @@ def validate_location_access(form, geographic_access, location_restrictions, gro
 
 # core logic/steps to set user fields based on form data. Used in both UserCreation
 # and ExtendedUserCreation forms
-def process_user_data(user, cleaned_data, run_matching_logic=True):
+def process_user_data(user, cleaned_data):
 
     # set user location restrictions
     location_restrictions = get_location_restrictions(cleaned_data)
@@ -74,7 +74,7 @@ def process_user_data(user, cleaned_data, run_matching_logic=True):
     # set user group
     group = cleaned_data["group"]
     user.groups.set([group])
- 
+
     # if View PII permission specified in form, override user group's default permission
     if "view_pii" in cleaned_data:
         user.can_view_pii = cleaned_data["view_pii"]
@@ -243,9 +243,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
             if commit:
                 # Need to save again after setting password.
                 user.save()
-                user = process_user_data(
-                    user, self.cleaned_data, run_matching_logic=True
-                )
+                user = process_user_data(user, self.cleaned_data)
 
             # TODO: Remove if we do not require email confirmation; we will no
             # longer need the lines below. See allauth:
@@ -322,7 +320,7 @@ class UserUpdateForm(UserCommonFields, forms.ModelForm):
 
         if commit:
             # only run va matching logic when user is first created
-            user = process_user_data(user, self.cleaned_data, run_matching_logic=False)
+            user = process_user_data(user, self.cleaned_data)
 
         return user
 

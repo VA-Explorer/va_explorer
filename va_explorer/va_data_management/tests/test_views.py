@@ -70,11 +70,12 @@ def test_index_redacted(user: User):
 
     client = Client()
     client.force_login(user=user)
-    va = VerbalAutopsyFactory.create(Id10023="2012-12-21")
+    va = VerbalAutopsyFactory.create(Id10017="Victim name")
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert bytes(REDACTED_STRING, "utf-8") in response.content
-    assert bytes(va.Id10023, "utf-8") not in response.content
+    assert bytes(va.Id10017, "utf-8") not in response.content
+
 
 # Request the index without permissions and make sure its forbidden
 def test_index_without_valid_permission(user: User):
@@ -83,6 +84,7 @@ def test_index_without_valid_permission(user: User):
 
     response = client.get("/va_data_management/")
     assert response.status_code == 403
+
 
 # Filter VAs by deceased using a search term without spaces
 def test_index_deceased_filter_no_space(user: User):
@@ -95,9 +97,10 @@ def test_index_deceased_filter_no_space(user: User):
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create(Id10017="Victim", Id10018="Name")
-    response = client.get("/va_data_management/", {'deceased': 'Victim'})
+    response = client.get("/va_data_management/", {"deceased": "Victim"})
     assert response.status_code == 200
     assert bytes(va.Id10017, "utf-8") in response.content
+
 
 # Filter VAs by deceased using a search term with spaces
 def test_index_deceased_filter_with_space(user: User):
@@ -110,10 +113,11 @@ def test_index_deceased_filter_with_space(user: User):
     client = Client()
     client.force_login(user=user)
     va = VerbalAutopsyFactory.create(Id10017="Victim", Id10018="Name")
-    response = client.get("/va_data_management/", {'deceased': 'Victim Name'})
+    response = client.get("/va_data_management/", {"deceased": "Victim Name"})
     assert response.status_code == 200
     assert bytes(va.Id10017, "utf-8") in response.content
     assert bytes(va.Id10018, "utf-8") in response.content
+
 
 # Show a VA and make sure the data is as expected
 def test_show(user: User):
@@ -496,13 +500,13 @@ def test_access_control(user: User):
     district1 = province.add_child(name="District1", location_type="district")
     district2 = province.add_child(name="District2", location_type="district")
     facility = district1.add_child(name="Facility", location_type="facility")
-    va = VerbalAutopsyFactory.create(location=facility, Id10023="death date")
+    va = VerbalAutopsyFactory.create(location=facility, Id10017="Victim name")
     user.location_restrictions.set([district2])  # Should not have access to VA
     client = Client()
     client.force_login(user=user)
     response = client.get("/va_data_management/")
     assert response.status_code == 200
-    assert bytes(va.Id10023, "utf-8") not in response.content
+    assert bytes(va.Id10017, "utf-8") not in response.content
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 404
     response = client.get(f"/va_data_management/edit/{va.id}")
@@ -540,12 +544,8 @@ def test_field_worker_access_control():
         Id10010="Role specific value",
         location=facility1,
     )
-    va2 = VerbalAutopsyFactory.create(
-        Id10017="deceased_name_2", location=facility1
-    )
-    va3 = VerbalAutopsyFactory.create(
-        Id10017="deceased_name_3", location=facility2
-    )
+    va2 = VerbalAutopsyFactory.create(Id10017="deceased_name_2", location=facility1)
+    va3 = VerbalAutopsyFactory.create(Id10017="deceased_name_3", location=facility2)
 
     client = Client()
     client.force_login(user=field_worker)
@@ -553,15 +553,12 @@ def test_field_worker_access_control():
     response = client.get("/va_data_management/")
     assert response.status_code == 200
     assert str(va.Id10017).encode("utf_8") in response.content
-    assert (
-        str(va.Id10010).encode("utf_8") not in response.content
-    )  # field workers see deceased, not interviewer
-    assert (
-        str(va2.Id10017).encode("utf_8") in response.content
-     ) # field workers see their own facility VAs 
-    assert (
-        str(va3.Id10017).encode("utf_8") not in response.content 
-    ) # field workers cannot see other facility VAs
+    # field workers see deceased, not interviewer
+    assert str(va.Id10010).encode("utf_8") not in response.content
+    # field workers see their own facility VAs
+    assert str(va2.Id10017).encode("utf_8") in response.content
+    # field workers cannot see other facility VAs
+    assert str(va3.Id10017).encode("utf_8") not in response.content
 
     response = client.get(f"/va_data_management/show/{va.id}")
     assert response.status_code == 200

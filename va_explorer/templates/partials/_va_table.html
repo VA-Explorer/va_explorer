@@ -40,9 +40,9 @@
           {% if not user.is_fieldworker %}
             <td>{% pii_filter "Id10010" va.interviewer|default:"Not Listed" %}</td>
           {% endif %}
-          <td>{{ va.facility|default:"Location Unknown" }}</td>
+          <td>{{ va.facility|default:"Not Provided" }}</td>
           <td>{% pii_filter "Id10017" va.deceased|default:"Subject Unknown" %}</td>
-          <td>{% pii_filter "Id10023" va.dod|default:"Date Unknown" %}</td>
+          <td>{{ va.dod|default:"Date Unknown" }}</td>
           <td>{{ va.cause|default:"Not Coded" }}</td>
           <td>{{ va.warnings }}</td>
           <td>{{ va.errors }}</td>

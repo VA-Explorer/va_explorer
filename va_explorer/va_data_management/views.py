@@ -107,17 +107,19 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
         context["filterset"] = self.filterset
 
         # ids for va download
         download_ids = [str(i) for i in self.filterset.qs.values_list("id", flat=True)]
-        if len(download_ids) > 0:
+        if len(download_ids) > 0 and user.can_download_data:
             context["download_url"] = (
                 reverse("va_export:va_api") + "?ids=" + ",".join(download_ids)
             )  # self.request.get_host() +
         else:
-            # filter returned no results - render button useless
+            # filter returned no results or user isn't allowed to download;
+            # render button useless
             context["download_url"] = ""
 
         context["object_list"] = [
