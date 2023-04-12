@@ -143,23 +143,23 @@ is available on the [documentation website](https://va-explorer.github.io/va_exp
 and good first issues are actively tagged by current contributors
 [here](https://github.com/VA-Explorer/va_explorer/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 
-  Thanks again, whether through usage, feature requests, bug reports, or pull requests,
-  your involvement with VA Explorer is deeply appreciated!
+Thanks again, whether through usage, feature requests, bug reports, or pull requests,
+your involvement with VA Explorer is deeply appreciated!
 
-  ## Security & Privacy
+## Security & Privacy
 
-  VA Explorer uses open-source third-party libraries from well-known and/or reputable sources. The MITRE
-  Corporation does not vet the security of those software libraries. If security concerns you, you or
-  your organization may want to review the third-party libraries and their source code on GitHub.
+VA Explorer uses open-source third-party libraries from well-known and/or reputable sources. The MITRE
+Corporation does not vet the security of those software libraries. If security concerns you, you or
+your organization may want to review the third-party libraries and their source code on GitHub.
 
-  ## Attribution
+## Attribution
 
-  This project relies on contributions from the community, in addition to other existing VA open-source
-  libraries, without which VA Explorer would not be possible. Portions of this code, therefore, are
-  copyright the respective developers, which include, but may not be limited to, teams from the CDC
-  Foundation (e.g., DHIS-2 export) and The Ohio State University (e.g., InterVA5, pyCrossVA, openVA pipeline).
+This project relies on contributions from the community, in addition to other existing VA open-source
+libraries, without which VA Explorer would not be possible. Portions of this code, therefore, are
+copyright the respective developers, which include, but may not be limited to, teams from the CDC
+Foundation (e.g., DHIS-2 export) and The Ohio State University (e.g., InterVA5, pyCrossVA, openVA pipeline).
 
-  ## Copyright & License
+## Copyright & License
 
 Copyright © 2020-2023, The MITRE Corporation. Licensed under Apache 2.0
 
