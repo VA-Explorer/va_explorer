@@ -76,6 +76,9 @@ VA Field,Meaning/Information Protected
 "Id10017",First name of subject
 "Id10018",Surname of subject
 "Id10021",Subject birthdate
+"Id10023_a",Regarding date of death
+"Id10023_b",Regarding date of death
+"Id10023",Subject date of death
 "Id10060",Subject date of marriage
 "Id10061",Name of subject's father
 "Id10062",Name of subject's mother
