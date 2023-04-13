@@ -159,7 +159,7 @@ def run_interva5(verbal_autopsies_without_causes):
 
         if cause:
             va_offset = int(cause_data["ID"][0].strip())
-            va_id = verbal_autopsies_without_causes[va_offset].id
+            va_id = verbal_autopsies_without_causes[va_offset - 1].id
             causes.append(
                 CauseOfDeath(
                     verbalautopsy_id=va_id,
@@ -179,7 +179,7 @@ def run_interva5(verbal_autopsies_without_causes):
             if isinstance(issue, list):
                 issue = issue[0]
             va_offset, issue_text = re.split("  +", issue, maxsplit=1)
-            va_id = verbal_autopsies_without_causes[int(va_offset)].id
+            va_id = verbal_autopsies_without_causes[int(va_offset) - 1].id
             # TODO: For now, clear old issues for records that are newly coded;
             #       if we associate errors w/ runs we may prefer not to do this
             # use exclude to keep errors related to the raw data
