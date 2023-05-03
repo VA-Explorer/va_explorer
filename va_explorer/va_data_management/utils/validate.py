@@ -55,22 +55,31 @@ def validate_vas_for_dashboard(verbal_autopsies):
         if (
             va.isNeonatal != 1
             and va.isNeonatal != 1.0
+            and va.isNeonatal != '1'
             and va.isNeonatal1 != 1
             and va.isNeonatal1 != 1.0
+            and va.isNeonatal1 != '1'
             and va.isNeonatal2 != 1
             and va.isNeonatal2 != 1.0
+            and va.isNeonatal2 != '1'
             and va.isChild != 1
             and va.isChild != 1.0
+            and va.isChild != '1'
             and va.isChild1 != 1
             and va.isChild1 != 1.0
+            and va.isChild1 != '1'
             and va.isChild2 != 1
             and va.isChild2 != 1.0
+            and va.isChild2 != '1'
             and va.isAdult != 1
             and va.isAdult != 1.0
+            and va.isAdult != '1'
             and va.isAdult1 != 1
             and va.isAdult1 != 1.0
+            and va.isAdult1 != '1'
             and va.isAdult2 != 1
             and va.isAdult2 != 1.0
+            and va.isAdult2 != '1'
         ):
             issue_text = "Warning: field age_group, no relevant data was found in \
                 fields; isNeonatal, isNeonatal1, isNeonatal2, isChild, isChild1, \
