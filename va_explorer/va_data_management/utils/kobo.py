@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 import requests
+from requests.auth import HTTPBasicAuth
 
 KOBO_HOST = os.environ.get("KOBO_HOST", "http://127.0.0.1:5003")
 # Don't verify localhost (self-signed cert)
@@ -11,6 +12,20 @@ SSL_VERIFY = os.environ.get(
 
 # TODO: Further support Kobo integration by creating an endpoint for VAs coming
 #       in via REST Services feature (uploaded as soon as they're filled out)
+
+
+# Prefer usage of token over username password, but provide this util method
+# just in case
+def get_kobo_api_token(username, password):
+    url = f"{KOBO_HOST}/token/?format=json"
+    basic = HTTPBasicAuth(username, password)
+    response = requests.get(url, auth=basic, verify=SSL_VERIFY)
+    response.raise_for_status()
+    data = response.json()
+
+    token = data["token"]
+    return {"Authorization": f"Token {token}"}
+
 
 def download_responses(token, asset_id):
     if not token or not asset_id:

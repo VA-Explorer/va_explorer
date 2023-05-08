@@ -17,10 +17,10 @@ class Command(BaseCommand):
             default=os.environ.get("KOBO_API_TOKEN"),
         )
         parser.add_argument(
-            "--asset-id",
+            "--asset_id",
             type=str,
             required=False,
-            default=os.environ.get("KOBO_ASSET_ID")
+            default=os.environ.get("KOBO_ASSET_ID"),
         )
 
     def handle(self, *args, **options):

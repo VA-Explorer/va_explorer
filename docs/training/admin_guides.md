@@ -266,12 +266,21 @@ management commands.
     - :rspan:`5` Used to manually import VA data from ODK Central. Parameters
       are as described for the equivalent environment variables listed in
       :ref:`Integrations` > :ref:`ODK Central`
-  
+
   * - ``--password``
   * - ``--project_name``
   * - ``--project_id``
   * - ``--form_id``
   * - ``--form_name``
+
+  * - :rspan:`5` ``import_from_kobo``
+    - ``--email``
+    - :rspan:`5` Used to manually import VA data from KoboToolbox. Parameters
+      are as described for the equivalent environment variables listed in
+      :ref:`Integrations` > :ref:`KoboToolbox`
+  
+  * - ``--token``
+  * - ``--asset_id``
 
   * - ``load_dhis_cod_codes``
     - ``--csv_file``
