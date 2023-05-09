@@ -71,9 +71,6 @@ now appear and function.
       to a blank string. **Recommended to customize.**
 ````
 
-If you encounter any issues during integration, please reference the
-[Troubleshooting](../training/troubleshooting) section.
-
 ## KoboToolbox
 
 VA Explorer supports integration with KoboToolbox as an alternative to ODK that also
@@ -111,22 +108,19 @@ now appear and function.
       ssl/https connections. Defaults to `True` for enforcement.
 
   * - ``KOBO_API_TOKEN``
-    - ``8sw4a4ypxthcyjpjjra7ifr3hbyxsp2ey2bf591g``
+    - ``""``
     - Value used to authenticate requests to the KoboToolbox API. A string of
       ~40 lowercase letters/numbers. Found for your user at ``KOBO_HOST/token``
       when logged in to the instance. Inherits your same permissions.
       Defaults to an empty string. **Recommended to customize.**
 
   * - ``KOBO_ASSET_ID``
-    - ``uk8r5yolfuacxkjibsj7nw``
+    - ``""``
     - Value identifying the project used to collect Verbal Autopsies within
       KoboToolbox. Typically found in the url when viewing the project on the
       instance (Ex. ``{KOBO_HOST}/#/forms/uk8r5yolfuacxkjibsj7nw/summary``) 
       Defaults to an empty string. **Recommended to customize.**
 ````
-
-If you encounter any issues during integration, please reference the
-[Troubleshooting](../training/troubleshooting) section.
 
 ## DHIS2
 
