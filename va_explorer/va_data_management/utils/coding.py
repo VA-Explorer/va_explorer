@@ -20,8 +20,8 @@ from va_explorer.va_data_management.models import (
 # To change coding algorithm, will need to update settings below and point
 # to that algorithm's service
 
-PYCROSS_HOST = "http://127.0.0.1:5001"
-INTERVA_HOST = "http://127.0.0.1:5002"
+PYCROSS_HOST = os.environ.get("PYCROSS_HOST", "http://127.0.0.1:5001")
+INTERVA_HOST = os.environ.get("INTERVA_HOST", "http://127.0.0.1:5002")
 
 # Param Setting value sets (used for validation)
 # TODO: add other algorithms' settings as we add support for them
