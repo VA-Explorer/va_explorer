@@ -1,14 +1,12 @@
-import os
-
+import environ
 import pandas as pd
 import requests
 from requests.auth import HTTPBasicAuth
 
-KOBO_HOST = os.environ.get("KOBO_HOST", "http://127.0.0.1:5003")
+env = environ.Env()
+KOBO_HOST = env("KOBO_HOST", default="http://127.0.0.1:5003")
 # Don't verify localhost (self-signed cert)
-SSL_VERIFY = os.environ.get(
-    "KOBO_SSL_VERIFY", not KOBO_HOST.startswith("http://localhost")
-)
+SSL_VERIFY = env.bool("KOBO_SSL_VERIFY", not KOBO_HOST.startswith("http://localhost"))
 
 # TODO: Further support Kobo integration by creating an endpoint for VAs coming
 #       in via REST Services feature (uploaded as soon as they're filled out)

@@ -1,14 +1,14 @@
-import os
 from io import BytesIO
 
+import environ
 import pandas as pd
 import requests
 
-ODK_HOST = os.environ.get("ODK_HOST", "http://127.0.0.1:5002")
+env = environ.Env()
+
+ODK_HOST = env("ODK_HOST", default="http://127.0.0.1:5002")
 # Don't verify localhost (self-signed cert)
-SSL_VERIFY = os.environ.get(
-    "ODK_SSL_VERIFY", not ODK_HOST.startswith("https://localhost")
-)
+SSL_VERIFY = env.bool("ODK_SSL_VERIFY", not ODK_HOST.startswith("https://localhost"))
 
 
 def flatten_dict(item):
