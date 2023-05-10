@@ -6,7 +6,6 @@ processing of {term}`VA`s. In this section you will find information on these
 integrations as well as details on how to enable them in VA Explorer if needed.
 
 - ODK Central
-- KoboToolbox
 - DHIS2
 - Algorithm Support
   - pyCrossVA
@@ -71,56 +70,8 @@ now appear and function.
       to a blank string. **Recommended to customize.**
 ````
 
-## KoboToolbox
-
-VA Explorer supports integration with KoboToolbox as an alternative to ODK that also
-allows for both manual and automatic import of {term}`VA` questionnaire responses.
-You can read more about KoboToolbox via [its documentation](https://support.kobotoolbox.org/).
-
-- To perform manual imports of KoboToolbox data, please see
-[Data Admin](../training/admin_guides.md#data-admin) in the Admin training guides.
-
-- To configure VA Explorer for automatic import of {term}`VA`s, the relevant `.env`
-variables are detailed below. Once properly set, run `docker-compose up -d` to
-push the new configuration. Kobo integration features within VA Explorer should
-now appear and function.
-
-````{eval-rst}
-.. tabularcolumns:: |p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.25\linewidth-2\tabcolsep}|p{\dimexpr 0.50\linewidth-2\tabcolsep}|
-.. flat-table:: List of all configuration options when integrating with KoboToolbox, plus default values and descriptions for each
-  :widths: 3 3 5
-  :header-rows: 1
-  :stub-columns: 1
-
-  * - Variable Name
-    - Default Value
-    - Description
-
-  * - ``KOBO_HOST``
-    - ``""``
-    - ``ip:port`` or ``url`` format location for the KoboToolbox instance
-      to connect to. Defaults to an empty string for no connection.
-      **Recommended to customize.**
-
-  * - ``KOBO_SSL_VERIFY``
-    - ``True``
-    - ``True`` or ``False``. Used by VA Explorer determine enforcement of valid
-      ssl/https connections. Defaults to `True` for enforcement.
-
-  * - ``KOBO_API_TOKEN``
-    - ``""``
-    - Value used to authenticate requests to the KoboToolbox API. A string of
-      ~40 lowercase letters/numbers. Found for your user at ``KOBO_HOST/token``
-      when logged in to the instance. Inherits your same permissions.
-      Defaults to an empty string. **Recommended to customize.**
-
-  * - ``KOBO_ASSET_ID``
-    - ``""``
-    - Value identifying the project used to collect Verbal Autopsies within
-      KoboToolbox. Typically found in the url when viewing the project on the
-      instance (Ex. ``{KOBO_HOST}/#/forms/uk8r5yolfuacxkjibsj7nw/summary``) 
-      Defaults to an empty string. **Recommended to customize.**
-````
+If you encounter any issues during integration, please reference our
+[Troubleshooting](../training/troubleshooting) section.
 
 ## DHIS2
 
@@ -176,7 +127,7 @@ now appear and function.
       **Recommended to customize.**
 ````
 
-If you encounter any issues during integration, please reference the
+If you encounter any issues during integration, please reference our
 [Troubleshooting](../training/troubleshooting) section.
 
 ## Algorithm Support
