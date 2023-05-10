@@ -2,12 +2,8 @@
 name = "va-explorer"
 version = "0.1.0"
 description = "A full service VA management prototype webapp"
-authors = [
-  { name = "MITRE", email = "verbal-autopsy@mitre.org" },
-]
-maintainers = [
-  { name = "MITRE", email = "verbal-autopsy@mitre.org" },
-]
+authors = [{ name = "MITRE", email = "verbal-autopsy@mitre.org" }]
+maintainers = [{ name = "MITRE", email = "verbal-autopsy@mitre.org" }]
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 keywords = ["verbal autopsy", "cause of death", "global health", "interva", "django"]
@@ -30,18 +26,16 @@ classifiers = [
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Scientific/Engineering :: Medical Science Apps."
 ]
-urls = [
-  { repository = "https://github.com/VA-Explorer/va_explorer" },
-  { documentation = "https://va-explorer.github.io/va_explorer" }
-]
+[project.urls]
+"Source" = "https://github.com/VA-Explorer/va_explorer"
+"Documentation" = "https://va-explorer.github.io/va_explorer"
+"Bug Reports" = "https://github.com/VA-Explorer/va_explorer/issues"
 
 [tool.ruff]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 fix = true
 target-version = "py38"
-extend-exclude = [
-  "migrations"
-]
+extend-exclude = ["migrations"]
 
 [tool.pytest.ini_options]
 addopts = "--ds=config.settings.test --reuse-db"

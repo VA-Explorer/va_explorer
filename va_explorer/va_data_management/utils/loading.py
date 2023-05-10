@@ -48,14 +48,18 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     if "instanceID" in record_df.columns:
         record_df = record_df.rename(columns={"instanceID": "instanceid"})
 
-    # If there is not an instanceid column but there is a key column,
-    # populate instanceid field with key value.
+    # If there is not an instanceid column but there is a another similar column,
+    # populate instanceid field with that column's value.
     if "instanceid" not in record_df.columns and "key" in record_df.columns:
-        record_df = record_df.rename(columns={"key": "instanceid"})
+        record_df = record_df.rename(columns={"key": "instanceid"}) #ODK
+    elif "instanceid" not in record_df.columns and "_uuid" in record_df.columns:
+        record_df = record_df.rename(columns={"_uuid": "instanceid"}) #Kobo
 
-    # Patch VAs that are missing Id10010 (Interviewer Name) with custom field
+    # Patch VAs that are missing Id10010 (Interviewer Name) with custom field fallbacks
     if "Id10010" not in record_df.columns and "SubmitterName" in record_df.columns:
-        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})
+        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})  #ODK
+    elif "Id10010" not in record_df.columns and "_submitted_by" in record_df.columns:
+        record_df = record_df.rename(columns={"_submitted_by": "Id10010"})  #Kobo
 
     print("de-duplicating fields...")
     # collapse fields ending with _other for their normal counterparts
@@ -287,7 +291,6 @@ def deduplicate_columns(record_df, drop_duplicates=True):
         )
     )
     for original_col in original_cols:
-
         # If original column exists, combine values from original and _other
         # columns into a single column
         if original_col in record_df.columns:
