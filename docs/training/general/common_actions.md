@@ -149,8 +149,8 @@ following parameters:
       access, you will see "Subject Unknown".
 
   * - Deathdate
-    - The date of the individual’s death. If your account does not have PII
-      access, you will see "Date Unknown".
+    - The date of the individual’s death. If the VA is missing this information,
+      you will see "Date Unknown".
 
   * - Cause
     - The cause of death assigned by coding algorithm. If the VA has not yet

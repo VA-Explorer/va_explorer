@@ -4,6 +4,7 @@ import pandas as pd
 from django.db.models import F
 from pandas._libs.tslibs.offsets import relativedelta
 
+from va_explorer.va_data_management.constants import REDACTED_STRING
 from va_explorer.va_data_management.utils.date_parsing import (
     get_interview_dates,
     parse_date,
@@ -70,18 +71,20 @@ def empty_graph_data():
     return graphs
 
 
-def get_context_for_va_table(va_list):
-    return [
+def get_context_for_va_table(va_list, user):
+    context = [
         {
             "id": va.id,
             "deceased": f"{va.Id10017} {va.Id10018}",
             "interviewer": va.Id10010,
             "interviewed": parse_date(va.Id10012)
             if (va.Id10012 != "dk")
-            else "Unknown",  # django stores the date in yyyy-mm-dd
+            else "Unknown",
             "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
-            "facility": va.location.name if va.location else "",
-            "cause": va.causes.all()[0].cause if len(va.causes.all()) > 0 else "",
+            "facility": va.location.name if va.location else "Not Provided",
+            "cause": va.causes.all()[0].cause
+            if len(va.causes.all()) > 0
+            else "Not Coded",
             "warnings": len(
                 [
                     issue
@@ -95,6 +98,11 @@ def get_context_for_va_table(va_list):
         }
         for va in va_list
     ]
+    # Usually handled by filter, but not in this case
+    for item in context:
+        if not user.can_view_pii:
+            item["deceased"] = REDACTED_STRING
+    return context
 
 
 # NOTE: using Id10012 (Interview date) to drive stats/views. submissiondate is
@@ -218,8 +226,10 @@ def get_trends_data(user):
             .prefetch_related("causes", "coding_issues", "location")
         )
 
-        issue_list = get_context_for_va_table(vas_to_address)
-        indeterminate_cod_list = get_context_for_va_table(vas_with_indeterminate_cod)
+        issue_list = get_context_for_va_table(vas_to_address, user)
+        indeterminate_cod_list = get_context_for_va_table(
+            vas_with_indeterminate_cod, user
+        )
 
         # If there are more than NUM_TABLE_ROWS show a link to where
         # the rest can be seen
