@@ -234,7 +234,6 @@ processing of <a class="reference internal" href="../reference.html#term-VA"><sp
 integrations as well as details on how to enable them in VA Explorer if needed.</p>
 <ul class="simple">
 <li><p>ODK Central</p></li>
-<li><p>KoboToolbox</p></li>
 <li><p>DHIS2</p></li>
 <li><p>Algorithm Support</p>
 <ul>
@@ -307,63 +306,8 @@ to a blank string. <strong>Recommended to customize.</strong></p></td>
 </tbody>
 </table>
 </div>
-</section>
-<section id="kobotoolbox">
-<h2>KoboToolbox<a class="headerlink" href="#kobotoolbox" title="Permalink to this heading">#</a></h2>
-<p>VA Explorer supports integration with KoboToolbox as an alternative to ODK that also
-allows for both manual and automatic import of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a> questionnaire responses.
-You can read more about KoboToolbox via <a class="reference external" href="https://support.kobotoolbox.org/">its documentation</a>.</p>
-<ul class="simple">
-<li><p>To perform manual imports of KoboToolbox data, please see
-<a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-doc">Data Admin</span></a> in the Admin training guides.</p></li>
-<li><p>To configure VA Explorer for automatic import of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s, the relevant <code class="docutils literal notranslate"><span class="pre">.env</span></code>
-variables are detailed below. Once properly set, run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> to
-push the new configuration. Kobo integration features within VA Explorer should
-now appear and function.</p></li>
-</ul>
-<div class="table-wrapper colwidths-given docutils container" id="id2">
-<table class="docutils align-default" id="id2">
-<caption><span class="caption-text">List of all configuration options when integrating with KoboToolbox, plus default values and descriptions for each</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
-<colgroup>
-<col style="width: 27%" />
-<col style="width: 27%" />
-<col style="width: 45%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head stub"><p>Variable Name</p></th>
-<th class="head"><p>Default Value</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">KOBO_HOST</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">ip:port</span></code> or <code class="docutils literal notranslate"><span class="pre">url</span></code> format location for the KoboToolbox instance
-to connect to. Defaults to an empty string for no connection.
-<strong>Recommended to customize.</strong></p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">KOBO_SSL_VERIFY</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. Used by VA Explorer determine enforcement of valid
-ssl/https connections. Defaults to <cite>True</cite> for enforcement.</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">KOBO_API_TOKEN</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>Value used to authenticate requests to the KoboToolbox API. A string of
-~40 lowercase letters/numbers. Found for your user at <code class="docutils literal notranslate"><span class="pre">KOBO_HOST/token</span></code>
-when logged in to the instance. Inherits your same permissions.
-Defaults to an empty string. <strong>Recommended to customize.</strong></p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><p><code class="docutils literal notranslate"><span class="pre">KOBO_ASSET_ID</span></code></p></th>
-<td><p><code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p></td>
-<td><p>Value identifying the project used to collect Verbal Autopsies within
-KoboToolbox. Typically found in the url when viewing the project on the
-instance (Ex. <code class="docutils literal notranslate"><span class="pre">{KOBO_HOST}/#/forms/uk8r5yolfuacxkjibsj7nw/summary</span></code>)
-Defaults to an empty string. <strong>Recommended to customize.</strong></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>If you encounter any issues during integration, please reference our
+<a class="reference internal" href="../training/troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> section.</p>
 </section>
 <section id="dhis2">
 <h2>DHIS2<a class="headerlink" href="#dhis2" title="Permalink to this heading">#</a></h2>
@@ -376,9 +320,9 @@ read more about <a class="reference internal" href="../reference.html#term-DHIS2
 variables are detailed below. Once properly set, run <code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span></code> to
 push the new configuration. <a class="reference internal" href="../reference.html#term-DHIS2"><span class="xref std std-term">DHIS2</span></a> integration features within VA Explorer should
 now appear and function.</p>
-<div class="table-wrapper colwidths-given docutils container" id="id3">
-<table class="docutils align-default" id="id3">
-<caption><span class="caption-text">List of all configuration options when integrating with DHIS2, plus default values and descriptions for each</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
+<div class="table-wrapper colwidths-given docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">List of all configuration options when integrating with DHIS2, plus default values and descriptions for each</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
 <colgroup>
 <col style="width: 27%" />
 <col style="width: 27%" />
@@ -423,7 +367,7 @@ Defaults to the default credentials for DHIS2’s default admin account.
 </tbody>
 </table>
 </div>
-<p>If you encounter any issues during integration, please reference the
+<p>If you encounter any issues during integration, please reference our
 <a class="reference internal" href="../training/troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> section.</p>
 </section>
 <section id="algorithm-support">
@@ -439,9 +383,9 @@ may provide built-in support for additional <a class="reference internal" href="
 <p>pyCrossVA is provided as a built-in docker service to allow VA Explorer to
 transform <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s into input suitable for cause of death assignment algorithms. You
 can read more about it via its project page.</p>
-<div class="table-wrapper colwidths-given docutils container" id="id4">
-<table class="docutils align-default" id="id4">
-<caption><span class="caption-text">List of all configuration options when interfacing with the pyCrossVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
+<div class="table-wrapper colwidths-given docutils container" id="id3">
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">List of all configuration options when interfacing with the pyCrossVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
 <colgroup>
 <col style="width: 27%" />
 <col style="width: 27%" />
@@ -469,9 +413,9 @@ built-in pyCrossVA docker service.</p></td>
 <p>InterVA5 is provided as a built-in docker service to allow VA Explorer <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s
 to be processed for likely cause of death. You can read more about it via its
 project page.</p>
-<div class="table-wrapper colwidths-given docutils container" id="id5">
-<table class="docutils align-default" id="id5">
-<caption><span class="caption-text">List of all configuration options when interfacing with the InterVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id5" title="Permalink to this table">#</a></caption>
+<div class="table-wrapper colwidths-given docutils container" id="id4">
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">List of all configuration options when interfacing with the InterVA service, plus default values and descriptions for each</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
 <colgroup>
 <col style="width: 27%" />
 <col style="width: 27%" />
@@ -578,7 +522,6 @@ is included with cause of death output. Defaults to <code class="docutils litera
             <ul>
 <li><a class="reference internal" href="#">Integrations</a><ul>
 <li><a class="reference internal" href="#odk-central">ODK Central</a></li>
-<li><a class="reference internal" href="#kobotoolbox">KoboToolbox</a></li>
 <li><a class="reference internal" href="#dhis2">DHIS2</a></li>
 <li><a class="reference internal" href="#algorithm-support">Algorithm Support</a><ul>
 <li><a class="reference internal" href="#pycrossva">pyCrossVA</a></li>
