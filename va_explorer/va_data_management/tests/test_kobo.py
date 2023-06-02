@@ -71,8 +71,8 @@ class TestDownloadResponse:
 
 
 class TestImportCommand:
-    err_msg = "Must specify either --token and --asset_id arguments or \
-                KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
+    err_msg = "Must specify either --token and --asset_id arguments or " \
+              "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
 
     @mock.patch.dict(os.environ, {}, clear=True)
     def test_missing_params(self):
@@ -128,13 +128,15 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Loaded 2 verbal autopsies from Kobo (0 ignored)"
+            == "Loaded 2 verbal autopsies from Kobo (0 ignored, " \
+               "0 overwritten, 0 removed as invalid)"
         )
         assert VerbalAutopsy.objects.count() == 2
         va = VerbalAutopsy.objects.get(
             instanceid="uuid:TESTf603-a193-4af3-9321-264096bf8602"
         )
         assert va.Id10010 == "james27"
+        assert va.instancename == "_Dec---Brent_Hebert_D.o.I---2017-03-07"
         assert va.Id10023 == "2016-01-21"
 
         # A second run on the same data should ignore those same records.
@@ -146,8 +148,10 @@ class TestImportCommand:
             stdout=output,
             stderr=output,
         )
+        print(10*'=' + f"{output.getvalue().strip()}" + 10*'=')
         assert (
             output.getvalue().strip()
-            == "Loaded 0 verbal autopsies from Kobo (2 ignored)"
+            == "Loaded 0 verbal autopsies from Kobo (2 ignored, " \
+               "0 overwritten, 0 removed as invalid)"
         )
         assert VerbalAutopsy.objects.count() == 2

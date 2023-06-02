@@ -399,7 +399,8 @@
                 }
             },
             "meta": {
-                "instanceID": "test-instance"
+                "instanceID": "test-instance",
+                "instanceName": "_Dec---test_data---2021-03-22"
             },
             "presets": {
                 "Id10002": null,
