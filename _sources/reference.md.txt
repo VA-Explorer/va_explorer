@@ -22,7 +22,7 @@ project of the CDC Foundation and Bloomberg Philanthropies.
 
 Available publicly via [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
 VA Explorer also includes external software that is available under a variety of
-licenses. See [LICENSE](./LICENSE) for full license text(s).
+licenses. See [LICENSE](https://github.com/VA-Explorer/va_explorer/blob/main/LICENSE) for full license text(s).
 
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR

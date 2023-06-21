@@ -249,35 +249,48 @@ determine if all docker services are running as expected.</p>
 </section>
 <section id="frequently-asked-questions">
 <h2>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">#</a></h2>
-<ol class="arabic simple">
-<li><p>Is VA Explorer free?</p></li>
-</ol>
+<p><strong>1. Is VA Explorer free?</strong></p>
 <p>Yes, VA Explorer is free to download and use as you please under the terms of
 the open-source Apache V2 license. If installed on a linux-based <a class="reference internal" href="../reference.html#term-OS"><span class="xref std std-term">OS</span></a>,
 users also do not need to worry about any costs associated with using docker.
 We expect the only costs associated with VA Explorer to be hosting and domain
 name registration.</p>
-<ol class="arabic simple" start="2">
-<li><p>I’m getting an error related to psycopg2 when setting up VA Explorer. What
-does this mean?</p></li>
-</ol>
+<p><strong>2. I’m getting an error related to psycopg2 when setting up VA Explorer. What
+does this mean?</strong></p>
 <p>It is possible that psycopg2 is pointing at the wrong SSL installation on your
 system it is attempting to set itself up during the pip install process. Adding
 this environment variable has worked as a potential fix:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LDFLAGS</span><span class="o">=</span><span class="s1">&#39;-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib&#39;</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="3">
-<li><p>I’m getting an error related to scipy when setting up VA Explorer. What does
-this mean?</p></li>
-</ol>
+<p><strong>3. Why is the amount of VAs in VA Explorer is different from the amount of data
+from wherever I imported them?</strong></p>
+<p>This may appear in a variety of contexts, so the solution may differ:</p>
+<ul class="simple">
+<li><p>If referring to the <strong>import process</strong>, the numbers rely on each VA having
+a unique <code class="docutils literal notranslate"><span class="pre">instanceid</span></code> (typically in uuid format) and a unique <code class="docutils literal notranslate"><span class="pre">instancename</span></code>
+(typically constructed from the name of the deceased and date of the interview).
+The import process does its best to recognize changes to these during imports and
+react accordingly, but if both change at once (for example, when editing the name
+of the deceased causes the <code class="docutils literal notranslate"><span class="pre">instanceid</span></code> to update and a new <code class="docutils literal notranslate"><span class="pre">instancename</span></code> to be
+constructed) then duplicate data may result with the old name of the deceased. It
+is recommended to take advantage of provided
+<a class="reference internal" href="user_guides.html#running-data-cleanup-operations"><span class="std std-doc">Data Cleanup Operations</span></a>
+to identify and delete these.</p></li>
+<li><p>If referring to the <strong>dashboard</strong>, the numbers likely differ because the
+dashboard only shows VAs that have been assigned a cause of death. To make the
+numbers match, either sum the “Coded VAs” and “Uncoded VAs” values, or run the
+coding algorithms again to assign causes of death to any VAs that are missing it.
+Please note, VAs with coding issues (highlighted on the homepage) will not code
+correctly until the error is corrected.</p></li>
+</ul>
+<p><strong>4. I’m getting an error related to scipy when setting up VA Explorer. What does
+this mean?</strong></p>
 <p>Some MacOS users have reported getting the error
 <code class="docutils literal notranslate"><span class="pre">numpy.distutils.system_info.NotFoundError:</span> <span class="pre">No</span> <span class="pre">lapack/blas</span> <span class="pre">resources</span> <span class="pre">found.</span> <span class="pre">Note:</span> <span class="pre">Accelerate</span> <span class="pre">is</span> <span class="pre">no</span> <span class="pre">longer</span> <span class="pre">supported.</span></code>
 If you get this error, this <a class="reference external" href="https://github.com/scipy/scipy/issues/13102#issuecomment-962468269">thread</a> may be a helpful resource.
 Ensuring that pip is upgraded <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code> may also help.</p>
-<ol class="arabic simple" start="4">
-<li><p>What is an easy configuration to use for my reverse proxy?</p></li>
-</ol>
+<p><strong>5. What is an easy configuration to use for my reverse proxy?</strong></p>
 <p>This is a simple example apache config that utilizes letsencrypt https certificates</p>
 <div class="highlight-apache notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;VirtualHost</span><span class="w"> </span><span class="s">*:80</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nb">ServerName</span><span class="w"> </span>myhost.com
@@ -312,9 +325,7 @@ Ensuring that pip is upgraded <code class="docutils literal notranslate"><span c
 <span class="w"> </span><span class="nt">&lt;/IfModule&gt;</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="5">
-<li><p>Why are my users not receiving email?</p></li>
-</ol>
+<p><strong>6. Why are my users not receiving email?</strong></p>
 <p>Email technology can unfortunately encounter issues delivering messages sometimes.
 By default, VA Explorer prints to the console and can be configured to work with
 an existing mail server. This mail server, once VA Explorer is configure to use
