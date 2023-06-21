@@ -136,7 +136,7 @@ class TestImportCommand:
             instanceid="uuid:TESTf603-a193-4af3-9321-264096bf8602"
         )
         assert va.Id10010 == "james27"
-        assert va.instancename == "_Dec---Brent_Hebert_D.o.I---2017-03-07"
+        assert va.instancename == "_dec---brent_hebert_d.o.i---2017-03-07"
         assert va.Id10023 == "2016-01-21"
 
         # A second run on the same data should ignore those same records.

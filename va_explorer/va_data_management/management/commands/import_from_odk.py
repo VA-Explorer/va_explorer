@@ -65,6 +65,6 @@ class Command(BaseCommand):
         num_outdated = len(results["outdated"])
 
         self.stdout.write(
-            f"Loaded {num_created} verbal autopsies from Kobo " \
+            f"Loaded {num_created} verbal autopsies from ODK " \
             f"({num_ignored} ignored, {num_outdated} removed as outdated)"
         )

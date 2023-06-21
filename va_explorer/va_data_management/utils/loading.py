@@ -44,11 +44,28 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     field_case_mapper = {field.lower(): field for field in model_field_names}
     record_df = record_df.rename(columns=lambda c: field_case_mapper.get(c.lower(), c))
 
-    # Lowercase the instanceID column that can come from ODK as "instanceID".
+    # instanceid is an essential identifier. Normalize input if needed and
+    # attempt some known workarounds for supported integrations if such an
+    # important field happens to be missing.
     if "instanceID" in record_df.columns:
         record_df = record_df.rename(columns={"instanceID": "instanceid"})
+    if "instanceid" not in record_df.columns and "key" in record_df.columns:
+        record_df = record_df.rename(columns={"key": "instanceid"})  # ODK
+    elif "instanceid" not in record_df.columns and "_uuid" in record_df.columns:
+        record_df = record_df.rename(columns={"_uuid": "instanceid"})  # Kobo
+
+    # similar story for instancename, but less known workarounds. NOTE: Potentially
+    # construct one manually here in the future, if needed, to follow above example
+    # meanwhile, normalize value regardless to make comparisons more robust
     if "instanceName" in record_df.columns:
         record_df = record_df.rename(columns={"instanceName": "instancename"})
+    record_df["instancename"] = record_df["instancename"].str.casefold()
+
+    # Patch VAs that are missing Id10010 (Interviewer Name) with custom field fallbacks
+    if "Id10010" not in record_df.columns and "SubmitterName" in record_df.columns:
+        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})  # ODK
+    elif "Id10010" not in record_df.columns and "_submitted_by" in record_df.columns:
+        record_df = record_df.rename(columns={"_submitted_by": "Id10010"})  # Kobo
 
     # Kobo provides an indicator for which records are invalid. Check if this
     # column is present, and if so, drop these from import consideration plus
@@ -66,24 +83,11 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             )
         ]
         invalid_uuids = invalid["instanceid"].to_list() if len(invalid) > 0 else []
-        to_remove = VerbalAutopsy.objects.filter(instanceid=invalid_uuids)
+        to_remove = VerbalAutopsy.objects.filter(instanceid__in=invalid_uuids)
         for va in to_remove:
             invalid_vas.append(va)
         to_remove.delete()
         record_df = record_df.drop(labels=invalid.index.values, axis=0)
-
-    # If there is not an instanceid column but there is a another similar column,
-    # populate instanceid field with that column's value.
-    if "instanceid" not in record_df.columns and "key" in record_df.columns:
-        record_df = record_df.rename(columns={"key": "instanceid"})  # ODK
-    elif "instanceid" not in record_df.columns and "_uuid" in record_df.columns:
-        record_df = record_df.rename(columns={"_uuid": "instanceid"})  # Kobo
-
-    # Patch VAs that are missing Id10010 (Interviewer Name) with custom field fallbacks
-    if "Id10010" not in record_df.columns and "SubmitterName" in record_df.columns:
-        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})  # ODK
-    elif "Id10010" not in record_df.columns and "_submitted_by" in record_df.columns:
-        record_df = record_df.rename(columns={"_submitted_by": "Id10010"})  # Kobo
 
     print("de-duplicating fields...")
     # collapse fields ending with _other for their normal counterparts

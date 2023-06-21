@@ -267,8 +267,8 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --email and --password arguments or \
-                ODK_EMAIL and ODK_PASSWORD environment variables."
+            == "Must specify either --email and --password arguments or " \
+                "ODK_EMAIL and ODK_PASSWORD environment variables."
         )
 
     def test_missing_project(self):
@@ -373,7 +373,7 @@ class TestImportCommand:
 
         assert (
             output.getvalue().strip()
-            == "Loaded 1 verbal autopsies from ODK (0 ignored)"
+            == "Loaded 1 verbal autopsies from ODK (0 ignored, 0 removed as outdated)"
         )
         assert VerbalAutopsy.objects.count() == 1
         assert (
@@ -394,6 +394,6 @@ class TestImportCommand:
 
         assert (
             output.getvalue().strip()
-            == "Loaded 0 verbal autopsies from ODK (1 ignored)"
+            == "Loaded 0 verbal autopsies from ODK (1 ignored, 0 removed as outdated)"
         )
         assert VerbalAutopsy.objects.count() == 1
