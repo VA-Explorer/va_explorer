@@ -19,12 +19,14 @@ def test_loading_from_dataframe():
     data = [
         {
             "instanceid": "instance1",
+            "instancename": "_Dec---name 1---2021-03-22",
             "testing-dashes-Id10007": "name 1",
             "Id10023": "03/01/2021",
             "hospital": "test location",
         },
         {
             "instanceid": "instance2",
+            "instancename": "_Dec---name 2---2021-03-22",
             "testing-dashes-Id10007": "name 2",
             "Id10023": "dk",
             "hospital": "test location",
@@ -53,8 +55,16 @@ def test_loading_from_dataframe_with_ignored():
     Location.add_root(name="test location", location_type="facility")
 
     data = [
-        {"instanceid": "instance1", "testing-dashes-Id10007": "name 1"},
-        {"instanceid": "instance2", "testing-dashes-Id10007": "name 2"},
+        {
+            "instanceid": "instance1",
+            "testing-dashes-Id10007": "name 1",
+            "instancename": "_Dec---name 1---2021-03-22",
+        },
+        {
+            "instanceid": "instance2",
+            "testing-dashes-Id10007": "name 2",
+            "instancename": "_Dec---name 2---2021-03-22",
+        },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -69,8 +79,16 @@ def test_loading_from_dataframe_with_ignored():
     # Run it again and it should ignore one of these records.
 
     data = [
-        {"instanceid": "instance1", "testing-dashes-Id10007": "name 1"},
-        {"instanceid": "instance4", "testing-dashes-Id10007": "name 4"},
+        {
+            "instanceid": "instance1",
+            "testing-dashes-Id10007": "name 1",
+            "instancename": "_Dec---name 1---2021-03-22",
+        },
+        {
+            "instanceid": "instance4",
+            "testing-dashes-Id10007": "name 4",
+            "instancename": "_Dec---name 4---2021-03-22",
+        },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -91,10 +109,16 @@ def test_loading_from_dataframe_with_key():
     data = [
         {
             "key": "instance1",
+            "instancename": "_Dec---name 1---2021-03-22",
             "testing-dashes-Id10007": "name 1",
             "hospital": "test location",
         },
-        {"key": "instance2", "testing-dashes-Id10007": "name 2", "hospital": "home"},
+        {
+            "key": "instance2",
+            "testing-dashes-Id10007": "name 2",
+            "instancename": "_Dec---name 2---2021-03-22",
+            "hospital": "home",
+        },
     ]
 
     df = pandas.DataFrame.from_records(data)
@@ -131,7 +155,10 @@ def test_load_va_csv_command():
         stderr=output,
     )
 
-    assert output.getvalue().strip() == "Loaded 3 verbal autopsies (0 ignored)"
+    assert (
+        output.getvalue().strip() == "Loaded 3 verbal autopsies from CSV " \
+                                     "(0 ignored, 0 removed as outdated)"
+    )
     assert VerbalAutopsy.objects.get(instanceid="instance1").Id10007 == "name1"
     assert VerbalAutopsy.objects.get(instanceid="instance2").Id10007 == "name2"
     assert VerbalAutopsy.objects.get(instanceid="instance3").Id10007 == "name3"
@@ -154,6 +181,7 @@ def test_loading_duplicate_vas(settings):
         Id10022="Yes",
         Id10023="dk",
         instanceid="00",
+        instancename="_Dec---Bob_Jones---2021-03-22"
     )
 
     # va2 matches 0 records in 'test-duplicate-input-data.csv'
@@ -166,6 +194,7 @@ def test_loading_duplicate_vas(settings):
         Id10022="Yes",
         Id10023="dk",
         instanceid="02",
+        instancename="_Dec---Nate_Grey---2021-03-22"
     )
 
     # Find path to data file

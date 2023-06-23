@@ -44,22 +44,50 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     field_case_mapper = {field.lower(): field for field in model_field_names}
     record_df = record_df.rename(columns=lambda c: field_case_mapper.get(c.lower(), c))
 
-    # Lowercase the instanceID column that can come from ODK as "instanceID".
+    # instanceid is an essential identifier. Normalize input if needed and
+    # attempt some known workarounds for supported integrations if such an
+    # important field happens to be missing.
     if "instanceID" in record_df.columns:
         record_df = record_df.rename(columns={"instanceID": "instanceid"})
-
-    # If there is not an instanceid column but there is a another similar column,
-    # populate instanceid field with that column's value.
     if "instanceid" not in record_df.columns and "key" in record_df.columns:
-        record_df = record_df.rename(columns={"key": "instanceid"}) #ODK
+        record_df = record_df.rename(columns={"key": "instanceid"})  # ODK
     elif "instanceid" not in record_df.columns and "_uuid" in record_df.columns:
-        record_df = record_df.rename(columns={"_uuid": "instanceid"}) #Kobo
+        record_df = record_df.rename(columns={"_uuid": "instanceid"})  # Kobo
+
+    # similar story for instancename, but less known workarounds. NOTE: Potentially
+    # construct one manually here in the future, if needed, to follow above example
+    # meanwhile, normalize value regardless to make comparisons more robust
+    if "instanceName" in record_df.columns:
+        record_df = record_df.rename(columns={"instanceName": "instancename"})
+    record_df["instancename"] = record_df["instancename"].str.casefold()
 
     # Patch VAs that are missing Id10010 (Interviewer Name) with custom field fallbacks
     if "Id10010" not in record_df.columns and "SubmitterName" in record_df.columns:
-        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})  #ODK
+        record_df = record_df.rename(columns={"SubmitterName": "Id10010"})  # ODK
     elif "Id10010" not in record_df.columns and "_submitted_by" in record_df.columns:
-        record_df = record_df.rename(columns={"_submitted_by": "Id10010"})  #Kobo
+        record_df = record_df.rename(columns={"_submitted_by": "Id10010"})  # Kobo
+
+    # Kobo provides an indicator for which records are invalid. Check if this
+    # column is present, and if so, drop these from import consideration plus
+    # attempt to remove them from existing VA Explorer records
+    invalid_vas = []
+    if "_validation_status" in record_df.columns:
+        filtered_df = record_df[
+            record_df["_validation_status"].apply(
+                lambda x: isinstance(x, dict) and len(x) != 0
+            )
+        ]  # Assume blank/not indicated is fine
+        invalid = filtered_df[
+            filtered_df["_validation_status"].apply(
+                lambda x: x["label"] in (["On Hold", "Not Approved"])
+            )
+        ]
+        invalid_uuids = invalid["instanceid"].to_list() if len(invalid) > 0 else []
+        to_remove = VerbalAutopsy.objects.filter(instanceid__in=invalid_uuids)
+        for va in to_remove:
+            invalid_vas.append(va)
+        to_remove.delete()
+        record_df = record_df.drop(labels=invalid.index.values, axis=0)
 
     print("de-duplicating fields...")
     # collapse fields ending with _other for their normal counterparts
@@ -69,7 +97,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     csv_field_names = record_df.columns
     common_field_names = csv_field_names.intersection(model_field_names)
 
-    # Only ,eep fields in CSV that we have columns for in our VerbalAutopsy model
+    # Only keep fields in CSV that we have columns for in our VerbalAutopsy model
     if logger:
         missing_field_names = model_field_names.difference(common_field_names)
         logger.debug("Missing fields: %s", missing_field_names)
@@ -82,6 +110,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # If row does not have an instanceid, it will create a new VA.
     # Build a list of VAs to create and a list of VAs to ignore (that already exist).
     ignored_vas = []
+    outdated_vas = []
     created_vas = []
     location_map = {}
 
@@ -103,11 +132,15 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     # pull in all existing VA instanceIDs from db for de-duping purposes
     print("pulling in instance ids...")
     va_instance_ids = set(VerbalAutopsy.objects.values_list("instanceid", flat=True))
+    va_instance_names = set(
+        VerbalAutopsy.objects.values_list("instancename", flat=True)
+    )
 
     if debug:
         print(
             f"# of VAs: {record_df.shape[0]}, \
-            # of instanceIDs: {record_df.instanceid.nunique()}"
+            # of instanceIDs: {record_df.instanceid.nunique()}, \
+            # of instanceNames: {record_df.instancename.nunique()}"
         )
 
     print("creating new VAs...")
@@ -122,6 +155,17 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
                 ignored_vas.append(va)
                 continue
             else:
+                # If VA "doesn't exist", it's still possible we have an edited VA,
+                # since kobo will change the uuid for an edited VA. Check if a
+                # previous instancename for this "new" VA exists and if so, delete
+                # the old one in favor of this new one
+                if row["instancename"] in va_instance_names:
+                    outdated_va = VerbalAutopsy.objects.filter(
+                        instancename=row["instancename"]
+                    )
+                    outdated_vas.append(outdated_va)
+                    outdated_va.delete()
+
                 va_instance_ids.add(row["instanceid"])
 
         # If we got here, we have a new, legit VA on our hands.
@@ -181,7 +225,9 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     return {
         "ignored": ignored_vas,
+        "outdated": outdated_vas,
         "created": created_vas,
+        "removed": invalid_vas,
     }
 
 

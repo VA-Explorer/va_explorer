@@ -847,6 +847,7 @@ HIDDEN_FIELDS = (
     "id",
     "location",
     "instanceid",
+    "instanceName",
     "deleted_at",
     "unique_va_identifier",
     "duplicate",

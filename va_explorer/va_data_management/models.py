@@ -65,6 +65,7 @@ class VerbalAutopsy(SoftDeletionModel):
     # TODO: Need an approach that supports different variants in different countries
     deviceid = models.TextField("Device ID", blank=True)
     instanceid = models.TextField("Instance ID", blank=True, editable=False)
+    instancename = models.TextField("Instance Name", blank=True, editable=False)
     phonenumber = models.TextField("Phone Number", blank=True)
     simserial = models.TextField("SIM Serial", blank=True)
     username = models.TextField("Username", blank=True)

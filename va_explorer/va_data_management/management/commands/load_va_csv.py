@@ -22,7 +22,9 @@ class Command(BaseCommand):
 
         num_created = len(results["created"])
         num_ignored = len(results["ignored"])
+        num_outdated = len(results["outdated"])
 
         self.stdout.write(
-            f"Loaded {num_created} verbal autopsies ({num_ignored} ignored)"
+            f"Loaded {num_created} verbal autopsies from CSV " \
+            f"({num_ignored} ignored, {num_outdated} removed as outdated)"
         )

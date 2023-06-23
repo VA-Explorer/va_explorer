@@ -30,8 +30,8 @@ class Command(BaseCommand):
 
         if not token or not asset_id:
             self.stderr.write(
-                "Must specify either --token and --asset_id arguments or \
-                KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
+                "Must specify either --token and --asset_id arguments or " \
+                "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
             )
             return
 
@@ -40,7 +40,11 @@ class Command(BaseCommand):
 
         num_created = len(results["created"])
         num_ignored = len(results["ignored"])
+        num_outdated = len(results["outdated"])
+        num_invalid = len(results["removed"])
 
         self.stdout.write(
-            f"Loaded {num_created} verbal autopsies from Kobo ({num_ignored} ignored)"
+            f"Loaded {num_created} verbal autopsies from Kobo " \
+            f"({num_ignored} ignored, {num_outdated} overwritten, " \
+            f"{num_invalid} removed as invalid)"
         )

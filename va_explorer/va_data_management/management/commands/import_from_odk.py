@@ -35,8 +35,8 @@ class Command(BaseCommand):
 
         if not email or not password:
             self.stderr.write(
-                "Must specify either --email and --password arguments or \
-                ODK_EMAIL and ODK_PASSWORD environment variables."
+                "Must specify either --email and --password arguments or " \
+                "ODK_EMAIL and ODK_PASSWORD environment variables."
             )
             return
 
@@ -62,7 +62,9 @@ class Command(BaseCommand):
 
         num_created = len(results["created"])
         num_ignored = len(results["ignored"])
+        num_outdated = len(results["outdated"])
 
         self.stdout.write(
-            f"Loaded {num_created} verbal autopsies from ODK ({num_ignored} ignored)"
+            f"Loaded {num_created} verbal autopsies from ODK " \
+            f"({num_ignored} ignored, {num_outdated} removed as outdated)"
         )
