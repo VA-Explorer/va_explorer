@@ -19,13 +19,19 @@ def test_loading_from_dataframe():
     data = [
         {
             "instanceid": "instance1",
-            "instancename": "_Dec---name 1---2021-03-22",
+            "Id10017": "name",
+            "Id10018": "1",
+            "Id10012": "2021-03-21",
+            "instancename": "_Dec---name 1---2021-03-21",
             "testing-dashes-Id10007": "name 1",
             "Id10023": "03/01/2021",
             "hospital": "test location",
         },
         {
             "instanceid": "instance2",
+            "Id10017": "name",
+            "Id10018": "2",
+            "Id10012": "2021-03-22",
             "instancename": "_Dec---name 2---2021-03-22",
             "testing-dashes-Id10007": "name 2",
             "Id10023": "dk",
@@ -57,11 +63,17 @@ def test_loading_from_dataframe_with_ignored():
     data = [
         {
             "instanceid": "instance1",
+            "Id10017": "name",
+            "Id10018": "1",
+            "Id10012": "2021-03-21",
             "testing-dashes-Id10007": "name 1",
-            "instancename": "_Dec---name 1---2021-03-22",
+            "instancename": "_Dec---name 1---2021-03-21",
         },
         {
             "instanceid": "instance2",
+            "Id10017": "name",
+            "Id10018": "2",
+            "Id10012": "2021-03-22",
             "testing-dashes-Id10007": "name 2",
             "instancename": "_Dec---name 2---2021-03-22",
         },
@@ -81,13 +93,19 @@ def test_loading_from_dataframe_with_ignored():
     data = [
         {
             "instanceid": "instance1",
+            "Id10017": "name",
+            "Id10018": "1",
+            "Id10012": "2021-03-21",
             "testing-dashes-Id10007": "name 1",
-            "instancename": "_Dec---name 1---2021-03-22",
+            "instancename": "_Dec---name 1---2021-03-21",
         },
         {
             "instanceid": "instance4",
+            "Id10017": "name",
+            "Id10018": "4",
+            "Id10012": "2021-03-24",
             "testing-dashes-Id10007": "name 4",
-            "instancename": "_Dec---name 4---2021-03-22",
+            "instancename": "_Dec---name 4---2021-03-24",
         },
     ]
 
@@ -109,12 +127,18 @@ def test_loading_from_dataframe_with_key():
     data = [
         {
             "key": "instance1",
-            "instancename": "_Dec---name 1---2021-03-22",
+            "Id10017": "name",
+            "Id10018": "1",
+            "Id10012": "2021-03-21",
+            "instancename": "_Dec---name 1---2021-03-21",
             "testing-dashes-Id10007": "name 1",
             "hospital": "test location",
         },
         {
             "key": "instance2",
+            "Id10017": "name",
+            "Id10018": "2",
+            "Id10012": "2021-03-22",
             "testing-dashes-Id10007": "name 2",
             "instancename": "_Dec---name 2---2021-03-22",
             "hospital": "home",
@@ -166,7 +190,7 @@ def test_load_va_csv_command():
 
 def test_loading_duplicate_vas(settings):
     settings.QUESTIONS_TO_AUTODETECT_DUPLICATES = (
-        "Id10017, Id10018, Id10019, Id10020, Id10021, Id10022, Id10023"
+        "Id10017, Id10018, Id10012, Id10019, Id10020, Id10021, Id10022, Id10023"
     )
 
     # va1 matches 2 records in 'test-duplicate-input-data.csv'
@@ -175,6 +199,7 @@ def test_loading_duplicate_vas(settings):
     va1 = VerbalAutopsyFactory.create(
         Id10017="Bob",
         Id10018="Jones",
+        Id10012="2021-03-22",
         Id10019="Male",
         Id10020="Yes",
         Id10021="dk",
@@ -188,6 +213,7 @@ def test_loading_duplicate_vas(settings):
     va2 = VerbalAutopsyFactory.create(
         Id10017="Nate",
         Id10018="Grey",
+        Id10012="2012-03-22",
         Id10019="Male",
         Id10020="Yes",
         Id10021="dk",

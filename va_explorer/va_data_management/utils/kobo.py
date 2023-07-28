@@ -38,7 +38,7 @@ def get_kobo_api_token(username, password):
     return {"Authorization": f"Token {token}"}
 
 
-def download_responses(token, asset_id, batch_size, next_page):
+def download_responses(token, asset_id, batch_size=5000, next_page=None):
     if not token or not asset_id:
         raise AttributeError(
             "Must specify either --token and --asset_id arguments or \
