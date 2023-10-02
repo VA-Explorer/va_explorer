@@ -7,7 +7,7 @@ from requests.auth import HTTPBasicAuth
 
 env = environ.Env()
 USE_GATEWAY = env.bool("USE_GATEWAY", default=False)
-KOBO_HOST = env("KOBO_HOST", default="example.com")
+KOBO_HOST = env("KOBO_HOST", default="http://127.0.0.1:6001")
 # Don't verify localhost (self-signed cert)
 SSL_VERIFY = env.bool("KOBO_SSL_VERIFY", default=("localhost" in KOBO_HOST))
 
