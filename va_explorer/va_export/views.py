@@ -1,5 +1,4 @@
 import json
-import logging
 import zipfile
 from urllib.parse import urlencode
 
@@ -19,9 +18,6 @@ from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_export.forms import VADownloadForm
 from va_explorer.va_export.utils import get_loc_ids_for_filter
-from va_explorer.va_logs.logging_utils import write_va_log
-
-LOGGER = logging.getLogger("event_logger")
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -57,12 +53,9 @@ class VaApi(CustomAuthMixin, View):
         va_ids = params.get("ids", None)
         if va_ids not in empty_values:
             # if comma-separated string, split into list
-            if type(va_ids) is str:
-                if "," in va_ids:
-                    va_ids = va_ids.split(",")
+            if va_ids.isinstance(str):
                 # otherwise, just single ID string - wrap in list
-                else:
-                    va_ids = [va_ids]
+                va_ids = va_ids.split(",") if "," in va_ids else [va_ids]
             # merge in cause information before returning
             matching_vas = (
                 matching_vas.filter(pk__in=va_ids)
@@ -88,11 +81,13 @@ class VaApi(CustomAuthMixin, View):
             end_date = params.get("end_date", None)
 
             if start_date not in empty_values:
-                start_date = start_date[0] if type(start_date) is list else start_date
+                start_date = (
+                    start_date[0] if start_date.isinstance(list) else start_date
+                )
                 matching_vas = matching_vas.filter(Id10023__gte=start_date)
 
             if end_date not in empty_values:
-                end_date = end_date[0] if type(end_date) is list else end_date
+                end_date = end_date[0] if end_date.isinstance(list) else end_date
                 matching_vas = matching_vas.filter(Id10023__lte=end_date)
 
             # get causes for matching vas and convert to list of records
@@ -178,9 +173,6 @@ class VaApi(CustomAuthMixin, View):
             )
         else:
             response = HttpResponse()
-
-        write_va_log(LOGGER, f"downloaded data in {fmt} format", self.request)
-
         return response
 
 

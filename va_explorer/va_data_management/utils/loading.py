@@ -24,7 +24,7 @@ User = get_user_model()
 
 # load VA records into django database
 def load_records_from_dataframe(record_df, random_locations=False, debug=True):
-    logger = None if not debug else logging.getLogger("event_logger")
+    logger = None if not debug else logging.getLogger("debug")
     if logger:
         header = "=" * 10 + "DATA INGEST" + "=" * 10
         logger.info(header)
@@ -399,12 +399,12 @@ def get_va_summary_stats(vas, filter_fields=False):
     ).count()
 
     # clean up dates if non-null
-    if stats["last_update"] and type(stats["last_update"]) is not str:
+    if stats["last_update"] and not stats["last_update"].isinstance(str):
         stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
 
     if stats["last_interview"]:
         # Handle datetimes and Text (which can occur since interview is TextField)
-        if type(stats["last_interview"]) is not str:
+        if not stats["last_interview"].isinstance(str):
             stats["last_interview"] = stats["last_interview"].strftime("%Y-%m-%d")
         else:
             stats["last_interview"] = parse_date(stats["last_interview"])

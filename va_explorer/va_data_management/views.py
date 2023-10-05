@@ -1,4 +1,3 @@
-import logging
 import re
 
 from django.contrib import messages
@@ -27,9 +26,6 @@ from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
 from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
-from va_explorer.va_logs.logging_utils import write_va_log
-
-LOGGER = logging.getLogger("event_logger")
 
 
 class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
@@ -94,14 +90,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
             del self.filterset.form.fields["deceased"]
             del self.filterset.form.fields["start_date"]
             del self.filterset.form.fields["end_date"]
-
-        query_dict = self.request.GET.dict()
-        query_keys = [k for k in query_dict if k != "csrfmiddlewaretoken"]
-        if len(query_keys) > 0:
-            query = ", ".join(
-                [f"{k}: {query_dict[k]}" for k in query_keys if query_dict[k] != ""]
-            )
-            write_va_log(LOGGER, f"[data_mgnt] Queried VAs for: {query}", self.request)
 
         return self.filterset.qs
 
@@ -182,13 +170,6 @@ class Show(
         ]
         context["duplicate"] = self.object.duplicate
 
-        # log view record event
-        write_va_log(
-            LOGGER,
-            f"[data_mgnt] Clicked view record for va {self.object.id}",
-            self.request,
-        )
-
         return context
 
     # this function uses regex to filter out user warnings and algorithm
@@ -222,11 +203,6 @@ class Edit(
     def get_success_url(self):
         # update the validation errors
         validate_vas_for_dashboard([self.object])
-        write_va_log(
-            LOGGER,
-            f"[data_mgnt] successfully saved changes to VA {self.object.id}",
-            self.request,
-        )
         return reverse("va_data_management:show", kwargs={"id": self.object.id})
 
     def get_form_kwargs(self):
@@ -238,12 +214,6 @@ class Edit(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["id"] = self.object.id
-        # log edit event
-        write_va_log(
-            LOGGER,
-            f"[data_mgnt] Clicked edit record for va {context['id']}",
-            self.request,
-        )
         return context
 
 
@@ -271,11 +241,7 @@ class Reset(
             earliest.instance.save()
             # update the validation errors
             validate_vas_for_dashboard([earliest])
-        # log reset action
         messages.success(self.request, self.success_message)
-        write_va_log(
-            LOGGER, f"[data_mgnt] Reset data for va {self.object.id}", self.request
-        )
         return redirect("va_data_management:show", id=self.object.id)
 
 
@@ -305,12 +271,6 @@ class RevertLatest(
                 # update the validation errors
                 validate_vas_for_dashboard([previous])
         messages.success(self.request, self.success_message)
-        # log revert changes action
-        write_va_log(
-            LOGGER,
-            f"[data_mgnt] Reverted changes for va {self.object.id}",
-            self.request,
-        )
         return redirect("va_data_management:show", id=self.object.id)
 
 
@@ -322,7 +282,6 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
         try:
             run_coding_algorithms.apply_async()
             messages.success(request, "Successfully started background coding process")
-            write_va_log(LOGGER, "ran coding algorithm", self.request)
             return super().post(request, *args, **kwargs)
         except Exception as error:
             messages.error(request, f"Unable to start background process: {str(error)}")

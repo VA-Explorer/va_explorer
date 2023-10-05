@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 
 import pandas as pd
@@ -17,11 +16,8 @@ from va_explorer.va_data_management.utils.date_parsing import (
     get_interview_dates,
     parse_date,
 )
-from va_explorer.va_logs.logging_utils import write_va_log
 
 from .utils.loading import load_va_data
-
-LOGGER = logging.getLogger("event_logger")
 
 
 class DashboardAPIView(APIView):
@@ -71,15 +67,6 @@ class UserSupervisionView(CustomAuthMixin, PermissionRequiredMixin, ListView):
         self.filterset = SupervisionFilter(
             data=self.request.GET or None, queryset=queryset
         )
-        query_dict = self.request.GET.dict()
-        query_keys = [k for k in query_dict if k != "csrfmiddlewaretoken"]
-        if len(query_keys) > 0:
-            query = ", ".join(
-                [f"{k}: {query_dict[k]}" for k in query_keys if query_dict[k] != ""]
-            )
-            write_va_log(
-                LOGGER, f"[supervision] Queried users for: {query}", self.request
-            )
 
         return self.filterset.qs
 

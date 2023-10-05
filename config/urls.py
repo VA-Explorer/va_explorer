@@ -25,7 +25,6 @@ urlpatterns = [
     ),
     # TODO: remove this and move DHIS functionality into export
     path("dhis/", include("va_explorer.dhis_manager.urls", namespace="dhis_manager")),
-    path("va_logs/", include("va_explorer.va_logs.urls", namespace="va_logs")),
     path("va_export/", include("va_explorer.va_export.urls", namespace="va_export")),
     path(
         "va_data_cleanup/",

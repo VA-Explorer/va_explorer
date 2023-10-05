@@ -1,11 +1,8 @@
-import logging
 
-from allauth.account.signals import user_logged_in, user_logged_out
 from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.dispatch import receiver
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -18,7 +15,6 @@ from django.views.generic import (
 )
 
 from ..utils.mixins import CustomAuthMixin, UserDetailViewMixin
-from ..va_logs.logging_utils import write_va_log
 from .forms import (
     ExtendedUserCreationForm,
     UserChangePasswordForm,
@@ -27,20 +23,6 @@ from .forms import (
 )
 
 User = get_user_model()
-LOGGER = logging.getLogger("event_logger")
-
-
-# track login
-@receiver(user_logged_in)
-def login_logger(request, user, **kwargs):
-    write_va_log(LOGGER, f"[login] User {user.uuid} logged in", request)
-
-
-# track logout
-@receiver(user_logged_out)
-def logout_logger(request, user, **kwargs):
-    write_va_log(LOGGER, f"[logout] User {user.uuid} logged out", request)
-
 
 class UserIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
     # https://github.com/pennersr/django-allauth/blob/c19a212c6ee786af1bb8bc1b07eb2aa8e2bf531b/allauth/account/urls.py
