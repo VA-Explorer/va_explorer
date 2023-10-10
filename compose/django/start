@@ -6,9 +6,6 @@ set -o nounset
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
-echo "Initializing log directory..."
-python /app/manage.py initialize_log_directory
-
 echo "Running database migrations..."
 python /app/manage.py migrate
 
