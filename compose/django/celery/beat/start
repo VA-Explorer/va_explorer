@@ -5,5 +5,5 @@ set -o pipefail
 set -o nounset
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
-
+python manage.py migrate django_celery_beat
 celery -A config.celery_app.app beat -S django -l INFO
