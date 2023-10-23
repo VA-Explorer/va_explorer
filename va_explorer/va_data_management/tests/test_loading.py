@@ -180,8 +180,8 @@ def test_load_va_csv_command():
     )
 
     assert (
-        output.getvalue().strip() == "Loaded 3 verbal autopsies from CSV " \
-                                     "(0 ignored, 0 removed as outdated)"
+        output.getvalue().strip() == "Loaded 3 verbal autopsies from CSV "
+        "(0 ignored, 0 removed as outdated)"
     )
     assert VerbalAutopsy.objects.get(instanceid="instance1").Id10007 == "name1"
     assert VerbalAutopsy.objects.get(instanceid="instance2").Id10007 == "name2"
@@ -206,7 +206,7 @@ def test_loading_duplicate_vas(settings):
         Id10022="Yes",
         Id10023="dk",
         instanceid="00",
-        instancename="_Dec---Bob_Jones---2021-03-22"
+        instancename="_Dec---Bob_Jones---2021-03-22",
     )
 
     # va2 matches 0 records in 'test-duplicate-input-data.csv'
@@ -220,7 +220,7 @@ def test_loading_duplicate_vas(settings):
         Id10022="Yes",
         Id10023="dk",
         instanceid="02",
-        instancename="_Dec---Nate_Grey---2021-03-22"
+        instancename="_Dec---Nate_Grey---2021-03-22",
     )
 
     # Find path to data file

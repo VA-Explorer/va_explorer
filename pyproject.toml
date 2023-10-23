@@ -32,10 +32,39 @@ classifiers = [
 "Bug Reports" = "https://github.com/VA-Explorer/va_explorer/issues"
 
 [tool.ruff]
-select = ["E", "F", "W", "I", "UP", "B", "SIM"]
-fix = true
-target-version = "py38"
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "UP",   # modern syntax suggestions
+  "B",    # common bugs
+  "C4",   # comprehensions common issues
+#   "DTZ",  # datetime common issues
+#   "DJ",   # django common issues
+  "G",    # logging common issues
+  "PT",   # pytest common issues
+  "SIM",  # simplification suggestions
+]
+ignore = [
+  "E501",  # line length, handled by black
+]
 extend-exclude = ["migrations"]
+
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+# Use force-exclude option due to way pre-commit parses files. See psf/black#438
+force-exclude = '''
+/(
+    # default exclude
+    \.direnv|\.eggs|\.git|\.hg|\.ipynb_checkpoints|\.mypy_cache|\.nox|\.pytest_cache|\.ruff_cache|\.tox|\.svn|\.venv|\.vscode|__pypackages__|_build|buck-out|build|dist|venv
+    # additional exclude
+    | docs
+    | migrations
+)/
+'''
 
 [tool.pytest.ini_options]
 addopts = "--ds=config.settings.test --reuse-db"

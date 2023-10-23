@@ -151,9 +151,7 @@ class MultiSelectField(models.TextField):
             if isinstance(value, list):
                 return value
             elif isinstance(value, str):
-                value_list = map(
-                    lambda x: x.strip(), value.replace(",", ",").split(",")
-                )
+                value_list = (x.strip() for x in value.replace(",", ",").split(","))
                 return MSFList(choices, value_list)
             elif isinstance(value, (set, dict)):
                 return MSFList(choices, list(value))

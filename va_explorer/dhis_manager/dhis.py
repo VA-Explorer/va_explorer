@@ -34,7 +34,6 @@ class API:
     """
 
     def __init__(self, dhisURL, dhisUser, dhisPass):
-
         if "/api" in dhisURL:
             raise Exception(
                 "Please do not specify /api/ in the server argument: \
@@ -280,7 +279,6 @@ class DHIS:
     """
 
     def __init__(self, dhisArgs, workingDirectory):
-
         self.dhisURL = dhisArgs[0].dhisURL
         self.dhisUser = dhisArgs[0].dhisUser
         self.dhisPassword = dhisArgs[0].dhisPassword
@@ -318,7 +316,7 @@ class DHIS:
 
         try:
             apiDHIS = API(self.dhisURL, self.dhisUser, self.dhisPassword)
-        except (requests.RequestException) as e:
+        except requests.RequestException as e:
             raise Exception(str(e)) from e
 
         vaPrograms = apiDHIS.get(
@@ -386,7 +384,6 @@ class DHIS:
                 row = list(i)
 
                 if row[5] != "MISSING" and row[5] is not None:
-
                     vaID = str(row[0])
                     blobFile = "{}.db".format(os.path.join(self.dirDHIS, "blobs", vaID))
                     blobRecord = grouped.get_group(str(row[0]))
@@ -425,9 +422,9 @@ class DHIS:
                     else:
                         dod = datetime.datetime.strptime(row[3], "%Y-%m-%d")
                         eventDate = datetime.date(dod.year, dod.month, dod.day)
-                    if type(row[4]) == int:
+                    if isinstance(row[4], int):
                         age = row[4]
-                    elif type(row[4]) == float and not isnan(row[4]):
+                    elif isinstance(row[4], float) and not isnan(row[4]):
                         age = int(row[4])
                     else:
                         age = "MISSING"

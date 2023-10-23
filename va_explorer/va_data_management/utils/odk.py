@@ -100,7 +100,7 @@ def download_responses(
     form = get_odk_form(token, project_id, form_name, form_id)
 
     if fmt == "json":
-        url = f'{ODK_HOST}/v1/projects/{project_id}/forms/{form["xmlFormId"]}.svc/Submissions'  # noqa: 501
+        url = f'{ODK_HOST}/v1/projects/{project_id}/forms/{form["xmlFormId"]}.svc/Submissions'
         response = requests.get(url, headers=token, verify=SSL_VERIFY)
         response.raise_for_status()
         data = response.json()
@@ -110,7 +110,7 @@ def download_responses(
         return []
 
     if fmt == "csv":
-        url = f'{ODK_HOST}/v1/projects/{project_id}/forms/{form["xmlFormId"]}/submissions.csv'  # noqa: 501
+        url = f'{ODK_HOST}/v1/projects/{project_id}/forms/{form["xmlFormId"]}/submissions.csv'
         response = requests.get(url, headers=token, verify=SSL_VERIFY)
         response.raise_for_status()
         forms = pd.read_csv(BytesIO(response.content))

@@ -10,7 +10,6 @@ from va_explorer.va_data_management.models import VerbalAutopsy
 
 
 class Command(BaseCommand):
-
     help = "Update dates for demos to make the loaded VAs look current, to be \
             run only in development mode"
 

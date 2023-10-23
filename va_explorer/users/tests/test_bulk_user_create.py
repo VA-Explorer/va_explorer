@@ -38,10 +38,11 @@ def test_create_users_from_file():
 
     res = create_users_from_file(user_file)
 
-    assert res["user_ct"] == user_df.shape[0] and res["error_ct"] == 0
+    assert res["user_ct"] == user_df.shape[0]
+    assert res["error_ct"] == 0
     assert len(res["users"]) == user_df.shape[0]
 
-    user_emails = set([u.email for u in res["users"]])
+    user_emails = {u.email for u in res["users"]}
     raw_emails = set(user_df["email"].tolist())
 
     assert (
@@ -49,10 +50,12 @@ def test_create_users_from_file():
     )
 
     for _, user_data in user_df.iterrows():
-        user_object = list(
-            filter(
-                lambda x, user_data=user_data: x.email == user_data["email"],
-                res["users"],
+        user_object = next(
+            iter(
+                filter(
+                    lambda x, user_data=user_data: x.email == user_data["email"],
+                    res["users"],
+                )
             )
-        )[0]
+        )
         validate_user_object(user_data, user_object)

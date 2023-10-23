@@ -79,7 +79,7 @@ def test_index_with_valid_permission_and_invalid_configuration(
     assert response.status_code == 200
     assert (
         bytes(
-            "Your system is currently not configured to automatically flag Verbal Autopsies as potential duplicates.",  # noqa: 501
+            "Your system is currently not configured to automatically flag Verbal Autopsies as potential duplicates.",
             "utf-8",
         )
         in response.content

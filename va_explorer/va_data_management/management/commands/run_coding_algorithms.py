@@ -12,7 +12,6 @@ from va_explorer.va_data_management.utils.coding import (
 
 
 class Command(BaseCommand):
-
     help = "Run cause coding algorithms"
 
     def add_arguments(self, parser):
@@ -49,7 +48,6 @@ class Command(BaseCommand):
             exit()
 
     def clear_and_save_old_cods(self, cod_fname):
-
         print("clearing old CODs...")
         # export original CODs (and corresponding VA IDs) to flat file
         va_cod_df = pd.DataFrame(CauseOfDeath.objects.all().values())

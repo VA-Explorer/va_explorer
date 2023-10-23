@@ -26,12 +26,10 @@ def get_anonymized_user_info(user_list_file=None):
         if not os.path.isfile(user_list_file):
             raise FileNotFoundError(f"Couldn't find user file {user_list_file}")
         with open(user_list_file) as f:
-            emails = list(
-                map(
-                    lambda x: x.strip().replace(",", ""),
-                    filter(lambda x: "@" in x, f.readlines()),
-                )
-            )
+            emails = [
+                x.strip().replace(",", "")
+                for x in filter(lambda x: "@" in x, f.readlines())
+            ]
         if len(emails) > 0:
             filtered_users = user_objects.filter(email__in=emails)
             if len(filtered_users) == 0:
@@ -117,13 +115,12 @@ def create_users_from_file(user_list_file, email_confirmation=False, debug=False
 
 
 def fill_user_form_data(user_data, debug=False):
-
     form = ExtendedUserCreationForm()
 
     # if dataframe provided, convert to dict
     if type(user_data) is DataFrame:
         user_data_tmp = user_data.T.to_dict()
-        user_data = list(user_data_tmp.values())[0]
+        user_data = next(iter(user_data_tmp.values()))
 
     # preprocess raw data before parsing for form
     user_data = prep_form_data(user_data)
@@ -186,11 +183,8 @@ def fill_user_form_data(user_data, debug=False):
                     form_value = match
                 # if group field, try adding s if any groups are plural and rerun query
                 elif field_name == "group":
-
                     plural_names = any(
-                        map(
-                            lambda x: x.endswith("s"), qs.values_list("name", flat=True)
-                        )
+                        x.endswith("s") for x in qs.values_list("name", flat=True)
                     )
                     if plural_names and not value.endswith("s"):
                         value += "s"

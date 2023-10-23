@@ -64,8 +64,8 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(
-            f"Loaded {num_created} verbal autopsies from Kobo\n"
-            f"{num_corrected} required correction in order to import\n"
+            f"Loaded {num_created} verbal autopsies from Kobo "
+            f"{num_corrected} required correction in order to import "
             f"({num_ignored} ignored, {num_outdated} overwritten, "
             f"{num_invalid} removed as invalid)"
         )

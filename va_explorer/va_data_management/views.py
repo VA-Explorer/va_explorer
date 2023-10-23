@@ -34,7 +34,6 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
     paginate_by = 15
 
     def get_queryset(self):
-
         # Restrict to VAs this user can access and prefetch related for performance
         queryset = (
             self.request.user.verbal_autopsies()
@@ -284,7 +283,7 @@ class RunCodingAlgorithm(RedirectView, PermissionRequiredMixin):
             messages.success(request, "Successfully started background coding process")
             return super().post(request, *args, **kwargs)
         except Exception as error:
-            messages.error(request, f"Unable to start background process: {str(error)}")
+            messages.error(request, f"Unable to start background process: {error!s}")
             return super().post(request, *args, **kwargs)
 
 

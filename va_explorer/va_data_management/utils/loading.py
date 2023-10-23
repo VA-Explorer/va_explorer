@@ -61,7 +61,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     if "instanceName" in record_df.columns:
         record_df = record_df.rename(columns={"instanceName": "instancename"})
     elif "instancename" not in record_df.columns:
-        record_df['instancename'] = None
+        record_df["instancename"] = None
 
     unrecoverable = record_df[
         record_df["Id10017"].isnull()
@@ -194,8 +194,10 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         parsed_date = parse_date(va.Id10023, strict=False)
         if logger:
             logger.info(
-                f"va_id: {va_id} - Parsed {parsed_date} for \
-                Date of Death from {va.Id10023}"
+                "va_id: %s - Parsed %s for Date of Death from %s",
+                va_id,
+                parse_date,
+                va.Id10023,
             )
         va.Id10023 = parsed_date
 
@@ -204,8 +206,10 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         parsed_sub_date = parse_date(va.Id10012, strict=False)
         if logger:
             logger.info(
-                f"va_id: {va_id} - Parsed {parsed_sub_date} as \
-                Interview Date from {va.Id10012}"
+                "va_id: %s - Parsed %s as Interview Date from %s",
+                va_id,
+                parsed_sub_date,
+                va.Id10012,
             )
         va.Id10012 = parsed_sub_date
 
@@ -219,8 +223,10 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
             assign_va_location(va, location_map)
             if "hospital" in row and logger:
                 logger.info(
-                    f"va_id: {va_id} - Matched hospital \
-                            {row['hospital']} to {va.location} location in DB"
+                    "va_id: %s - Matched hospital %s to %s location in DB",
+                    va_id,
+                    row["hospital"],
+                    va.location,
                 )
 
         # Generate a unique_identifier_hash for each VA if the application is
@@ -279,7 +285,7 @@ def load_locations_from_file(csv_file, delete_previous=False):
         csv_data = csv_data.rename(columns={"type": "location_type"})
 
     # only consider fields in both csv and Location schema
-    db_fields = set([field.name for field in Location._meta.get_fields()])
+    db_fields = {field.name for field in Location._meta.get_fields()}
     common_fields = csv_data.columns.intersection(db_fields).tolist()
 
     # track number of new locations added to system
@@ -399,12 +405,12 @@ def get_va_summary_stats(vas, filter_fields=False):
     ).count()
 
     # clean up dates if non-null
-    if stats["last_update"] and not stats["last_update"].isinstance(str):
+    if stats["last_update"] and not isinstance(stats["last_update"], str):
         stats["last_update"] = stats["last_update"].strftime("%Y-%m-%d")
 
     if stats["last_interview"]:
         # Handle datetimes and Text (which can occur since interview is TextField)
-        if not stats["last_interview"].isinstance(str):
+        if not isinstance(stats["last_interview"], str):
             stats["last_interview"] = stats["last_interview"].strftime("%Y-%m-%d")
         else:
             stats["last_interview"] = parse_date(stats["last_interview"])

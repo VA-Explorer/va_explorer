@@ -233,7 +233,7 @@ class TestUserUpdateForm:
                 "group": field_worker_group,
                 "is_active": True,
                 "geographic_access": "location-specific",
-                "location_restrictions": [facility]
+                "location_restrictions": [facility],
             }
         )
 
@@ -250,7 +250,7 @@ class TestUserUpdateForm:
                 "group": field_worker_group,
                 "is_active": True,
                 "geographic_access": "national",
-                "location_restrictions": []
+                "location_restrictions": [],
             }
         )
 

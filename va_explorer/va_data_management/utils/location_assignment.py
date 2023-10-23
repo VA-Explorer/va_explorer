@@ -27,7 +27,7 @@ def build_location_mapper(
         )
 
         # store unique va_locations in mapper dataframe
-        va_locations = list(set(va_locations).difference(set(["other"])))
+        va_locations = list(set(va_locations).difference({"other"}))
         mapper = pd.DataFrame({"va_name": va_locations}).dropna()
         if not mapper.empty:
             mapper["va_key"] = (

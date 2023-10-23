@@ -19,7 +19,6 @@ class DateInput(forms.DateInput):
 
 
 class VADownloadForm(forms.Form):
-
     action = forms.ChoiceField(
         label="Action",
         choices=(("export", "Export Data"), ("download", "Download Data")),

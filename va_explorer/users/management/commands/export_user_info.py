@@ -4,7 +4,6 @@ from va_explorer.users.utils.user_form_backend import get_anonymized_user_info
 
 
 class Command(BaseCommand):
-
     help = "Export an (anonymized) list of all users in the system along with \
             their roles and permissions. No PII is exported during this process."
 

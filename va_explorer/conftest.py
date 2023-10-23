@@ -12,7 +12,7 @@ from va_explorer.va_data_management.models import Location
 
 
 @pytest.fixture(autouse=True)
-def media_storage(settings, tmpdir):
+def _media_storage(settings, tmpdir):
     settings.MEDIA_ROOT = tmpdir.strpath
 
 

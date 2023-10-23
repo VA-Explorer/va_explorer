@@ -1,4 +1,5 @@
 # flake8: noqa: N815 - We want the model fields to exactly reflect the VA instrument's fields
+import contextlib
 import hashlib
 
 from django.conf import settings
@@ -1746,7 +1747,7 @@ class VerbalAutopsy(SoftDeletionModel):
         if VerbalAutopsy.auto_detect_duplicates():
             self.handle_update_duplicates()
 
-        super(VerbalAutopsy, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 # Parses the comma-separated list string in settings.QUESTIONS_TO_AUTODETECT_DUPLICATES into a Python list
@@ -1763,10 +1764,8 @@ def questions_to_autodetect_duplicates():
     valid_field = None
 
     for q in questions:
-        try:
+        with contextlib.suppress(FieldDoesNotExist):
             valid_field = VerbalAutopsy._meta.get_field(q)
-        except FieldDoesNotExist:
-            pass
         if valid_field:
             validated_questions.append(q)
 
@@ -1789,29 +1788,17 @@ class CODCodesDHIS(models.Model):
 # TODO: Determine a way to handle cascading soft deletes globally/generically
 class DhisStatusManager(models.Manager):
     def get_queryset(self):
-        return (
-            super(DhisStatusManager, self)
-            .get_queryset()
-            .filter(verbalautopsy__deleted_at__isnull=True)
-        )
+        return super().get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
 
 
 class CauseOfDeathManager(models.Manager):
     def get_queryset(self):
-        return (
-            super(CauseOfDeathManager, self)
-            .get_queryset()
-            .filter(verbalautopsy__deleted_at__isnull=True)
-        )
+        return super().get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
 
 
 class CauseCodingIssueManager(models.Manager):
     def get_queryset(self):
-        return (
-            super(CauseCodingIssueManager, self)
-            .get_queryset()
-            .filter(verbalautopsy__deleted_at__isnull=True)
-        )
+        return super().get_queryset().filter(verbalautopsy__deleted_at__isnull=True)
 
 
 class DhisStatus(models.Model):

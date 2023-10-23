@@ -53,7 +53,7 @@ class VaApi(CustomAuthMixin, View):
         va_ids = params.get("ids", None)
         if va_ids not in empty_values:
             # if comma-separated string, split into list
-            if va_ids.isinstance(str):
+            if isinstance(va_ids, str):
                 # otherwise, just single ID string - wrap in list
                 va_ids = va_ids.split(",") if "," in va_ids else [va_ids]
             # merge in cause information before returning
@@ -82,12 +82,12 @@ class VaApi(CustomAuthMixin, View):
 
             if start_date not in empty_values:
                 start_date = (
-                    start_date[0] if start_date.isinstance(list) else start_date
+                    start_date[0] if isinstance(start_date, list) else start_date
                 )
                 matching_vas = matching_vas.filter(Id10023__gte=start_date)
 
             if end_date not in empty_values:
-                end_date = end_date[0] if end_date.isinstance(list) else end_date
+                end_date = end_date[0] if isinstance(end_date, list) else end_date
                 matching_vas = matching_vas.filter(Id10023__lte=end_date)
 
             # get causes for matching vas and convert to list of records

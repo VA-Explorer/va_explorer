@@ -79,7 +79,7 @@ def _run_pycross_and_interva5(verbal_autopsies):
     # Get into CSV format, also prefixing keys with - as expected by
     # pyCrossVA (e.g. Id10424 becomes -Id10424)
     va_data = [model_to_dict(va) for va in verbal_autopsies]
-    va_data = [dict([(f"-{k}", v) for k, v in d.items()]) for d in va_data]
+    va_data = [{f"-{k}": v for k, v in d.items()} for d in va_data]
     va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
 
     # Transform to algorithm format using the pyCrossVA web service

@@ -6,7 +6,6 @@ from va_explorer.va_data_management.utils.loading import load_locations_from_fil
 
 
 class Command(BaseCommand):
-
     # TODO: Need approach that supports loading of country-specific location information
 
     help = "Loads initial location data into the database from a CSV file with \
@@ -17,7 +16,6 @@ class Command(BaseCommand):
         parser.add_argument("--delete_previous", type=bool, nargs="?", default=False)
 
     def handle(self, *args, **options):
-
         # Load the CSV file
         csv_file = options["csv_file"]
         delete_previous = options["delete_previous"]

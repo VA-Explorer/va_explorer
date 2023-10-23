@@ -41,8 +41,8 @@ def get_kobo_api_token(username, password):
 def download_responses(token, asset_id, batch_size=5000, next_page=None):
     if not token or not asset_id:
         raise AttributeError(
-            "Must specify either --token and --asset_id arguments or \
-                KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
+            "Must specify either --token and --asset_id arguments or "
+            "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
         )
 
     # Support advanced networking setups by allowing explicit use of external
@@ -68,7 +68,7 @@ def download_responses(token, asset_id, batch_size=5000, next_page=None):
     response.raise_for_status()
     data = response.json()
     if "results" in data:
-        parsed_results = list()
+        parsed_results = []
         next_results = data["next"]
         for result in data["results"]:
             parsed_data = {}
