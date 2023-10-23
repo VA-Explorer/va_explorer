@@ -54,11 +54,29 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
     elif "instanceid" not in record_df.columns and "_uuid" in record_df.columns:
         record_df = record_df.rename(columns={"_uuid": "instanceid"})  # Kobo
 
-    # similar story for instancename, but less known workarounds. NOTE: Potentially
-    # construct one manually here in the future, if needed, to follow above example
-    # meanwhile, normalize value regardless to make comparisons more robust
+    # similar story for instancename. normalized, less known workarounds. if record
+    # does not at least have first/last name for deceased (Id10017 + Id10018) and an
+    # interview date (Id10012), consider it unrecoverable and drop from import
+    invalid_vas = []
     if "instanceName" in record_df.columns:
         record_df = record_df.rename(columns={"instanceName": "instancename"})
+    elif "instancename" not in record_df.columns:
+        record_df['instancename'] = None
+
+    unrecoverable = record_df[
+        record_df["Id10017"].isnull()
+        | record_df["Id10018"].isnull()
+        | record_df["Id10012"].isnull()
+    ]
+    invalid_vas.extend(unrecoverable.iterrows())
+    record_df.drop(labels=unrecoverable.index.values, axis=0)
+
+    missing_instancenames = record_df[record_df["instancename"].isnull()]
+    corrected_vas = []
+    for index, record in missing_instancenames.iterrows():
+        instancename = f"_Dec---{record['Id10017']} {record['Id10018']}_D.o.I---{record['Id10012']}"  # noqa: E501
+        record_df.at[index, "instancename"] = instancename
+        corrected_vas.append(index)
     record_df["instancename"] = record_df["instancename"].str.casefold()
 
     # Patch VAs that are missing Id10010 (Interviewer Name) with custom field fallbacks
@@ -227,6 +245,7 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
         "ignored": ignored_vas,
         "outdated": outdated_vas,
         "created": created_vas,
+        "corrected": corrected_vas,
         "removed": invalid_vas,
     }
 

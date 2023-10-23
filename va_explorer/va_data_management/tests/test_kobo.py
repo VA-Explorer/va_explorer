@@ -59,20 +59,23 @@ class TestDownloadResponse:
 
     def test_download_responses(self, requests_mock):
         requests_mock.get(
-            f"{KOBO_HOST}/api/v2/assets/TEST5yolfuacxkjibsj7nw/data.json",
+            f"{KOBO_HOST}/api/v2/assets/TEST5yolfuacxkjibsj7nw/data/?format=json&limit=5000&start=0&sort=%7B%22_id%22:-1%7D",
             text=MOCK_TEST_DOWNLOAD_JSON,
         )
 
-        results = download_responses(
+        results, next_page = download_responses(
             "8sw4a4ypxthcyjpjjra7ifr3hbyxsp2ey2bf591g", "TEST5yolfuacxkjibsj7nw"
         )
         assert results.shape[0] == 2
         assert results["_uuid"][0] == "TESTf603-a193-4af3-9321-264096bf8602"
+        assert next_page is None
 
 
 class TestImportCommand:
-    err_msg = "Must specify either --token and --asset_id arguments or " \
-              "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
+    err_msg = (
+        "Must specify either --token and --asset_id arguments or "
+        "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
+    )
 
     @mock.patch.dict(os.environ, {}, clear=True)
     def test_missing_params(self):
@@ -109,7 +112,7 @@ class TestImportCommand:
     @mock.patch.dict(os.environ, {"KOBO_HOST": KOBO_HOST}, clear=True)
     def test_successful_run(self, requests_mock):
         requests_mock.get(
-            f"{KOBO_HOST}/api/v2/assets/TEST5yolfuacxkjibsj7nw/data.json",
+            f"{KOBO_HOST}/api/v2/assets/TEST5yolfuacxkjibsj7nw/data/?format=json&limit=5000&start=0&sort=%7B%22_id%22:-1%7D",
             text=MOCK_TEST_DOWNLOAD_JSON,
         )
 
@@ -128,8 +131,9 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Loaded 2 verbal autopsies from Kobo (0 ignored, " \
-               "0 overwritten, 0 removed as invalid)"
+            == "Loaded 2 verbal autopsies from Kobo\n" \
+            "0 required correction in order to import\n" \
+            "(0 ignored, 0 overwritten, 0 removed as invalid)"
         )
         assert VerbalAutopsy.objects.count() == 2
         va = VerbalAutopsy.objects.get(
@@ -148,10 +152,11 @@ class TestImportCommand:
             stdout=output,
             stderr=output,
         )
-        print(10*'=' + f"{output.getvalue().strip()}" + 10*'=')
+        print(10 * "=" + f"{output.getvalue().strip()}" + 10 * "=")
         assert (
             output.getvalue().strip()
-            == "Loaded 0 verbal autopsies from Kobo (2 ignored, " \
-               "0 overwritten, 0 removed as invalid)"
+            == "Loaded 0 verbal autopsies from Kobo\n" \
+            "0 required correction in order to import\n" \
+            "(2 ignored, 0 overwritten, 0 removed as invalid)"
         )
         assert VerbalAutopsy.objects.count() == 2
