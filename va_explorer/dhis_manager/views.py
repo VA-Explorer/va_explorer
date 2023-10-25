@@ -36,7 +36,7 @@ class IndexView(CustomAuthMixin, PermissionRequiredMixin, TemplateView):
             list1 = list(va_list)
             list1 = [str(i) for i in list1]
 
-            list3 = list()
+            list3 = []
             for x in list1:
                 if x not in events:
                     list3.append(x)

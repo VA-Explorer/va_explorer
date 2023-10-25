@@ -17,7 +17,6 @@ def make_field_workers_for_facilities(facilities=None, num_per_facility=2):
 
 
 def create_demo_field_worker(worker_id, facility=None):
-
     username = f"field_worker_{worker_id}"
 
     user, created = User.objects.get_or_create(

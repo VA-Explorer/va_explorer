@@ -4,7 +4,6 @@ from va_explorer.users.utils.user_form_backend import get_form_fields
 
 
 class Command(BaseCommand):
-
     help = "Utility to get information on all fields in the current user \
             creation form. If planning to bulk create users from CSV, use this \
             command to figure out which settings to define in the file."

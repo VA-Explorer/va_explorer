@@ -20,6 +20,11 @@ MOCK_GET_KOBO_API_TOKEN = {"token": "8sw4a4ypxthcyjpjjra7ifr3hbyxsp2ey2bf591g"}
 
 MOCK_TEST_DOWNLOAD_JSON = (Path(__file__).parent / "kobo-data.json").read_text()
 
+ERR_MSG = (
+    "Must specify either --token and --asset_id arguments or "
+    "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
+)
+
 
 class TestGetToken:
     def test_token(self, requests_mock):
@@ -36,26 +41,23 @@ class TestGetToken:
         requests_mock.get(f"{KOBO_HOST}/token/?format=json", status_code=403)
 
         with pytest.raises(HTTPError):
-            error = get_kobo_api_token("invalid-username", "invalid-password")
-            assert error == {"detail": "Invalid username/password."}
+            assert get_kobo_api_token("invalid-username", "invalid-password") == {
+                "detail": "Invalid username/password."
+            }
 
 
 class TestDownloadResponse:
-    def test_missing_attributes(self, requests_mock):
-        err_msg = "Must specify either --token and --asset_id arguments or \
-            KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
-        # Missing both
-        with pytest.raises(AttributeError) as e:
+    def test_missing_both_attributes(self, requests_mock):
+        with pytest.raises(AttributeError, match=ERR_MSG):
             download_responses(None, None)
-            assert str(e.value) == err_msg
-        # Missing token
-        with pytest.raises(AttributeError) as e:
+
+    def test_missing_token_attribute(self, requests_mock):
+        with pytest.raises(AttributeError, match=ERR_MSG):
             download_responses(None, "TEST5yolfuacxkjibsj7nw")
-            assert str(e.value) == err_msg
-        # Missing asset_id
-        with pytest.raises(AttributeError) as e:
+
+    def test_missing_assetid_attribute(self, requests_mock):
+        with pytest.raises(AttributeError, match=ERR_MSG):
             download_responses("8sw4a4ypxthcyjpjjra7ifr3hbyxsp2ey2bf591g", None)
-            assert str(e.value) == err_msg
 
     def test_download_responses(self, requests_mock):
         requests_mock.get(
@@ -72,11 +74,6 @@ class TestDownloadResponse:
 
 
 class TestImportCommand:
-    err_msg = (
-        "Must specify either --token and --asset_id arguments or "
-        "KOBO_API_TOKEN and KOBO_ASSET_ID environment variables."
-    )
-
     @mock.patch.dict(os.environ, {}, clear=True)
     def test_missing_params(self):
         output = StringIO()
@@ -85,7 +82,7 @@ class TestImportCommand:
             stdout=output,
             stderr=output,
         )
-        assert output.getvalue().strip() == self.err_msg
+        assert output.getvalue().strip() == ERR_MSG
 
     @mock.patch.dict(os.environ, {}, clear=True)
     def test_missing_asset_id(self):
@@ -96,7 +93,7 @@ class TestImportCommand:
             stdout=output,
             stderr=output,
         )
-        assert output.getvalue().strip() == self.err_msg
+        assert output.getvalue().strip() == ERR_MSG
 
     @mock.patch.dict(os.environ, {}, clear=True)
     def test_missing_token(self):
@@ -107,7 +104,7 @@ class TestImportCommand:
             stdout=output,
             stderr=output,
         )
-        assert output.getvalue().strip() == self.err_msg
+        assert output.getvalue().strip() == ERR_MSG
 
     @mock.patch.dict(os.environ, {"KOBO_HOST": KOBO_HOST}, clear=True)
     def test_successful_run(self, requests_mock):
@@ -130,9 +127,8 @@ class TestImportCommand:
             stderr=output,
         )
         assert (
-            output.getvalue().strip()
-            == "Loaded 2 verbal autopsies from Kobo\n" \
-            "0 required correction in order to import\n" \
+            output.getvalue().strip() == "Loaded 2 verbal autopsies from Kobo "
+            "0 required correction in order to import "
             "(0 ignored, 0 overwritten, 0 removed as invalid)"
         )
         assert VerbalAutopsy.objects.count() == 2
@@ -154,9 +150,8 @@ class TestImportCommand:
         )
         print(10 * "=" + f"{output.getvalue().strip()}" + 10 * "=")
         assert (
-            output.getvalue().strip()
-            == "Loaded 0 verbal autopsies from Kobo\n" \
-            "0 required correction in order to import\n" \
+            output.getvalue().strip() == "Loaded 0 verbal autopsies from Kobo "
+            "0 required correction in order to import "
             "(2 ignored, 0 overwritten, 0 removed as invalid)"
         )
         assert VerbalAutopsy.objects.count() == 2

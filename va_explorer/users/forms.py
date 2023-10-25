@@ -66,7 +66,6 @@ def validate_location_access(form, geographic_access, location_restrictions, gro
 # core logic/steps to set user fields based on form data. Used in both UserCreation
 # and ExtendedUserCreation forms
 def process_user_data(user, cleaned_data):
-
     # set user location restrictions
     location_restrictions = get_location_restrictions(cleaned_data)
     user.location_restrictions.set(location_restrictions)

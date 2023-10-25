@@ -80,13 +80,13 @@ class VAFilter(FilterSet):
         if value:
             threshold = 75
             vas = queryset.values("id", "Id10017", "Id10018")
-            matches = [ 
-                va.get("id") 
-                for va in vas 
+            matches = [
+                va.get("id")
+                for va in vas
                 if fuzz.token_set_ratio(
-                    value, 
-                    " ".join([va.get("Id10017"), va.get("Id10018")])
-                ) > threshold 
+                    value, " ".join([va.get("Id10017"), va.get("Id10018")])
+                )
+                > threshold
             ]
             return queryset.filter(id__in=matches)
         return queryset

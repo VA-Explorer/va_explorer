@@ -12,7 +12,7 @@ NULL_STRINGS = ["nan", "dk"]
 
 # helper method to parse dates in a variety of formats
 def parse_date(date_str, formats=DATE_FORMATS, strict=False, return_format="%Y-%m-%d"):
-    if type(date_str) is str:
+    if isinstance(date_str, str):
         if len(date_str) == 0 or date_str.lower() in ["dk", "nan"]:
             return "dk"
         else:
@@ -22,7 +22,10 @@ def parse_date(date_str, formats=DATE_FORMATS, strict=False, return_format="%Y-%
                     # remove any excessive decimals at end of string
                     date_str = date_str.split(".")[0]
                     return (
-                        datetime.strptime(date_str, fmt).date().strftime(return_format)
+                        datetime.strptime(date_str, fmt)
+                        .astimezone()
+                        .date()
+                        .strftime(return_format)
                     )
                 except ValueError:
                     pass
@@ -49,7 +52,7 @@ def parse_date(date_str, formats=DATE_FORMATS, strict=False, return_format="%Y-%
 
 # vectorized method to extract dates from datetime strings
 def to_dt(dates, utc=True):
-    if type(dates) is list:
+    if isinstance(dates, list):
         dates = pd.Series(dates)
     return pd.to_datetime(
         pd.to_datetime(dates, errors="coerce", utc=utc).dt.date, errors="coerce"

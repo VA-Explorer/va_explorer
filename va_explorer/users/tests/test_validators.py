@@ -19,25 +19,25 @@ class TestPasswordComplexityValidator(TestCase):
         self.validator = PasswordComplexityValidator()
 
     def test_rejects_no_number(self):
-        with self.assertRaisesRegex(ValidationError, "number"):
+        with pytest.raises(ValidationError, match="number"):
             self.validator.validate("Password!", self.user)
 
     def test_rejects_no_lower(self):
-        with self.assertRaisesRegex(ValidationError, "lowercase"):
+        with pytest.raises(ValidationError, match="lowercase"):
             self.validator.validate("PASSWORD!", self.user)
 
     def test_rejects_no_upper(self):
-        with self.assertRaisesRegex(ValidationError, "uppercase"):
+        with pytest.raises(ValidationError, match="uppercase"):
             self.validator.validate("password!", self.user)
 
     def test_rejects_no_special(self):
-        with self.assertRaisesRegex(ValidationError, "nonalphanumeric"):
+        with pytest.raises(ValidationError, match="nonalphanumeric"):
             self.validator.validate("Password", self.user)
 
     def test_rejects_multiple(self):
         # Expect no_number, no_upper, and no_special in that order
-        with self.assertRaisesRegex(
-            ValidationError, "(number).*(uppercase).*(nonalphanumeric)"
+        with pytest.raises(
+            ValidationError, match="(number).*(uppercase).*(nonalphanumeric)"
         ):
             self.validator.validate("pass", self.user)
 
@@ -64,7 +64,7 @@ class TestPasswordHistoryValidator(TestCase):
             self.user.set_password(f"test{i}")
             self.user.save()
 
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.validator.validate("test7", self.user)
 
     def test_keeps_limited_history(self):

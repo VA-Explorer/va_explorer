@@ -6,7 +6,6 @@ from va_explorer.users.utils.user_form_backend import create_users_from_file
 
 
 class Command(BaseCommand):
-
     help = "Create user accounts, assigning a temporary password, given a csv \
             file that has at a minimum email, user group, and location \
             restriction information but can also add any permission information \

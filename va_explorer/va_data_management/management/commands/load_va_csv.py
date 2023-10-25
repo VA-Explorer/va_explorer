@@ -7,7 +7,6 @@ from va_explorer.va_data_management.utils.loading import load_records_from_dataf
 
 
 class Command(BaseCommand):
-
     help = "Loads a verbal autopsy CSV file into the database"
 
     def add_arguments(self, parser):
@@ -25,6 +24,6 @@ class Command(BaseCommand):
         num_outdated = len(results["outdated"])
 
         self.stdout.write(
-            f"Loaded {num_created} verbal autopsies from CSV " \
+            f"Loaded {num_created} verbal autopsies from CSV "
             f"({num_ignored} ignored, {num_outdated} removed as outdated)"
         )

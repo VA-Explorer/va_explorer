@@ -72,13 +72,12 @@ class Command(BaseCommand):
         )  # [:30]
 
         # create a list of available VA IDs to help during filtering queries
-        va_not_in_dhis = list()
+        va_not_in_dhis = []
         for va in va_data:
             va_not_in_dhis.append(va.id)
         va_not_in_dhis = [str(i) for i in va_not_in_dhis]
 
         if len(va_not_in_dhis) > 0:
-
             # load VAs with causes
             cod = CauseOfDeath.objects.filter(
                 verbalautopsy_id__in=va_not_in_dhis
@@ -93,7 +92,7 @@ class Command(BaseCommand):
 
             cod_va = cod.join(va_df, how="outer")
 
-            va_data = [dict([(f"-{k}", v) for k, v in d.items()]) for d in va_data]
+            va_data = [{f"-{k}": v for k, v in d.items()} for d in va_data]
             va_data_csv = pd.DataFrame.from_records(va_data).to_csv()
 
             # Transform to algorithm format using the pyCrossVA web service
@@ -304,7 +303,7 @@ class Command(BaseCommand):
         )
         r = requests.get(url, auth=auth)
         jn = r.json()
-        list1 = list()
+        list1 = []
         for i in range(events_num):
             cols = len(jn["events"][i]["dataValues"])
             for j in range(cols):

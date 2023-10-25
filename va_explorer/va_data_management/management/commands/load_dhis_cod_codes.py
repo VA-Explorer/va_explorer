@@ -7,7 +7,6 @@ from va_explorer.va_data_management.models import CODCodesDHIS
 
 
 class Command(BaseCommand):
-
     help = (
         "Loads COD codes necessary for dhis2 export into the database from a CSV file"
     )

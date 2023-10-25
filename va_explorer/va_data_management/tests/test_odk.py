@@ -110,31 +110,34 @@ class TestGetProjectID:
 
     def test_missing_project_name(self, requests_mock):
         requests_mock.get(f"{ODK_HOST}/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID)
+        token = {"Authorization": "Bearer test"}
 
-        with pytest.raises(ValueError):
-            token = {"Authorization": "Bearer test"}
+        with pytest.raises(
+            ValueError,
+            match="No projects with name 'nothing-here' were returned from ODK",
+        ):
             get_odk_project_id(token, "nothing-here")
 
 
 class TestGetForm:
     def test_blank_response(self, requests_mock):
         requests_mock.get(f"{ODK_HOST}/v1/projects/1234/forms", json=[])
+        token = {"Authorization": "Bearer test"}
 
-        with pytest.raises(ValueError) as e:
-            token = {"Authorization": "Bearer test"}
+        with pytest.raises(
+            ValueError,
+            match="No forms for project with ID '1234' were returned from ODK.",
+        ):
             get_odk_form(token, 1234, form_id="va_who_v1_5_2")
-        assert (
-            str(e.value)
-            == "No forms for project with ID '1234' were returned from ODK."
-        )
 
     def test_missing_name_and_id(self, requests_mock):
         requests_mock.get(f"{ODK_HOST}/v1/projects/34/forms", json=MOCK_GET_ODK_FORM)
+        token = {"Authorization": "Bearer test"}
 
-        with pytest.raises(AttributeError) as e:
-            token = {"Authorization": "Bearer test"}
+        with pytest.raises(
+            AttributeError, match="Must specify either form_name or form_id argument."
+        ):
             get_odk_form(token, 34)
-        assert str(e.value) == "Must specify either form_name or form_id argument."
 
     def test_get_by_id(self, requests_mock):
         requests_mock.get(f"{ODK_HOST}/v1/projects/34/forms", json=MOCK_GET_ODK_FORM)
@@ -169,12 +172,11 @@ class TestGetForm:
         requests_mock.get(f"{ODK_HOST}/v1/projects/34/forms", json=MOCK_GET_ODK_FORM)
 
         token = {"Authorization": "Bearer test"}
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(
+            ValueError,
+            match="No forms found with name 'bad name' or ID 'bad-id' were found in ODK.",
+        ):
             get_odk_form(token, 34, form_id="bad-id", form_name="bad name")
-        assert (
-            str(e.value)
-            == "No forms found with name 'bad name' or ID 'bad-id' were found in ODK."
-        )
 
 
 class TestDownloadResponse:
@@ -183,32 +185,32 @@ class TestDownloadResponse:
         requests_mock.get(f"{ODK_HOST}/v1/projects/", json=MOCK_GET_ODK_PROJECT_ID)
 
         # No project or form causes an error.
-        with pytest.raises(AttributeError) as e:
+        with pytest.raises(
+            AttributeError,
+            match="Must specify either project_name or project_id argument.",
+        ):
             download_responses("email", "password")
-            assert (
-                str(e.value)
-                == "Must specify either project_name or project_id argument."
-            )
 
         # No form_id or form_name causes an error.
-        with pytest.raises(AttributeError) as e:
+        with pytest.raises(
+            AttributeError, match="Must specify either form_name or form_id argument."
+        ):
             download_responses("email", "password", project_id="123")
-            assert str(e.value) == "Must specify either form_name or form_id argument."
 
         # No project_id or project_name causes an error.
-        with pytest.raises(AttributeError) as e:
+        with pytest.raises(
+            AttributeError,
+            match="Must specify either project_name or project_id argument.",
+        ):
             download_responses("email", "password", form_id="123")
-            assert (
-                str(e.value)
-                == "Must specify either project_name or project_id argument."
-            )
 
         # Good project and form, but bad format causes an error.
-        with pytest.raises(AttributeError):
+        with pytest.raises(
+            AttributeError, match="The fmt argument must either be json or csv."
+        ):
             download_responses(
                 "email", "password", project_id="1234", form_id="123", fmt="xlsx"
             )
-            assert str(e.value) == "The fmt argument must either be json or csv."
 
     @pytest.mark.parametrize(
         "kwargs",
@@ -267,8 +269,8 @@ class TestImportCommand:
         )
         assert (
             output.getvalue().strip()
-            == "Must specify either --email and --password arguments or " \
-                "ODK_EMAIL and ODK_PASSWORD environment variables."
+            == "Must specify either --email and --password arguments or "
+            "ODK_EMAIL and ODK_PASSWORD environment variables."
         )
 
     def test_missing_project(self):

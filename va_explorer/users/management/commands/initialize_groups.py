@@ -72,7 +72,6 @@ class Command(BaseCommand):
 
             for model_class, model_permissions in group_permissions.items():
                 for codename in model_permissions:
-
                     # Get the content type for the given model class.
                     content_type = ContentType.objects.get_for_model(model_class)
 
