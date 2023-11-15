@@ -32,6 +32,8 @@ services:
     environment:
       EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      CELERY_FLOWER_USER: ${CELERY_FLOWER_USER}
+      CELERY_FLOWER_PASSWORD: ${CELERY_FLOWER_PASSWORD}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       POSTGRES_HOST: ${POSTGRES_HOST:-vapostgres}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}

@@ -5,4 +5,4 @@ set -o nounset
 
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
-celery -A config.celery_app.app flower -l INFO
+celery -A config.celery_app.app flower --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}" -l INFO
