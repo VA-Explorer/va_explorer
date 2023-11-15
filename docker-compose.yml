@@ -62,7 +62,8 @@ services:
   flower:
     <<: *django
     # Don't publish ports like django does.
-    ports: []
+    ports:
+      - "5555:5555"
     image: va_explorer/flower
     command: /start-celeryflower
 

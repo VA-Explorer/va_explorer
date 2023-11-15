@@ -16,14 +16,22 @@ def build_location_mapper(
 ):
     if va_locations and len(va_locations) > 0:
         # store database locations of type location_type in a df
-        if not db_locations:
-            db_locations = list(
-                Location.objects.filter(location_type=loc_type).values_list(
-                    "name", flat=True
+        try:
+            if not db_locations:
+                db_locations = list(
+                    Location.objects.filter(location_type=loc_type).values_list(
+                        "name", flat=True
+                    )
                 )
-            )
+            if len(db_locations) == 0:
+                raise RuntimeWarning(
+                    "No known facilities found. Have you initialized location data?"
+                )
+        except RuntimeWarning as warn:
+            print("%s", warn)
+
         location_df = pd.DataFrame({"name": db_locations}).assign(
-            key=lambda df: df["name"].str.lower()
+            key=lambda df: df["name"].astype(str).str.lower()
         )
 
         # store unique va_locations in mapper dataframe

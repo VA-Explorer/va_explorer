@@ -23,7 +23,7 @@ User = get_user_model()
 
 
 # load VA records into django database
-def load_records_from_dataframe(record_df, random_locations=False, debug=True):
+def load_records_from_dataframe(record_df, random_locations=False, debug=False):
     logger = None if not debug else logging.getLogger("debug")
     if logger:
         header = "=" * 10 + "DATA INGEST" + "=" * 10
@@ -134,7 +134,8 @@ def load_records_from_dataframe(record_df, random_locations=False, debug=True):
 
     # build location mapper to map csv locations to known db locations
     if "hospital" in record_df.columns:
-        location_map = build_location_mapper(record_df["hospital"].unique().tolist())
+        hospitals = record_df["hospital"].unique().tolist()
+        location_map = build_location_mapper(hospitals)
 
     # if random locations, assign random locations via a random field worker.
     if random_locations:
