@@ -70,6 +70,16 @@ documented below.
       `Django caching solution <https://docs.djangoproject.com/en/4.1/topics/cache/>`_.
       Default allows VA Explorer to take advantage of same redis
       available as celery backend so is often the same value.
+
+  * - ``CELERY_FLOWER_USER``
+    - Not Set
+    - Value indicating the username needed by the basic auth prompt that shows when
+      attempting to access the celery flower interface. Not set by default.
+
+  * - ``CELERY_FLOWER_PASSWORD``
+    - Not Set
+    - Value indicating the password needed by the basic auth prompt that shows when
+      attempting to access the celery flower interface. Not set by default.
 ````
 
 % Comment: We break the table in half here because the pdf rendering was flying off the page
