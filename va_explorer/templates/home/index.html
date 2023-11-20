@@ -60,20 +60,13 @@
 <div class="row mt-4">
   <div class="col">
     <h2 class="mb-4">Verbal Autopsy Actions</h2>
-      {% if is_production %}
-        <form method="post" action="{% url 'data_management:run_coding_algorithms' %}">
-          {% csrf_token %}
-          <button class="btn btn-primary" type="submit">
-            <i class="fas fa-file-prescription"></i>
-            &nbsp;Run Coding Algorithms
-          </button>
-        </form>
-      {% else %}
-        <button class="btn btn-primary" disabled title="Only available in production">
+      <form method="post" action="{% url 'data_management:run_coding_algorithms' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit">
           <i class="fas fa-file-prescription"></i>
           &nbsp;Run Coding Algorithms
         </button>
-      {% endif %}
+      </form>
   </div>
 </div>
 {% endif %}
