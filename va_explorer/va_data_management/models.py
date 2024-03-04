@@ -30,6 +30,9 @@ class Location(MP_Node):
     # implementation for efficiency of tree operations
     name = models.TextField()
     location_type = models.TextField()
+    is_active = models.BooleanField(default=False)
+    key = models.TextField(blank=True)
+    path_string = models.TextField(unique=True, null=True)
     node_order_by = ["name"]
 
     # A user can have their access scoped by one or more locations
@@ -40,7 +43,7 @@ class Location(MP_Node):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} (is_active: {self.is_active})"
 
     def get_descendant_ids(self):
         return [descendant.id for descendant in self.get_descendants()]
