@@ -238,10 +238,7 @@ as individuals described below.</p>
 <h3>Loading Locations for Geographic Access Support<a class="headerlink" href="#loading-locations-for-geographic-access-support" title="Permalink to this heading">#</a></h3>
 <p>To set up VA Explorer for the Geographic Access mentioned in that section, you
 must load location data into the system.</p>
-<p>Locations in VA Explorer follow a hierarchical structure. A specific geographic
-region or jurisdiction has a name (“Name”), a type (“Type”), and a parent
-(“Parent”). By specifying the Parent field, you can achieve the arbitrary level
-of nesting required to make a tree.</p>
+<p>Locations in VA Explorer follow an assumed three-level hierarchical structure by which each facility or hospital maps to an associated Level 2 (“District”) and Level 1 (“Province) hierarchy. Each facility also has a corresponding <code class="docutils literal notranslate"><span class="pre">key</span></code>, which represents the XML option used in the dropdown list within ODK or Kobo, and a <code class="docutils literal notranslate"><span class="pre">status</span></code> which indicates if the Facility is actively producing VAs or not.</p>
 <p>The table below shows an example location hierarchy for States, Counties, and
 Cities in the United States. In this example, we have one state (California), two
 counties (Marin and Los Angeles), and three cities (Sausalito, San Rafael, and
@@ -250,55 +247,82 @@ Los Angeles).</p>
 <table class="docutils align-default" id="id1">
 <caption><span class="caption-text">An example geographic hierarchy in tabular format</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Type</p></th>
-<th class="head"><p>Parent</p></th>
+<tr class="row-odd"><th class="head"><p>Province</p></th>
+<th class="head"><p>District</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Key</p></th>
+<th class="head"><p>Status</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>California</p></td>
-<td><p>State</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>Marin County</p></td>
-<td><p>County</p></td>
-<td><p>California</p></td>
-</tr>
-<tr class="row-even"><td><p>Sausalito</p></td>
-<td><p>City</p></td>
 <td><p>Marin County</p></td>
+<td><p>Sausalito Hospital</p></td>
+<td><p>sausalito_hospital</p></td>
+<td><p>True</p></td>
 </tr>
-<tr class="row-odd"><td><p>San Rafael</p></td>
-<td><p>City</p></td>
+<tr class="row-odd"><td><p>California</p></td>
 <td><p>Marin County</p></td>
+<td><p>San Rafael Clinic</p></td>
+<td><p>san_rafael_clinic</p></td>
+<td><p>False</p></td>
 </tr>
-<tr class="row-even"><td><p>Los Angeles County</p></td>
-<td><p>County</p></td>
-<td><p>California</p></td>
-</tr>
-<tr class="row-odd"><td><p>Los Angeles</p></td>
-<td><p>City</p></td>
+<tr class="row-even"><td><p>California</p></td>
 <td><p>Los Angeles County</p></td>
+<td><p>Los Angeles Hospital</p></td>
+<td><p>los_angeles_hospital</p></td>
+<td><p>True</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/geo_hierarchy.png"><img alt="../_images/geo_hierarchy.png" src="../_images/geo_hierarchy.png" style="width: 75%;" /></a>
-<figcaption>
-<p><span class="caption-text"><small> A tree data structure showing the example geographic hierarchy from the previous table</small></span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
 <p>The input is similarly structured to support any number of geographic hierarchies
 for VA Explorer users. With a <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> file in hand, you can now supplement your initial
 system set up with the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command. Full usage details
-for this are provided in <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a>.</p>
+for this are provided in <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a>. The specification of the input CSV file is as follows:</p>
+<div class="table-wrapper docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Expected columns for the location file</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Specifics</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Province</p></td>
+<td><p>Level 1 Administrative Boundary Name</p></td>
+<td><p>One of the <code class="docutils literal notranslate"><span class="pre">label::English</span></code> values as defined in the VA XLSForm</p></td>
+</tr>
+<tr class="row-odd"><td><p>District</p></td>
+<td><p>Level 2 Administrative Boundary Name</p></td>
+<td><p>One of the <code class="docutils literal notranslate"><span class="pre">label::English</span></code> values as defined in the VA XLSForm</p></td>
+</tr>
+<tr class="row-even"><td><p>Name</p></td>
+<td><p>Facility or Hospital Name</p></td>
+<td><p>One of the <code class="docutils literal notranslate"><span class="pre">label::English</span></code> values as defined in the VA XLSForm</p></td>
+</tr>
+<tr class="row-odd"><td><p>Key</p></td>
+<td><p>Facility or Hospital XML Value</p></td>
+<td><p>The choice name associated with the <code class="docutils literal notranslate"><span class="pre">label::English</span></code> defined in the previous column</p></td>
+</tr>
+<tr class="row-even"><td><p>Status</p></td>
+<td><p>Whether the facility is still actively producing VAs</p></td>
+<td><p>Boolean</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>Following this command, VA Explorer should support geographic restrictions to any
 area or facility you’ve provide, making them available during user creation and
 editing. Note that access to geographies higher up in the given tree equates to
 access for that geographic area as well as all its children-geographies. For
 example, in the above tree a user with access to California also has access to
 Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.</p>
+<section id="updating-locations-in-va-explorer">
+<h4>Updating locations in VA Explorer<a class="headerlink" href="#updating-locations-in-va-explorer" title="Permalink to this heading">#</a></h4>
+<p>When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command.  If a row is deleted from the locations file, it will also be deletd from VA Explorer (and any underlying VA data previously matched to that location will no longer match and have an error).</p>
+</section>
 </section>
 <section id="creating-editing-users">
 <h3>Creating &amp; Editing Users<a class="headerlink" href="#creating-editing-users" title="Permalink to this heading">#</a></h3>
@@ -628,7 +652,10 @@ described for the equivalent environment variables listed in
             <ul>
 <li><a class="reference internal" href="#">The Admin Role</a><ul>
 <li><a class="reference internal" href="#user-admin">User Admin</a><ul>
-<li><a class="reference internal" href="#loading-locations-for-geographic-access-support">Loading Locations for Geographic Access Support</a></li>
+<li><a class="reference internal" href="#loading-locations-for-geographic-access-support">Loading Locations for Geographic Access Support</a><ul>
+<li><a class="reference internal" href="#updating-locations-in-va-explorer">Updating locations in VA Explorer</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#creating-editing-users">Creating &amp; Editing Users</a></li>
 <li><a class="reference internal" href="#deactivating-users">Deactivating Users</a></li>
 <li><a class="reference internal" href="#bulk-creating-users">Bulk Creating Users</a></li>
