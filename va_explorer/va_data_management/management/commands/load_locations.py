@@ -251,8 +251,11 @@ def _process_facility_tree(tree, delete_previous=False):
     extras = set(db_paths) - set(paths)
     if extras:
         for extra in extras:
-            Location.objects.filter(path_string=extra).delete()
-            delete_ct += 1
+            if str(extra).count('/')==4: ##i.e., if it is level 5 (hospital)
+                node = db.get(extra, None)
+                node.is_active = False
+                node.save()
+                delete_ct += 1
 
     # if non existent, add 'Null' location to database to account for VAs with
     # completely unknown locations
@@ -265,4 +268,4 @@ def _process_facility_tree(tree, delete_previous=False):
 
     print(f"  added {location_ct} new locations to system")
     print(f"  updated {update_ct} locations with new data")
-    print(f"  deleted {delete_ct} locations no longer in csv_file")
+    print(f"  marked {delete_ct} locations as inactive")
