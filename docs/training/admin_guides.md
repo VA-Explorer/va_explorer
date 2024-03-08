@@ -22,9 +22,9 @@ Los Angeles).
 ```{csv-table} An example geographic hierarchy in tabular format
 :header-rows: 1
 Province,District,Name,Key,Status
-California,Marin County,Sausalito Hospital, sausalito_hospital, True
-California,Marin County,San Rafael Clinic, san_rafael_clinic, False
-California,Los Angeles County,Los Angeles Hospital, los_angeles_hospital, True
+California,Marin County,Sausalito Hospital, sausalito_hospital, Active
+California,Marin County,San Rafael Clinic, san_rafael_clinic, Inactive
+California,Los Angeles County,Los Angeles Hospital, los_angeles_hospital, Active
 ```
 
 The input is similarly structured to support any number of geographic hierarchies
@@ -39,7 +39,7 @@ Province, Level 1 Administrative Boundary Name, One of the `label::English` valu
 District, Level 2 Administrative Boundary Name, One of the `label::English` values as defined in the VA XLSForm
 Name, Facility or Hospital Name, One of the `label::English` values as defined in the VA XLSForm
 Key, Facility or Hospital XML Value, The choice name associated with the `label::English` defined in the previous column
-Status, Whether the facility is still actively producing VAs, Boolean
+Status, Whether the facility is still actively producing VAs, One of: 'Active' or 'Inactive'
 ```
 
 Following this command, VA Explorer should support geographic restrictions to any
