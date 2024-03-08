@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("csv_file", type=argparse.FileType("r"))
-        parser.add_argument("--delete-previous", type=bool, nargs="?", default=False)
+        parser.add_argument("--delete_previous", type=bool, nargs="?", default=False)
 
     def handle(self, *args, **options):
         print(options)
@@ -145,10 +145,12 @@ def _treeify_facilities(csv_file):
                 d_node = node_lookup[(p_node.name, district)]
             else:
                 d_node = Node(district, location_type="district", parent=p_node)
+                node_lookup[tuple([p_node.name, district])] = d_node
                 node_lookup[(p_node.name, district)] = d_node
 
         if name != "" and d_node is not None:
             if _has_child(d_node, name):
+                f_node = node_lookup[tuple([d_node.name, name])]
                 f_node = node_lookup[(d_node.name, name)]
             else:
                 f_node = Node(name, location_type="facility", parent=d_node)
