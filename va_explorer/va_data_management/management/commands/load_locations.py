@@ -253,9 +253,10 @@ def _process_facility_tree(tree, delete_previous=False):
         for extra in extras:
             if str(extra).count('/')==4: ##i.e., if it is level 5 (hospital)
                 node = db.get(extra, None)
-                node.is_active = False
-                node.save()
-                delete_ct += 1
+                if (node.is_active):
+                    node.is_active = False
+                    node.save()
+                    delete_ct += 1
 
     # if non existent, add 'Null' location to database to account for VAs with
     # completely unknown locations
