@@ -162,7 +162,7 @@ class Show(
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
-        history_pairs = zip(history, history[1:])
+        history_pairs = zip(history, history[1:])  # noqa: B905
         context["diffs"] = [
             new.diff_against(old, excluded_fields=["unique_va_identifier", "duplicate"])
             for (old, new) in history_pairs
