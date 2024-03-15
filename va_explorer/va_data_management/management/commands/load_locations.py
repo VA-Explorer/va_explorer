@@ -5,7 +5,8 @@ import pandas as pd
 from anytree import LevelOrderIter, Node, RenderTree
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from va_data_management.models import Location
+
+from va_explorer.va_data_management.models import Location
 
 required_columns = ["province", "district", "key", "name", "status"]
 missing_column_error_msg = ", ".join(required_columns)
@@ -133,25 +134,25 @@ def _treeify_facilities(csv_file):
         if province != "":
             province = f"{province} Province"
             if _has_child(root, province):
-                p_node = node_lookup[tuple(root.name, province)]
+                p_node = node_lookup[(root.name, province)]
             else:
                 p_node = Node(province, location_type="province", parent=root)
-                node_lookup[tuple(root.name, province)] = p_node
+                node_lookup[(root.name, province)] = p_node
 
         if district != "" and p_node is not None:
             district = f"{district} District"
             if _has_child(p_node, district):
-                d_node = node_lookup[tuple(p_node.name, district)]
+                d_node = node_lookup[(p_node.name, district)]
             else:
                 d_node = Node(district, location_type="district", parent=p_node)
-                node_lookup[tuple(p_node.name, district)] = d_node
+                node_lookup[(p_node.name, district)] = d_node
 
         if name != "" and d_node is not None:
             if _has_child(d_node, name):
-                f_node = node_lookup[tuple(d_node.name, name)]
+                f_node = node_lookup[(d_node.name, name)]
             else:
                 f_node = Node(name, location_type="facility", parent=d_node)
-                node_lookup[tuple(d_node.name, name)] = f_node
+                node_lookup[(d_node.name, name)] = f_node
 
         # Add extra information only when reaching facility level.
         if f_node is not None:

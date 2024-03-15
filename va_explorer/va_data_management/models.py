@@ -43,7 +43,7 @@ class Location(MP_Node):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} (is_active: {self.is_active})"
+        return self.name
 
     def get_descendant_ids(self):
         return [descendant.id for descendant in self.get_descendants()]

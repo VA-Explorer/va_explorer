@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import pandas as pd
 from django.db.models import F
-from pandas._libs.tslibs.offsets import relativedelta
+from pandas.tseries.offsets import DateOffset
 
 from va_explorer.va_data_management.constants import REDACTED_STRING
 from va_explorer.va_data_management.utils.date_parsing import (
@@ -40,7 +40,7 @@ VA_TABLE_ROWS = ["collected", "coded", "uncoded"]
 VA_TABLE_COLUMNS = ["24", "1 week", "1 month", "Overall"]
 VA_GRAPH_TYPES = VA_TABLE_ROWS
 
-MONTHS = [START_MONTH + relativedelta(months=i) for i in range(12)]
+MONTHS = [START_MONTH + DateOffset(months=i) for i in range(12)]
 VA_GRAPH_Y_DATA = 12 * [0.0]
 VA_GRAPH_X_DATA = [month.strftime("%Y-%m") for month in MONTHS]
 
@@ -145,7 +145,7 @@ def get_trends_data(user):
         # Load the VAs that are collected over various periods of time
         vas_24_hours = va_df[va_df["date"] == TODAY].index
         vas_1_week = va_df[va_df["date"] >= (TODAY - timedelta(days=7))].index
-        vas_1_month = va_df[va_df["date"] >= (TODAY - relativedelta(months=1))].index
+        vas_1_month = va_df[va_df["date"] >= (TODAY - DateOffset(months=1))].index
         vas_overall = va_df.sort_values(by="id").index
 
         # Graphs of the past 12 months, not including this month

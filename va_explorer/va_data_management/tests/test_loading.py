@@ -14,7 +14,9 @@ pytestmark = pytest.mark.django_db
 
 def test_loading_from_dataframe():
     # Location gets assigned w/ field hospital by name or by user's default location
-    loc = Location.add_root(name="test location", location_type="facility")
+    loc = Location.add_root(
+        name="Test Location", key="test_location", location_type="facility"
+    )
 
     data = [
         {
@@ -25,7 +27,7 @@ def test_loading_from_dataframe():
             "instancename": "_Dec---name 1---2021-03-21",
             "testing-dashes-Id10007": "name 1",
             "Id10023": "03/01/2021",
-            "hospital": "test location",
+            "hospital": "test_location",
         },
         {
             "instanceid": "instance2",
@@ -35,7 +37,7 @@ def test_loading_from_dataframe():
             "instancename": "_Dec---name 2---2021-03-22",
             "testing-dashes-Id10007": "name 2",
             "Id10023": "dk",
-            "hospital": "test location",
+            "hospital": "test_location",
         },
     ]
 
@@ -58,7 +60,9 @@ def test_loading_from_dataframe():
 def test_loading_from_dataframe_with_ignored():
     # Location gets assigned automatically/randomly.
     # If that changes in loading.py we'll need to change that here too.
-    Location.add_root(name="test location", location_type="facility")
+    Location.add_root(
+        name="Test Location", key="test_location", location_type="facility"
+    )
 
     data = [
         {
@@ -122,7 +126,9 @@ def test_loading_from_dataframe_with_ignored():
 def test_loading_from_dataframe_with_key():
     # Location gets assigned automatically/randomly if hospital is not a facility
     # If that changes in loading.py it needs to change here too
-    loc = Location.add_root(name="test location", location_type="facility")
+    loc = Location.add_root(
+        name="Test Location", key="test_location", location_type="facility"
+    )
 
     data = [
         {
@@ -132,7 +138,7 @@ def test_loading_from_dataframe_with_key():
             "Id10012": "2021-03-21",
             "instancename": "_Dec---name 1---2021-03-21",
             "testing-dashes-Id10007": "name 1",
-            "hospital": "test location",
+            "hospital": "test_location",
         },
         {
             "key": "instance2",
@@ -164,7 +170,9 @@ def test_loading_from_dataframe_with_key():
 def test_load_va_csv_command():
     # Location gets assigned automatically/randomly if hospital is not a facility
     # If that changes in loading.py it needs to change here too
-    Location.add_root(name="test location", location_type="facility")
+    Location.add_root(
+        name="Test Location", key="test_location", location_type="facility"
+    )
 
     # Find path to data file
     test_data = Path(__file__).parent / "test-input-data.csv"
@@ -263,7 +271,5 @@ def test_loading_duplicate_vas(settings):
         == 1
     )
 
-
-# TODO add tests for date of death, location, and age_group
 
 # TODO add tests for date of death, location, and age_group
