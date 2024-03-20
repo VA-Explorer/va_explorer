@@ -186,6 +186,7 @@ generally useful to admins. An even fuller list of these can be found under
   * - ``--delete_previous``
 
   * - :rspan:`1` ``refresh_locations``
+    - None
     - :rspan:`1` Used to refresh the locations assigned to all of the VAs in
       the database if a new location file is loaded into the system using the
       ``load_locations`` management command. This command does not add or 
@@ -194,7 +195,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - :rspan:`1` ``export_locations``
     - ``--output_file``
-    - :rspan:`1` Utility to obtainthe current list of locations in the VA
+    - Utility to obtainthe current list of locations in the VA
       Explorer system in the CSV format with header fields
       corresponding to fields expected by the system. The intended use case
       for this utility is when administrators need to update the location file
@@ -206,7 +207,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - :rspan:`1` ``run_coding_algorithms``
     - ``--overwrite``
-    - :rspan:`1` Used to call supported algorithms for assignment of cause of
+    - Used to call supported algorithms for assignment of cause of
       death to all uncoded verbal autopsies. ``overwrite`` allows this command
       to clear (and save) all existing CoD assignments before running on
       every verbal autopsy regardless of whether it's coded or not. ``True`` or
