@@ -39,7 +39,6 @@ class Command(BaseCommand):
                 .only("name", "key")
                 .values_list("key", "name")
             }    
-        
         changedcount = 0
 
         for va in verbal_autopsies:
@@ -51,7 +50,8 @@ class Command(BaseCommand):
                 changedcount += 1
                 va.location = newva.location
                 va.save_without_historical_record()
-                validate_vas_for_dashboard(va)
+        
+        validate_vas_for_dashboard(verbal_autopsies)
 
 
         print("   changed locations for " + str(changedcount) + " VA(s).")
