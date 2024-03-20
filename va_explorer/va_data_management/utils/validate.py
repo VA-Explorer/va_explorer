@@ -118,7 +118,6 @@ def validate_vas_for_dashboard(verbal_autopsies):
             and va.location.name.casefold() != "unknown"
             and va.hospital.casefold() != "other"
         ):
-
             issue_text = "Warning: VA location was matched to facility known \
                 to be inactive. Consider updating the location to an active \
                 facility instead, or update the facility list."

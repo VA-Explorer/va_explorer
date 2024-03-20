@@ -13,7 +13,6 @@ class Command(BaseCommand):
     #     # parser.add_argument("--random_locations", type=str, nargs="?", default=False)
 
     def handle(self, *args, **options):
-
         # verbal_autopsies = VerbalAutopsy.objects
         count = VerbalAutopsy.objects.count()
         print("Refreshing locations for all " + str(count) + " VAs in the database.")
