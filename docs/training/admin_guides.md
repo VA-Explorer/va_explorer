@@ -185,7 +185,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - ``--delete_previous``
 
-  * - :rspan:`1` ``refresh_locations``
+  * - ``refresh_locations``
     - None
     - Used to refresh the locations assigned to all of the VAs in
       the database if a new location file is loaded into the system using the
@@ -193,7 +193,7 @@ generally useful to admins. An even fuller list of these can be found under
       delete any VAs from the database; it simply remaps the existing VAs
       to the new locations.
 
-  * - :rspan:`1` ``export_locations``
+  * - ``export_locations``
     - ``--output_file``
     - Utility to obtainthe current list of locations in the VA
       Explorer system in the CSV format with header fields
