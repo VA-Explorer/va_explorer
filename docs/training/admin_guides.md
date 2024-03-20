@@ -51,7 +51,7 @@ Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.
 
 #### Updating locations in VA Explorer
 
-When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the `load_locations` management command.  If a row is deleted from the locations file, it will also be deletd from VA Explorer (and any underlying VA data previously matched to that location will no longer match and have an error).
+When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the `load_locations` management command.  If a row is deleted from the locations file, it will also be kept in VA Explorer and marked inactive.  To permanently delete locations in VA Explorer, re-upload a revised location file following the `load_locations` management command with the `--delete_previous` flag. Warning: doing so may delete all VAs in the database, so make sure to backup the system first.
 
 ### Creating & Editing Users
 
@@ -176,7 +176,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - :rspan:`1` ``load_locations``
     - ``--csv_file`` (*)
-    - :rspan:`1` Used to load initial location date data needed to support
+    - :rspan:`1` Used to load initial location data needed to support
       Geographic access. ``csv_file`` is a filename in the local folder or
       ``unix:path`` format location of the file. Can be used with
       ``delete_previous`` to delete existing location data and start fresh with
@@ -184,6 +184,25 @@ generally useful to admins. An even fuller list of these can be found under
       ``False``
 
   * - ``--delete_previous``
+
+  * - :rspan:`1` ``refresh_locations``
+    - :rspan:`1` Used to refresh the locations assigned to all of the VAs in
+      the database if a new location file is loaded into the system using the
+      ``load_locations`` management command. This command does not add or 
+      delete any VAs from the database; it simply remaps the existing VAs
+      to the new locations.
+
+  * - :rspan:`1` ``export_locations``
+    - ``--output_file``
+    - :rspan:`1` Utility to obtainthe current list of locations in the VA
+      Explorer system in the CSV format with header fields
+      corresponding to fields expected by the system. The intended use case
+      for this utility is when administrators need to update the location file
+      by first downloading the existing locations, making any necessary updates,
+      and re-uploading a revised version using ``load_locations``. ``output_file``
+      is a filename or ``unix:path`` format location to save template to. Default is
+      ``locations_[[date]].csv`` where [[date]] is the date and time of export.
+
 
   * - :rspan:`1` ``run_coding_algorithms``
     - ``--overwrite``
