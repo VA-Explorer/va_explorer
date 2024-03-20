@@ -112,8 +112,8 @@ def validate_vas_for_dashboard(verbal_autopsies):
                 issues.append(issue)
 
         # if location is valid but inactive record a warning
-        if va.location and not va.location.is_active and not va.location.name.casefold() == "unknown" and not va.hospital.casefold() == "other":
-            
+        if va.location and not va.location.is_active and va.location.name.casefold() != "unknown" and va.hospital.casefold() != "other":
+
             issue_text = "Warning: VA location was matched to facility known \
                 to be inactive. Consider updating the location to an active \
                 facility instead, or update the facility list."
@@ -143,7 +143,7 @@ def validate_vas_for_dashboard(verbal_autopsies):
 
         # if location is "Unknown" (couldn't find match for provided location)
         # record a warning
-        if va.location and va.location.name.casefold() == "unknown" and not va.hospital.casefold() == "other":
+        if va.location and va.location.name.casefold() == "unknown" and va.hospital.casefold() != "other":
             issue_text = "ERROR: location field (parsed from hospital) did not \
                 match any known facilities in the facility list. VA Explorer set \
                 the location to 'Unknown.'  This VA will not show on \

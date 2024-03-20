@@ -145,12 +145,12 @@ def _treeify_facilities(csv_file):
                 d_node = node_lookup[(p_node.name, district)]
             else:
                 d_node = Node(district, location_type="district", parent=p_node)
-                node_lookup[tuple([p_node.name, district])] = d_node
+                node_lookup[(p_node.name, district)] = d_node
                 node_lookup[(p_node.name, district)] = d_node
 
         if name != "" and d_node is not None:
             if _has_child(d_node, name):
-                f_node = node_lookup[tuple([d_node.name, name])]
+                f_node = node_lookup[(d_node.name, name)]
                 f_node = node_lookup[(d_node.name, name)]
             else:
                 f_node = Node(name, location_type="facility", parent=d_node)
@@ -183,7 +183,7 @@ def _process_facility_tree(tree, delete_previous=False):
         answer = input("Loading a new location file with delete_previous=True may delete all of the VAs currently in the VAE database. By continuining, please make sure you have a backup of all data. Are you sure you want to continue?  yes/no ")
         if answer.upper() in ["Y", "YES"]:
             Location.objects.all().delete()
-        
+
 
     # Only consider fields in both input and Location schema
     db_fields = {field.name for field in Location._meta.get_fields()}
@@ -255,7 +255,7 @@ def _process_facility_tree(tree, delete_previous=False):
     if extras:
         for extra in extras:
             if str(extra).count('/')==4: ##i.e., if it is level 5 (hospital)
-                node = db.get(extra, None)
+                node = db.get(extra)
                 if (node.is_active):
                     node.is_active = False
                     node.save()

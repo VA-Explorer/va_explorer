@@ -36,9 +36,7 @@ class Command(BaseCommand):
             num_issues = len(stats["issues"])
             self.stdout.write(f"DONE. Total time: {time.time() - ti} secs")
             self.stdout.write(
-                "Coded {} verbal autopsies (out of {}) [{} issues]".format(
-                    num_coded, num_total, num_issues
-                )
+                f"Coded {num_coded} verbal autopsies (out of {num_total}) [{num_issues} issues]"
             )
         else:
             print(

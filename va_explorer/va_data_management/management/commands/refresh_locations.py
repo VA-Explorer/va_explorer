@@ -1,6 +1,4 @@
-import argparse
 
-import pandas as pd
 from django.core.management.base import BaseCommand
 
 from va_explorer.va_data_management.models import Location, VerbalAutopsy
@@ -38,19 +36,19 @@ class Command(BaseCommand):
                 for key_name_pair in Location.objects.filter(key__in=hospitals)
                 .only("name", "key")
                 .values_list("key", "name")
-            }    
+            }
         changedcount = 0
 
         for va in verbal_autopsies:
             oldlocation = va.location
             newva = assign_va_location(va, location_map)
             newlocation = newva.location
-            
+
             if oldlocation != newlocation:
                 changedcount += 1
                 va.location = newva.location
                 va.save_without_historical_record()
-        
+
         validate_vas_for_dashboard(verbal_autopsies)
 
 

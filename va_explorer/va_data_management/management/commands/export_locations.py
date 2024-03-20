@@ -1,12 +1,10 @@
-import argparse
+
+from datetime import datetime
 
 import pandas as pd
-from datetime import datetime
 from django.core.management.base import BaseCommand
 
-from va_explorer.va_data_management.models import Location, VerbalAutopsy
-from va_explorer.va_data_management.utils.location_assignment import assign_va_location
-from va_explorer.va_data_management.utils.validate import validate_vas_for_dashboard
+from va_explorer.va_data_management.models import Location
 
 
 class Command(BaseCommand):
@@ -18,8 +16,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        location_map = {}
-        count = Location.objects.count()
         locations = list(
            Location.objects.filter(location_type = "facility").all()
         )
@@ -28,8 +24,8 @@ class Command(BaseCommand):
         loc_df = pd.DataFrame(
             {'path_string':keys}
             )
-        
-        loc_df[['null', 'country', 'province', 'district', 'name']] = loc_df['path_string'].str.split('\/', expand=True)
+
+        loc_df[['null', 'country', 'province', 'district', 'name']] = loc_df['path_string'].str.split(r'\/', expand=True)
 
         loc_df["key"] = ""
         loc_df["status"] = ""
@@ -43,10 +39,9 @@ class Command(BaseCommand):
 
         loc_df = loc_df.drop(columns=['path_string', 'null', 'country'])
 
-        loc_df = loc_df.loc[loc_df['name'] != "Unknown"]
+        loc_df = loc_df.loc[(loc_df['name'].notnull()) & (loc_df['province'].notnull()) & (loc_df['district'].notnull()) ]
 
-        loc_df = loc_df[["province", "district", "name", "key", "status"]] 
-
+        loc_df = loc_df[["province", "district", "name", "key", "status"]]
 
         fname = options["output_file"]
 
