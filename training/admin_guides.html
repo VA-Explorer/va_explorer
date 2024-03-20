@@ -321,7 +321,7 @@ example, in the above tree a user with access to California also has access to
 Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.</p>
 <section id="updating-locations-in-va-explorer">
 <h4>Updating locations in VA Explorer<a class="headerlink" href="#updating-locations-in-va-explorer" title="Permalink to this heading">#</a></h4>
-<p>When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command.  If a row is deleted from the locations file, it will also be deletd from VA Explorer (and any underlying VA data previously matched to that location will no longer match and have an error).</p>
+<p>When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command.  If a row is deleted from the locations file, it will also be kept in VA Explorer and marked inactive.  To permanently delete locations in VA Explorer, re-upload a revised location file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command with the <code class="docutils literal notranslate"><span class="pre">--delete_previous</span></code> flag. Warning: doing so may delete all VAs in the database, so make sure to backup the system first.</p>
 </section>
 </section>
 <section id="creating-editing-users">
@@ -443,7 +443,7 @@ specific location restrictions. <code class="docutils literal notranslate"><span
 </tr>
 <tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">load_locations</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">--csv_file</span></code> (*)</p></td>
-<td rowspan="2"><p> Used to load initial location date data needed to support
+<td rowspan="2"><p> Used to load initial location data needed to support
 Geographic access. <code class="docutils literal notranslate"><span class="pre">csv_file</span></code> is a filename in the local folder or
 <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location of the file. Can be used with
 <code class="docutils literal notranslate"><span class="pre">delete_previous</span></code> to delete existing location data and start fresh with
@@ -452,16 +452,35 @@ the new locations being loaded. <code class="docutils literal notranslate"><span
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--delete_previous</span></code></p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refresh_locations</span></code></p></td>
+<td><p>None</p></td>
+<td><p>Used to refresh the locations assigned to all of the VAs in
+the database if a new location file is loaded into the system using the
+<code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command. This command does not add or
+delete any VAs from the database; it simply remaps the existing VAs
+to the new locations.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">export_locations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--output_file</span></code></p></td>
+<td><p>Utility to obtainthe current list of locations in the VA
+Explorer system in the CSV format with header fields
+corresponding to fields expected by the system. The intended use case
+for this utility is when administrators need to update the location file
+by first downloading the existing locations, making any necessary updates,
+and re-uploading a revised version using <code class="docutils literal notranslate"><span class="pre">load_locations</span></code>. <code class="docutils literal notranslate"><span class="pre">output_file</span></code>
+is a filename or <code class="docutils literal notranslate"><span class="pre">unix:path</span></code> format location to save template to. Default is
+<code class="docutils literal notranslate"><span class="pre">locations_[[date]].csv</span></code> where [[date]] is the date and time of export.</p></td>
+</tr>
 <tr class="row-odd"><td rowspan="2"><p> <code class="docutils literal notranslate"><span class="pre">run_coding_algorithms</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">--overwrite</span></code></p></td>
-<td rowspan="2"><p> Used to call supported algorithms for assignment of cause of
+<td><p>Used to call supported algorithms for assignment of cause of
 death to all uncoded verbal autopsies. <code class="docutils literal notranslate"><span class="pre">overwrite</span></code> allows this command
 to clear (and save) all existing CoD assignments before running on
 every verbal autopsy regardless of whether it’s coded or not. <code class="docutils literal notranslate"><span class="pre">True</span></code> or
 <code class="docutils literal notranslate"><span class="pre">False</span></code>; defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> <code class="docutils literal notranslate"><span class="pre">cod_fname</span></code> is a filename or unix:path
 format location to save the old CoDs to. Defaults to <code class="docutils literal notranslate"><span class="pre">old_cod_mapping.csv</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--cod_fname</span></code></p></td>
+<tr class="row-even"><td colspan="2"><p><code class="docutils literal notranslate"><span class="pre">--cod_fname</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">get_user_form</span>
 <span class="pre">_template</span></code></p></td>
