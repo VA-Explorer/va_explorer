@@ -180,7 +180,10 @@ def _process_facility_tree(tree, delete_previous=False):
     """
     # Clear out existing locations if requested (typically for initialization only)
     if delete_previous:
-        Location.objects.all().delete()
+        answer = input("Loading a new location file with delete_previous=True may delete all of the VAs currently in the VAE database. By continuining, please make sure you have a backup of all data. Are you sure you want to continue?  yes/no ")
+        if answer.upper() in ["Y", "YES"]:
+            Location.objects.all().delete()
+        
 
     # Only consider fields in both input and Location schema
     db_fields = {field.name for field in Location._meta.get_fields()}
