@@ -85,7 +85,8 @@ def load_va_data(
                 user_vas_filtered.annotate(
                     district_name=Subquery(
                         Location.objects.values("name").filter(
-                            Q(path=Substr(OuterRef("location__path"), 1, 12)), Q(depth=3)
+                            Q(path=Substr(OuterRef("location__path"), 1, 12)),
+                            Q(depth=3),
                         )[:1]
                     )
                 )

@@ -77,14 +77,14 @@ def get_context_for_va_table(va_list, user):
             "id": va.id,
             "deceased": f"{va.Id10017} {va.Id10018}",
             "interviewer": va.Id10010,
-            "interviewed": parse_date(va.Id10012)
-            if (va.Id10012 != "dk")
-            else "Unknown",
+            "interviewed": (
+                parse_date(va.Id10012) if (va.Id10012 != "dk") else "Unknown"
+            ),
             "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
             "facility": va.location.name if va.location else "Not Provided",
-            "cause": va.causes.all()[0].cause
-            if len(va.causes.all()) > 0
-            else "Not Coded",
+            "cause": (
+                va.causes.all()[0].cause if len(va.causes.all()) > 0 else "Not Coded"
+            ),
             "warnings": len(
                 [
                     issue

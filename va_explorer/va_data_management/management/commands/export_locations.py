@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 import pandas as pd
@@ -12,34 +11,41 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--output_file", type=str, nargs="?", default="locations_"+datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")+".csv"
+            "--output_file",
+            type=str,
+            nargs="?",
+            default="locations_"
+            + datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+            + ".csv",
         )
 
     def handle(self, *args, **options):
-        locations = list(
-           Location.objects.filter(location_type = "facility").all()
-        )
+        locations = list(Location.objects.filter(location_type="facility").all())
 
         keys = [location.path_string for location in locations]
-        loc_df = pd.DataFrame(
-            {'path_string':keys}
-            )
+        loc_df = pd.DataFrame({"path_string": keys})
 
-        loc_df[['null', 'country', 'province', 'district', 'name']] = loc_df['path_string'].str.split(r'\/', expand=True)
+        loc_df[["null", "country", "province", "district", "name"]] = loc_df[
+            "path_string"
+        ].str.split(r"\/", expand=True)
 
         loc_df["key"] = ""
         loc_df["status"] = ""
 
         for _, row in loc_df.iterrows():
-            loc = Location.objects.filter(path_string = row["path_string"])
+            loc = Location.objects.filter(path_string=row["path_string"])
             row["key"] = [location.key for location in loc][0]
 
             status_b = [location.is_active for location in loc][0]
-            row["status"] = "Active" if status_b  else "Inactive"
+            row["status"] = "Active" if status_b else "Inactive"
 
-        loc_df = loc_df.drop(columns=['path_string', 'null', 'country'])
+        loc_df = loc_df.drop(columns=["path_string", "null", "country"])
 
-        loc_df = loc_df.loc[(loc_df['name'].notnull()) & (loc_df['province'].notnull()) & (loc_df['district'].notnull()) ]
+        loc_df = loc_df.loc[
+            (loc_df["name"].notnull())
+            & (loc_df["province"].notnull())
+            & (loc_df["district"].notnull())
+        ]
 
         loc_df = loc_df[["province", "district", "name", "key", "status"]]
 

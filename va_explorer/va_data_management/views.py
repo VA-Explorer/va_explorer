@@ -115,9 +115,9 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "deceased": va["deceased"],
                 "interviewer": va["Id10010"],
                 "interviewed": parse_date(va["Id10012"]),
-                "dod": parse_date(va["Id10023"])
-                if (va["Id10023"] != "dk")
-                else "Unknown",
+                "dod": (
+                    parse_date(va["Id10023"]) if (va["Id10023"] != "dk") else "Unknown"
+                ),
                 "facility": va["location__name"],
                 "cause": va["causes__cause"],
                 "warnings": va["warnings"],

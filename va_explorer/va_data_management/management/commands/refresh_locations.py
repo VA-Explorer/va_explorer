@@ -1,4 +1,3 @@
-
 from django.core.management.base import BaseCommand
 
 from va_explorer.va_data_management.models import Location, VerbalAutopsy
@@ -21,9 +20,7 @@ class Command(BaseCommand):
 
         location_map = {}
 
-        verbal_autopsies = list(
-           VerbalAutopsy.objects.filter()[0:count]
-        )
+        verbal_autopsies = list(VerbalAutopsy.objects.filter()[0:count])
 
         # build location mapper to map csv locations to known db locations
         h = [va.hospital for va in verbal_autopsies]
@@ -32,11 +29,11 @@ class Command(BaseCommand):
         [hospitals.append(x) for x in h if x not in hospitals]
 
         location_map = {
-                key_name_pair[0]: key_name_pair[1]
-                for key_name_pair in Location.objects.filter(key__in=hospitals)
-                .only("name", "key")
-                .values_list("key", "name")
-            }
+            key_name_pair[0]: key_name_pair[1]
+            for key_name_pair in Location.objects.filter(key__in=hospitals)
+            .only("name", "key")
+            .values_list("key", "name")
+        }
         changedcount = 0
 
         for va in verbal_autopsies:
@@ -50,6 +47,5 @@ class Command(BaseCommand):
                 va.save_without_historical_record()
 
         validate_vas_for_dashboard(verbal_autopsies)
-
 
         print("   changed locations for " + str(changedcount) + " VA(s).")

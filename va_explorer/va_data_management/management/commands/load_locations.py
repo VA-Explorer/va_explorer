@@ -180,10 +180,11 @@ def _process_facility_tree(tree, delete_previous=False):
     """
     # Clear out existing locations if requested (typically for initialization only)
     if delete_previous:
-        answer = input("Loading a new location file with delete_previous=True may delete all of the VAs currently in the VAE database. By continuining, please make sure you have a backup of all data. Are you sure you want to continue?  yes/no ")
+        answer = input(
+            "Loading a new location file with delete_previous=True may delete all of the VAs currently in the VAE database. By continuining, please make sure you have a backup of all data. Are you sure you want to continue?  yes/no "
+        )
         if answer.upper() in ["Y", "YES"]:
             Location.objects.all().delete()
-
 
     # Only consider fields in both input and Location schema
     db_fields = {field.name for field in Location._meta.get_fields()}
@@ -254,9 +255,9 @@ def _process_facility_tree(tree, delete_previous=False):
     extras = set(db_paths) - set(paths)
     if extras:
         for extra in extras:
-            if str(extra).count('/')==4: ##i.e., if it is level 5 (hospital)
+            if str(extra).count("/") == 4:  ##i.e., if it is level 5 (hospital)
                 node = db.get(extra)
-                if (node.is_active):
+                if node.is_active:
                     node.is_active = False
                     node.save()
                     delete_ct += 1
