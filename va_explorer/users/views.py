@@ -109,9 +109,9 @@ class UserUpdateView(
             if self.get_object().location_restrictions.exists()
             else "national"
         )
-        initial["facility_restrictions"] = (
-            self.get_object().location_restrictions.filter(location_type="facility")
-        )
+        initial[
+            "facility_restrictions"
+        ] = self.get_object().location_restrictions.filter(location_type="facility")
 
         initial["view_pii"] = self.get_object().can_view_pii
         initial["download_data"] = self.get_object().can_download_data
