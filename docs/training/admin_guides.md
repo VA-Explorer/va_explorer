@@ -187,7 +187,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - :rspan:`1` ``refresh_locations``
     - None
-    - :rspan:`1` Used to refresh the locations assigned to all of the VAs in
+    - Used to refresh the locations assigned to all of the VAs in
       the database if a new location file is loaded into the system using the
       ``load_locations`` management command. This command does not add or 
       delete any VAs from the database; it simply remaps the existing VAs
