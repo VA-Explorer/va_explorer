@@ -30,7 +30,7 @@ class Command(BaseCommand):
         loc_df["key"] = ""
         loc_df["status"] = ""
 
-        for index, row in loc_df.iterrows():
+        for _, row in loc_df.iterrows():
             loc = Location.objects.filter(path_string = row["path_string"])
             row["key"] = [location.key for location in loc][0]
 
