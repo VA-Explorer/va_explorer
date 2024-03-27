@@ -12,7 +12,12 @@ as individuals described below.
 To set up VA Explorer for the Geographic Access mentioned in that section, you
 must load location data into the system.
 
-Locations in VA Explorer follow an assumed three-level hierarchical structure by which each facility or hospital maps to an associated Level 2 ("District") and Level 1 ("Province) hierarchy. Each facility also has a corresponding `key`, which represents the XML option used in the dropdown list within ODK or Kobo, and a `status` which indicates if the Facility is actively producing VAs or not. 
+Locations in VA Explorer follow an assumed three-level hierarchical structure
+by which each facility or hospital maps to an associated Level 2 ("District")
+and Level 1 ("Province") hierarchy. Each facility also has a corresponding
+`key`, which represents the XML option used in the dropdown list within ODK or
+Kobo, and a `status` which indicates if the Facility is actively producing VAs
+or not.
 
 The table below shows an example location hierarchy for States, Counties, and
 Cities in the United States. In this example, we have one state (California), two
@@ -28,18 +33,20 @@ California,Los Angeles County,Los Angeles Hospital, los_angeles_hospital, Active
 ```
 
 The input is similarly structured to support any number of geographic hierarchies
-for VA Explorer users. With a {term}`CSV` file in hand, you can now supplement your initial
-system set up with the `load_locations` management command. Full usage details
-for this are provided in [Management Commands](#management-commands). The specification of the input CSV file is as follows:
+for VA Explorer users. With a {term}`CSV` file in hand, you can now supplement
+your initial system set up with the `load_locations` management command. Full
+usage details for this are provided in [Management Commands](#management-commands).
+The specification of the input CSV file is as follows:
 
 ```{csv-table} Expected columns for the location file
 :header-rows: 1
 Column Name, Description, Specifics
-Province, Level 1 Administrative Boundary Name, One of the `label::English` values as defined in the VA XLSForm
-District, Level 2 Administrative Boundary Name, One of the `label::English` values as defined in the VA XLSForm
+Province,Level 1 Administrative Boundary Name,One of the `label::English` values as defined in the VA XLSForm
+District,Level 2 Administrative Boundary Name,One of the `label::English` values as defined in the VA XLSForm
 Name, Facility or Hospital Name, One of the `label::English` values as defined in the VA XLSForm
-Key, Facility or Hospital XML Value, The choice name associated with the `label::English` defined in the previous column
-Status, Whether the facility is still actively producing VAs, One of: 'Active' or 'Inactive'
+Key, Facility or Hospital XML Value, The choice name associated with the
+`label::English` defined in the previous column Status, Whether the facility is
+still actively producing VAs, One of: 'Active' or 'Inactive'
 ```
 
 Following this command, VA Explorer should support geographic restrictions to any
@@ -51,7 +58,17 @@ Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.
 
 #### Updating locations in VA Explorer
 
-When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the `load_locations` management command.  If a row is deleted from the locations file, it will also be kept in VA Explorer and marked inactive.  To permanently delete locations in VA Explorer, re-upload a revised location file following the `load_locations` management command with the `--delete_previous` flag. Warning: doing so may delete all VAs in the database, so make sure to backup the system first.
+When VAs are imported into VA Explorer, they are matched exactly on the
+locations loaded into the system in this step. If a VA does not have a valid
+location field, VA Explorer will track that mismatch as an error that either
+needs to be corrected in the VA Explorer locations file or in the underlying
+VA data. To add a location to VA Explorer, re-upload a revised location file
+following the `load_locations` management command.  If a row is deleted from
+the locations file, it will also be kept in VA Explorer and marked inactive.
+To permanently delete locations in VA Explorer, re-upload a revised location
+file following the `load_locations` management command with `--delete_previous`.
+Warning: doing so may delete all VAs in the database, so make sure to
+backup the system first.
 
 ### Creating & Editing Users
 
@@ -195,7 +212,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - ``export_locations``
     - ``--output_file``
-    - Utility to obtainthe current list of locations in the VA
+    - Utility to obtain the current list of locations in the VA
       Explorer system in the CSV format with header fields
       corresponding to fields expected by the system. The intended use case
       for this utility is when administrators need to update the location file

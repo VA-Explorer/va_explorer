@@ -238,7 +238,12 @@ as individuals described below.</p>
 <h3>Loading Locations for Geographic Access Support<a class="headerlink" href="#loading-locations-for-geographic-access-support" title="Permalink to this heading">#</a></h3>
 <p>To set up VA Explorer for the Geographic Access mentioned in that section, you
 must load location data into the system.</p>
-<p>Locations in VA Explorer follow an assumed three-level hierarchical structure by which each facility or hospital maps to an associated Level 2 (“District”) and Level 1 (“Province) hierarchy. Each facility also has a corresponding <code class="docutils literal notranslate"><span class="pre">key</span></code>, which represents the XML option used in the dropdown list within ODK or Kobo, and a <code class="docutils literal notranslate"><span class="pre">status</span></code> which indicates if the Facility is actively producing VAs or not.</p>
+<p>Locations in VA Explorer follow an assumed three-level hierarchical structure
+by which each facility or hospital maps to an associated Level 2 (“District”)
+and Level 1 (“Province”) hierarchy. Each facility also has a corresponding
+<code class="docutils literal notranslate"><span class="pre">key</span></code>, which represents the XML option used in the dropdown list within ODK or
+Kobo, and a <code class="docutils literal notranslate"><span class="pre">status</span></code> which indicates if the Facility is actively producing VAs
+or not.</p>
 <p>The table below shows an example location hierarchy for States, Counties, and
 Cities in the United States. In this example, we have one state (California), two
 counties (Marin and Los Angeles), and three cities (Sausalito, San Rafael, and
@@ -277,9 +282,10 @@ Los Angeles).</p>
 </table>
 </div>
 <p>The input is similarly structured to support any number of geographic hierarchies
-for VA Explorer users. With a <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> file in hand, you can now supplement your initial
-system set up with the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command. Full usage details
-for this are provided in <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a>. The specification of the input CSV file is as follows:</p>
+for VA Explorer users. With a <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> file in hand, you can now supplement
+your initial system set up with the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command. Full
+usage details for this are provided in <a class="reference internal" href="#management-commands"><span class="std std-doc">Management Commands</span></a>.
+The specification of the input CSV file is as follows:</p>
 <div class="table-wrapper docutils container" id="id2">
 <table class="docutils align-default" id="id2">
 <caption><span class="caption-text">Expected columns for the location file</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
@@ -304,11 +310,15 @@ for this are provided in <a class="reference internal" href="#management-command
 </tr>
 <tr class="row-odd"><td><p>Key</p></td>
 <td><p>Facility or Hospital XML Value</p></td>
-<td><p>The choice name associated with the <code class="docutils literal notranslate"><span class="pre">label::English</span></code> defined in the previous column</p></td>
+<td><p>The choice name associated with the</p></td>
 </tr>
-<tr class="row-even"><td><p>Status</p></td>
-<td><p>Whether the facility is still actively producing VAs</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">label::English</span></code> defined in the previous column Status</p></td>
+<td><p>Whether the facility is</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>still actively producing VAs</p></td>
 <td><p>One of: ‘Active’ or ‘Inactive’</p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -321,7 +331,17 @@ example, in the above tree a user with access to California also has access to
 Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.</p>
 <section id="updating-locations-in-va-explorer">
 <h4>Updating locations in VA Explorer<a class="headerlink" href="#updating-locations-in-va-explorer" title="Permalink to this heading">#</a></h4>
-<p>When VAs are imported into VA Explorer, they are matched exactly on the locations loaded into the system in this step. If a VA does not have a valid location field, VA Explorer will track that mismatch as an error that either needs to be corrected in the VA Explorer locations file or in the underlying VA data. To add a location to VA Explorer, re-upload a revised location file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command.  If a row is deleted from the locations file, it will also be kept in VA Explorer and marked inactive.  To permanently delete locations in VA Explorer, re-upload a revised location file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command with the <code class="docutils literal notranslate"><span class="pre">--delete_previous</span></code> flag. Warning: doing so may delete all VAs in the database, so make sure to backup the system first.</p>
+<p>When VAs are imported into VA Explorer, they are matched exactly on the
+locations loaded into the system in this step. If a VA does not have a valid
+location field, VA Explorer will track that mismatch as an error that either
+needs to be corrected in the VA Explorer locations file or in the underlying
+VA data. To add a location to VA Explorer, re-upload a revised location file
+following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command.  If a row is deleted from
+the locations file, it will also be kept in VA Explorer and marked inactive.
+To permanently delete locations in VA Explorer, re-upload a revised location
+file following the <code class="docutils literal notranslate"><span class="pre">load_locations</span></code> management command with <code class="docutils literal notranslate"><span class="pre">--delete_previous</span></code>.
+Warning: doing so may delete all VAs in the database, so make sure to
+backup the system first.</p>
 </section>
 </section>
 <section id="creating-editing-users">
@@ -462,7 +482,7 @@ to the new locations.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">export_locations</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">--output_file</span></code></p></td>
-<td><p>Utility to obtainthe current list of locations in the VA
+<td><p>Utility to obtain the current list of locations in the VA
 Explorer system in the CSV format with header fields
 corresponding to fields expected by the system. The intended use case
 for this utility is when administrators need to update the location file
