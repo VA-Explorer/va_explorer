@@ -1,66 +1,7 @@
-import re
-
 import pandas as pd
 from fuzzywuzzy import fuzz
 
 from va_explorer.va_data_management.models import Location
-
-
-def build_location_mapper(
-    va_locations,
-    db_locations=None,
-    loc_type="facility",
-    drop_terms=None,
-    similarity_thresh=75,
-    prnt=False,
-):
-    if va_locations and len(va_locations) > 0:
-        # store database locations of type location_type in a df
-        try:
-            if not db_locations:
-                db_locations = list(
-                    Location.objects.filter(location_type=loc_type).values_list(
-                        "name", flat=True
-                    )
-                )
-            if len(db_locations) == 0:
-                raise RuntimeWarning(
-                    "No known facilities found. Have you initialized location data?"
-                )
-        except RuntimeWarning as warn:
-            print("%s", warn)
-
-        location_df = pd.DataFrame({"name": db_locations}).assign(
-            key=lambda df: df["name"].astype(str).str.lower()
-        )
-
-        # store unique va_locations in mapper dataframe
-        va_locations = list(set(va_locations).difference({"other"}))
-        mapper = pd.DataFrame({"va_name": va_locations}).dropna()
-        if not mapper.empty:
-            mapper["va_key"] = (
-                mapper["va_name"].str.lower().replace(r"\_", " ", regex=True)
-            )
-
-            # preprocess dataframes
-            if not drop_terms:
-                drop_terms = ["general", "central", "teaching"]
-
-            for term in drop_terms:
-                location_df["key"] = location_df["key"].replace(
-                    f" {term}", "", regex=True
-                )
-                mapper["va_key"] = mapper["va_key"].replace(f" {term}", "", regex=True)
-
-            # matching
-            mapper["db_name"] = mapper["va_key"].apply(
-                lambda x: fuzzy_match(x, location_df, threshold=similarity_thresh)
-            )
-
-            return mapper.set_index("va_name")["db_name"].to_dict()
-    if prnt:
-        print("WARNING: no va locations provided, returning empty dict")
-    return {}
 
 
 def assign_va_location(va, location_mapper=None, location_fields=None):
@@ -75,14 +16,33 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
             break
     if raw_location:
         if not location_mapper:
-            location_mapper = build_location_mapper([raw_location])
+            # no mapper provided, create a one-off for this assignment
+            location_mapper = dict(
+                Location.objects.filter(key=raw_location)
+                .only("name", "key")
+                .values_list("key", "name")
+            )
         db_location_name = location_mapper.get(raw_location, None)
         # if matching db location, retrieve it. Otherwise, record location as unknown
         if db_location_name:
             # TODO: make this more generic to other location hierarchies
             db_location = Location.objects.filter(
                 location_type="facility", name=db_location_name
-            ).first()
+            )
+            if len(db_location) > 1:
+                # attempt to find specific facility based on match with other
+                # va location data. warn if that doesn't narrow it down completely
+                search_string = (
+                    f"{va.province} Province/{va.area} District/{va.hospital}"
+                )
+                db_location = db_location.filter(path_string__icontains=search_string)
+                if len(db_location) > 1:
+                    print(
+                        f"WARNING: ambiguous location: {search_string} "
+                        + "using most likely match"
+                    )
+            # need to take first anyway to get (ideally 1) Location out of QuerySet
+            db_location = db_location.first()
 
     # if any db location found, update VA with found location
     if db_location:
@@ -103,8 +63,6 @@ def fuzzy_match(
     option_df,
     options=None,
     threshold=75,
-    preprocess=False,
-    drop_terms=None,
     prnt=False,
     return_str=True,
 ):
@@ -127,16 +85,7 @@ def fuzzy_match(
         # if threshold is a decimal, convert to percent
         if threshold > 0 and threshold <= 1:
             threshold = int(100 * threshold)
-        # if preprocess=True, clean search term and options before comparing
         search_term = search
-        if preprocess:
-            if not drop_terms:
-                drop_terms = ["general", "central", "teaching"]
-
-            search_term = re.sub(r"\_", " ", search.lower())
-            for term in drop_terms:
-                search_term = search_term.replace(f" {term}", "")
-                option_df["key"] = option_df["key"].replace(f" {term}", "", regex=True)
 
         # matching
         option_df["score"] = option_df["key"].apply(

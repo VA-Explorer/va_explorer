@@ -111,15 +111,59 @@ def validate_vas_for_dashboard(verbal_autopsies):
                 )
                 issues.append(issue)
 
-        # if location is "Unknown" (couldn't find match for provided location)
-        # record a warning
-        if va.location and va.location.name == "Unknown":
-            issue_text = "Warning: location field (parsed from hospital): provided \
-                location was not a known facility. Set location to 'Unknown'"
+        # if location is valid but inactive record a warning
+        if (
+            va.location
+            and not va.location.is_active
+            and va.location.name.casefold() != "unknown"
+            and va.hospital.casefold() != "other"
+        ):
+            issue_text = "Warning: VA location was matched to facility known \
+                to be inactive. Consider updating the location to an active \
+                facility instead, or update the facility list."
             issue = CauseCodingIssue(
                 verbalautopsy_id=va.id,
                 text=issue_text,
                 severity="warning",
+                algorithm="",
+                settings="",
+            )
+            issues.append(issue)
+
+        # if location is "Other" (a valid, but non-informative location stemming
+        # stemming from bad data) record a warning
+        if (
+            va.location
+            and va.location.name.casefold() == "unknown"
+            and va.hospital.casefold() == "other"
+        ):
+            issue_text = "Warning: location field (parsed from hospital) \
+                was parsed as 'Other Facility'. May not fully show on \
+                dashboards until underlying data is corrected to actual location."
+            issue = CauseCodingIssue(
+                verbalautopsy_id=va.id,
+                text=issue_text,
+                severity="warning",
+                algorithm="",
+                settings="",
+            )
+            issues.append(issue)
+
+        # if location is "Unknown" (couldn't find match for provided location)
+        # record a warning
+        if (
+            va.location
+            and va.location.name.casefold() == "unknown"
+            and va.hospital.casefold() != "other"
+        ):
+            issue_text = "ERROR: location field (parsed from hospital) did not \
+                match any known facilities in the facility list. VA Explorer set \
+                the location to 'Unknown.'  This VA will not show on \
+                dashboards until underlying data is corrected to actual location."
+            issue = CauseCodingIssue(
+                verbalautopsy_id=va.id,
+                text=issue_text,
+                severity="error",
                 algorithm="",
                 settings="",
             )

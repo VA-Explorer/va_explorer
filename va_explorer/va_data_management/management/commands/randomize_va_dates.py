@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         dates_list.sort()
         for va, new_date in tqdm(
-            zip(VerbalAutopsy.objects.all(), dates_list), total=count
+            zip(VerbalAutopsy.objects.all(), dates_list, strict=True), total=count
         ):
             # Set Id10023 and created and updated all to same date
             va.Id10023 = va.created = va.updated = va.Id10012 = new_date

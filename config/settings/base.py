@@ -1,6 +1,7 @@
 """
 Base settings to build other settings files upon.
 """
+
 import os
 from pathlib import Path
 
@@ -277,17 +278,26 @@ CACHES = {
 }
 
 # Celery
-
 if USE_TZ:
     CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://redis:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_RESULT_EXTENDED = True
+CELERY_RESULT_BACKEND_ALWAYS_RETRY = True
+CELERY_RESULT_BACKEND_MAX_RETRIES = 5
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-CELERY_TASK_TIME_LIMIT = 60 * 60
-CELERY_TASK_SOFT_TIME_LIMIT = 500
+
+# 2700 = 45min before worker task exception + potential cleanup
+# 3000 = 50min before forced termination of worker task
+# Needed for long-running import & coding jobs
+CELERY_TASK_TIME_LIMIT = 3000
+CELERY_TASK_SOFT_TIME_LIMIT = 2700
+
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_WORKER_SEND_TASK_EVENTS = True
+CELERY_TASK_SEND_SENT_EVENT = True
 
 # Allauth
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)

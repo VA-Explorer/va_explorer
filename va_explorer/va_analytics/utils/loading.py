@@ -85,7 +85,8 @@ def load_va_data(
                 user_vas_filtered.annotate(
                     district_name=Subquery(
                         Location.objects.values("name").filter(
-                            Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2)
+                            Q(path=Substr(OuterRef("location__path"), 1, 12)),
+                            Q(depth=3),
                         )[:1]
                     )
                 )
@@ -98,7 +99,7 @@ def load_va_data(
                 user_vas_filtered.annotate(
                     province_name=Subquery(
                         Location.objects.values("name").filter(
-                            Q(path=Substr(OuterRef("location__path"), 1, 4)), Q(depth=1)
+                            Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2)
                         )[:1]
                     )
                 )
@@ -211,7 +212,7 @@ def load_va_data(
         user_vas_filtered.annotate(
             province_name=Subquery(
                 Location.objects.values("name").filter(
-                    Q(path=Substr(OuterRef("location__path"), 1, 4)), Q(depth=1)
+                    Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2)
                 )[:1]
             )
         )
@@ -225,7 +226,7 @@ def load_va_data(
         user_vas_filtered.annotate(
             district_name=Subquery(
                 Location.objects.values("name").filter(
-                    Q(path=Substr(OuterRef("location__path"), 1, 8)), Q(depth=2)
+                    Q(path=Substr(OuterRef("location__path"), 1, 12)), Q(depth=3)
                 )[:1]
             )
         )

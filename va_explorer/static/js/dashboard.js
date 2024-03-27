@@ -244,6 +244,7 @@ const dashboard = new Vue({
             geojson.features = this.geojson.features.filter(feature => {
                 return borders.includes(feature.properties.area_level_label)
             })
+
             this.layer = L.geoJson(geojson, {
                 style: function (feature) {
                     if (feature.properties.area_level_label !== 'Country') {

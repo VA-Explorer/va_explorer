@@ -115,9 +115,9 @@ class Index(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "deceased": va["deceased"],
                 "interviewer": va["Id10010"],
                 "interviewed": parse_date(va["Id10012"]),
-                "dod": parse_date(va["Id10023"])
-                if (va["Id10023"] != "dk")
-                else "Unknown",
+                "dod": (
+                    parse_date(va["Id10023"]) if (va["Id10023"] != "dk") else "Unknown"
+                ),
                 "facility": va["location__name"],
                 "cause": va["causes__cause"],
                 "warnings": va["warnings"],
@@ -162,7 +162,7 @@ class Show(
 
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
-        history_pairs = zip(history, history[1:])
+        history_pairs = zip(history, history[1:])  # noqa: B905
         context["diffs"] = [
             new.diff_against(old, excluded_fields=["unique_va_identifier", "duplicate"])
             for (old, new) in history_pairs

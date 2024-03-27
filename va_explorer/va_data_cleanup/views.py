@@ -54,9 +54,11 @@ class DataCleanupIndexView(CustomAuthMixin, PermissionRequiredMixin, ListView):
                 "dod": parse_date(va.Id10023) if (va.Id10023 != "dk") else "Unknown",
                 "facility": va.location.name if va.location else "Not Provided",
                 "deceased": va.deceased,
-                "cause": va.causes.all()[0].cause
-                if len(va.causes.all()) > 0
-                else "Not Coded",
+                "cause": (
+                    va.causes.all()[0].cause
+                    if len(va.causes.all()) > 0
+                    else "Not Coded"
+                ),
                 "warnings": len(
                     [
                         issue

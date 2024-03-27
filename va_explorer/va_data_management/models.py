@@ -30,6 +30,9 @@ class Location(MP_Node):
     # implementation for efficiency of tree operations
     name = models.TextField()
     location_type = models.TextField()
+    is_active = models.BooleanField(default=False)
+    key = models.TextField(blank=True)
+    path_string = models.TextField(unique=True, null=True)
     node_order_by = ["name"]
 
     # A user can have their access scoped by one or more locations

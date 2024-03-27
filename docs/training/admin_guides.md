@@ -12,10 +12,12 @@ as individuals described below.
 To set up VA Explorer for the Geographic Access mentioned in that section, you
 must load location data into the system.
 
-Locations in VA Explorer follow a hierarchical structure. A specific geographic
-region or jurisdiction has a name ("Name"), a type ("Type"), and a parent
-("Parent"). By specifying the Parent field, you can achieve the arbitrary level
-of nesting required to make a tree.
+Locations in VA Explorer follow an assumed three-level hierarchical structure
+by which each facility or hospital maps to an associated Level 2 ("District")
+and Level 1 ("Province") hierarchy. Each facility also has a corresponding
+`key`, which represents the XML option used in the dropdown list within ODK or
+Kobo, and a `status` which indicates if the Facility is actively producing VAs
+or not.
 
 The table below shows an example location hierarchy for States, Counties, and
 Cities in the United States. In this example, we have one state (California), two
@@ -24,25 +26,28 @@ Los Angeles).
 
 ```{csv-table} An example geographic hierarchy in tabular format
 :header-rows: 1
-Name,Type,Parent
-California,State,
-Marin County,County,California
-Sausalito,City,Marin County
-San Rafael,City,Marin County
-Los Angeles County,County,California
-Los Angeles,City,Los Angeles County
-```
-
-```{figure} ../_static/img/geo_hierarchy.png
-:width: 75%
-
-<small> A tree data structure showing the example geographic hierarchy from the previous table</small>
+Province,District,Name,Key,Status
+California,Marin County,Sausalito Hospital, sausalito_hospital, Active
+California,Marin County,San Rafael Clinic, san_rafael_clinic, Inactive
+California,Los Angeles County,Los Angeles Hospital, los_angeles_hospital, Active
 ```
 
 The input is similarly structured to support any number of geographic hierarchies
-for VA Explorer users. With a {term}`CSV` file in hand, you can now supplement your initial
-system set up with the `load_locations` management command. Full usage details
-for this are provided in [Management Commands](#management-commands).
+for VA Explorer users. With a {term}`CSV` file in hand, you can now supplement
+your initial system set up with the `load_locations` management command. Full
+usage details for this are provided in [Management Commands](#management-commands).
+The specification of the input CSV file is as follows:
+
+```{csv-table} Expected columns for the location file
+:header-rows: 1
+Column Name, Description, Specifics
+Province,Level 1 Administrative Boundary Name,One of the `label::English` values as defined in the VA XLSForm
+District,Level 2 Administrative Boundary Name,One of the `label::English` values as defined in the VA XLSForm
+Name, Facility or Hospital Name, One of the `label::English` values as defined in the VA XLSForm
+Key, Facility or Hospital XML Value, The choice name associated with the
+`label::English` defined in the previous column Status, Whether the facility is
+still actively producing VAs, One of: 'Active' or 'Inactive'
+```
 
 Following this command, VA Explorer should support geographic restrictions to any
 area or facility you’ve provide, making them available during user creation and
@@ -50,6 +55,20 @@ editing. Note that access to geographies higher up in the given tree equates to
 access for that geographic area as well as all its children-geographies. For
 example, in the above tree a user with access to California also has access to
 Marin County, Los Angeles County, Sausalito, San Rafael, and Los Angeles.
+
+#### Updating locations in VA Explorer
+
+When VAs are imported into VA Explorer, they are matched exactly on the
+locations loaded into the system in this step. If a VA does not have a valid
+location field, VA Explorer will track that mismatch as an error that either
+needs to be corrected in the VA Explorer locations file or in the underlying
+VA data. To add a location to VA Explorer, re-upload a revised location file
+following the `load_locations` management command.  If a row is deleted from
+the locations file, it will also be kept in VA Explorer and marked inactive.
+To permanently delete locations in VA Explorer, re-upload a revised location
+file following the `load_locations` management command with `--delete_previous`.
+Warning: doing so may delete all VAs in the database, so make sure to
+backup the system first.
 
 ### Creating & Editing Users
 
@@ -174,7 +193,7 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - :rspan:`1` ``load_locations``
     - ``--csv_file`` (*)
-    - :rspan:`1` Used to load initial location date data needed to support
+    - :rspan:`1` Used to load initial location data needed to support
       Geographic access. ``csv_file`` is a filename in the local folder or
       ``unix:path`` format location of the file. Can be used with
       ``delete_previous`` to delete existing location data and start fresh with
@@ -183,9 +202,29 @@ generally useful to admins. An even fuller list of these can be found under
 
   * - ``--delete_previous``
 
+  * - ``refresh_locations``
+    - None
+    - Used to refresh the locations assigned to all of the VAs in
+      the database if a new location file is loaded into the system using the
+      ``load_locations`` management command. This command does not add or 
+      delete any VAs from the database; it simply remaps the existing VAs
+      to the new locations.
+
+  * - ``export_locations``
+    - ``--output_file``
+    - Utility to obtain the current list of locations in the VA
+      Explorer system in the CSV format with header fields
+      corresponding to fields expected by the system. The intended use case
+      for this utility is when administrators need to update the location file
+      by first downloading the existing locations, making any necessary updates,
+      and re-uploading a revised version using ``load_locations``. ``output_file``
+      is a filename or ``unix:path`` format location to save template to. Default is
+      ``locations_[[date]].csv`` where [[date]] is the date and time of export.
+
+
   * - :rspan:`1` ``run_coding_algorithms``
     - ``--overwrite``
-    - :rspan:`1` Used to call supported algorithms for assignment of cause of
+    - Used to call supported algorithms for assignment of cause of
       death to all uncoded verbal autopsies. ``overwrite`` allows this command
       to clear (and save) all existing CoD assignments before running on
       every verbal autopsy regardless of whether it's coded or not. ``True`` or

@@ -17,7 +17,6 @@ from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.constants import PII_FIELDS, REDACTED_STRING
 from va_explorer.va_data_management.models import Location
 from va_explorer.va_export.forms import VADownloadForm
-from va_explorer.va_export.utils import get_loc_ids_for_filter
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -69,11 +68,16 @@ class VaApi(CustomAuthMixin, View):
             # if location query, filter down VAs within chosen location's jurisdiction
             loc_query = params.get("locations", None)
             if loc_query:
-                # get ids of all provided locations and their descendants
-                match_list = get_loc_ids_for_filter(loc_query)
+                id_list = loc_query.split(",")
 
-                # filter VA queryset down to just those with matching location_ids
-                matching_vas = matching_vas.filter(location__id__in=match_list)
+                # also add location descendants to id list
+                locations_cache = Location.objects.filter(pk__in=id_list)
+                for location in locations_cache:
+                    id_list.extend(
+                        location.get_descendants().values_list("id", flat=True)
+                    )
+
+                matching_vas = matching_vas.filter(location__id__in=id_list)
 
             # =========DATE FILTER LOGIC===================#
             # if start/end dates specified, filter to only VAs within time range

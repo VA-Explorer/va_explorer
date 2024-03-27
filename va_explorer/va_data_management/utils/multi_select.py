@@ -172,7 +172,7 @@ class MultiSelectField(models.TextField):
                 display = []
                 if getattr(obj, fieldname):
                     for value in getattr(obj, fieldname):
-                        item_display = choicedict.get(value, None)
+                        item_display = choicedict.get(value)
                         if item_display is None:
                             try:
                                 item_display = choicedict.get(int(value), value)

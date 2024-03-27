@@ -31,11 +31,31 @@ def build_test_db():
     # Build locations
     province = LocationFactory.create()
     district1 = province.add_child(name="District1", location_type="district")
-    facility_a = district1.add_child(name="Facility1", location_type="facility")
+    facility_a = district1.add_child(
+        name="Facility1",
+        location_type="facility",
+        key="facility_1",
+        path_string=f"{province.name} Province/District1 District/Facility1",
+    )
     district2 = province.add_child(name="District2", location_type="district")
-    facility_b = district2.add_child(name="Facility2", location_type="facility")
-    facility_c = district2.add_child(name="Facility2", location_type="facility")
-    district2.add_child(name="No VA Facility", location_type="facility")
+    facility_b = district2.add_child(
+        name="Facility1",
+        location_type="facility",
+        key="facility_1",
+        path_string=f"{province.name} Province/District2 District/Facility1",
+    )
+    facility_c = district2.add_child(
+        name="Facility2",
+        location_type="facility",
+        key="facility_2",
+        path_string=f"{province.name} Province/District2 District/Facility2",
+    )
+    district2.add_child(
+        name="Empty Facility",
+        location_type="facility",
+        key="empty",
+        path_string=f"{province.name} Province/District2 District/Empty Facility",
+    )
 
     # create VAs
     va1 = VerbalAutopsyFactory.create(location=facility_a, Id10023="2019-01-01")
@@ -118,12 +138,14 @@ class TestAPIView:
     def test_download_csv_with_no_matching_vas(self, user: User):
         build_test_db()
         # only download data from "No VA Facility", which will have no matching VAs
-        no_va_facility = Location.objects.get(name="No VA Facility")
+        no_va_facility = Location.objects.get(name="Empty Facility")
 
         c = Client()
         c.force_login(user=user)
 
-        response = c.post(POST_URL, data={"format": "csv", "locations": no_va_facility})
+        response = c.post(
+            POST_URL, data={"format": "csv", "locations": no_va_facility.pk}
+        )
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -146,13 +168,13 @@ class TestAPIView:
     def test_download_json_with_no_matching_vas(self, user: User):
         build_test_db()
         # only download data from "No VA Facility", which will have no matching VAs
-        no_va_facility = Location.objects.get(name="No VA Facility")
+        no_va_facility = Location.objects.get(name="Empty Facility")
 
         c = Client()
         c.force_login(user=user)
 
         response = c.post(
-            POST_URL, data={"format": "json", "locations": no_va_facility}
+            POST_URL, data={"format": "json", "locations": no_va_facility.pk}
         )
         assert response.status_code == 200
 
@@ -177,12 +199,15 @@ class TestAPIView:
     def test_location_filtering(self, user: User):
         build_test_db()
         # only download data from location a
-        facility_1 = Location.objects.get(name="Facility1")
+        province = Location.objects.get(location_type="province")
+        facility_1 = Location.objects.get(
+            path_string=f"{province.name} Province/District1 District/Facility1"
+        )
 
         c = Client()
         c.force_login(user=user)
 
-        response = c.post(POST_URL, data={"format": "csv", "locations": facility_1})
+        response = c.post(POST_URL, data={"format": "csv", "locations": facility_1.pk})
         assert response.status_code == 200
 
         # Django 3.2 has response.headers. For now, we'll access them per below
@@ -258,7 +283,10 @@ class TestAPIView:
         # 1. Download from facility A after 1/1/2020 with COD_a in CSV format.
         # Assert only VA 4 is downloaded
         start_date = "2020-01-01"
-        loc_a = Location.objects.get(name="Facility1")
+        province = Location.objects.get(location_type="province")
+        loc_a = Location.objects.get(
+            path_string=f"{province.name} Province/District1 District/Facility1"
+        )
         cod_name = "cod_a"
 
         query_data = {
@@ -296,7 +324,10 @@ class TestAPIView:
         # If this structure changes, need to update this test
 
         end_date = "2020-01-01"
-        loc_a = Location.objects.get(name="Facility1")
+        province = Location.objects.get(location_type="province")
+        loc_a = Location.objects.get(
+            path_string=f"{province.name} Province/District1 District/Facility1"
+        )
         cod_name = "cod_b"
 
         query_data = {

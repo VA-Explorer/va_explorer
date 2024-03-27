@@ -212,7 +212,9 @@ class Command(BaseCommand):
             query_cod_codes = pd.DataFrame.from_records(cod_codes)
             query_cod_codes = query_cod_codes[{"codname", "codcode"}]
 
-            dhis_cod_codes = dict(zip(query_cod_codes.codname, query_cod_codes.codcode))
+            dhis_cod_codes = dict(
+                zip(query_cod_codes.codname, query_cod_codes.codcode, strict=True)
+            )
 
             dhis_cod_codes = {}
             args_dhis = [settings_dhis, dhis_cod_codes]
