@@ -95,7 +95,8 @@ class LocationRestrictionsSelectMultiple(SelectMultiple):
             name, value, label, selected, index, subindex, attrs
         )
         if value:
-            option["attrs"]["data-depth"] = value.instance.depth
+            # Use depth - 1 to account for root/country node
+            option["attrs"]["data-depth"] = value.instance.depth - 1
             # Only query for descendants if there are any
             if value.instance.numchild > 0:
                 option["attrs"][
@@ -132,7 +133,8 @@ class UserCommonFields(forms.ModelForm):
         queryset=Group.objects.all(), required=True, widget=GroupSelect
     )
     location_restrictions = ModelMultipleChoiceField(
-        queryset=Location.objects.all().order_by("path"),
+        # Don't include 'Unknown' or Root/Country node in options
+        queryset=Location.objects.all().order_by("path")[2:],
         widget=LocationRestrictionsSelectMultiple(
             attrs={"class": "location-restrictions-select"}
         ),

@@ -44,7 +44,8 @@ class VADownloadForm(forms.Form):
     )
 
     locations = ModelMultipleChoiceField(
-        queryset=Location.objects.all().order_by("path"),
+        # Don't include 'Unknown' or Root/Country node in options
+        queryset=Location.objects.all().order_by("path")[2:],
         widget=LocationRestrictionsSelectMultiple(
             attrs={"class": "location-restrictions-select"}
         ),
