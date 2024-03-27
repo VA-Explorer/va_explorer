@@ -30,15 +30,16 @@ class Command(BaseCommand):
             new tree. If False (default), attempts to update existing Locations table
     """
 
-    help = "Loads initial location data into the database from a CSV file with \
-    relevant info. Required Columns: Province, District, Key, Name, Status."
+    help = (
+        "Loads initial location data into the database from a CSV file with"
+        "relevant info. Required Columns: Province, District, Key, Name, Status."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument("csv_file", type=argparse.FileType("r"))
         parser.add_argument("--delete_previous", type=bool, nargs="?", default=False)
 
     def handle(self, *args, **options):
-        print(options)
         csv_file = options["csv_file"]
         delete_previous = options["delete_previous"]
 
