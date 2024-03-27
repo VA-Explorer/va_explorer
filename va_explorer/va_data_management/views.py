@@ -21,7 +21,7 @@ from django.views.generic.detail import SingleObjectMixin
 from va_explorer.utils.mixins import CustomAuthMixin
 from va_explorer.va_data_management.filters import VAFilter
 from va_explorer.va_data_management.forms import VerbalAutopsyForm
-from va_explorer.va_data_management.models import VerbalAutopsy
+from va_explorer.va_data_management.models import Location, VerbalAutopsy
 from va_explorer.va_data_management.tasks import run_coding_algorithms
 from va_explorer.va_data_management.utils.date_parsing import parse_date
 from va_explorer.va_data_management.utils.loading import get_va_summary_stats
@@ -163,10 +163,20 @@ class Show(
         # TODO: date in diff info should be formatted in local time
         history = self.object.history.all().reverse()
         history_pairs = zip(history, history[1:])  # noqa: B905
-        context["diffs"] = [
-            new.diff_against(old, excluded_fields=["unique_va_identifier", "duplicate"])
-            for (old, new) in history_pairs
-        ]
+        diffs = []
+        for old, new in history_pairs:
+            delta = new.diff_against(
+                old, excluded_fields=["unique_va_identifier", "duplicate"]
+            )
+            for change in delta.changes:
+                if change.field == "location":
+                    old_id = change.old
+                    new_id = change.new
+                    change.old = Location.objects.get(pk=new_id).name
+                    change.new = Location.objects.get(pk=old_id).name
+            diffs.append(delta)
+        context["diffs"] = diffs
+
         context["duplicate"] = self.object.duplicate
 
         return context
