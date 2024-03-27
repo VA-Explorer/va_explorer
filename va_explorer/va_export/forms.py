@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.forms import DateField, ModelMultipleChoiceField, Select, SelectMultiple
 
 from va_explorer.users.forms import LocationRestrictionsSelectMultiple
@@ -45,7 +46,9 @@ class VADownloadForm(forms.Form):
 
     locations = ModelMultipleChoiceField(
         # Don't include 'Unknown' or Root/Country node in options
-        queryset=Location.objects.all().order_by("path")[2:],
+        queryset=Location.objects.all()
+        .exclude(Q(location_type="country") | Q(name="Unknown"))
+        .order_by("path"),
         widget=LocationRestrictionsSelectMultiple(
             attrs={"class": "location-restrictions-select"}
         ),
