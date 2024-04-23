@@ -44,9 +44,8 @@ Column Name, Description, Specifics
 Province,Level 1 Administrative Boundary Name,One of the `label::English` values as defined in the VA XLSForm
 District,Level 2 Administrative Boundary Name,One of the `label::English` values as defined in the VA XLSForm
 Name, Facility or Hospital Name, One of the `label::English` values as defined in the VA XLSForm
-Key, Facility or Hospital XML Value, The choice name associated with the
-`label::English` defined in the previous column Status, Whether the facility is
-still actively producing VAs, One of: 'Active' or 'Inactive'
+Key, Facility or Hospital XML Value, The choice name associated with the `label::English` defined in the previous column 
+Status, Whether the facility is still actively producing VAs, One of: 'Active' or 'Inactive'
 ```
 
 Following this command, VA Explorer should support geographic restrictions to any
