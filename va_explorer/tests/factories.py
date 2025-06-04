@@ -25,7 +25,7 @@ class GroupFactory(DjangoModelFactory):
     class Meta:
         model = models.Group
 
-    name = Sequence(lambda n: "Group #%s" % n)
+    name = Sequence(lambda n: f"Group #{n}")
 
     @factory.post_generation
     def permissions(self, create, extracted, **kwargs):

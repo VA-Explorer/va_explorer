@@ -161,7 +161,7 @@ Foundation (e.g., DHIS-2 export) and The Ohio State University (e.g., InterVA5, 
 
 ## Copyright & License
 
-Copyright © 2020-2023, The MITRE Corporation. Licensed under Apache 2.0
+Copyright © 2020-2025, The MITRE Corporation. Licensed under Apache 2.0
 
 The source of this information is the Data for Health Initiative, a joint
 project of the CDC Foundation and Bloomberg Philanthropies.

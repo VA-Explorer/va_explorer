@@ -1,7 +1,10 @@
 -r ./base.txt
 
 # Testing/ Linting
-ruff==0.0.239   # ensure parity w/ version in .pre-commit-config.yaml
+# ensure parity w/ version in .pre-commit-config.yaml
+ruff==0.11.12   
+# black==25.1.0   # not available for python3.8
+# ---
 pytest==7.2.0
 pytest-django==4.5.2
 # mypy==0.991

@@ -134,7 +134,7 @@ class MultiSelectField(models.TextField):
         return MultiSelectFormField(**defaults)
 
     def get_prep_value(self, value):
-        if type(value) == MSFList:
+        if type(value) is MSFList:
             return ",".join(map(str, value))
         else:
             return ""
@@ -186,5 +186,5 @@ class MultiSelectField(models.TextField):
 
             get_display.short_description = self.verbose_name
 
-            setattr(cls, "get_%s_list" % self.name, get_list)
-            setattr(cls, "get_%s_display" % self.name, get_display)
+            setattr(cls, f"get_{self.name}_list", get_list)
+            setattr(cls, f"get_{self.name}_display", get_display)
