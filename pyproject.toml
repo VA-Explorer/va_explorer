@@ -32,7 +32,7 @@ classifiers = [
 "Bug Reports" = "https://github.com/VA-Explorer/va_explorer/issues"
 
 [tool.ruff]
-select = [
+lint.select = [
   "E",    # pycodestyle errors
   "W",    # pycodestyle warnings
   "F",    # pyflakes
@@ -46,7 +46,7 @@ select = [
   "PT",   # pytest common issues
   "SIM",  # simplification suggestions
 ]
-ignore = [
+lint.ignore = [
   "E501",  # line length, handled by black
 ]
 extend-exclude = ["migrations"]

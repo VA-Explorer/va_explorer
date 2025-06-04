@@ -170,7 +170,9 @@ def _treeify_facilities(csv_file):
 
 
 def _get_node_path(node):
-    return "%s" % node.separator.join([""] + [str(node.name) for node in node.path])
+    return "{}".format(
+        node.separator.join([""] + [str(node.name) for node in node.path])
+    )
 
 
 def _process_facility_tree(tree, delete_previous=False):
@@ -209,7 +211,7 @@ def _process_facility_tree(tree, delete_previous=False):
                 # update parent to get latest state
                 parent_node.refresh_from_db()
                 # next, check for current node in db to update. If not, create new child.
-                current_node = db.get(path, None)
+                current_node = db.get(path)
                 if current_node:
                     # update existing location fields with data from csv
                     old_values = {
@@ -239,7 +241,7 @@ def _process_facility_tree(tree, delete_previous=False):
                 )
         else:
             # add root node if it doesn't already exist
-            if not db.get(path, None):
+            if not db.get(path):
                 print(f"Adding root node for {node.name}")
                 db[path] = Location.add_root(**model_data)
                 location_ct += 1
