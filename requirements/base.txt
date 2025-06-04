@@ -8,6 +8,7 @@ fuzzywuzzy==0.18.0
 python-Levenshtein==0.20.7
 tqdm==4.65.0
 anytree==2.12.1
+numpy==1.26.4
 
 # Django
 django==4.1.2
