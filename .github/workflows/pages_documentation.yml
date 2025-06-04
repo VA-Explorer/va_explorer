@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3           # Get code
+      - uses: actions/checkout@v4          # Get code
       - uses: actions/setup-python@v4       # Get Python for dependencies
         with:
           python-version: '3.10'
@@ -26,7 +26,7 @@ jobs:
           cd docs
           sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra
           make latexpdf
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: docs-pdf
           path: docs/_build/latex/*.pdf     # Allow generic name of pdf
@@ -35,7 +35,7 @@ jobs:
         run: |
           cd docs
           make html
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: docs-html
           path: docs/_build/html
@@ -44,18 +44,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3           # Get code
-      - uses: actions/download-artifact@v3  # Get html we're deploying
+      - uses: actions/checkout@v4           # Get code
+      - uses: actions/download-artifact@v4  # Get html we're deploying
         with:
           name: docs-html
           path: docs/_build/html
 
-      - uses: actions/download-artifact@v3  # Get offline pdf
+      - uses: actions/download-artifact@v4  # Get offline pdf
         with:
           name: docs-pdf
           path: docs/_build/html/_static/   # Dump the *.pdf file in _static/
 
-      - uses: peaceiris/actions-gh-pages@v3   # Deploy to github pages
+      - uses: peaceiris/actions-gh-pages@v4   # Deploy to github pages
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
