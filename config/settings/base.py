@@ -154,6 +154,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     # Track which user makes VA data edits
     "simple_history.middleware.HistoryRequestMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
@@ -301,10 +302,9 @@ CELERY_TASK_SEND_SENT_EVENT = True
 
 # Allauth
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_ADAPTER = "va_explorer.users.adapters.AccountAdapter"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_DISPLAY = lambda user: user.name  # noqa: E731 - allow this limited use
