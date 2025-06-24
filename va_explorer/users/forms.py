@@ -6,7 +6,7 @@ from allauth.account.forms import (
 )
 from django import forms
 from django.contrib.auth import get_user_model, password_validation
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import BaseUserCreationForm
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.forms import (
@@ -169,15 +169,15 @@ class UserCommonFields(forms.ModelForm):
     )
 
 
-class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
+class ExtendedUserCreationForm(UserCommonFields, BaseUserCreationForm):
     """
-    Extends the built in UserCreationForm in several ways:
+    Extends the built in BaseUserCreationForm in several ways:
 
     * Name field is added.
     * Group model from django.contrib.auth.models is represented as a ModelChoiceField
     * Non-model field geographic_access added to toggle between national and
       location-specific access
-    * Data not saved by the default behavior of UserCreationForm is saved.
+    * Data not saved by the default behavior of BaseUserCreationForm is saved.
     """
 
     password1 = None
@@ -203,7 +203,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         """
         self.request = kwargs.pop("request", None)
 
-        super(UserCreationForm, self).__init__(*args, **kwargs)
+        super(BaseUserCreationForm, self).__init__(*args, **kwargs)
 
         self.fields["group"].label = "Role"
 
@@ -211,7 +211,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
         """
         Normal cleanup
         """
-        cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
+        cleaned_data = super(BaseUserCreationForm, self).clean(*args, **kwargs)
 
         if "geographic_access" and "group" in cleaned_data:
             location_restrictions = get_location_restrictions(cleaned_data)
@@ -233,7 +233,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
 
         Saves the location and group after the user object is saved.
         """
-        user = super(UserCreationForm, self).save(commit)
+        user = super(BaseUserCreationForm, self).save(commit)
         if user:
             user.email = self.cleaned_data["email"]
             user.name = self.cleaned_data["name"]
@@ -276,7 +276,7 @@ class ExtendedUserCreationForm(UserCommonFields, UserCreationForm):
 
 class UserUpdateForm(UserCommonFields, forms.ModelForm):
     """
-    Similar to UserCreationForm but adds is_active field to allow an administrator
+    Similar to BaseUserCreationForm but adds is_active field to allow an administrator
     to mark a user account as inactive
     """
 
