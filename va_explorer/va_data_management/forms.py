@@ -23,7 +23,7 @@ class VerbalAutopsyForm(forms.ModelForm):
             )
         for form_field in FORM_FIELDS["checkbox"]:
             widgets[form_field] = MultiSelectFormField(
-                flat_choices=FORM_FIELDS["checkbox"][form_field]
+                choices=FORM_FIELDS["checkbox"][form_field]
             ).widget
             widgets[form_field].attrs = {"class": "va-check"}
         for form_field in FORM_FIELDS["dropdown"]:
