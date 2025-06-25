@@ -21,13 +21,13 @@ sys.path.insert(0, project_root)
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "VA Explorer Docs"
-copyright = "2020-2023, MITRE Licensed under Apache 2.0"
-author = "MITRE"
+copyright = "2020-2025, MITRE Licensed under Apache 2.0"
+author = "MITRE <verbal-autopsy@mitre.org>"
 
 # The short X.Y version
-version = "1.0"
+version = "1.2"
 # The full version, including alpha/beta/rc tags
-release = "1.0.1"
+release = "1.2.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

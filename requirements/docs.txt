@@ -1,10 +1,10 @@
 -r ./base.txt
 
-sphinx==5.3.0
-sphinx-autobuild==2021.3.14
-furo==2022.12.7
-myst-parser==0.18.1
-sphinx_design==0.3.0
-sphinx-copybutton==0.5.1
+sphinx==8.2.3
+sphinx-autobuild==2024.10.3
+furo==2024.8.6
+myst-parser==4.0.1
+sphinx_design==0.6.1
+sphinx-copybutton==0.5.2
 linuxdoc==20240924
-sphinx-toolbox==3.4.0
+sphinx-toolbox==4.0.0
