@@ -24,7 +24,7 @@ crispy-bootstrap4==2025.6
 django-simple-history==3.10.1
 django-treebeard==4.7.1
 django-celery-beat==2.8.1
-django-redis==6.0.0   #TODO:
+django-redis==6.0.0
 django-filter==25.1
 django-pivot==1.10.0
 djangorestframework==3.16.0
@@ -33,8 +33,8 @@ django-cors-headers==4.7.0
 # Celery/ Redis
 amqp==5.3.1
 celery==5.5.3
-redis==4.3.4    #TODO:
-hiredis==2.0.0  #TODO:
+redis==6.2.0
+hiredis==3.2.1
 flower==2.0.1
 
 # Database

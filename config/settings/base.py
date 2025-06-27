@@ -3,6 +3,7 @@ Base settings to build other settings files upon.
 """
 
 import os
+import ssl
 from pathlib import Path
 
 import environ
@@ -219,6 +220,7 @@ TEMPLATES = [
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 
 FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)
 
@@ -279,11 +281,17 @@ CACHES = {
     }
 }
 
+REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
+REDIS_SSL = REDIS_URL.startswith("rediss://")
+
+
 # Celery
 if USE_TZ:
     CELERY_TIMEZONE = TIME_ZONE
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://redis:6379/0")
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=REDIS_URL)
+CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": ssl.CERT_NONE} if REDIS_SSL else None
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_REDIS_BACKEND_USE_SSL = CELERY_BROKER_USE_SSL
 CELERY_RESULT_EXTENDED = True
 CELERY_RESULT_BACKEND_ALWAYS_RETRY = True
 CELERY_RESULT_BACKEND_MAX_RETRIES = 5
@@ -300,6 +308,7 @@ CELERY_TASK_SOFT_TIME_LIMIT = 2700
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
 # Allauth
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", False)
