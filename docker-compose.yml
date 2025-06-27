@@ -64,7 +64,7 @@ services:
       - production_postgres_data_backups:/backups
 
   redis:
-    image: redis:8.0.2
+    image: redis:8
     container_name: va_explorer_redis
     volumes:
       - production_redis_data:/data

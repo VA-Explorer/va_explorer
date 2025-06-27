@@ -25,9 +25,9 @@ copyright = "2020-2025, MITRE Licensed under Apache 2.0"
 author = "MITRE <verbal-autopsy@mitre.org>"
 
 # The short X.Y version
-version = "1.2"
+version = "0.2"
 # The full version, including alpha/beta/rc tags
-release = "1.2.0"
+release = "0.2.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
