@@ -59,7 +59,7 @@ COPY --chown=django:django .env /app/.env
 COPY --chown=django:django config /app/config
 COPY --chown=django:django va_explorer /app/va_explorer
 
-RUN python /app/manage.py collectstatic --noinput
+RUN python /app/manage.py collectstatic --noinput --settings=config.settings.production
 
 USER django
 

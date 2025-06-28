@@ -6,13 +6,13 @@ authors = [{ name = "MITRE", email = "verbal-autopsy@mitre.org" }]
 maintainers = [{ name = "MITRE", email = "verbal-autopsy@mitre.org" }]
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
-keywords = ["verbal autopsy", "cause of death", "global health", "interva", "django"]
+keywords = ["verbal autopsy", "cause of death", "global health", "interva", "django", "mortality surveillance"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Handhelds/PDA's",
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: Apache Software License",
@@ -80,27 +80,3 @@ plugins = ["django_coverage_plugin"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-
-# [tool.mypy]
-# python_version = "3.10"
-# plugins = ["mypy_django_plugin.main"]
-# settings from https://quantlane.com/blog/type-checking-large-codebase/
-# check_untyped_defs = true
-# disallow_any_generics = true
-# disallow_incomplete_defs = true
-# disallow_subclassing_any = true
-# disallow_untyped_calls = false
-# disallow_untyped_decorators = false
-# disallow_untyped_defs = true
-# follow_imports = "silent"
-# ignore_missing_imports = true
-# no_implicit_optional = true
-# show_error_codes = true
-# warn_redundant_casts = true
-# warn_return_any = true
-# warn_unreachable = true
-# warn_unused_configs = true
-# warn_unused_ignores = true
-
-# [tool.django-stubs]
-# django_settings_module = "config.settings.test"
