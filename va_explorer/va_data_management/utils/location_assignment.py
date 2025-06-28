@@ -22,7 +22,7 @@ def assign_va_location(va, location_mapper=None, location_fields=None):
                 .only("name", "key")
                 .values_list("key", "name")
             )
-        db_location_name = location_mapper.get(raw_location, None)
+        db_location_name = location_mapper.get(raw_location)
         # if matching db location, retrieve it. Otherwise, record location as unknown
         if db_location_name:
             # TODO: make this more generic to other location hierarchies

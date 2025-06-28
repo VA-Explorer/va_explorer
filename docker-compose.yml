@@ -26,7 +26,7 @@ services:
     platform: linux/x86_64
     container_name: va_explorer_django
     depends_on:
-      - postgres
+      - vapostgres
       - redis
     environment:
       EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
@@ -48,7 +48,7 @@ services:
       - "5000:5000"
     command: /start
 
-  postgres:
+  vapostgres:
     build:
       context: .
       dockerfile: ./compose/postgres/Dockerfile
