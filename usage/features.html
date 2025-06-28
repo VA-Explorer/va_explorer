@@ -1,18 +1,18 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Integrations" href="integrations.html" /><link rel="prev" title="Tips &amp; Best Practices" href="getting_started/tips.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
         <title>Features - VA Explorer Docs</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/tweaks.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/tweaks.css?v=37ef2255" />
     
     
 
@@ -71,7 +71,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -86,22 +86,63 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
@@ -114,6 +155,8 @@
 <label class="overlay toc-overlay" for="__toc">
   <div class="visually-hidden">Hide table of contents sidebar</div>
 </label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -132,7 +175,8 @@
       <div class="theme-toggle-container theme-toggle-header">
         <button class="theme-toggle">
           <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
@@ -163,7 +207,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="getting_started/index.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="getting_started/index.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Getting Started</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="getting_started/installation.html">Installation &amp; Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started/config.html">Configuration &amp; Deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started/tips.html">Tips &amp; Best Practices</a></li>
@@ -174,7 +218,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../training/general/index.html">General Information</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../training/general/index.html">General Information</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of General Information</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../training/general/roles.html">User Roles &amp; Capabilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../training/general/common_actions.html">Common Actions</a></li>
 </ul>
@@ -211,11 +255,17 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/usage/features.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
 <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
@@ -225,9 +275,9 @@
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="features">
-<h1>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h1>
+<h1>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h1>
 <p>VA Explorer is an open-source web application built to help individuals and
 organizations manage, analyze, and disseminate <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s while integrating with
 existing <a class="reference internal" href="../reference.html#term-CRVS"><span class="xref std std-term">CRVS</span></a> systems at scale, simplifying the use of <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s for
@@ -255,11 +305,12 @@ Information on potential levels of support that may be required to run a tool
 like VA Explorer is also available via our <a class="reference internal" href="../training/it_guides.html"><span class="doc std std-doc">IT Support Guides</span></a>
 training series.</p>
 <section id="tablet-friendly-interface">
-<h2>Tablet Friendly Interface<a class="headerlink" href="#tablet-friendly-interface" title="Permalink to this heading">#</a></h2>
+<h2>Tablet Friendly Interface<a class="headerlink" href="#tablet-friendly-interface" title="Link to this heading">¶</a></h2>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/tablet_friendly.png"><img alt="Picture of VA Explorer, comfortably visible on an iPad" src="../_images/tablet_friendly.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../_images/tablet_friendly.png"><img alt="Picture of VA Explorer, comfortably visible on an iPad" src="../_images/tablet_friendly.png" style="width: 50%;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Picture of VA Explorer, comfortably visible on an iPad</small></span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Picture of VA Explorer, comfortably visible on an iPad</small></span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>VA Explorer needs to support users on desktops and mobile devices. This support
@@ -269,21 +320,23 @@ to display comfortably at iPad resolution minimums (1024px x 768px) and scale
 easily to larger devices.</p>
 </section>
 <section id="user-identity-access-management">
-<h2>User Identity &amp; Access Management<a class="headerlink" href="#user-identity-access-management" title="Permalink to this heading">#</a></h2>
+<h2>User Identity &amp; Access Management<a class="headerlink" href="#user-identity-access-management" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper img-sidebyside borderless docutils container">
 <table class="img-sidebyside borderless docutils align-default">
 <tbody>
 <tr class="row-odd"><td><figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/user_iam_1.png"><img alt="VA Explorer's Users module, showing a list of users" src="../_images/user_iam_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/user_iam_1.png"><img alt="VA Explorer's Users module, showing a list of users" src="../_images/user_iam_1.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Users module: A list of users</small></span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Users module: A list of users</small></span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
 <td><figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/user_iam_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/user_iam_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/user_iam_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/user_iam_2.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -301,21 +354,23 @@ like:</p>
 </ul>
 </section>
 <section id="va-data-import">
-<h2>VA Data Import<a class="headerlink" href="#va-data-import" title="Permalink to this heading">#</a></h2>
+<h2>VA Data Import<a class="headerlink" href="#va-data-import" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper img-sidebyside borderless docutils container">
 <table class="img-sidebyside borderless docutils align-default">
 <tbody>
 <tr class="row-odd"><td><figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/import_1.png"><img alt="VA Explorer's homepage, showing imported VAs &amp; their statuses over time" src="../_images/import_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/import_1.png"><img alt="VA Explorer's homepage, showing imported VAs &amp; their statuses over time" src="../_images/import_1.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Homepage charts showing imported VAs + statuses over time</small></span><a class="headerlink" href="#id4" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Homepage charts showing imported VAs + statuses over time</small></span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
 <td><figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/import_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/import_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/import_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/import_2.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id5" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -335,21 +390,22 @@ the VA Explorer UI will detect whether you are using <a class="reference interna
 general <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> import and react accordingly.</p></li>
 <li><p><strong>(Manual) Import from CSV:</strong> This format allows the most flexibility: if your <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s
 can be exported from their origin in <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> form, you can import them into VA
-Explorer. See <a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-doc">Admin Guides &gt; Data Admin</span></a>
+Explorer. See <a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-ref">Admin Guides &gt; Data Admin</span></a>
 training for specifics on how.</p></li>
 <li><p><strong>(Manual) Import from ODK:</strong> This format implements manual support for <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a>
 integration: bring your <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s directly over from <a class="reference internal" href="../reference.html#term-ODK"><span class="xref std std-term">ODK</span></a> like clicking the
 data import button, but with more customization about how and when. See
-<a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-doc">Admin Guides &gt; Data Admin</span></a> training for
+<a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-ref">Admin Guides &gt; Data Admin</span></a> training for
 specifics on how.</p></li>
 </ul>
 </section>
 <section id="data-collection-supervision">
-<h2>Data Collection Supervision<a class="headerlink" href="#data-collection-supervision" title="Permalink to this heading">#</a></h2>
+<h2>Data Collection Supervision<a class="headerlink" href="#data-collection-supervision" title="Link to this heading">¶</a></h2>
 <figure class="align-default" id="id6">
-<a class="reference internal image-reference" href="../_images/supervision.png"><img alt="VA Explorer's Supervision module, showing an VA statistics grouped by facility" src="../_images/supervision.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../_images/supervision.png"><img alt="VA Explorer's Supervision module, showing an VA statistics grouped by facility" src="../_images/supervision.png" style="width: 50%;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Supervision module: VA stats grouped by facility</small></span><a class="headerlink" href="#id6" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Supervision module: VA stats grouped by facility</small></span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>VA Explorer allows admins and data managers to supervise the origins of collected
@@ -366,21 +422,23 @@ insights</p></li>
 </ul>
 </section>
 <section id="processing-analyzing-of-cause-of-death-data">
-<h2>Processing &amp; Analyzing of Cause of Death Data<a class="headerlink" href="#processing-analyzing-of-cause-of-death-data" title="Permalink to this heading">#</a></h2>
+<h2>Processing &amp; Analyzing of Cause of Death Data<a class="headerlink" href="#processing-analyzing-of-cause-of-death-data" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper img-sidebyside borderless docutils container">
 <table class="img-sidebyside borderless docutils align-default">
 <tbody>
 <tr class="row-odd"><td><figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/analysis_1.png"><img alt="VA Explorer's homepage, showing imported VAs &amp; their statuses over time" src="../_images/analysis_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/analysis_1.png"><img alt="VA Explorer's homepage, showing imported VAs &amp; their statuses over time" src="../_images/analysis_1.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Homepage charts showing imported VAs + statuses over time</small></span><a class="headerlink" href="#id7" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Homepage charts showing imported VAs + statuses over time</small></span><a class="headerlink" href="#id7" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
 <td><figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/analysis_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/analysis_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/analysis_2.png"><img alt="VA Explorer's Users module, showing an individual user edit form" src="../_images/analysis_2.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id8" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Users module: An individual user edit form</small></span><a class="headerlink" href="#id8" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -401,7 +459,7 @@ cause of death assignment on each or report any warnings/errors associated with
 <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s that cannot receive <a class="reference internal" href="../reference.html#term-COD"><span class="xref std std-term">CoD</span></a> assignment.</p></li>
 <li><p><strong>(Manual) Run Coding Algorithms:</strong> This format implements manual support for
 InterVA5 integration: directly control the <a class="reference internal" href="../reference.html#term-COD"><span class="xref std std-term">CoD</span></a> assignment process for your <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s
-via management command. See <a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-doc">Admin Guides &gt; Data Admin</span></a>
+via management command. See <a class="reference internal" href="../training/admin_guides.html#data-admin"><span class="std std-ref">Admin Guides &gt; Data Admin</span></a>
 training for specifics on how.</p></li>
 </ul>
 <p>Additionally, VA Explorer provides a dashboard of summary information,
@@ -421,21 +479,23 @@ geography</p></li>
 </ul>
 </section>
 <section id="working-with-va-questionnaires">
-<h2>Working with VA Questionnaires<a class="headerlink" href="#working-with-va-questionnaires" title="Permalink to this heading">#</a></h2>
+<h2>Working with VA Questionnaires<a class="headerlink" href="#working-with-va-questionnaires" title="Link to this heading">¶</a></h2>
 <div class="table-wrapper img-sidebyside borderless docutils container">
 <table class="img-sidebyside borderless docutils align-default">
 <tbody>
 <tr class="row-odd"><td><figure class="align-default" id="id9">
-<a class="reference internal image-reference" href="../_images/questionnaire_1.png"><img alt="Picture of an individual VA, showing responses" src="../_images/questionnaire_1.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/questionnaire_1.png"><img alt="Picture of an individual VA, showing responses" src="../_images/questionnaire_1.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Record view showing VA responses.</small></span><a class="headerlink" href="#id9" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Record view showing VA responses.</small></span><a class="headerlink" href="#id9" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
 <td><figure class="align-default" id="id10">
-<a class="reference internal image-reference" href="../_images/questionnaire_2.png"><img alt="Picture of an individual VA, showing identified warnings" src="../_images/questionnaire_2.png" style="width: 327.5px; height: 247.719px;" /></a>
+<a class="reference internal image-reference" href="../_images/questionnaire_2.png"><img alt="Picture of an individual VA, showing identified warnings" src="../_images/questionnaire_2.png" style="width: 327.500px; height: 247.719px;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>VA Issues tab, showing algorithm errors preventing coding</small></span><a class="headerlink" href="#id10" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>VA Issues tab, showing algorithm errors preventing coding</small></span><a class="headerlink" href="#id10" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -456,18 +516,19 @@ or those leading to an “Indeterminate” assignment by InterVA5.</p>
 </ul>
 </section>
 <section id="processed-data-export">
-<h2>Processed Data Export<a class="headerlink" href="#processed-data-export" title="Permalink to this heading">#</a></h2>
+<h2>Processed Data Export<a class="headerlink" href="#processed-data-export" title="Link to this heading">¶</a></h2>
 <figure class="align-default" id="id11">
-<a class="reference internal image-reference" href="../_images/export.png"><img alt="VA Explorer's Export module, showing an data export form" src="../_images/export.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../_images/export.png"><img alt="VA Explorer's Export module, showing an data export form" src="../_images/export.png" style="width: 50%;" />
+</a>
 <figcaption>
-<p><span class="caption-text"><small>Export module: options form for data export</small></span><a class="headerlink" href="#id11" title="Permalink to this image">#</a></p>
+<p><span class="caption-text"><small>Export module: options form for data export</small></span><a class="headerlink" href="#id11" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>Finally, when users would like to send the <a class="reference internal" href="../reference.html#term-VA"><span class="xref std std-term">VA</span></a>s processed by VA Explorer onto
 another step in their analysis, or just save a copy for themselves, VA Explorer
 supports data export in both <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> and <a class="reference internal" href="../reference.html#term-JSON"><span class="xref std std-term">JSON</span></a> formats. Additionally,
 if VA Explorer has been configured to integrate with <a class="reference internal" href="../reference.html#term-DHIS2"><span class="xref std std-term">DHIS2</span></a> then users
-can export their data directly to that service. See <a class="reference internal" href="integrations.html#dhis2"><span class="std std-doc">DHIS2</span></a>
+can export their data directly to that service. See <a class="reference internal" href="integrations.html#dhis2"><span class="std std-ref">DHIS2</span></a>
 for more info.</p>
 <ul class="simple">
 <li><p>Choose between <a class="reference internal" href="../reference.html#term-CSV"><span class="xref std std-term">CSV</span></a> and <a class="reference internal" href="../reference.html#term-JSON"><span class="xref std std-term">JSON</span></a> data download</p></li>
@@ -506,7 +567,7 @@ for more info.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2020-2023, MITRE Licensed under Apache 2.0
+                Copyright &#169; 2020-2025, MITRE Licensed under Apache 2.0
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -558,15 +619,12 @@ for more info.</p>
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+</div><script src="../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     </body>
 </html>

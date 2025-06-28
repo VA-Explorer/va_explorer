@@ -22,7 +22,7 @@ Once this process has finished, `EMAIL_URL` can similarly be customized to point
 to `localhost`.
 
 ```{note}
-If users are reporting non-receipt of emails, the [Frequently Asked Questions](training/troubleshooting.md#frequently-asked-questions)
+If users are reporting non-receipt of emails, the [Frequently Asked Questions](../../training/troubleshooting.md#frequently-asked-questions)
 section may help.
 ```
 
