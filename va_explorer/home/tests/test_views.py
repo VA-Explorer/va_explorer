@@ -20,7 +20,6 @@ pytestmark = pytest.mark.django_db
 eastern_tz = gettz("US/Eastern")
 
 
-# FIXME: Test breaks as a result of pandas 1.5 -> 2.0; find out how to fix
 # Hit the trends json endpoint and make sure the counts are correct
 # Use time machine to eliminate variation in retrieving today's date
 @time_machine.travel(dt.datetime(2021, 10, 26, 1, 24, tzinfo=eastern_tz))
