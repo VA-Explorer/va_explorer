@@ -4,9 +4,9 @@ from datetime import date, datetime
 
 import pytest
 import time_machine
-from dateutil.relativedelta import relativedelta
 from dateutil.tz import gettz
 from django.test import Client
+from pandas.tseries.offsets import DateOffset
 
 from va_explorer.tests.factories import (
     CauseCodingIssueFactory,
@@ -29,9 +29,9 @@ def test_trends(user: User):
     today = date.today()
 
     # Other interview dates
-    today_minus_one_month = datetime.now() - relativedelta(months=1)
-    today_minus_six_months = datetime.now() - relativedelta(months=6)
-    today_minus_one_year = datetime.now() - relativedelta(months=12)
+    today_minus_one_month = datetime.now() - DateOffset(months=1)
+    today_minus_six_months = datetime.now() - DateOffset(months=6)
+    today_minus_one_year = datetime.now() - DateOffset(months=12)
 
     # VAs collected today = 2
     coded_va = VerbalAutopsyFactory.create(Id10012=today, Id10023=today)

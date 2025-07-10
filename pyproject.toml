@@ -1,26 +1,26 @@
 [project]
 name = "va-explorer"
-version = "0.1.0"
+version = "0.2.0"
 description = "A full service VA management prototype webapp"
 authors = [{ name = "MITRE", email = "verbal-autopsy@mitre.org" }]
 maintainers = [{ name = "MITRE", email = "verbal-autopsy@mitre.org" }]
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 license = { file = "LICENSE" }
-keywords = ["verbal autopsy", "cause of death", "global health", "interva", "django"]
+keywords = ["verbal autopsy", "cause of death", "global health", "interva", "django", "mortality surveillance"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Handhelds/PDA's",
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 4.1",
+    "Framework :: Django :: 5.2",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: Unix",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
     "Topic :: Scientific/Engineering :: GIS",
@@ -54,7 +54,7 @@ extend-exclude = ["migrations"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py312']
 # Use force-exclude option due to way pre-commit parses files. See psf/black#438
 force-exclude = '''
 /(
@@ -80,27 +80,3 @@ plugins = ["django_coverage_plugin"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-
-# [tool.mypy]
-# python_version = "3.10"
-# plugins = ["mypy_django_plugin.main"]
-# settings from https://quantlane.com/blog/type-checking-large-codebase/
-# check_untyped_defs = true
-# disallow_any_generics = true
-# disallow_incomplete_defs = true
-# disallow_subclassing_any = true
-# disallow_untyped_calls = false
-# disallow_untyped_decorators = false
-# disallow_untyped_defs = true
-# follow_imports = "silent"
-# ignore_missing_imports = true
-# no_implicit_optional = true
-# show_error_codes = true
-# warn_redundant_casts = true
-# warn_return_any = true
-# warn_unreachable = true
-# warn_unused_configs = true
-# warn_unused_ignores = true
-
-# [tool.django-stubs]
-# django_settings_module = "config.settings.test"

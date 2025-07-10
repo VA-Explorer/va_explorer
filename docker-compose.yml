@@ -1,33 +1,32 @@
-version: '3'
-
 volumes:
   production_postgres_data: {}
   production_postgres_data_backups: {}
-  
+  production_redis_data: {}
+
 services:
+  # Support builds on Apple silicon via platform config
   pycrossva:
-    image: va_explorer/pycrossva
     build: https://github.com/VA-Explorer/pyCrossVA.git#microservice-experiment
+    platform: linux/x86_64
+    container_name: va_explorer_pycrossva
     ports:
       - "5001:80"
     
   interva5:
-    image: va_explorer/interva5
     build: https://github.com/VA-Explorer/InterVA5.git#microservice-experiment
+    platform: linux/x86_64
+    container_name: va_explorer_interva5
     ports:
       - "5002:5002"
 
-  redis:
-    image: redis:5.0
-
   django: &django
-    image: va_explorer/django
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
-    ports:
-      - "5000:5000"
+    platform: linux/x86_64
+    container_name: va_explorer_django
     depends_on:
+      - vapostgres
       - redis
     environment:
       EMAIL_URL: ${EMAIL_URL:-smtp://localhost:25}
@@ -45,35 +44,15 @@ services:
       DJANGO_DEFAULT_FROM_EMAIL: ${DJANGO_DEFAULT_FROM_EMAIL:-VA Explorer <noreply@vaexplorer.org>} 
       PYCROSS_HOST: ${PYCROSS_HOST:-http://pycrossva:80}
       INTERVA_HOST: ${INTERVA_HOST:-http://interva5:5002}
+    ports:
+      - "5000:5000"
     command: /start
 
-  celeryworker:
-    <<: *django
-    # Don't publish ports like django does.
-    ports: []
-    image: va_explorer/celeryworker
-    command: /start-celeryworker
-
-  celerybeat:
-    <<: *django
-    # Don't publish ports like django does.
-    ports: []
-    image: va_explorer/celerybeat
-    command: /start-celerybeat
-
-  flower:
-    <<: *django
-    # Don't publish ports like django does.
-    ports:
-      - "5555:5555"
-    image: va_explorer/flower
-    command: /start-celeryflower
-
   vapostgres:
-    image: va_explorer/postgres
     build:
       context: .
       dockerfile: ./compose/postgres/Dockerfile
+    container_name: va_explorer_postgres
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
@@ -83,3 +62,33 @@ services:
     volumes:
       - production_postgres_data:/var/lib/postgresql/data
       - production_postgres_data_backups:/backups
+
+  redis:
+    image: redis:8
+    container_name: va_explorer_redis
+    volumes:
+      - production_redis_data:/data
+
+  celeryworker:
+    <<: *django
+    container_name: va_explorer_celeryworker
+    depends_on:
+      - redis
+    ports: []
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    container_name: va_explorer_celerybeat
+    depends_on:
+      - redis
+    ports: []
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    container_name: va_explorer_flower
+    ports:
+      - "5555:5555"
+    command: /start-celeryflower
+

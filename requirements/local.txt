@@ -2,17 +2,15 @@
 
 # Testing/ Linting
 # ensure parity w/ version in .pre-commit-config.yaml
-ruff==0.11.12   
-# black==25.1.0   # not available for python3.8
+ruff==0.12.1
+black==25.1.0
 # ---
-pytest==7.2.0
-pytest-django==4.5.2
-# mypy==0.991
-# django-stubs==1.13.1
-coverage==7.0.1
-django-coverage-plugin==3.0.0
-factory-boy==3.2.1
-selenium==4.13.0
-requests-mock==1.10.0
-pre-commit==2.20.0
-time-machine==2.8.2
+pytest==8.4.1
+pytest-django==4.11.1
+coverage==7.9.1
+django-coverage-plugin==3.1.1
+factory-boy==3.3.3
+selenium==4.33.0
+requests-mock==1.12.1
+pre-commit==4.2.0
+time-machine==2.16.0

@@ -24,6 +24,7 @@ class PermissionFactory(DjangoModelFactory):
 class GroupFactory(DjangoModelFactory):
     class Meta:
         model = models.Group
+        skip_postgeneration_save = True
 
     name = Sequence(lambda n: f"Group #{n}")
 
@@ -33,10 +34,11 @@ class GroupFactory(DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted:
+        if create and extracted:
             # A list of groups were passed in, use them
             for permission in extracted:
                 self.permissions.add(permission)
+            self.save()
 
 
 class LocationFactory(DjangoModelFactory):
@@ -87,6 +89,7 @@ class CauseOfDeathFactory(DjangoModelFactory):
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
+        skip_postgeneration_save = True
 
     email = Faker("email")
     name = Faker("name")
@@ -99,10 +102,11 @@ class UserFactory(DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted:
+        if create and extracted:
             # A list of groups were passed in, use them
             for group in extracted:
                 self.groups.add(group)
+            self.save()
 
     @factory.post_generation
     def location_restrictions(self, create, extracted, *kwargs):
@@ -110,10 +114,11 @@ class UserFactory(DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted:
+        if create and extracted:
             # A list of locations were passed in, use them
             for location in extracted:
                 self.location_restrictions.add(location)
+            self.save()
 
 
 class NewUserFactory(UserFactory):

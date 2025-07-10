@@ -28,7 +28,7 @@ connect it to the necessary containers like so:
 ```sh
 docker network create <external network name>
 docker network connect <external network name> va_explorer_django_1
-docker network connect <external network name> <other service's container name>
+docker network connect <external network name> <other service container names>
 ```
 
 VA Explorer provides some additional network configuration to enable use of this
