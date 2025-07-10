@@ -1,13 +1,12 @@
 import datetime as dt
 import json
-
 from datetime import date, datetime
-import pytest
 
+import pytest
 import time_machine
-from pandas.tseries.offsets import DateOffset
 from dateutil.tz import gettz
 from django.test import Client
+from pandas.tseries.offsets import DateOffset
 
 from va_explorer.tests.factories import (
     CauseCodingIssueFactory,
@@ -28,7 +27,6 @@ def test_trends(user: User):
     client.force_login(user=user)
 
     today = date.today()
-
 
     # Other interview dates
     today_minus_one_month = datetime.now() - DateOffset(months=1)
@@ -57,7 +55,6 @@ def test_trends(user: User):
 
     json_data = json.loads(response.content)
     va_table_data = json_data["vaTable"]
-    print(va_table_data)
 
     # Check that trends counts are correct
     assert va_table_data["collected"]["24"] == 2

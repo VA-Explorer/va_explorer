@@ -55,7 +55,9 @@ def to_dt(dates, utc=True):
     if isinstance(dates, list):
         dates = pd.Series(dates)
     return pd.to_datetime(
-        pd.to_datetime(dates, errors="coerce", utc=utc, format="mixed").dt.date, format="mixed", errors="coerce"
+        pd.to_datetime(dates, errors="coerce", utc=utc, format="mixed").dt.date,
+        format="mixed",
+        errors="coerce",
     )
 
 
